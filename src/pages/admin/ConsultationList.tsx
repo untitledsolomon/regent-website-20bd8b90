@@ -81,7 +81,7 @@ export default function ConsultationList() {
 
   if (loading) {
     return (
-      <div className="p-8 lg:p-10">
+      <div className="p-4 sm:p-6 lg:p-10">
         <div className="h-10 w-64 bg-card border border-border rounded-lg animate-pulse mb-8" />
         <div className="space-y-3">
           {[1, 2, 3].map(i => <div key={i} className="h-20 bg-card border border-border rounded-xl animate-pulse" />)}
@@ -91,18 +91,18 @@ export default function ConsultationList() {
   }
 
   return (
-    <div className="p-8 lg:p-10">
-      <div className="flex items-center justify-between mb-8">
+    <div className="p-4 sm:p-6 lg:p-10">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 sm:mb-8">
         <div>
-          <h1 className="font-heading text-2xl font-semibold tracking-[-0.03em] text-text-primary flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-orange-100 flex items-center justify-center">
-              <MessageSquare size={20} className="text-orange-600" />
+          <h1 className="font-heading text-xl sm:text-2xl font-semibold tracking-[-0.03em] text-text-primary flex items-center gap-3">
+            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-orange-100 flex items-center justify-center">
+              <MessageSquare size={18} className="text-orange-600 sm:w-5 sm:h-5" />
             </div>
             Inquiries
           </h1>
-          <p className="text-sm text-text-muted mt-1">{items.length} consultation request{items.length !== 1 ? "s" : ""}</p>
+          <p className="text-xs sm:text-sm text-text-muted mt-1">{items.length} consultation request{items.length !== 1 ? "s" : ""}</p>
         </div>
-        <button onClick={exportCSV} disabled={filtered.length === 0} className="flex items-center gap-2 h-9 px-4 bg-card border border-border text-text-secondary text-sm rounded-lg hover:bg-surface transition-colors disabled:opacity-50">
+        <button onClick={exportCSV} disabled={filtered.length === 0} className="flex items-center justify-center gap-2 h-9 px-4 bg-card border border-border text-text-secondary text-sm rounded-lg hover:bg-surface transition-colors disabled:opacity-50 w-full sm:w-auto">
           <Download size={15} /> Export CSV
         </button>
       </div>
@@ -114,48 +114,48 @@ export default function ConsultationList() {
       </div>
 
       {filtered.length === 0 ? (
-        <div className="bg-card border border-border rounded-2xl p-12 text-center">
-          <div className="w-16 h-16 rounded-2xl bg-orange-50 flex items-center justify-center mx-auto mb-4">
-            <MessageSquare size={28} className="text-orange-400" />
+        <div className="bg-card border border-border rounded-xl sm:rounded-2xl p-8 sm:p-12 text-center">
+          <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl bg-orange-50 flex items-center justify-center mx-auto mb-3 sm:mb-4">
+            <MessageSquare size={24} className="text-orange-400 sm:w-7 sm:h-7" />
           </div>
-          <h3 className="font-heading text-lg font-semibold text-text-primary mb-1">
+          <h3 className="font-heading text-base sm:text-lg font-semibold text-text-primary mb-1">
             {search ? "No matching inquiries" : "No inquiries yet"}
           </h3>
-          <p className="text-sm text-text-muted">
+          <p className="text-xs sm:text-sm text-text-muted">
             {search ? "Try a different search term." : "Consultation requests from the demo form will appear here."}
           </p>
         </div>
       ) : (
-        <div className="bg-card border border-border rounded-2xl overflow-hidden divide-y divide-border">
+        <div className="bg-card border border-border rounded-xl sm:rounded-2xl overflow-hidden divide-y divide-border">
           {filtered.map(item => (
             <div
               key={item.id}
               onClick={() => navigate(`/admin/inquiries/${item.id}`)}
-              className="px-6 py-5 hover:bg-surface/50 transition-colors cursor-pointer"
+              className="px-4 sm:px-6 py-4 sm:py-5 hover:bg-surface/50 transition-colors cursor-pointer"
             >
-              <div className="flex items-start justify-between gap-4">
+              <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 sm:gap-4">
                 <div className="min-w-0 flex-1">
-                  <div className="flex items-center gap-3 mb-1.5">
+                  <div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-1.5">
                     <span className="text-sm font-semibold text-text-primary">{item.name}</span>
                     <span className="flex items-center gap-1 text-xs text-text-muted">
                       <Building2 size={12} /> {item.company}
                     </span>
-                    <span className={`text-[11px] font-semibold px-2 py-0.5 rounded-full ${statusColors[item.status]}`}>
+                    <span className={`text-[10px] sm:text-[11px] font-semibold px-2 py-0.5 rounded-full ${statusColors[item.status]}`}>
                       {item.status}
                     </span>
                   </div>
-                  <div className="flex items-center gap-3 text-xs text-text-muted mb-2">
-                    <span className="flex items-center gap-1"><Mail size={12} /> {item.email}</span>
-                    {item.industry && <span className="px-2 py-0.5 rounded-full bg-primary/10 text-primary font-medium">{item.industry}</span>}
-                    {item.budget && <span className="px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-600 font-medium">{item.budget}</span>}
+                  <div className="flex flex-wrap items-center gap-2 sm:gap-3 text-xs text-text-muted mb-2">
+                    <span className="flex items-center gap-1"><Mail size={12} /> <span className="truncate max-w-[180px] sm:max-w-none">{item.email}</span></span>
+                    {item.industry && <span className="px-2 py-0.5 rounded-full bg-primary/10 text-primary font-medium hidden sm:inline">{item.industry}</span>}
+                    {item.budget && <span className="px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-600 font-medium hidden sm:inline">{item.budget}</span>}
                   </div>
-                  {item.message && <p className="text-sm text-text-secondary line-clamp-1">{item.message}</p>}
+                  {item.message && <p className="text-xs sm:text-sm text-text-secondary line-clamp-1">{item.message}</p>}
                   <p className="text-xs text-text-muted mt-2">{formatDistanceToNow(new Date(item.created_at), { addSuffix: true })}</p>
                 </div>
                 <button
                   onClick={(e) => handleDelete(e, item.id)}
                   disabled={deleting === item.id}
-                  className="shrink-0 w-9 h-9 flex items-center justify-center rounded-lg text-text-muted hover:bg-destructive/10 hover:text-destructive transition-colors disabled:opacity-50"
+                  className="shrink-0 w-9 h-9 flex items-center justify-center rounded-lg text-text-muted hover:bg-destructive/10 hover:text-destructive transition-colors disabled:opacity-50 self-end sm:self-start"
                 >
                   <Trash2 size={16} />
                 </button>

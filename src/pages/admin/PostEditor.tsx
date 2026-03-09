@@ -107,43 +107,45 @@ export default function PostEditor() {
     <div className="min-h-screen flex flex-col">
       {/* Top bar */}
       <div className="sticky top-0 z-10 bg-card/80 backdrop-blur-md border-b border-border">
-        <div className="flex items-center justify-between px-8 h-14">
-          <div className="flex items-center gap-3">
+        <div className="flex items-center justify-between px-4 sm:px-8 h-14">
+          <div className="flex items-center gap-2 sm:gap-3">
             <Link to="/admin" className="w-8 h-8 rounded-lg border border-border flex items-center justify-center hover:bg-surface transition-colors">
               <ArrowLeft size={16} className="text-text-muted" />
             </Link>
-            <h1 className="font-heading text-base font-semibold text-text-primary">
+            <h1 className="font-heading text-sm sm:text-base font-semibold text-text-primary">
               {isEdit ? "Edit Post" : "New Post"}
             </h1>
           </div>
-          <div className="flex items-center gap-3">
-            <label className="flex items-center gap-2 text-sm text-text-secondary cursor-pointer select-none hover:text-text-primary transition-colors">
+          <div className="flex items-center gap-2 sm:gap-3">
+            <label className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm text-text-secondary cursor-pointer select-none hover:text-text-primary transition-colors">
               <input type="checkbox" checked={form.published} onChange={e => setForm(f => ({ ...f, published: e.target.checked }))} className="rounded border-border accent-primary" />
-              <Eye size={14} />
-              Published
+              <Eye size={14} className="hidden sm:inline" />
+              <span className="hidden sm:inline">Published</span>
+              <span className="sm:hidden">Live</span>
             </label>
             <button
               onClick={handleSave}
               disabled={loading}
-              className="h-9 px-5 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary/90 transition-all disabled:opacity-50 flex items-center gap-2 shadow-sm shadow-primary/20"
+              className="h-8 sm:h-9 px-3 sm:px-5 bg-primary text-primary-foreground rounded-lg text-xs sm:text-sm font-medium hover:bg-primary/90 transition-all disabled:opacity-50 flex items-center gap-1.5 sm:gap-2 shadow-sm shadow-primary/20"
             >
               <Save size={14} />
-              {loading ? "Saving..." : "Save"}
+              <span className="hidden sm:inline">{loading ? "Saving..." : "Save"}</span>
+              <span className="sm:hidden">{loading ? "..." : "Save"}</span>
             </button>
           </div>
         </div>
       </div>
 
       {/* Editor content */}
-      <div className="flex-1 px-8 py-8 w-full">
-        <div className="space-y-6">
+      <div className="flex-1 px-4 sm:px-8 py-6 sm:py-8 w-full">
+        <div className="space-y-5 sm:space-y-6">
           {/* Title — large input */}
           <div>
             <input
               value={form.title}
               onChange={e => handleTitleChange(e.target.value)}
               placeholder="Post title..."
-              className="w-full text-2xl lg:text-3xl font-heading font-semibold tracking-[-0.03em] text-text-primary bg-transparent border-0 outline-none placeholder:text-text-muted/40"
+              className="w-full text-xl sm:text-2xl lg:text-3xl font-heading font-semibold tracking-[-0.03em] text-text-primary bg-transparent border-0 outline-none placeholder:text-text-muted/40"
             />
             <div className="flex items-center gap-2 mt-2">
               <span className="text-xs text-text-muted font-mono">/blog/</span>
@@ -163,7 +165,7 @@ export default function PostEditor() {
             <label className="block text-xs font-medium uppercase tracking-wider text-text-muted mb-2">Cover Image</label>
             {form.image_url ? (
               <div className="relative rounded-xl overflow-hidden border border-border group">
-                <img src={form.image_url} alt="Cover" className="w-full h-48 object-cover" />
+                <img src={form.image_url} alt="Cover" className="w-full h-36 sm:h-48 object-cover" />
                 <div className="absolute inset-0 bg-foreground/0 group-hover:bg-foreground/20 transition-colors duration-200" />
                 <button
                   onClick={() => setForm(f => ({ ...f, image_url: null }))}
@@ -177,20 +179,20 @@ export default function PostEditor() {
                 onDragOver={e => { e.preventDefault(); setDragOver(true); }}
                 onDragLeave={() => setDragOver(false)}
                 onDrop={handleDrop}
-                className={`border-2 border-dashed rounded-xl p-8 text-center transition-all duration-200 cursor-pointer ${
+                className={`border-2 border-dashed rounded-xl p-6 sm:p-8 text-center transition-all duration-200 cursor-pointer ${
                   dragOver ? "border-primary bg-primary/5" : "border-border hover:border-primary/30 hover:bg-surface"
                 }`}
                 onClick={() => document.getElementById("cover-upload")?.click()}
               >
                 <input id="cover-upload" type="file" accept="image/*" onChange={handleImageUpload} className="hidden" />
-                <div className="w-12 h-12 rounded-xl bg-surface border border-border flex items-center justify-center mx-auto mb-3">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-surface border border-border flex items-center justify-center mx-auto mb-2 sm:mb-3">
                   {uploading ? (
                     <div className="w-5 h-5 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
                   ) : (
-                    <ImageIcon size={20} className="text-text-muted" />
+                    <ImageIcon size={18} className="text-text-muted sm:w-5 sm:h-5" />
                   )}
                 </div>
-                <p className="text-sm font-medium text-text-secondary">
+                <p className="text-xs sm:text-sm font-medium text-text-secondary">
                   {uploading ? "Uploading..." : "Drop image here or click to upload"}
                 </p>
                 <p className="text-xs text-text-muted mt-1">PNG, JPG up to 5MB</p>
@@ -200,9 +202,9 @@ export default function PostEditor() {
 
           {/* Meta fields */}
           <div>
-            <label className="block text-xs font-medium uppercase tracking-wider text-text-muted mb-3">Post Details</label>
-            <div className="bg-card border border-border rounded-xl p-5 space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+            <label className="block text-xs font-medium uppercase tracking-wider text-text-muted mb-2 sm:mb-3">Post Details</label>
+            <div className="bg-card border border-border rounded-xl p-4 sm:p-5 space-y-3 sm:space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 <div>
                   <label className="block text-sm font-medium text-text-primary mb-1.5">Category</label>
                   <input value={form.category} onChange={e => setForm(f => ({ ...f, category: e.target.value }))} className={inputClass} placeholder="e.g. AI, Technology" />
@@ -212,7 +214,7 @@ export default function PostEditor() {
                   <input value={form.read_time} onChange={e => setForm(f => ({ ...f, read_time: e.target.value }))} placeholder="e.g. 8 min" className={inputClass} />
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 <div>
                   <label className="block text-sm font-medium text-text-primary mb-1.5">Author</label>
                   <input value={form.author} onChange={e => setForm(f => ({ ...f, author: e.target.value }))} className={inputClass} />
