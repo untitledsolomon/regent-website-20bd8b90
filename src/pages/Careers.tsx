@@ -134,7 +134,7 @@ export default function CareersPage() {
                       exit={{ opacity: 0, y: -8 }}
                       transition={{ duration: 0.25 }}
                     >
-                      <Link to="/demo">
+                      <Link to={`/careers/apply/${job.id}`}>
                         <motion.div
                           whileHover={{ x: 4 }}
                           className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border border-border rounded-xl p-6 bg-card hover:border-border-strong transition-colors cursor-pointer"
@@ -204,10 +204,10 @@ export default function CareersPage() {
             <div className="mt-16 text-center">
               <p className="text-text-secondary mb-6">Don't see a role that fits? We're always looking for exceptional people.</p>
               <Link
-                to="/demo"
+                to="/careers/apply/general"
                 className="font-heading text-[15px] font-medium bg-primary text-primary-foreground rounded-lg px-7 py-3.5 inline-flex items-center gap-2 hover:bg-primary/90 transition-all"
               >
-                Get in Touch <Icons.ArrowRight />
+                Send Us Your Resume <Icons.ArrowRight />
               </Link>
             </div>
           </RevealOnScroll>
