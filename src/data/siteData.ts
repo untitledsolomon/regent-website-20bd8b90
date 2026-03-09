@@ -224,11 +224,11 @@ export const modules: Module[] = [
 ];
 
 export const industries: Industry[] = [
-  { icon: 'BarChart', name: 'Finance', desc: 'Integrate trading systems, risk platforms, and regulatory reporting infrastructure. Enable real-time data flows across complex financial system architectures.' },
-  { icon: 'Building', name: 'Government', desc: 'Deploy mission-critical integration infrastructure for government agencies. Connect legacy systems with modern platforms while maintaining security and compliance.' },
-  { icon: 'Globe', name: 'Infrastructure', desc: 'Operational technology integration for critical infrastructure. Connect operational systems with enterprise platforms and monitoring infrastructure.' },
-  { icon: 'Zap', name: 'Enterprise', desc: 'End-to-end enterprise platform integration across ERP, CRM, HRMS, and custom systems. Eliminate data silos and enable unified operational intelligence.' },
-  { icon: 'Monitor', name: 'Energy', desc: 'Integrate SCADA systems, asset management platforms, and market data feeds into unified operational architectures for energy companies.' },
+  { icon: 'BarChart', name: 'Finance', desc: 'We integrate trading systems, risk platforms, and regulatory reporting infrastructure — enabling real-time data flows across the most complex financial architectures.' },
+  { icon: 'Building', name: 'Government', desc: 'We deliver mission-critical integration engineering for government agencies, connecting legacy systems with modern services while maintaining security and compliance.' },
+  { icon: 'Globe', name: 'Infrastructure', desc: 'We build operational technology integration for critical infrastructure operators — connecting OT systems with enterprise platforms and monitoring infrastructure.' },
+  { icon: 'Zap', name: 'Enterprise', desc: 'We deliver end-to-end enterprise integration across ERP, CRM, HRMS, and custom systems — eliminating data silos and enabling unified operational intelligence.' },
+  { icon: 'Monitor', name: 'Energy', desc: 'We integrate SCADA systems, asset management platforms, and market data feeds into unified operational architectures for energy companies.' },
 ];
 
 export const blogPosts: BlogPost[] = [
@@ -283,39 +283,39 @@ export const team: TeamMember[] = [
 export const detailedCapabilities = [
   {
     icon: 'Integration' as IconName, title: 'Systems Integration', tag: '01',
-    desc: 'Connect any system—regardless of age, protocol, or vendor—into a unified integration layer.',
-    points: ['180+ pre-built connectors for enterprise platforms', 'Custom connector SDK for proprietary systems', 'REST, GraphQL, gRPC, SOAP, and event-driven support', 'Real-time and batch synchronization modes', 'Transformation and mapping engine with visual tooling'],
+    desc: 'We connect any system — regardless of age, protocol, or vendor — into a unified integration layer tailored to your organization.',
+    points: ['Custom connector engineering for any enterprise system', 'Full protocol support: REST, GraphQL, gRPC, SOAP, event-driven', 'Real-time and batch synchronization architectures', 'Data transformation and mapping designed for your data model', 'Ongoing connector maintenance and evolution'],
   },
   {
     icon: 'Database' as IconName, title: 'Data Infrastructure', tag: '02',
-    desc: 'Enterprise-grade data infrastructure for storage, streaming, transformation, and delivery.',
-    points: ['Managed data pipelines with guaranteed delivery', 'Real-time streaming for event-driven architectures', 'Data quality monitoring and anomaly detection', 'Schema registry and governance tooling', 'Native connectors to major data warehouses'],
+    desc: 'We architect and deploy enterprise-grade data infrastructure — from ingestion pipelines to warehousing and real-time delivery.',
+    points: ['Custom data pipeline engineering with guaranteed delivery', 'Real-time streaming architectures for event-driven operations', 'Data quality monitoring and anomaly detection frameworks', 'Schema governance and data lineage tooling', 'Integration with major data platforms and warehouses'],
   },
   {
     icon: 'Workflow' as IconName, title: 'Workflow Automation', tag: '03',
-    desc: 'Automate complex multi-system workflows with institutional-grade reliability guarantees.',
-    points: ['Visual workflow designer and code-first SDK', 'Conditional logic, branching, and error handling', 'Human-in-the-loop approval workflows', 'Complete audit trails for every execution', 'SLA monitoring and alerting'],
+    desc: 'We design and build complex multi-system workflows with institutional-grade reliability, audit trails, and error handling.',
+    points: ['Custom workflow design for cross-system processes', 'Conditional logic, branching, and sophisticated error handling', 'Human-in-the-loop approval and escalation workflows', 'Complete audit trails for compliance and governance', 'SLA monitoring and proactive alerting'],
   },
   {
     icon: 'Intelligence' as IconName, title: 'Intelligence Systems', tag: '04',
-    desc: 'Embed analytical and predictive capabilities directly into operational workflows.',
-    points: ['Operational AI for real-time decision support', 'Anomaly detection across integrated data streams', 'Predictive analytics for operational planning', 'Natural language query interface for operational data', 'Model versioning and deployment infrastructure'],
+    desc: 'We embed analytical and predictive capabilities directly into your operational workflows — turning data into actionable intelligence.',
+    points: ['Operational AI integration for real-time decision support', 'Anomaly detection across integrated data streams', 'Predictive analytics tailored to your operational context', 'Natural language interfaces for querying operational data', 'Model deployment and lifecycle management'],
   },
   {
     icon: 'Monitor' as IconName, title: 'Risk Monitoring', tag: '05',
-    desc: 'Real-time observability and risk monitoring across all integrated systems and workflows.',
-    points: ['Full-stack observability with distributed tracing', 'Configurable alerting and incident escalation', 'Operational health dashboards and reporting', 'SLA tracking and breach prediction', 'Integration health scoring and diagnostics'],
+    desc: 'We build real-time observability and risk monitoring solutions across all integrated systems and workflows.',
+    points: ['Full-stack observability with distributed tracing', 'Custom alerting and incident escalation workflows', 'Operational health dashboards and executive reporting', 'SLA tracking with predictive breach detection', 'Integration health scoring and diagnostics'],
   },
 ];
 
 export const industriesDetailed = industries.map((ind, i) => ({
   ...ind,
   detail: [
-    'Financial institutions operate some of the most complex system landscapes in the world. Trading platforms, risk systems, regulatory reporting infrastructure, and client management systems must all communicate in real time—with zero tolerance for data inconsistency.',
-    'Government agencies manage vast amounts of sensitive data across systems that range from modern cloud applications to decades-old mainframe infrastructure. Regent provides the integration architecture to connect these systems securely and reliably.',
-    'Critical infrastructure operators require integration architectures that can connect operational technology with enterprise systems—while maintaining the reliability and security standards that critical operations demand.',
-    'Large enterprises typically manage dozens of business applications from different vendors and generations of technology. Regent eliminates data silos and enables a unified operational view across the entire enterprise application landscape.',
-    'Energy companies operate at the intersection of operational technology and enterprise systems. Regent integrates SCADA systems, energy management platforms, and market data feeds into unified operational architectures.',
+    'Financial institutions operate some of the most complex system landscapes in the world. Our engineers integrate trading platforms, risk systems, regulatory reporting infrastructure, and client management systems into real-time operational architectures — with zero tolerance for data inconsistency.',
+    'Government agencies manage vast amounts of sensitive data across systems ranging from modern cloud applications to decades-old mainframe infrastructure. Regent delivers the integration engineering to connect these systems securely and reliably — without disrupting mission-critical services.',
+    'Critical infrastructure operators need integration architectures that connect operational technology with enterprise systems — while maintaining the reliability and security standards that critical operations demand. Our team builds exactly that.',
+    "Large enterprises typically manage dozens of business applications from different vendors and technology generations. Regent's consulting teams eliminate data silos and deliver a unified operational view across the entire enterprise application landscape.",
+    'Energy companies operate at the intersection of operational technology and enterprise systems. Our engineers integrate SCADA systems, energy management platforms, and market data feeds into unified operational architectures designed for resilience.',
   ][i],
   useCases: [
     ['Real-time trading system integration', 'Regulatory reporting automation', 'Risk data aggregation', 'Client data platform unification'],
