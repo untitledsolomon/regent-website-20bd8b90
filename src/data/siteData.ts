@@ -314,7 +314,7 @@ export const industriesDetailed = industries.map((ind, i) => ({
     'Financial institutions operate some of the most complex system landscapes in the world. Our engineers integrate trading platforms, risk systems, regulatory reporting infrastructure, and client management systems into real-time operational architectures — with zero tolerance for data inconsistency.',
     'Government agencies manage vast amounts of sensitive data across systems ranging from modern cloud applications to decades-old mainframe infrastructure. Regent delivers the integration engineering to connect these systems securely and reliably — without disrupting mission-critical services.',
     'Critical infrastructure operators need integration architectures that connect operational technology with enterprise systems — while maintaining the reliability and security standards that critical operations demand. Our team builds exactly that.',
-    'Large enterprises typically manage dozens of business applications from different vendors and technology generations. Regent's consulting teams eliminate data silos and deliver a unified operational view across the entire enterprise application landscape.',
+    "Large enterprises typically manage dozens of business applications from different vendors and technology generations. Regent's consulting teams eliminate data silos and deliver a unified operational view across the entire enterprise application landscape.",
     'Energy companies operate at the intersection of operational technology and enterprise systems. Our engineers integrate SCADA systems, energy management platforms, and market data feeds into unified operational architectures designed for resilience.',
   ][i],
   useCases: [
