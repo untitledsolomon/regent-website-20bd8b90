@@ -39,7 +39,7 @@ async function fetchCaseStudies(): Promise<CaseStudy[]> {
 }
 
 export default function CaseStudiesPage() {
-  const { data: caseStudies = [], isLoading } = useQuery({
+  const { data: caseStudies = [], isLoading, isError, refetch } = useQuery({
     queryKey: ["case_studies"],
     queryFn: fetchCaseStudies,
   });
@@ -85,6 +85,12 @@ export default function CaseStudiesPage() {
           {isLoading ? (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {[1, 2, 3, 4].map(i => <div key={i} className="h-64 bg-card border border-border rounded-2xl animate-pulse" />)}
+            </div>
+          ) : isError ? (
+            <div className="text-center py-20">
+              <h2 className="font-heading text-xl font-semibold text-text-primary mb-4">Unable to load case studies</h2>
+              <p className="text-text-secondary mb-6">Something went wrong. Please try again.</p>
+              <button onClick={() => refetch()} className="font-heading text-sm font-medium bg-primary text-primary-foreground rounded-lg px-6 py-3 hover:bg-primary/90 transition-all">Retry</button>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

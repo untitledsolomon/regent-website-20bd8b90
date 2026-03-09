@@ -18,20 +18,18 @@ interface Career {
 
 export default function CareersPage() {
   const [activeDept, setActiveDept] = useState("All");
-  const [careers, setCareers] = useState<Career[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    supabase
-      .from("careers")
-      .select("id, title, department, location, type")
-      .eq("published", true)
-      .order("created_at", { ascending: false })
-      .then(({ data }) => {
-        setCareers(data || []);
-        setLoading(false);
-      });
-  }, []);
+  const { data: careers = [], isLoading: loading, isError, refetch } = useQuery({
+    queryKey: ["careers"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("careers")
+        .select("id, title, department, location, type")
+        .eq("published", true)
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      return (data || []) as Career[];
+    },
+  });
 
   const departments = ["All", ...Array.from(new Set(careers.map(c => c.department).filter(Boolean)))];
   const filtered = activeDept === "All" ? careers : careers.filter(c => c.department === activeDept);
