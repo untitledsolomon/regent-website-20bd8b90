@@ -25,7 +25,7 @@ export default function BlogPage() {
   const [email, setEmail] = useState("");
   const { toast } = useToast();
 
-  const { data: posts = [], isLoading } = useQuery({
+  const { data: posts = [], isLoading, isError, refetch } = useQuery({
     queryKey: ["blog_posts"],
     queryFn: fetchBlogPosts,
   });
@@ -70,6 +70,23 @@ export default function BlogPage() {
         <section className="py-20">
           <div className="section-container grid grid-cols-1 md:grid-cols-3 gap-6">
             {[1, 2, 3].map(i => <div key={i} className="h-[320px] bg-card border border-border rounded-xl animate-pulse" />)}
+          </div>
+        </section>
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <div>
+        <PageMeta title="Blog — Regent" description="Ideas on systems, infrastructure, intelligence, and enterprise technology." />
+        <section className="pt-[140px] pb-[100px]">
+          <div className="section-container text-center">
+            <h1 className="font-heading text-2xl font-semibold text-text-primary mb-4">Unable to load articles</h1>
+            <p className="text-text-secondary mb-6">Something went wrong. Please try again.</p>
+            <button onClick={() => refetch()} className="font-heading text-sm font-medium bg-primary text-primary-foreground rounded-lg px-6 py-3 hover:bg-primary/90 transition-all">
+              Retry
+            </button>
           </div>
         </section>
       </div>
