@@ -67,6 +67,8 @@ export default function CaseStudyDetail() {
     enabled: !!slug,
   });
 
+  useTrackView("case_study", cs?.id);
+
   useEffect(() => {
     return scrollYProgress.on("change", setProgress);
   }, [scrollYProgress]);
