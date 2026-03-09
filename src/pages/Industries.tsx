@@ -12,14 +12,14 @@ const industryStats = [
   { label: "Industries Served", value: "12+" },
   { label: "Enterprise Clients", value: "400+" },
   { label: "Countries", value: "34" },
-  { label: "Systems Connected", value: "10,000+" },
+  { label: "Projects Delivered", value: "600+" },
 ];
 
 const crossIndustryBenefits = [
-  { title: "Regulatory Compliance", desc: "Built-in compliance frameworks for GDPR, SOX, HIPAA, PCI-DSS, and industry-specific regulations.", icon: "Shield" as const },
-  { title: "Legacy Modernization", desc: "Connect decades-old systems to modern platforms without migration risk or operational disruption.", icon: "Database" as const },
-  { title: "Real-Time Operations", desc: "Sub-second data synchronization across all connected systems for time-critical operational decisions.", icon: "Zap" as const },
-  { title: "Operational Intelligence", desc: "AI-powered insights that span system boundaries, revealing patterns invisible to siloed analytics.", icon: "Intelligence" as const },
+  { title: "Regulatory Compliance", desc: "We design and implement compliance-ready integration architectures for GDPR, SOX, HIPAA, PCI-DSS, and industry-specific regulations.", icon: "Shield" as const },
+  { title: "Legacy Modernization", desc: "Our engineers connect decades-old systems to modern platforms — without migration risk or operational disruption.", icon: "Database" as const },
+  { title: "Real-Time Operations", desc: "We build sub-second data synchronization across all connected systems for time-critical operational decisions.", icon: "Zap" as const },
+  { title: "Operational Intelligence", desc: "Our teams embed AI-powered insights that span system boundaries, revealing patterns invisible to siloed analytics.", icon: "Intelligence" as const },
 ];
 
 export default function IndustriesPage() {
@@ -38,10 +38,10 @@ export default function IndustriesPage() {
           >
             <div className="font-mono text-[11px] tracking-[0.12em] uppercase text-primary mb-4">INDUSTRIES</div>
             <h1 className="text-[clamp(36px,5vw,64px)] font-heading font-semibold tracking-[-0.04em] leading-[1.0] text-text-primary mb-6">
-              Built for organizations that <GradientText>cannot afford failure</GradientText>
+              Deep expertise in sectors that <GradientText>cannot afford failure</GradientText>
             </h1>
             <p className="text-[clamp(16px,2vw,20px)] font-light text-text-secondary leading-[1.65] max-w-[560px]">
-              Regent serves industries where operational complexity demands infrastructure that works—without exception.
+              Regent delivers integration consulting and engineering for industries where operational complexity demands expertise—not just technology.
             </p>
           </motion.div>
 

@@ -1,10 +1,11 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate, Outlet } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
-import { LayoutDashboard, FileText, BarChart3, FolderOpen, Mail, MessageSquare, Briefcase, LogOut, ExternalLink, ChevronRight, Menu, X, Settings, BookOpen } from "lucide-react";
+import { LayoutDashboard, FileText, BarChart3, FolderOpen, Mail, MessageSquare, Briefcase, LogOut, ExternalLink, ChevronRight, Menu, X, Settings, BookOpen, Activity } from "lucide-react";
 
 const contentNavItems = [
   { label: "Overview", path: "/admin", icon: LayoutDashboard, exact: true },
+  { label: "Analytics", path: "/admin/analytics", icon: Activity },
   { label: "Blog Posts", path: "/admin/posts", icon: FileText },
   { label: "Case Studies", path: "/admin/case-studies", icon: BarChart3 },
   { label: "Resources", path: "/admin/resources", icon: FolderOpen },
