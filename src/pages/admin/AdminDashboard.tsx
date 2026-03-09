@@ -190,6 +190,12 @@ export default function AdminDashboard() {
     return "Good evening";
   };
 
+  const contentTypeLabel: Record<string, string> = {
+    blog_post: "Blog Post",
+    case_study: "Case Study",
+    resource_download: "Download",
+  };
+
   const kpis = [
     {
       label: "Total Content",
@@ -198,6 +204,14 @@ export default function AdminDashboard() {
       icon: FileText,
       trend: publishRate > 50 ? "up" : "neutral",
       trendValue: `${publishRate}% live`,
+    },
+    {
+      label: "Total Views",
+      value: stats.totalViews,
+      sub: "all time",
+      icon: Eye,
+      trend: stats.totalViews > 0 ? "up" : "neutral",
+      trendValue: stats.topContent.length > 0 ? `${stats.topContent.length} tracked` : "no data",
     },
     {
       label: "New Inquiries",
@@ -214,14 +228,6 @@ export default function AdminDashboard() {
       icon: Mail,
       trend: "up",
       trendValue: "growing",
-    },
-    {
-      label: "Publish Rate",
-      value: `${publishRate}%`,
-      sub: "of content live",
-      icon: Activity,
-      trend: publishRate >= 70 ? "up" : publishRate >= 40 ? "neutral" : "down",
-      trendValue: publishRate >= 70 ? "healthy" : "needs attention",
     },
   ];
 
