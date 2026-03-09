@@ -138,15 +138,23 @@ export default function ResourcesPage() {
                   <div className="flex-shrink-0">
                     {featuredResource.file_url ? (
                       <button
-                        onClick={() => {
+                        onClick={async () => {
                           trackDownload(featuredResource.id);
-                          const a = document.createElement("a");
-                          a.href = featuredResource.file_url!;
-                          a.download = "";
-                          a.rel = "noopener noreferrer";
-                          document.body.appendChild(a);
-                          a.click();
-                          document.body.removeChild(a);
+                          const fileUrl = featuredResource.file_url!;
+                          try {
+                            const response = await fetch(fileUrl);
+                            const blob = await response.blob();
+                            const url = window.URL.createObjectURL(blob);
+                            const a = document.createElement("a");
+                            a.href = url;
+                            a.download = fileUrl.split("/").pop() || "download";
+                            document.body.appendChild(a);
+                            a.click();
+                            document.body.removeChild(a);
+                            window.URL.revokeObjectURL(url);
+                          } catch {
+                            window.open(fileUrl, "_blank", "noopener");
+                          }
                         }}
                         className="font-heading text-[15px] font-medium bg-primary text-primary-foreground rounded-lg px-7 py-3.5 inline-flex items-center gap-2 hover:shadow-[0_8px_24px_rgba(79,70,229,0.25)] transition-all"
                       >
