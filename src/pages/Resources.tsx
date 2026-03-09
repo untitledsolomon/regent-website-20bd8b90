@@ -32,7 +32,7 @@ async function fetchResources(): Promise<DbResource[]> {
 
 export default function ResourcesPage() {
   const [filter, setFilter] = useState("All");
-  const { data: resources = [], isLoading } = useQuery({
+  const { data: resources = [], isLoading, isError, refetch } = useQuery({
     queryKey: ["resources"],
     queryFn: fetchResources,
   });
@@ -53,6 +53,23 @@ export default function ResourcesPage() {
         <section className="py-20">
           <div className="section-container grid grid-cols-1 md:grid-cols-3 gap-6">
             {[1, 2, 3].map(i => <div key={i} className="h-[240px] bg-card border border-border rounded-xl animate-pulse" />)}
+          </div>
+        </section>
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <div>
+        <PageMeta title="Resources — Regent" description="Technical resources for enterprise architects." />
+        <section className="pt-[140px] pb-[100px]">
+          <div className="section-container text-center">
+            <h1 className="font-heading text-2xl font-semibold text-text-primary mb-4">Unable to load resources</h1>
+            <p className="text-text-secondary mb-6">Something went wrong. Please try again.</p>
+            <button onClick={() => refetch()} className="font-heading text-sm font-medium bg-primary text-primary-foreground rounded-lg px-6 py-3 hover:bg-primary/90 transition-all">
+              Retry
+            </button>
           </div>
         </section>
       </div>
