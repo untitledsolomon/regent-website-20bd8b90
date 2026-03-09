@@ -45,6 +45,7 @@ const CareerList = lazy(() => import("./pages/admin/CareerList"));
 const CareerEditor = lazy(() => import("./pages/admin/CareerEditor"));
 const AdminSettings = lazy(() => import("./pages/admin/AdminSettings"));
 const AdminDocumentation = lazy(() => import("./pages/admin/AdminDocumentation"));
+const AdminAnalytics = lazy(() => import("./pages/admin/AdminAnalytics"));
 const Unsubscribe = lazy(() => import("./pages/Unsubscribe"));
 
 const queryClient = new QueryClient();
@@ -122,6 +123,7 @@ function AdminRoutes() {
           }
         >
           <Route index element={<AdminDashboard />} />
+          <Route path="analytics" element={<AdminAnalytics />} />
           <Route path="posts" element={<PostList />} />
           <Route path="posts/new" element={<PostEditor />} />
           <Route path="posts/:id/edit" element={<PostEditor />} />
