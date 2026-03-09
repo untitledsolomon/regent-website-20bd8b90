@@ -1,166 +1,44 @@
 
-# Inquiry and Contact Form Enhancement Plan
 
-## Overview
-Based on user requirements, I'll enhance the consultation form system with admin status tracking and improved user experience through better validation, new fields, and a multi-step wizard interface.
+## Populate Content for Blog Posts, Resources, and Case Studies
 
-## 1. Database Schema Updates
+### Overview
+Insert meaningful, industry-relevant content into the three empty/near-empty tables: `blog_posts` (0 rows), `resources` (0 rows), and `case_studies` (1 irrelevant row to replace). All content will align with Regent's brand as an enterprise systems integration and infrastructure company.
 
-### Add Status Tracking to consultation_requests
-- Add `status` column (enum: 'new', 'viewed', 'replied', 'closed')
-- Add `admin_notes` text column for internal notes
-- Add `replied_at` timestamp
-- Add `replied_by` UUID reference (for admin user tracking)
-- Add `phone` text column for the new phone field
+### Content to Create
 
-## 2. Admin Panel Enhancements
+#### Blog Posts (6 articles)
+1. **"The Hidden Cost of Data Silos in Enterprise Operations"** — Category: Data Infrastructure. How fragmented systems cost enterprises millions annually.
+2. **"Event-Driven Architecture: Why Real-Time Matters"** — Category: Engineering. Benefits of event-driven vs batch processing for enterprise workflows.
+3. **"5 Signs Your Integration Strategy Needs an Overhaul"** — Category: Strategy. Warning signs and modernization approaches.
+4. **"Building Resilient Data Pipelines at Scale"** — Category: Engineering. Best practices for fault-tolerant data infrastructure.
+5. **"The Future of Workflow Automation in Financial Services"** — Category: Industry Insights. How automation is transforming compliance and operations.
+6. **"From Legacy to Modern: A Practical Migration Playbook"** — Category: Strategy. Step-by-step guide for legacy system modernization.
 
-### Update ConsultationList.tsx
-- Add status filter buttons (All, New, Viewed, Replied, Closed)
-- Add visual status indicators with color-coded badges
-- Add quick action buttons for status changes
-- Add modal/drawer for viewing full details and adding notes
-- Add admin notes display and editing
-- Add phone number display
-- Add bulk actions for status updates
-- Improve responsive design for mobile admin access
+Each post will have: title, slug, excerpt, full content (500-800 words of rich HTML), author, date, category, read_time, published=true.
 
-### Create ConsultationDetail Component
-- Full-screen modal or dedicated detail page
-- Complete inquiry information display
-- Admin notes section with rich text editor
-- Status change history
-- Quick reply actions
-- Contact information with click-to-call for phone numbers
+#### Case Studies (4 studies)
+1. **"Global Bank Unifies 47 Trading Systems"** — Financial Services. Challenge: fragmented trading infrastructure. Results: 99.99% uptime, 340ms latency reduction.
+2. **"Healthcare Network Automates Patient Data Exchange"** — Healthcare. Challenge: manual data reconciliation across 12 hospitals. Results: 94% reduction in manual processes.
+3. **"Fortune 500 Retailer Builds Real-Time Inventory Intelligence"** — Retail. Challenge: inventory visibility across 2,400 locations. Results: $23M annual savings.
+4. **"Energy Provider Modernizes Grid Monitoring Infrastructure"** — Energy. Challenge: legacy SCADA systems with no real-time analytics. Results: 67% faster incident response.
 
-## 3. Form Validation & Schema
+Each with: title, slug, industry, summary, challenge, solution, results array, metrics JSON, published=true. Will also delete the existing irrelevant case study.
 
-### Create Zod Validation Schema
-- Strong client-side validation using existing zod dependency
-- Phone number validation with international format support
-- Enhanced email validation
-- Required field validation with better error messages
-- Message length limits and character counting
-- Form submission debouncing
+#### Resources (5 items)
+1. **"Enterprise Integration Patterns Whitepaper"** — Type: Whitepaper. Modern integration architecture patterns.
+2. **"Data Pipeline Architecture Guide"** — Type: Guide. Designing fault-tolerant data pipelines.
+3. **"ROI Calculator: System Integration vs. Point Solutions"** — Type: Whitepaper. Framework for calculating integration ROI.
+4. **"Workflow Automation Best Practices"** — Type: Guide. Implementing enterprise workflow automation.
+5. **"Real-Time Analytics Infrastructure Checklist"** — Type: Whitepaper. Pre-deployment checklist for streaming analytics.
 
-### Input Validation Features
-- Real-time validation feedback
-- Field-level error states
-- Success states for completed fields
-- Input masking for phone numbers
-- Auto-formatting for phone and email inputs
+Each with: title, slug, description, type, published=true.
 
-## 4. Multi-Step Wizard Enhancement
+### Execution
+- Use the database insert tool for all data operations (INSERT statements)
+- DELETE the existing irrelevant case study first
+- All content published=true so it appears on the public site immediately
 
-### Step 1: Contact Information
-- Name, Company, Email, Phone (required fields)
-- Progress indicator
-- Auto-save draft functionality
+### Files to Edit
+No code files need changes — this is purely database content population.
 
-### Step 2: Project Details  
-- Industry, Company Size, Budget Range
-- Dynamic follow-up questions based on selections
-- Conditional logic for enterprise vs smaller companies
-
-### Step 3: Project Description
-- Enhanced message textarea with character count
-- Suggested prompts to help users provide better information
-- File attachment capability for requirements docs
-
-### Step 4: Review & Submit
-- Summary of all entered information
-- Edit buttons for each section
-- Terms acceptance
-- Submit with loading states and success animation
-
-## 5. UX/UI Improvements
-
-### Enhanced Form Design
-- Better visual hierarchy with sectioned layouts
-- Improved focus states and accessibility
-- Loading skeletons during submission
-- Progressive disclosure for optional fields
-- Mobile-first responsive design
-- Improved error messaging with helpful suggestions
-
-### Animation & Feedback
-- Smooth transitions between steps
-- Progress bar with completion percentage
-- Success microinteractions
-- Form field animations (slide-in errors, success checkmarks)
-- Enhanced submission confirmation with personalized messaging
-
-## 6. Additional Features
-
-### Form Analytics
-- Track step completion rates
-- Identify drop-off points
-- Form field engagement metrics
-- A/B testing preparation for form variations
-
-### Auto-Save & Recovery
-- Browser storage for form drafts
-- Session restoration on page refresh
-- Warning before leaving incomplete forms
-- Recovery of accidentally closed forms
-
-### Enhanced Email Notifications
-- Improved admin notification emails with better formatting
-- Status change notifications
-- Admin reply notifications to users (if email addresses are configured)
-- Weekly summary reports of inquiry activity
-
-## 7. Technical Implementation Details
-
-### Component Structure
-```
-src/
-  components/
-    forms/
-      ConsultationWizard.tsx (main wizard component)
-      ContactStep.tsx (step 1)
-      ProjectDetailsStep.tsx (step 2)  
-      MessageStep.tsx (step 3)
-      ReviewStep.tsx (step 4)
-      StepIndicator.tsx (progress component)
-    admin/
-      ConsultationDetail.tsx (detail view/modal)
-      StatusBadge.tsx (status indicator)
-      NotesEditor.tsx (admin notes component)
-  schemas/
-    consultationSchema.ts (zod validation)
-  hooks/
-    useConsultationForm.ts (form state management)
-    useFormPersistence.ts (auto-save functionality)
-```
-
-### State Management
-- React Hook Form integration with zod resolver
-- Local storage for form persistence
-- Optimistic updates for admin actions
-- Real-time updates using Supabase realtime subscriptions
-
-### Accessibility Features
-- WCAG 2.1 AA compliance
-- Keyboard navigation support
-- Screen reader compatibility
-- High contrast mode support
-- Focus management in wizard steps
-
-## 8. Testing Strategy
-
-### User Flow Testing
-- Complete wizard flow from start to finish
-- Form validation at each step
-- Admin panel status management
-- Mobile responsiveness
-- Cross-browser compatibility
-
-### Edge Cases
-- Form submission failures and recovery
-- Network connectivity issues
-- Concurrent admin status updates
-- Large file attachments (if implemented)
-- Form spam protection
-
-This plan provides a comprehensive upgrade to both the user-facing consultation form and admin management capabilities, significantly improving the inquiry handling workflow while maintaining the current design aesthetic and brand consistency.
