@@ -112,12 +112,16 @@ export function BlogCard({ post, delay = 0 }: { post: BlogPost; delay?: number }
             className="h-[180px] flex items-center justify-center relative overflow-hidden"
             style={{ background: `linear-gradient(135deg, ${color}15, ${color}05)` }}
           >
-            <div style={{ opacity: 0.15 }}>
-              <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
-                <path d="M8 8h32v32H8z" stroke={color} strokeWidth="2" fill="none" />
-                <path d="M14 18h20M14 24h20M14 30h12" stroke={color} strokeWidth="2" strokeLinecap="round" />
-              </svg>
-            </div>
+            {post.image_url ? (
+              <img src={post.image_url} alt={post.title} className="absolute inset-0 w-full h-full object-cover" />
+            ) : (
+              <div style={{ opacity: 0.15 }}>
+                <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+                  <path d="M8 8h32v32H8z" stroke={color} strokeWidth="2" fill="none" />
+                  <path d="M14 18h20M14 24h20M14 30h12" stroke={color} strokeWidth="2" strokeLinecap="round" />
+                </svg>
+              </div>
+            )}
             <div className="absolute top-4 left-4">
               <span className="font-mono text-[11px] tracking-[0.06em] px-2.5 py-0.5 rounded-full bg-accent-light text-primary border border-primary/20">
                 {post.category}
