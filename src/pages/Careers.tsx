@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "react-router-dom";
 import { RevealOnScroll } from "@/components/RevealOnScroll";
@@ -7,6 +7,7 @@ import { Icons } from "@/components/Icons";
 import { companyValues, benefits } from "@/data/siteData";
 import { PageMeta } from "@/components/PageMeta";
 import { supabase } from "@/integrations/supabase/client";
+import { useQuery } from "@tanstack/react-query";
 
 interface Career {
   id: string;
