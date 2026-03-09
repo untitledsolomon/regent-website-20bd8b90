@@ -462,7 +462,7 @@ export default function AdminDashboard() {
         </div>
       </div>
 
-      {/* Content Overview + Recent Activity */}
+      {/* Content Overview + Recent Activity + Activity Log */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         {/* Content Overview */}
         <div className="bg-card border border-border rounded-xl p-5">
@@ -495,7 +495,7 @@ export default function AdminDashboard() {
         </div>
 
         {/* Recent Activity */}
-        <div className="lg:col-span-2 bg-card border border-border rounded-xl p-5">
+        <div className="bg-card border border-border rounded-xl p-5">
           <h3 className="font-heading text-sm font-semibold text-foreground mb-4 flex items-center gap-2">
             <Clock size={14} className="text-primary" /> Recent Activity
           </h3>
@@ -537,7 +537,70 @@ export default function AdminDashboard() {
             </div>
           )}
         </div>
+
+        {/* Admin Activity Log */}
+        <ActivityLogWidget />
       </div>
+    </div>
+  );
+}
+
+function ActivityLogWidget() {
+  const [logs, setLogs] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    supabase
+      .from("admin_activity_log" as any)
+      .select("*")
+      .order("created_at", { ascending: false })
+      .limit(20)
+      .then(({ data }) => {
+        setLogs(data || []);
+        setLoading(false);
+      });
+  }, []);
+
+  const actionLabels: Record<string, string> = {
+    created_post: "Created post",
+    updated_post: "Updated post",
+    published_post: "Published post",
+    unpublished_post: "Unpublished post",
+    deleted_post: "Deleted post",
+    created_case_study: "Created case study",
+    updated_case_study: "Updated case study",
+    published_case_study: "Published case study",
+    unpublished_case_study: "Unpublished case study",
+    deleted_case_study: "Deleted case study",
+    published_resource: "Published resource",
+    unpublished_resource: "Unpublished resource",
+    deleted_resource: "Deleted resource",
+  };
+
+  return (
+    <div className="bg-card border border-border rounded-xl p-5">
+      <h3 className="font-heading text-sm font-semibold text-foreground mb-4 flex items-center gap-2">
+        <Activity size={14} className="text-primary" /> Activity Log
+      </h3>
+      {loading ? (
+        <div className="space-y-2">{[1, 2, 3].map(i => <div key={i} className="h-8 bg-muted rounded animate-pulse" />)}</div>
+      ) : logs.length === 0 ? (
+        <p className="text-sm text-muted-foreground text-center py-8">No activity recorded yet</p>
+      ) : (
+        <div className="space-y-1 max-h-[320px] overflow-y-auto">
+          {logs.map((log: any) => (
+            <div key={log.id} className="px-2 py-2 rounded-lg hover:bg-muted transition-colors">
+              <div className="text-sm text-foreground">
+                <span className="font-medium">{actionLabels[log.action] || log.action}</span>
+                {log.entity_title && <span className="text-muted-foreground"> · {log.entity_title}</span>}
+              </div>
+              <div className="text-[10px] text-muted-foreground mt-0.5">
+                {formatDistanceToNow(new Date(log.created_at), { addSuffix: true })}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

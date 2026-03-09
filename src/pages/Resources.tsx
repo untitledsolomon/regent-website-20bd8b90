@@ -140,7 +140,13 @@ export default function ResourcesPage() {
                       <button
                         onClick={() => {
                           trackDownload(featuredResource.id);
-                          window.open(featuredResource.file_url!, "_blank", "noopener,noreferrer");
+                          const a = document.createElement("a");
+                          a.href = featuredResource.file_url!;
+                          a.download = "";
+                          a.rel = "noopener noreferrer";
+                          document.body.appendChild(a);
+                          a.click();
+                          document.body.removeChild(a);
                         }}
                         className="font-heading text-[15px] font-medium bg-primary text-primary-foreground rounded-lg px-7 py-3.5 inline-flex items-center gap-2 hover:shadow-[0_8px_24px_rgba(79,70,229,0.25)] transition-all"
                       >

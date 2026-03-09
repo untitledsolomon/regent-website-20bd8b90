@@ -3,7 +3,14 @@ import { useNavigate, useParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import RichTextEditor from "@/components/admin/RichTextEditor";
-import { Upload, X, Loader2 } from "lucide-react";
+import { Upload, X, Loader2, CalendarIcon, ChevronDown } from "lucide-react";
+import { logActivity } from "@/hooks/useActivityLog";
+import { format } from "date-fns";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
+
+const DRAFT_KEY_PREFIX = "regent_cs_draft_";
 
 export default function CaseStudyEditor() {
   const { id } = useParams();
@@ -12,26 +19,57 @@ export default function CaseStudyEditor() {
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [imageUploading, setImageUploading] = useState(false);
+  const [showSeo, setShowSeo] = useState(false);
+  const [draftBanner, setDraftBanner] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const autoSaveRef = useRef<NodeJS.Timeout | null>(null);
   const [form, setForm] = useState({
     title: "", slug: "", industry: "", summary: "", challenge: "", solution: "",
     results: [""], metrics: [{ value: "", label: "" }], published: false, image_url: "",
+    publish_at: null as Date | null,
+    meta_title: "", meta_description: "", og_image: "",
   });
+
+  const draftKey = DRAFT_KEY_PREFIX + (id || "new");
 
   useEffect(() => {
     if (isEdit) {
       supabase.from("case_studies").select("*").eq("id", id).single().then(({ data }) => {
-        if (data) setForm({
-          title: data.title, slug: data.slug, industry: data.industry,
-          summary: data.summary, challenge: data.challenge, solution: data.solution,
-          results: (data.results as string[])?.length ? data.results as string[] : [""],
-          metrics: (data.metrics as any[])?.length ? data.metrics as any[] : [{ value: "", label: "" }],
-          published: data.published,
-          image_url: (data as any).image_url || "",
-        });
+        if (data) {
+          const d = data as any;
+          setForm({
+            title: d.title, slug: d.slug, industry: d.industry,
+            summary: d.summary, challenge: d.challenge, solution: d.solution,
+            results: (d.results as string[])?.length ? d.results as string[] : [""],
+            metrics: (d.metrics as any[])?.length ? d.metrics as any[] : [{ value: "", label: "" }],
+            published: d.published, image_url: d.image_url || "",
+            publish_at: d.publish_at ? new Date(d.publish_at) : null,
+            meta_title: d.meta_title || "", meta_description: d.meta_description || "", og_image: d.og_image || "",
+          });
+        }
       });
     }
+    const saved = localStorage.getItem(draftKey);
+    if (saved) setDraftBanner(true);
   }, [id, isEdit]);
+
+  useEffect(() => {
+    autoSaveRef.current = setInterval(() => {
+      localStorage.setItem(draftKey, JSON.stringify(form));
+    }, 30000);
+    return () => { if (autoSaveRef.current) clearInterval(autoSaveRef.current); };
+  }, [form, draftKey]);
+
+  const restoreDraft = () => {
+    const saved = localStorage.getItem(draftKey);
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      if (parsed.publish_at) parsed.publish_at = new Date(parsed.publish_at);
+      setForm(parsed);
+    }
+    setDraftBanner(false);
+  };
+  const discardDraft = () => { localStorage.removeItem(draftKey); setDraftBanner(false); };
 
   const generateSlug = (t: string) => t.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 
@@ -62,13 +100,22 @@ export default function CaseStudyEditor() {
       metrics: form.metrics.filter(m => m.value.trim() || m.label.trim()),
       published: form.published, updated_at: new Date().toISOString(),
       image_url: form.image_url || null,
+      publish_at: form.publish_at?.toISOString() || null,
+      meta_title: form.meta_title || null,
+      meta_description: form.meta_description || null,
+      og_image: form.og_image || null,
     };
     const { error } = isEdit
       ? await supabase.from("case_studies").update(payload).eq("id", id)
       : await supabase.from("case_studies").insert(payload);
     setLoading(false);
     if (error) { toast({ title: "Error", description: error.message, variant: "destructive" }); }
-    else { toast({ title: isEdit ? "Updated" : "Created" }); navigate("/admin/case-studies"); }
+    else {
+      localStorage.removeItem(draftKey);
+      await logActivity(isEdit ? "updated_case_study" : "created_case_study", "case_study", form.title, id);
+      toast({ title: isEdit ? "Updated" : "Created" });
+      navigate("/admin/case-studies");
+    }
   };
 
   const updateResult = (i: number, val: string) => {
@@ -87,6 +134,16 @@ export default function CaseStudyEditor() {
 
   return (
     <div className="p-8">
+      {draftBanner && (
+        <div className="bg-amber-50 border border-amber-200 rounded-xl px-5 py-3 mb-6 flex items-center justify-between gap-4">
+          <p className="text-sm text-amber-800">Unsaved draft found — would you like to restore it?</p>
+          <div className="flex gap-2">
+            <button onClick={restoreDraft} className="text-xs px-3 py-1.5 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-colors">Restore</button>
+            <button onClick={discardDraft} className="text-xs px-3 py-1.5 border border-amber-300 text-amber-700 rounded-lg hover:bg-amber-100 transition-colors">Discard</button>
+          </div>
+        </div>
+      )}
+
       <div className="flex items-center justify-between mb-8">
         <h1 className="font-heading text-2xl font-semibold tracking-[-0.03em] text-text-primary">
           {isEdit ? "Edit Case Study" : "New Case Study"}
@@ -142,6 +199,26 @@ export default function CaseStudyEditor() {
             <input value={form.industry} onChange={e => setForm(f => ({ ...f, industry: e.target.value }))} className={inputClass} />
           </div>
         </div>
+
+        {/* Schedule */}
+        <div>
+          <label className="block text-sm font-medium text-text-primary mb-1.5">Schedule Publish</label>
+          <div className="flex items-center gap-3">
+            <Popover>
+              <PopoverTrigger asChild>
+                <button className={cn("h-10 border border-border rounded-lg px-3 text-sm bg-background text-left flex items-center gap-2 min-w-[200px]", !form.publish_at && "text-text-muted")}>
+                  <CalendarIcon size={14} />
+                  {form.publish_at ? format(form.publish_at, "PPP") : "No schedule (immediate)"}
+                </button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <Calendar mode="single" selected={form.publish_at || undefined} onSelect={(d) => setForm(f => ({ ...f, publish_at: d || null }))} disabled={(date) => date < new Date()} initialFocus className={cn("p-3 pointer-events-auto")} />
+              </PopoverContent>
+            </Popover>
+            {form.publish_at && <button onClick={() => setForm(f => ({ ...f, publish_at: null }))} className="text-xs text-destructive hover:underline">Clear</button>}
+          </div>
+        </div>
+
         <div>
           <label className="block text-sm font-medium text-text-primary mb-1.5">Summary</label>
           <textarea value={form.summary} onChange={e => setForm(f => ({ ...f, summary: e.target.value }))} rows={3} className={`${inputClass} h-auto py-2.5 resize-y`} />
@@ -180,6 +257,32 @@ export default function CaseStudyEditor() {
             ))}
             <button onClick={addMetric} className="text-xs text-primary hover:underline">+ Add metric</button>
           </div>
+        </div>
+
+        {/* SEO Settings */}
+        <div className="border border-border rounded-xl overflow-hidden">
+          <button onClick={() => setShowSeo(!showSeo)} className="w-full flex items-center justify-between px-5 py-3.5 bg-card hover:bg-surface transition-colors">
+            <span className="text-xs font-medium uppercase tracking-wider text-text-muted">SEO Settings</span>
+            <ChevronDown size={16} className={cn("text-text-muted transition-transform", showSeo && "rotate-180")} />
+          </button>
+          {showSeo && (
+            <div className="p-4 sm:p-5 space-y-4 border-t border-border">
+              <div>
+                <label className="block text-sm font-medium text-text-primary mb-1.5">Meta Title</label>
+                <input value={form.meta_title} onChange={e => setForm(f => ({ ...f, meta_title: e.target.value }))} className={inputClass} placeholder="Custom title for search engines" />
+                <p className="text-xs text-text-muted mt-1">{form.meta_title.length}/60 characters</p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-text-primary mb-1.5">Meta Description</label>
+                <textarea value={form.meta_description} onChange={e => setForm(f => ({ ...f, meta_description: e.target.value }))} rows={2} className={`${inputClass} h-auto py-2.5 resize-y`} placeholder="Custom description for search engines" />
+                <p className="text-xs text-text-muted mt-1">{form.meta_description.length}/160 characters</p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-text-primary mb-1.5">OG Image URL</label>
+                <input value={form.og_image} onChange={e => setForm(f => ({ ...f, og_image: e.target.value }))} className={inputClass} placeholder="Custom social sharing image URL" />
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>
