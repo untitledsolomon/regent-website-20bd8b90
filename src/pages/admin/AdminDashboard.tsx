@@ -351,7 +351,59 @@ export default function AdminDashboard() {
         </div>
       </div>
 
-      {/* Subscriber Growth + Quick Actions */}
+      {/* Content Views Over Time + Top Performing Content */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-8">
+        {/* Views Over Time */}
+        <div className="lg:col-span-2 bg-card border border-border rounded-xl p-5">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="font-heading text-sm font-semibold text-foreground">Content Views</h3>
+            <span className="text-xs text-muted-foreground">Last 30 days</span>
+          </div>
+          <div className="h-[220px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart data={stats.dailyViews}>
+                <defs>
+                  <linearGradient id="viewsGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="hsl(142, 71%, 45%)" stopOpacity={0.2} />
+                    <stop offset="100%" stopColor="hsl(142, 71%, 45%)" stopOpacity={0} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
+                <XAxis dataKey="date" tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }} tickLine={false} axisLine={false} interval={6} />
+                <YAxis tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} tickLine={false} axisLine={false} allowDecimals={false} />
+                <RechartsTooltip
+                  contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: "8px", fontSize: "12px" }}
+                />
+                <Area type="monotone" dataKey="views" stroke="hsl(142, 71%, 45%)" fill="url(#viewsGrad)" strokeWidth={2} />
+              </AreaChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        {/* Top Performing Content */}
+        <div className="bg-card border border-border rounded-xl p-5">
+          <h3 className="font-heading text-sm font-semibold text-foreground mb-4">Top Content</h3>
+          {stats.topContent.length > 0 ? (
+            <div className="space-y-1">
+              {stats.topContent.slice(0, 8).map((item, i) => (
+                <div key={item.content_id} className="flex items-center gap-3 px-2 py-2 rounded-lg hover:bg-muted transition-colors">
+                  <span className="text-xs font-mono text-muted-foreground w-5 text-right">{i + 1}</span>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-sm font-medium text-foreground truncate">{item.title}</div>
+                    <div className="text-[10px] text-muted-foreground">{contentTypeLabel[item.content_type] || item.content_type}</div>
+                  </div>
+                  <div className="text-sm font-heading font-bold text-foreground">{item.view_count}</div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="h-[220px] flex items-center justify-center text-sm text-muted-foreground">
+              No views tracked yet
+            </div>
+          )}
+        </div>
+      </div>
+
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-8">
         {/* Subscriber Growth */}
         <div className="lg:col-span-2 bg-card border border-border rounded-xl p-5">
