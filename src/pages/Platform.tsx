@@ -11,126 +11,158 @@ import { archLayers, modules } from "@/data/siteData";
 import { PageMeta } from "@/components/PageMeta";
 
 const platformStats = [
-  { label: "Active Connectors", value: "184+" },
-  { label: "Events / Day", value: "2.4B" },
-  { label: "P99 Latency", value: "12ms" },
-  { label: "Uptime", value: "99.99%" },
+  { label: "Systems Delivered", value: "400+" },
+  { label: "Industries Served", value: "12+" },
+  { label: "Uptime SLA", value: "99.99%" },
+  { label: "Enterprise Clients", value: "50+" },
 ];
 
 const deploymentOptions = [
-  { title: "Cloud-Native", desc: "Fully managed on AWS, Azure, or GCP with auto-scaling, zero-downtime deployments, and global edge distribution.", icon: "Globe" as const },
-  { title: "On-Premises", desc: "Deploy within your own data center with full control over infrastructure, networking, and data residency.", icon: "Building" as const },
-  { title: "Hybrid", desc: "Split workloads between cloud and on-premises environments with unified management and seamless data flow.", icon: "Integration" as const },
+  { title: "Cloud-Native", desc: "We deploy fully managed solutions on AWS, Azure, or GCP with auto-scaling, zero-downtime deployments, and global edge distribution.", icon: "Globe" as const },
+  { title: "On-Premises", desc: "We deploy within your data center with full control over infrastructure, networking, and data residency.", icon: "Building" as const },
+  { title: "Hybrid", desc: "We architect split workloads between cloud and on-premises environments with unified management and seamless data flow.", icon: "Integration" as const },
 ];
 
 const performanceMetrics = [
-  { metric: "Throughput", value: "2.4B events/day", detail: "Sustained throughput across distributed nodes with automatic load balancing and back-pressure handling." },
-  { metric: "Latency", value: "12ms P99", detail: "End-to-end processing latency including transformation, routing, and delivery confirmation." },
-  { metric: "Availability", value: "99.997%", detail: "Measured over trailing 12 months across all production deployments globally." },
+  { metric: "Throughput", value: "2.4B events/day", detail: "Sustained throughput we've achieved across client deployments with automatic load balancing and back-pressure handling." },
+  { metric: "Latency", value: "12ms P99", detail: "End-to-end processing latency including transformation, routing, and delivery confirmation across production systems." },
+  { metric: "Availability", value: "99.997%", detail: "Measured over trailing 12 months across all client production environments globally." },
   { metric: "Recovery", value: "<30s RTO", detail: "Automated failover with recovery time objective under 30 seconds for any single component failure." },
 ];
 
-const architectureSteps: DemoStep[] = [
+const methodologySteps: DemoStep[] = [
   {
-    id: "ingestion",
-    title: "Ingestion",
-    icon: <span>📥</span>,
+    id: "assessment",
+    title: "Assessment",
+    icon: <span>🔍</span>,
     content: (
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         <div>
-          <div className="font-mono text-[11px] tracking-[0.08em] uppercase text-text-muted mb-3">INGESTION LAYER</div>
-          <h3 className="font-heading text-xl font-semibold text-text-primary mb-3">Universal Data Ingestion</h3>
-          <p className="text-[15px] text-text-secondary leading-[1.7] mb-5">Accepts data from any source — REST APIs, event streams, file drops, database CDC, and legacy protocols.</p>
+          <div className="font-mono text-[11px] tracking-[0.08em] uppercase text-text-muted mb-3">PHASE 1</div>
+          <h3 className="font-heading text-xl font-semibold text-text-primary mb-3">Systems & Data Audit</h3>
+          <p className="text-[15px] text-text-secondary leading-[1.7] mb-5">We audit your existing systems, data flows, and integration points to understand the full picture before writing a single line of code.</p>
           <div className="space-y-2">
-            {["REST, GraphQL, gRPC, SOAP", "Kafka, RabbitMQ, SQS streams", "CDC from 40+ database types", "Batch file ingestion (S3, SFTP)"].map(p => (
+            {["Map all existing systems and dependencies", "Identify data flow bottlenecks and gaps", "Evaluate security posture and compliance needs", "Define success metrics and KPIs"].map(p => (
               <div key={p} className="flex items-center gap-2 text-[13px] text-text-primary"><span className="text-primary">→</span> {p}</div>
             ))}
           </div>
         </div>
-        <div className="bg-surface border border-border rounded-xl p-6 font-mono text-xs text-text-secondary leading-7">
-          <div className="text-text-muted mb-2"># ingestion metrics</div>
-          <div><span className="text-primary">throughput</span>: 2.4B events/day</div>
-          <div><span className="text-primary">protocols</span>: 12 supported</div>
-          <div><span className="text-primary">latency</span>: &lt;5ms intake</div>
-          <div><span className="text-primary">backpressure</span>: automatic</div>
+        <div className="bg-surface border border-border rounded-xl p-6 flex flex-col justify-center">
+          <div className="space-y-4">
+            {[
+              { label: "Systems Mapped", value: "Every endpoint, database, and service" },
+              { label: "Data Flows", value: "Complete lineage documentation" },
+              { label: "Risk Assessment", value: "Security and compliance audit" },
+              { label: "Deliverable", value: "Architecture recommendation report" },
+            ].map(item => (
+              <div key={item.label} className="flex items-start gap-3">
+                <span className="font-mono text-[11px] text-primary tracking-wider uppercase min-w-[120px]">{item.label}</span>
+                <span className="text-[13px] text-text-secondary">{item.value}</span>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     ),
   },
   {
-    id: "processing",
-    title: "Processing",
+    id: "architecture",
+    title: "Architecture",
+    icon: <span>📐</span>,
+    content: (
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div>
+          <div className="font-mono text-[11px] tracking-[0.08em] uppercase text-text-muted mb-3">PHASE 2</div>
+          <h3 className="font-heading text-xl font-semibold text-text-primary mb-3">Target-State Design</h3>
+          <p className="text-[15px] text-text-secondary leading-[1.7] mb-5">We design the target-state infrastructure with security, scale, and your team's operational model in mind.</p>
+          <div className="space-y-2">
+            {["Design integration topology and data models", "Plan for security, compliance, and data residency", "Define scalability and failover strategies", "Create detailed implementation roadmap"].map(p => (
+              <div key={p} className="flex items-center gap-2 text-[13px] text-text-primary"><span className="text-primary">→</span> {p}</div>
+            ))}
+          </div>
+        </div>
+        <div className="bg-surface border border-border rounded-xl p-6 flex flex-col justify-center">
+          <div className="space-y-4">
+            {[
+              { label: "Topology", value: "System interconnection blueprint" },
+              { label: "Data Model", value: "Normalized schemas and mappings" },
+              { label: "Security", value: "Zero-trust architecture design" },
+              { label: "Deliverable", value: "Technical architecture document" },
+            ].map(item => (
+              <div key={item.label} className="flex items-start gap-3">
+                <span className="font-mono text-[11px] text-primary tracking-wider uppercase min-w-[120px]">{item.label}</span>
+                <span className="text-[13px] text-text-secondary">{item.value}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    ),
+  },
+  {
+    id: "implementation",
+    title: "Implementation",
     icon: <span>⚙️</span>,
     content: (
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         <div>
-          <div className="font-mono text-[11px] tracking-[0.08em] uppercase text-text-muted mb-3">PROCESSING LAYER</div>
-          <h3 className="font-heading text-xl font-semibold text-text-primary mb-3">Real-Time Transformation</h3>
-          <p className="text-[15px] text-text-secondary leading-[1.7] mb-5">Transforms, enriches, and routes data in real-time with sub-millisecond latency.</p>
+          <div className="font-mono text-[11px] tracking-[0.08em] uppercase text-text-muted mb-3">PHASE 3</div>
+          <h3 className="font-heading text-xl font-semibold text-text-primary mb-3">Build & Deploy</h3>
+          <p className="text-[15px] text-text-secondary leading-[1.7] mb-5">We build and deploy using proven patterns — APIs, event streams, data pipelines — with rigorous testing at every stage.</p>
           <div className="space-y-2">
-            {["Schema normalization & mapping", "Real-time deduplication", "Business rule engine", "Custom transformation pipelines"].map(p => (
+            {["API integrations and event stream setup", "Data pipeline construction and testing", "Automated CI/CD and infrastructure as code", "Staged rollout with zero-downtime migration"].map(p => (
               <div key={p} className="flex items-center gap-2 text-[13px] text-text-primary"><span className="text-primary">→</span> {p}</div>
             ))}
           </div>
         </div>
-        <div className="bg-surface border border-border rounded-xl p-6 font-mono text-xs text-text-secondary leading-7">
-          <div className="text-text-muted mb-2"># processing pipeline</div>
-          <div><span className="text-primary">normalize</span>: schema_v4</div>
-          <div><span className="text-primary">deduplicate</span>: true</div>
-          <div><span className="text-primary">enrich</span>: [geo, entity, risk]</div>
-          <div><span className="text-primary">latency_p99</span>: 3ms</div>
+        <div className="bg-surface border border-border rounded-xl p-6 flex flex-col justify-center">
+          <div className="space-y-4">
+            {[
+              { label: "Approach", value: "Agile sprints with weekly demos" },
+              { label: "Testing", value: "Automated integration + load testing" },
+              { label: "Migration", value: "Zero-downtime cutover strategy" },
+              { label: "Deliverable", value: "Production-ready infrastructure" },
+            ].map(item => (
+              <div key={item.label} className="flex items-start gap-3">
+                <span className="font-mono text-[11px] text-primary tracking-wider uppercase min-w-[120px]">{item.label}</span>
+                <span className="text-[13px] text-text-secondary">{item.value}</span>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     ),
   },
   {
-    id: "storage",
-    title: "Storage",
-    icon: <span>💾</span>,
+    id: "optimization",
+    title: "Optimization",
+    icon: <span>📈</span>,
     content: (
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         <div>
-          <div className="font-mono text-[11px] tracking-[0.08em] uppercase text-text-muted mb-3">STORAGE LAYER</div>
-          <h3 className="font-heading text-xl font-semibold text-text-primary mb-3">Unified Data Fabric</h3>
-          <p className="text-[15px] text-text-secondary leading-[1.7] mb-5">Multi-tier storage with hot, warm, and cold layers. Full data residency controls for compliance.</p>
+          <div className="font-mono text-[11px] tracking-[0.08em] uppercase text-text-muted mb-3">PHASE 4</div>
+          <h3 className="font-heading text-xl font-semibold text-text-primary mb-3">Monitor & Evolve</h3>
+          <p className="text-[15px] text-text-secondary leading-[1.7] mb-5">We monitor, tune, and evolve the system as your needs change — ensuring long-term performance and reliability.</p>
           <div className="space-y-2">
-            {["Hot/warm/cold auto-tiering", "Field-level data residency", "Encrypted at rest & in transit", "Point-in-time recovery"].map(p => (
+            {["24/7 monitoring and alerting", "Performance tuning and cost optimization", "Capacity planning and scaling", "Ongoing feature development and iteration"].map(p => (
               <div key={p} className="flex items-center gap-2 text-[13px] text-text-primary"><span className="text-primary">→</span> {p}</div>
             ))}
           </div>
         </div>
-        <div className="bg-surface border border-border rounded-xl p-6 font-mono text-xs text-text-secondary leading-7">
-          <div className="text-text-muted mb-2"># storage config</div>
-          <div><span className="text-primary">hot_tier</span>: NVMe SSD</div>
-          <div><span className="text-primary">retention</span>: configurable</div>
-          <div><span className="text-primary">encryption</span>: AES-256-GCM</div>
-          <div><span className="text-primary">regions</span>: 18 available</div>
-        </div>
-      </div>
-    ),
-  },
-  {
-    id: "delivery",
-    title: "Delivery",
-    icon: <span>🚀</span>,
-    content: (
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        <div>
-          <div className="font-mono text-[11px] tracking-[0.08em] uppercase text-text-muted mb-3">DELIVERY LAYER</div>
-          <h3 className="font-heading text-xl font-semibold text-text-primary mb-3">Intelligent Routing & Delivery</h3>
-          <p className="text-[15px] text-text-secondary leading-[1.7] mb-5">Exactly-once delivery guarantees with smart routing, retry logic, and confirmation across all systems.</p>
-          <div className="space-y-2">
-            {["Exactly-once delivery guarantee", "Smart retry with backoff", "Multi-destination fan-out", "Delivery confirmation & audit"].map(p => (
-              <div key={p} className="flex items-center gap-2 text-[13px] text-text-primary"><span className="text-primary">→</span> {p}</div>
+        <div className="bg-surface border border-border rounded-xl p-6 flex flex-col justify-center">
+          <div className="space-y-4">
+            {[
+              { label: "Monitoring", value: "Real-time dashboards and alerts" },
+              { label: "SLA", value: "99.99% uptime guarantee" },
+              { label: "Evolution", value: "Quarterly architecture reviews" },
+              { label: "Deliverable", value: "Continuous improvement program" },
+            ].map(item => (
+              <div key={item.label} className="flex items-start gap-3">
+                <span className="font-mono text-[11px] text-primary tracking-wider uppercase min-w-[120px]">{item.label}</span>
+                <span className="text-[13px] text-text-secondary">{item.value}</span>
+              </div>
             ))}
           </div>
-        </div>
-        <div className="bg-surface border border-border rounded-xl p-6 font-mono text-xs text-text-secondary leading-7">
-          <div className="text-text-muted mb-2"># delivery status</div>
-          <div><span className="text-primary">guarantee</span>: exactly-once</div>
-          <div><span className="text-primary">destinations</span>: 184 active</div>
-          <div><span className="text-primary">success_rate</span>: 99.997%</div>
-          <div><span className="text-primary">avg_latency</span>: 12ms e2e</div>
         </div>
       </div>
     ),
@@ -161,7 +193,7 @@ export default function PlatformPage() {
               How we architect <GradientText>operational infrastructure</GradientText>
             </h1>
             <p className="text-[clamp(16px,2vw,20px)] font-light text-text-secondary leading-[1.65] max-w-[560px] mb-10">
-              Regent is not middleware. We architect and deploy complete operational infrastructure that connects systems, enables automation, and delivers intelligence across the organization.
+              We architect and deploy complete operational infrastructure that connects systems, enables automation, and delivers intelligence across your organization.
             </p>
           </motion.div>
 
@@ -195,12 +227,12 @@ export default function PlatformPage() {
         <div className="section-container">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-20">
             <RevealOnScroll>
-              <SectionHeader label="OVERVIEW" title="Platform Overview" />
+              <SectionHeader label="OVERVIEW" title="Our Approach" />
               <p className="text-base leading-[1.75] text-text-secondary mb-6">
-                Every system we build follows a layered integration and intelligence architecture. It connects every system in your organization through a common integration fabric, enabling unified data flows, coordinated automation, and operational intelligence.
+                Every system we build follows a layered integration and intelligence architecture. We connect every system in your organization through a common integration fabric, enabling unified data flows, coordinated automation, and operational intelligence.
               </p>
               <p className="text-base leading-[1.75] text-text-secondary mb-8">
-                Unlike point-to-point integration tools or single-purpose middleware, we provide a complete approach to the entire integration and automation lifecycle.
+                Unlike point-to-point integration tools or single-purpose middleware, we provide a complete approach to the entire integration and automation lifecycle — from assessment through ongoing optimization.
               </p>
               <div className="flex flex-col gap-3">
                 {['Enterprise-grade security and compliance', 'Deploy on-premises, cloud, or hybrid', '99.99% uptime SLA with 24/7 support', 'Scales from 10 to 10,000+ systems'].map(item => (
@@ -212,19 +244,26 @@ export default function PlatformPage() {
               </div>
             </RevealOnScroll>
             <RevealOnScroll delay={0.2}>
-              <div className="bg-surface border border-border rounded-2xl p-10 font-mono text-xs text-text-secondary leading-8">
-                <div className="text-text-muted mb-4"># platform.config.yml</div>
-                <div><span className="text-primary">platform</span>:</div>
-                <div className="pl-4"><span className="text-emerald-600">version</span>: 4.2.0</div>
-                <div className="pl-4"><span className="text-emerald-600">deployment</span>: hybrid-cloud</div>
-                <div className="pl-4"><span className="text-emerald-600">regions</span>: [us-east, eu-west, ap-south]</div>
-                <div className="mt-2"><span className="text-primary">integrations</span>:</div>
-                <div className="pl-4"><span className="text-emerald-600">active_connectors</span>: 184</div>
-                <div className="pl-4"><span className="text-emerald-600">events_per_day</span>: 2.4B</div>
-                <div className="pl-4"><span className="text-emerald-600">latency_p99</span>: 12ms</div>
-                <div className="mt-2"><span className="text-primary">health</span>:</div>
-                <div className="pl-4"><span className="text-emerald-600">status</span>: <span className="text-emerald-600">operational</span></div>
-                <div className="pl-4"><span className="text-emerald-600">uptime</span>: 99.997%</div>
+              <div className="bg-surface border border-border rounded-2xl p-10">
+                <div className="font-mono text-[11px] tracking-[0.08em] uppercase text-text-muted mb-6">OUR METHODOLOGY</div>
+                <div className="space-y-6">
+                  {[
+                    { phase: "01", title: "Assess", desc: "Audit systems, data flows, and integration points" },
+                    { phase: "02", title: "Design", desc: "Architect the target-state with security and scale" },
+                    { phase: "03", title: "Build", desc: "Deploy using proven patterns and rigorous testing" },
+                    { phase: "04", title: "Optimize", desc: "Monitor, tune, and evolve as your needs change" },
+                  ].map((step, i) => (
+                    <div key={step.phase} className="flex items-start gap-4">
+                      <div className="w-10 h-10 rounded-lg bg-accent-light flex items-center justify-center flex-shrink-0">
+                        <span className="font-mono text-xs font-semibold text-primary">{step.phase}</span>
+                      </div>
+                      <div>
+                        <h4 className="font-heading text-[15px] font-semibold text-text-primary">{step.title}</h4>
+                        <p className="text-[13px] text-text-secondary leading-[1.6] mt-0.5">{step.desc}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
             </RevealOnScroll>
           </div>
@@ -237,7 +276,7 @@ export default function PlatformPage() {
       <section className="py-[100px]">
         <div className="section-container">
           <RevealOnScroll>
-            <SectionHeader label="DEPLOYMENT" title="Deploy Your Way" subtitle="We adapt to your infrastructure requirements — not the other way around." />
+            <SectionHeader label="DEPLOYMENT" title="We Deploy Your Way" subtitle="We adapt to your infrastructure requirements — not the other way around." />
           </RevealOnScroll>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {deploymentOptions.map((opt, i) => {
@@ -263,15 +302,15 @@ export default function PlatformPage() {
 
       <hr className="border-t border-border" />
 
-      {/* Interactive Architecture Explorer */}
+      {/* Interactive Methodology Explorer */}
       <section className="py-[100px]">
         <div className="section-container">
           <RevealOnScroll>
             <InteractiveDemo
-              label="LIVE EXPLORER"
-              heading="Architecture Explorer"
-              subtitle="Click each layer to explore how data flows through the Regent infrastructure stack."
-              steps={architectureSteps}
+              label="OUR PROCESS"
+              heading="How We Build"
+              subtitle="Click each phase to explore how we take projects from assessment through to ongoing optimization."
+              steps={methodologySteps}
             />
           </RevealOnScroll>
         </div>
@@ -295,11 +334,11 @@ export default function PlatformPage() {
 
       <hr className="border-t border-border" />
 
-      {/* Performance */}
+      {/* Performance — What We Deliver */}
       <section className="py-[100px]">
         <div className="section-container">
           <RevealOnScroll>
-            <SectionHeader label="PERFORMANCE" title="Built for Scale" subtitle="Enterprise-grade performance metrics measured across all production deployments." />
+            <SectionHeader label="WHAT WE DELIVER" title="Built for Scale" subtitle="Enterprise-grade performance outcomes measured across our client deployments." />
           </RevealOnScroll>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             {performanceMetrics.map((pm, i) => (
@@ -347,11 +386,11 @@ export default function PlatformPage() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {[
               { icon: 'Shield' as const, title: 'Zero-Trust Architecture', desc: 'Every component operates on zero-trust principles. All traffic is authenticated, encrypted, and logged.' },
-              { icon: 'Monitor' as const, title: 'SOC 2 Type II Certified', desc: 'Annual third-party audits verify our security, availability, and confidentiality controls.' },
+              { icon: 'Monitor' as const, title: 'Compliance-Ready', desc: 'We build systems that meet SOC 2, ISO 27001, and industry-specific compliance requirements from day one.' },
               { icon: 'Database' as const, title: 'Data Residency Controls', desc: 'Configure data residency at the field level. Comply with GDPR, CCPA, and regional data sovereignty requirements.' },
               { icon: 'Zap' as const, title: '99.99% Uptime SLA', desc: 'Contractual uptime commitments backed by distributed architecture and automated failover.' },
               { icon: 'Globe' as const, title: 'Global Deployment', desc: 'Deploy across 18 regions worldwide. Data never leaves your designated geographic boundaries.' },
-              { icon: 'FileText' as const, title: 'Audit & Compliance', desc: 'Complete audit trails for all platform activity. Configurable retention policies for regulatory compliance.' },
+              { icon: 'FileText' as const, title: 'Audit & Compliance', desc: 'Complete audit trails for all system activity. Configurable retention policies for regulatory compliance.' },
             ].map((item, i) => (
               <CapabilityCard key={item.title} icon={item.icon} title={item.title} desc={item.desc} delay={Math.min(i + 1, 5)} />
             ))}

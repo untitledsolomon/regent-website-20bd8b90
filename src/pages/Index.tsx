@@ -18,7 +18,7 @@ const metrics = [
   { n: "400+", l: "Systems Delivered" },
   { n: "99.99%", l: "System Uptime SLA" },
   { n: "2.4B+", l: "Daily Events Processed" },
-  { n: "180+", l: "Pre-built Connectors" },
+  { n: "50+", l: "Enterprise Clients" },
 ];
 
 // Staggered word reveal for the headline
