@@ -199,22 +199,43 @@ export type Database = {
       }
       content_views: {
         Row: {
+          browser: string | null
+          city: string | null
           content_id: string
           content_type: string
+          country: string | null
           created_at: string
+          device_type: string | null
           id: string
+          os: string | null
+          referrer: string | null
+          session_id: string | null
         }
         Insert: {
+          browser?: string | null
+          city?: string | null
           content_id: string
           content_type: string
+          country?: string | null
           created_at?: string
+          device_type?: string | null
           id?: string
+          os?: string | null
+          referrer?: string | null
+          session_id?: string | null
         }
         Update: {
+          browser?: string | null
+          city?: string | null
           content_id?: string
           content_type?: string
+          country?: string | null
           created_at?: string
+          device_type?: string | null
           id?: string
+          os?: string | null
+          referrer?: string | null
+          session_id?: string | null
         }
         Relationships: []
       }
@@ -328,6 +349,31 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_analytics_detail: {
+        Args: { p_limit?: number; p_offset?: number }
+        Returns: {
+          browser: string
+          city: string
+          content_id: string
+          content_type: string
+          country: string
+          created_at: string
+          device_type: string
+          id: string
+          os: string
+          referrer: string
+          session_id: string
+          title: string
+        }[]
+      }
+      get_audience_breakdown: {
+        Args: never
+        Returns: {
+          count: number
+          dimension: string
+          value: string
+        }[]
+      }
       get_content_analytics: {
         Args: never
         Returns: {
