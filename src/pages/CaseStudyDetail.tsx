@@ -8,6 +8,7 @@ import { GradientText } from "@/components/GradientText";
 import { RevealOnScroll } from "@/components/RevealOnScroll";
 import { Icons } from "@/components/Icons";
 import { ArrowLeft } from "lucide-react";
+import { useTrackView } from "@/hooks/useContentTracking";
 
 interface CaseStudy {
   id: string;
