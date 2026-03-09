@@ -120,10 +120,10 @@ export default function AdminDashboard() {
 
   if (loading) {
     return (
-      <div className="p-8 lg:p-10">
+      <div className="p-4 sm:p-6 lg:p-10">
         <div className="h-10 w-64 bg-card border border-border rounded-lg animate-pulse mb-8" />
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 mb-10">
-          {[1, 2, 3].map(i => <div key={i} className="h-36 bg-card border border-border rounded-2xl animate-pulse" />)}
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-5 mb-10">
+          {[1, 2, 3, 4, 5].map(i => <div key={i} className="h-32 sm:h-36 bg-card border border-border rounded-2xl animate-pulse" />)}
         </div>
         <div className="space-y-3">
           {[1, 2, 3, 4].map(i => <div key={i} className="h-16 bg-card border border-border rounded-xl animate-pulse" />)}
@@ -136,16 +136,16 @@ export default function AdminDashboard() {
   const totalPublished = stats.posts.published + stats.caseStudies.published + stats.resources.published;
 
   return (
-    <div className="p-8 lg:p-10">
+    <div className="p-4 sm:p-6 lg:p-10">
       {/* Header */}
-      <div className="mb-10">
-        <h1 className="font-heading text-2xl lg:text-3xl font-semibold tracking-[-0.03em] text-text-primary">
+      <div className="mb-6 sm:mb-10">
+        <h1 className="font-heading text-xl sm:text-2xl lg:text-3xl font-semibold tracking-[-0.03em] text-text-primary">
           {greeting()}{user?.email ? ` 👋` : ""}
         </h1>
-        <p className="text-sm text-text-muted mt-1.5">
-          {new Date().toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" })}
+        <p className="text-xs sm:text-sm text-text-muted mt-1.5 flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-0">
+          <span>{new Date().toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" })}</span>
           {totalContent > 0 && (
-            <span className="ml-3 inline-flex items-center gap-1.5">
+            <span className="sm:ml-3 inline-flex items-center gap-1.5">
               <TrendingUp size={13} className="text-primary" />
               <span className="text-text-secondary">{totalPublished} of {totalContent} items published</span>
             </span>
@@ -154,37 +154,37 @@ export default function AdminDashboard() {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 mb-10">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-5 mb-6 sm:mb-10">
         {statCards.map(card => {
           const Icon = card.icon;
           return (
             <Link
               key={card.label}
               to={card.link}
-              className="bg-card border border-border rounded-2xl p-6 hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5 transition-all duration-300 group relative overflow-hidden"
+              className="bg-card border border-border rounded-xl sm:rounded-2xl p-4 sm:p-6 hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5 transition-all duration-300 group relative overflow-hidden"
             >
               <div className={`absolute inset-0 bg-gradient-to-br ${card.gradient} opacity-0 group-hover:opacity-100 transition-opacity duration-300`} />
               <div className="relative">
-                <div className="flex items-start justify-between mb-4">
-                  <div className={`w-11 h-11 rounded-xl ${card.iconBg} flex items-center justify-center`}>
-                    <Icon size={20} className={card.iconColor} />
+                <div className="flex items-start justify-between mb-3 sm:mb-4">
+                  <div className={`w-9 h-9 sm:w-11 sm:h-11 rounded-lg sm:rounded-xl ${card.iconBg} flex items-center justify-center`}>
+                    <Icon size={18} className={`${card.iconColor} sm:w-5 sm:h-5`} />
                   </div>
-                  <ArrowRight size={16} className="text-text-muted group-hover:text-primary group-hover:translate-x-0.5 transition-all duration-200 mt-1" />
+                  <ArrowRight size={14} className="text-text-muted group-hover:text-primary group-hover:translate-x-0.5 transition-all duration-200 mt-1 hidden sm:block" />
                 </div>
-                <div className="text-3xl font-heading font-semibold text-text-primary tracking-tight">{card.total}</div>
-                <div className="text-sm text-text-secondary mt-0.5 font-medium">{card.label}</div>
+                <div className="text-2xl sm:text-3xl font-heading font-semibold text-text-primary tracking-tight">{card.total}</div>
+                <div className="text-xs sm:text-sm text-text-secondary mt-0.5 font-medium truncate">{card.label}</div>
                 {card.label !== "Subscribers" && card.label !== "Inquiries" ? (
-                <div className="flex items-center gap-2.5 mt-3">
-                  <span className="text-xs font-medium px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-100">
+                <div className="flex items-center gap-1.5 sm:gap-2.5 mt-2 sm:mt-3 flex-wrap">
+                  <span className="text-[10px] sm:text-xs font-medium px-2 py-0.5 sm:py-1 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-100">
                     {card.published} live
                   </span>
-                  <span className="text-xs font-medium px-2.5 py-1 rounded-full bg-amber-50 text-amber-600 border border-amber-100">
+                  <span className="text-[10px] sm:text-xs font-medium px-2 py-0.5 sm:py-1 rounded-full bg-amber-50 text-amber-600 border border-amber-100">
                     {card.total - card.published} draft
                   </span>
                 </div>
                 ) : (
-                <div className="mt-3">
-                  <span className="text-xs font-medium px-2.5 py-1 rounded-full bg-violet-50 text-violet-600 border border-violet-100">
+                <div className="mt-2 sm:mt-3">
+                  <span className="text-[10px] sm:text-xs font-medium px-2 py-0.5 sm:py-1 rounded-full bg-violet-50 text-violet-600 border border-violet-100">
                     active
                   </span>
                 </div>
@@ -196,23 +196,23 @@ export default function AdminDashboard() {
       </div>
 
       {/* Quick Actions */}
-      <div className="mb-10">
-        <h2 className="font-heading text-base font-semibold text-text-primary mb-4 flex items-center gap-2">
+      <div className="mb-6 sm:mb-10">
+        <h2 className="font-heading text-sm sm:text-base font-semibold text-text-primary mb-3 sm:mb-4 flex items-center gap-2">
           <Plus size={16} className="text-primary" />
           Quick Actions
         </h2>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
           {quickActions.map(action => {
             const Icon = action.icon;
             return (
               <Link
                 key={action.label}
                 to={action.link}
-                className="bg-card border border-border rounded-xl p-5 hover:border-primary/20 hover:shadow-md hover:shadow-primary/5 transition-all duration-300 group"
+                className="bg-card border border-border rounded-lg sm:rounded-xl p-4 sm:p-5 hover:border-primary/20 hover:shadow-md hover:shadow-primary/5 transition-all duration-300 group"
               >
-                <Icon size={22} className={`${action.color} mb-3`} />
-                <div className="text-sm font-semibold text-text-primary group-hover:text-primary transition-colors">{action.label}</div>
-                <div className="text-xs text-text-muted mt-1">{action.description}</div>
+                <Icon size={20} className={`${action.color} mb-2 sm:mb-3`} />
+                <div className="text-xs sm:text-sm font-semibold text-text-primary group-hover:text-primary transition-colors">{action.label}</div>
+                <div className="text-[10px] sm:text-xs text-text-muted mt-0.5 sm:mt-1 hidden sm:block">{action.description}</div>
               </Link>
             );
           })}
@@ -221,53 +221,53 @@ export default function AdminDashboard() {
 
       {/* Recent Activity */}
       <div>
-        <h2 className="font-heading text-base font-semibold text-text-primary mb-4 flex items-center gap-2">
+        <h2 className="font-heading text-sm sm:text-base font-semibold text-text-primary mb-3 sm:mb-4 flex items-center gap-2">
           <Clock size={16} className="text-primary" />
           Recent Activity
         </h2>
         {recent.length === 0 ? (
-          <div className="bg-card border border-border rounded-2xl p-12 text-center">
-            <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-4">
-              <FileText size={28} className="text-primary" />
+          <div className="bg-card border border-border rounded-xl sm:rounded-2xl p-8 sm:p-12 text-center">
+            <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-3 sm:mb-4">
+              <FileText size={24} className="text-primary sm:w-7 sm:h-7" />
             </div>
-            <h3 className="font-heading text-lg font-semibold text-text-primary mb-1">No content yet</h3>
-            <p className="text-sm text-text-muted mb-5">Create your first piece of content to get started.</p>
-            <Link to="/admin/posts/new" className="inline-flex items-center gap-2 h-10 px-5 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary/90 transition-all">
-              <Plus size={16} /> Create Post
+            <h3 className="font-heading text-base sm:text-lg font-semibold text-text-primary mb-1">No content yet</h3>
+            <p className="text-xs sm:text-sm text-text-muted mb-4 sm:mb-5">Create your first piece of content to get started.</p>
+            <Link to="/admin/posts/new" className="inline-flex items-center gap-2 h-9 sm:h-10 px-4 sm:px-5 bg-primary text-primary-foreground rounded-lg text-xs sm:text-sm font-medium hover:bg-primary/90 transition-all">
+              <Plus size={14} /> Create Post
             </Link>
           </div>
         ) : (
-          <div className="bg-card border border-border rounded-2xl overflow-hidden divide-y divide-border">
-            {recent.map((item, i) => {
+          <div className="bg-card border border-border rounded-xl sm:rounded-2xl overflow-hidden divide-y divide-border">
+            {recent.map((item) => {
               const config = typeConfig[item.type];
               return (
                 <Link
                   key={`${item.type}-${item.id}`}
                   to={editLink(item)}
-                  className="flex items-center gap-4 px-6 py-4 hover:bg-surface/50 transition-colors duration-200 group"
+                  className="flex items-center gap-3 sm:gap-4 px-4 sm:px-6 py-3 sm:py-4 hover:bg-surface/50 transition-colors duration-200 group"
                 >
                   <div className={`w-2 h-2 rounded-full shrink-0 ${config.dot}`} />
                   <div className="min-w-0 flex-1">
-                    <div className="text-sm font-medium text-text-primary truncate group-hover:text-primary transition-colors">
+                    <div className="text-xs sm:text-sm font-medium text-text-primary truncate group-hover:text-primary transition-colors">
                       {item.title}
                     </div>
-                    <div className="flex items-center gap-2.5 mt-1">
-                      <span className={`text-[11px] font-medium px-2 py-0.5 rounded-full ${config.color}`}>
+                    <div className="flex items-center gap-2 sm:gap-2.5 mt-0.5 sm:mt-1">
+                      <span className={`text-[10px] sm:text-[11px] font-medium px-1.5 sm:px-2 py-0.5 rounded-full ${config.color}`}>
                         {config.label}
                       </span>
-                      <span className="text-xs text-text-muted">
+                      <span className="text-[10px] sm:text-xs text-text-muted hidden sm:inline">
                         {formatDistanceToNow(new Date(item.updated_at), { addSuffix: true })}
                       </span>
                     </div>
                   </div>
-                  <span className={`text-[11px] font-medium px-2.5 py-1 rounded-full ${
+                  <span className={`text-[10px] sm:text-[11px] font-medium px-2 py-0.5 sm:py-1 rounded-full ${
                     item.published 
                       ? "bg-emerald-50 text-emerald-600 border border-emerald-100" 
                       : "bg-amber-50 text-amber-600 border border-amber-100"
                   }`}>
                     {item.published ? "Live" : "Draft"}
                   </span>
-                  <ArrowRight size={14} className="text-text-muted group-hover:text-primary group-hover:translate-x-0.5 transition-all shrink-0" />
+                  <ArrowRight size={14} className="text-text-muted group-hover:text-primary group-hover:translate-x-0.5 transition-all shrink-0 hidden sm:block" />
                 </Link>
               );
             })}

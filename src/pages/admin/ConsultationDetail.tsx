@@ -119,7 +119,7 @@ export default function ConsultationDetail() {
 
   if (loading) {
     return (
-      <div className="p-8 lg:p-10">
+      <div className="p-4 sm:p-6 lg:p-10">
         <div className="h-8 w-48 bg-card border border-border rounded-lg animate-pulse mb-8" />
         <div className="h-64 bg-card border border-border rounded-xl animate-pulse" />
       </div>
@@ -129,24 +129,26 @@ export default function ConsultationDetail() {
   if (!item) return null;
 
   return (
-    <div className="p-8 lg:p-10 max-w-4xl">
+    <div className="p-4 sm:p-6 lg:p-10 max-w-4xl">
       {/* Back */}
-      <button onClick={() => navigate("/admin/inquiries")} className="flex items-center gap-2 text-sm text-text-muted hover:text-text-primary transition-colors mb-6">
+      <button onClick={() => navigate("/admin/inquiries")} className="flex items-center gap-2 text-sm text-text-muted hover:text-text-primary transition-colors mb-4 sm:mb-6">
         <ArrowLeft size={16} /> Back to Inquiries
       </button>
 
       {/* Header */}
-      <div className="flex items-start justify-between gap-4 mb-8">
+      <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 sm:gap-4 mb-6 sm:mb-8">
         <div>
-          <h1 className="font-heading text-2xl font-semibold tracking-[-0.03em] text-text-primary">{item.name}</h1>
-          <p className="text-sm text-text-muted mt-1 flex items-center gap-2">
-            <Building2 size={14} /> {item.company} · <Clock size={14} /> {formatDistanceToNow(new Date(item.created_at), { addSuffix: true })}
+          <h1 className="font-heading text-xl sm:text-2xl font-semibold tracking-[-0.03em] text-text-primary">{item.name}</h1>
+          <p className="text-xs sm:text-sm text-text-muted mt-1 flex flex-wrap items-center gap-2">
+            <span className="flex items-center gap-1"><Building2 size={14} /> {item.company}</span>
+            <span className="hidden sm:inline">·</span>
+            <span className="flex items-center gap-1"><Clock size={14} /> {formatDistanceToNow(new Date(item.created_at), { addSuffix: true })}</span>
           </p>
         </div>
         <select
           value={status}
           onChange={e => setStatus(e.target.value as ConsultationStatus)}
-          className={`text-xs font-semibold px-3 py-1.5 rounded-full border-0 outline-none cursor-pointer ${statusColors[status]}`}
+          className={`text-xs font-semibold px-3 py-1.5 rounded-full border-0 outline-none cursor-pointer ${statusColors[status]} self-start`}
         >
           <option value="new">New</option>
           <option value="viewed">Viewed</option>
@@ -156,12 +158,12 @@ export default function ConsultationDetail() {
       </div>
 
       {/* Contact Info */}
-      <div className="bg-card border border-border rounded-xl p-6 mb-6">
-        <h3 className="text-sm font-semibold text-text-primary mb-4">Contact Information</h3>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div className="bg-card border border-border rounded-xl p-4 sm:p-6 mb-4 sm:mb-6">
+        <h3 className="text-sm font-semibold text-text-primary mb-3 sm:mb-4">Contact Information</h3>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
           <div className="flex items-center gap-3 text-sm">
             <Mail size={15} className="text-text-muted shrink-0" />
-            <a href={`mailto:${item.email}`} className="text-primary hover:underline">{item.email}</a>
+            <a href={`mailto:${item.email}`} className="text-primary hover:underline truncate">{item.email}</a>
           </div>
           {item.phone && (
             <div className="flex items-center gap-3 text-sm">
@@ -192,22 +194,22 @@ export default function ConsultationDetail() {
 
       {/* Message */}
       {item.message && (
-        <div className="bg-card border border-border rounded-xl p-6 mb-6">
-          <h3 className="text-sm font-semibold text-text-primary mb-3">Message</h3>
+        <div className="bg-card border border-border rounded-xl p-4 sm:p-6 mb-4 sm:mb-6">
+          <h3 className="text-sm font-semibold text-text-primary mb-2 sm:mb-3">Message</h3>
           <p className="text-sm text-text-secondary leading-relaxed whitespace-pre-wrap">{item.message}</p>
         </div>
       )}
 
       {/* Replied info */}
       {item.replied_at && (
-        <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-4 mb-6 text-sm text-emerald-700 flex items-center gap-2">
+        <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-3 sm:p-4 mb-4 sm:mb-6 text-sm text-emerald-700 flex items-center gap-2">
           <Send size={14} /> Replied on {format(new Date(item.replied_at), "MMM d, yyyy 'at' h:mm a")}
         </div>
       )}
 
       {/* Admin Notes */}
-      <div className="bg-card border border-border rounded-xl p-6 mb-6">
-        <h3 className="text-sm font-semibold text-text-primary mb-3">Internal Notes</h3>
+      <div className="bg-card border border-border rounded-xl p-4 sm:p-6 mb-4 sm:mb-6">
+        <h3 className="text-sm font-semibold text-text-primary mb-2 sm:mb-3">Internal Notes</h3>
         <textarea
           value={adminNotes}
           onChange={e => setAdminNotes(e.target.value)}
@@ -230,19 +232,19 @@ export default function ConsultationDetail() {
             setReplyOpen(true);
             setReplySubject(`Re: Your consultation request — Regent`);
           }}
-          className="flex items-center gap-2 h-10 px-5 bg-primary text-primary-foreground text-sm font-medium rounded-lg hover:bg-primary/90 transition-colors"
+          className="flex items-center gap-2 h-10 px-5 bg-primary text-primary-foreground text-sm font-medium rounded-lg hover:bg-primary/90 transition-colors w-full sm:w-auto justify-center"
         >
           <Send size={15} /> Reply via Email
         </button>
       ) : (
-        <div className="bg-card border border-border rounded-xl p-6">
-          <h3 className="text-sm font-semibold text-text-primary mb-4 flex items-center gap-2">
+        <div className="bg-card border border-border rounded-xl p-4 sm:p-6">
+          <h3 className="text-sm font-semibold text-text-primary mb-3 sm:mb-4 flex items-center gap-2">
             <Send size={15} /> Reply to {item.name}
           </h3>
-          <div className="space-y-4">
+          <div className="space-y-3 sm:space-y-4">
             <div>
               <label className="text-xs font-medium text-text-muted mb-1 block">To</label>
-              <div className="text-sm text-text-secondary">{item.email}</div>
+              <div className="text-sm text-text-secondary truncate">{item.email}</div>
             </div>
             <div>
               <label className="text-xs font-medium text-text-muted mb-1 block">Subject</label>
@@ -258,14 +260,14 @@ export default function ConsultationDetail() {
                 value={replyBody}
                 onChange={e => setReplyBody(e.target.value)}
                 placeholder="Write your reply..."
-                className="w-full min-h-[160px] border border-border rounded-lg p-3 text-sm text-text-primary bg-surface outline-none resize-y focus:border-primary focus:ring-[3px] focus:ring-accent-light transition-all"
+                className="w-full min-h-[120px] sm:min-h-[160px] border border-border rounded-lg p-3 text-sm text-text-primary bg-surface outline-none resize-y focus:border-primary focus:ring-[3px] focus:ring-accent-light transition-all"
               />
             </div>
-            <div className="flex items-center gap-3">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3">
               <button
                 onClick={handleReply}
                 disabled={sending}
-                className="flex items-center gap-2 h-9 px-5 bg-primary text-primary-foreground text-sm font-medium rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-50"
+                className="flex items-center justify-center gap-2 h-9 px-5 bg-primary text-primary-foreground text-sm font-medium rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-50"
               >
                 <Send size={14} /> {sending ? "Sending…" : "Send Reply"}
               </button>
