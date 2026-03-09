@@ -10,113 +10,107 @@ import { detailedCapabilities } from "@/data/siteData";
 import { PageMeta } from "@/components/PageMeta";
 
 const capabilityStats = [
-  { label: "Pre-Built Connectors", value: "180+" },
-  { label: "Protocols Supported", value: "12" },
-  { label: "Avg Deploy Time", value: "4hrs" },
-  { label: "Automation Uptime", value: "99.99%" },
+  { label: "Systems Delivered", value: "400+" },
+  { label: "Industries Served", value: "12+" },
+  { label: "Uptime SLA", value: "99.99%" },
+  { label: "Enterprise Clients", value: "50+" },
 ];
 
-const integrationComparison = [
-  { approach: "Point-to-Point", connections: "N²", maintenance: "High", scalability: "Poor", timeToValue: "Months" },
-  { approach: "Traditional iPaaS", connections: "N", maintenance: "Medium", scalability: "Limited", timeToValue: "Weeks" },
-  { approach: "Regent Approach", connections: "N", maintenance: "Low", scalability: "Unlimited", timeToValue: "Hours", highlighted: true },
+const approachComparison = [
+  { approach: "In-House Teams", timeline: "12–18 months", risk: "High", scalability: "Limited", expertise: "Single domain" },
+  { approach: "Traditional Consultancies", timeline: "6–12 months", risk: "Medium", scalability: "Project-bound", expertise: "General" },
+  { approach: "Regent Systems", timeline: "8–16 weeks", risk: "Low", scalability: "Ongoing partnership", expertise: "Deep integration", highlighted: true },
 ];
 
 const workflowSteps: DemoStep[] = [
   {
-    id: "connect",
-    title: "Connect",
-    icon: <span>🔌</span>,
+    id: "discover",
+    title: "Discover",
+    icon: <span>🔍</span>,
     content: (
       <div>
         <div className="flex items-center gap-3 mb-5">
           <div className="font-mono text-[40px] font-semibold text-primary/10">01</div>
           <div>
-            <h3 className="font-heading text-xl font-semibold text-text-primary">Connect Your Systems</h3>
-            <p className="text-[13px] text-text-muted">Deploy connectors in minutes, not months</p>
+            <h3 className="font-heading text-xl font-semibold text-text-primary">Discovery & Assessment</h3>
+            <p className="text-[13px] text-text-muted">Map your system landscape and identify integration gaps</p>
           </div>
         </div>
-        <div className="bg-surface border border-border rounded-xl p-6 font-mono text-xs leading-7">
-          <div className="text-text-muted">$ regent connect --source salesforce --target postgres</div>
-          <div className="text-primary mt-1">✓ Connector deployed (salesforce → postgres)</div>
-          <div className="text-primary">✓ Schema mapped automatically</div>
-          <div className="text-primary">✓ Initial sync: 2.4M records in 47s</div>
-          <div className="text-text-muted mt-2">$ regent status</div>
-          <div className="text-text-secondary">Active connectors: 184 | Healthy: 184 | Latency: 4ms</div>
+        <div className="bg-surface border border-border rounded-xl p-6 text-sm leading-7 text-text-secondary">
+          <p className="mb-2">Our engineers conduct a comprehensive audit of your existing systems, data flows, and operational bottlenecks.</p>
+          <div className="text-primary mt-3 font-medium text-xs">Deliverables:</div>
+          <div className="pl-4 text-text-muted text-xs mt-1">• System landscape map & dependency analysis</div>
+          <div className="pl-4 text-text-muted text-xs">• Integration gap assessment</div>
+          <div className="pl-4 text-text-muted text-xs">• Prioritized roadmap with estimated ROI</div>
         </div>
       </div>
     ),
   },
   {
-    id: "unify",
-    title: "Unify",
-    icon: <span>🔗</span>,
+    id: "architect",
+    title: "Architect",
+    icon: <span>📐</span>,
     content: (
       <div>
         <div className="flex items-center gap-3 mb-5">
           <div className="font-mono text-[40px] font-semibold text-primary/10">02</div>
           <div>
-            <h3 className="font-heading text-xl font-semibold text-text-primary">Unify Data Schemas</h3>
-            <p className="text-[13px] text-text-muted">Normalize across all sources automatically</p>
+            <h3 className="font-heading text-xl font-semibold text-text-primary">Architecture & Design</h3>
+            <p className="text-[13px] text-text-muted">Design a resilient integration architecture tailored to your organization</p>
           </div>
         </div>
-        <div className="bg-surface border border-border rounded-xl p-6 font-mono text-xs leading-7">
-          <div className="text-text-muted"># unified schema resolution</div>
-          <div><span className="text-primary">sources</span>: [salesforce, sap, oracle, custom_api]</div>
-          <div><span className="text-primary">conflicts_resolved</span>: 847</div>
-          <div><span className="text-primary">duplicates_merged</span>: 12,403</div>
-          <div><span className="text-primary">enrichments_applied</span>: geo, entity, risk</div>
-          <div className="text-text-muted mt-2">Schema consistency: <span className="text-primary">99.98%</span></div>
+        <div className="bg-surface border border-border rounded-xl p-6 text-sm leading-7 text-text-secondary">
+          <p className="mb-2">We design integration architectures built for institutional reliability—handling protocol translation, data governance, and failure recovery from day one.</p>
+          <div className="text-primary mt-3 font-medium text-xs">Deliverables:</div>
+          <div className="pl-4 text-text-muted text-xs mt-1">• Technical architecture document</div>
+          <div className="pl-4 text-text-muted text-xs">• Data flow & transformation specifications</div>
+          <div className="pl-4 text-text-muted text-xs">• Security & compliance framework</div>
         </div>
       </div>
     ),
   },
   {
-    id: "automate",
-    title: "Automate",
+    id: "implement",
+    title: "Implement",
     icon: <span>⚡</span>,
     content: (
       <div>
         <div className="flex items-center gap-3 mb-5">
           <div className="font-mono text-[40px] font-semibold text-primary/10">03</div>
           <div>
-            <h3 className="font-heading text-xl font-semibold text-text-primary">Automate Workflows</h3>
-            <p className="text-[13px] text-text-muted">Event-driven automation across systems</p>
+            <h3 className="font-heading text-xl font-semibold text-text-primary">Build & Deploy</h3>
+            <p className="text-[13px] text-text-muted">Engineer, test, and deploy integration infrastructure</p>
           </div>
         </div>
-        <div className="bg-surface border border-border rounded-xl p-6 font-mono text-xs leading-7">
-          <div className="text-text-muted"># workflow: order_fulfillment</div>
-          <div><span className="text-primary">trigger</span>: order.created</div>
-          <div><span className="text-primary">steps</span>:</div>
-          <div className="pl-4">- validate_inventory (SAP)</div>
-          <div className="pl-4">- reserve_stock (WMS)</div>
-          <div className="pl-4">- process_payment (Stripe)</div>
-          <div className="pl-4">- notify_customer (SendGrid)</div>
-          <div className="text-text-muted mt-2">Avg execution: <span className="text-primary">340ms</span> | Success rate: <span className="text-primary">99.99%</span></div>
+        <div className="bg-surface border border-border rounded-xl p-6 text-sm leading-7 text-text-secondary">
+          <p className="mb-2">Our engineering teams build and deploy your integration infrastructure in iterative sprints—with continuous testing, monitoring, and stakeholder reviews at every stage.</p>
+          <div className="text-primary mt-3 font-medium text-xs">Deliverables:</div>
+          <div className="pl-4 text-text-muted text-xs mt-1">• Production-ready integration infrastructure</div>
+          <div className="pl-4 text-text-muted text-xs">• Automated test suites & monitoring</div>
+          <div className="pl-4 text-text-muted text-xs">• Runbooks & operational documentation</div>
         </div>
       </div>
     ),
   },
   {
-    id: "analyze",
-    title: "Analyze",
+    id: "optimize",
+    title: "Optimize",
     icon: <span>📊</span>,
     content: (
       <div>
         <div className="flex items-center gap-3 mb-5">
           <div className="font-mono text-[40px] font-semibold text-primary/10">04</div>
           <div>
-            <h3 className="font-heading text-xl font-semibold text-text-primary">Surface Intelligence</h3>
-            <p className="text-[13px] text-text-muted">Cross-system insights in real-time</p>
+            <h3 className="font-heading text-xl font-semibold text-text-primary">Ongoing Optimization</h3>
+            <p className="text-[13px] text-text-muted">Continuously monitor, refine, and evolve your systems</p>
           </div>
         </div>
-        <div className="bg-surface border border-border rounded-xl p-6 font-mono text-xs leading-7">
-          <div className="text-text-muted"># intelligence dashboard</div>
-          <div><span className="text-primary">anomalies_detected</span>: 3 (last 24h)</div>
-          <div><span className="text-primary">predictions</span>: demand_spike in 48h (92% conf)</div>
-          <div><span className="text-primary">optimization</span>: route_change saves $47K/mo</div>
-          <div><span className="text-primary">health_score</span>: 98.7 / 100</div>
-          <div className="text-text-muted mt-2">Data freshness: <span className="text-primary">real-time</span> | Sources: <span className="text-primary">184</span></div>
+        <div className="bg-surface border border-border rounded-xl p-6 text-sm leading-7 text-text-secondary">
+          <p className="mb-2">Integration is not a one-time project. We provide ongoing optimization, performance tuning, and proactive issue resolution to ensure your systems evolve with your business.</p>
+          <div className="text-primary mt-3 font-medium text-xs">Deliverables:</div>
+          <div className="pl-4 text-text-muted text-xs mt-1">• Monthly performance & health reports</div>
+          <div className="pl-4 text-text-muted text-xs">• Proactive capacity planning</div>
+          <div className="pl-4 text-text-muted text-xs">• Architecture evolution recommendations</div>
         </div>
       </div>
     ),
@@ -126,7 +120,7 @@ const workflowSteps: DemoStep[] = [
 export default function CapabilitiesPage() {
   return (
     <div>
-      <PageMeta title="Capabilities — Regent | Integration & Intelligence" description="Five core capabilities that address every layer of enterprise integration and intelligence." />
+      <PageMeta title="Solutions & Capabilities — Regent | Integration Consulting" description="Five core capabilities that address every layer of enterprise integration and intelligence challenges." />
       {/* Hero */}
       <section className="pt-[140px] pb-[100px] bg-surface border-b border-border relative overflow-hidden">
         <div className="absolute inset-0 grid-bg opacity-50" />
@@ -134,7 +128,7 @@ export default function CapabilitiesPage() {
           <div className="font-mono text-xs text-text-muted mb-6 flex items-center gap-2">
             <Link to="/" className="text-text-secondary hover:text-text-primary transition-colors">Home</Link>
             <span className="text-border-strong">→</span>
-            Capabilities
+            Solutions & Capabilities
           </div>
           <motion.div
             initial={{ opacity: 0, y: 24 }}
@@ -142,12 +136,12 @@ export default function CapabilitiesPage() {
             transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
             className="max-w-[720px]"
           >
-            <div className="font-mono text-[11px] tracking-[0.12em] uppercase text-primary mb-4">CAPABILITIES</div>
+            <div className="font-mono text-[11px] tracking-[0.12em] uppercase text-primary mb-4">SOLUTIONS & CAPABILITIES</div>
             <h1 className="text-[clamp(36px,5vw,64px)] font-heading font-semibold tracking-[-0.04em] leading-[1.0] text-text-primary mb-6">
-              Complete integration and <GradientText>intelligence capabilities</GradientText>
+              End-to-end integration <GradientText>consulting & delivery</GradientText>
             </h1>
             <p className="text-[clamp(16px,2vw,20px)] font-light text-text-secondary leading-[1.65] max-w-[560px]">
-              Five core capabilities that address every layer of the enterprise integration and intelligence problem.
+              Five core capabilities that address every layer of the enterprise integration and intelligence challenge — from discovery through ongoing optimization.
             </p>
           </motion.div>
 
@@ -225,9 +219,9 @@ export default function CapabilitiesPage() {
         <div className="section-container">
           <RevealOnScroll>
             <InteractiveDemo
-              label="INTERACTIVE DEMO"
-              heading="Workflow Builder"
-              subtitle="Walk through the four stages from disconnected systems to unified operational intelligence."
+              label="OUR PROCESS"
+              heading="How We Deliver"
+              subtitle="Walk through our four-phase engagement model — from initial discovery to ongoing optimization."
               steps={workflowSteps}
             />
           </RevealOnScroll>
@@ -245,7 +239,7 @@ export default function CapabilitiesPage() {
                 Why Regent Is Different
               </h2>
               <p className="text-[17px] text-text-secondary max-w-[560px] mx-auto leading-[1.65]">
-                Not all integration approaches are created equal. See how Regent compares.
+                Not all approaches to systems integration are equal. See how Regent's consulting model compares.
               </p>
             </div>
           </RevealOnScroll>
@@ -254,21 +248,21 @@ export default function CapabilitiesPage() {
               <table className="w-full border-collapse">
                 <thead>
                   <tr>
-                    {["Approach", "Connections", "Maintenance", "Scalability", "Time to Value"].map(h => (
+                    {["Approach", "Timeline", "Risk", "Scalability", "Expertise"].map(h => (
                       <th key={h} className="font-mono text-[11px] tracking-[0.1em] uppercase text-text-muted text-left p-4 border-b border-border">{h}</th>
                     ))}
                   </tr>
                 </thead>
                 <tbody>
-                  {integrationComparison.map((row) => (
+                  {approachComparison.map((row) => (
                     <tr key={row.approach} className={row.highlighted ? "bg-accent-light" : ""}>
                       <td className={`p-4 border-b border-border font-heading text-[15px] font-semibold ${row.highlighted ? "text-primary" : "text-text-primary"}`}>
                         {row.approach}
                       </td>
-                      <td className="p-4 border-b border-border text-sm text-text-secondary font-mono">{row.connections}</td>
-                      <td className="p-4 border-b border-border text-sm text-text-secondary">{row.maintenance}</td>
+                      <td className={`p-4 border-b border-border text-sm font-medium ${row.highlighted ? "text-primary" : "text-text-secondary"}`}>{row.timeline}</td>
+                      <td className="p-4 border-b border-border text-sm text-text-secondary">{row.risk}</td>
                       <td className="p-4 border-b border-border text-sm text-text-secondary">{row.scalability}</td>
-                      <td className={`p-4 border-b border-border text-sm font-medium ${row.highlighted ? "text-primary" : "text-text-secondary"}`}>{row.timeToValue}</td>
+                      <td className="p-4 border-b border-border text-sm text-text-secondary">{row.expertise}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -283,21 +277,21 @@ export default function CapabilitiesPage() {
         <div className="section-container">
           <RevealOnScroll>
             <div className="text-center mb-14">
-              <div className="font-mono text-[11px] tracking-[0.12em] uppercase text-primary mb-4">WORKFLOW</div>
+              <div className="font-mono text-[11px] tracking-[0.12em] uppercase text-primary mb-4">ENGAGEMENT MODEL</div>
               <h2 className="text-[clamp(28px,4vw,48px)] font-heading font-semibold tracking-[-0.03em] text-text-primary mb-4">
-                From Connection to Intelligence
+                From Discovery to Operational Intelligence
               </h2>
               <p className="text-[17px] text-text-secondary max-w-[560px] mx-auto leading-[1.65]">
-                The path from disconnected systems to unified operational intelligence follows four stages.
+                Every engagement follows a proven methodology — moving from understanding your landscape to delivering unified operational intelligence.
               </p>
             </div>
           </RevealOnScroll>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
             {[
-              { step: "01", title: "Connect", desc: "Deploy connectors to every system in your landscape. REST, GraphQL, gRPC, SOAP, event streams — all handled." },
-              { step: "02", title: "Unify", desc: "Normalize data across all sources into a common schema. Resolve conflicts, deduplicate, and enrich automatically." },
-              { step: "03", title: "Automate", desc: "Build workflows that span systems. Trigger on events, apply business logic, handle errors, and maintain audit trails." },
-              { step: "04", title: "Analyze", desc: "Surface operational intelligence across all integrated data. Detect anomalies, predict issues, and optimize processes." },
+              { step: "01", title: "Discover", desc: "We map every system, data flow, and integration gap across your organization to build a complete picture of your landscape." },
+              { step: "02", title: "Architect", desc: "We design integration architectures tailored to your scale, compliance requirements, and operational priorities." },
+              { step: "03", title: "Build", desc: "Our engineers build and deploy production-grade integrations, workflows, and monitoring — tested and documented." },
+              { step: "04", title: "Optimize", desc: "We continuously monitor, tune, and evolve your integration infrastructure to keep pace with your business." },
             ].map((s, i) => (
               <RevealOnScroll key={s.step} delay={i * 0.12}>
                 <motion.div
