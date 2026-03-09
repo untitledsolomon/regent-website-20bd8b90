@@ -179,6 +179,7 @@ export default function ResourcesPage() {
                   key={res.id}
                   res={{ type: res.type, title: res.title, desc: res.description }}
                   fileUrl={res.file_url}
+                  resourceId={res.id}
                   delay={Math.min(i + 1, 5)}
                 />
               ))}

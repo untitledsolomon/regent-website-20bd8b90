@@ -38,6 +38,8 @@ export default function BlogPostPage() {
     enabled: !!slug,
   });
 
+  useTrackView("blog_post", post?.id);
+
   useEffect(() => {
     return scrollYProgress.on("change", setProgress);
   }, [scrollYProgress]);
