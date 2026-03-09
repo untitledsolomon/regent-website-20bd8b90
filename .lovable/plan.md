@@ -1,44 +1,84 @@
 
 
-## Populate Content for Blog Posts, Resources, and Case Studies
+## Content Analytics & Downloadable Resources
 
-### Overview
-Insert meaningful, industry-relevant content into the three empty/near-empty tables: `blog_posts` (0 rows), `resources` (0 rows), and `case_studies` (1 irrelevant row to replace). All content will align with Regent's brand as an enterprise systems integration and infrastructure company.
+### What We're Building
+1. A `content_views` table to track views on blog posts, case studies, and resource downloads
+2. Tracking logic on public pages (blog post view, case study view, resource download)
+3. Updated admin dashboard with content performance analytics (top content, view counts, download counts)
+4. Functional download buttons on resources (already wired to `file_url` — just need tracking)
 
-### Content to Create
+### Database Changes
 
-#### Blog Posts (6 articles)
-1. **"The Hidden Cost of Data Silos in Enterprise Operations"** — Category: Data Infrastructure. How fragmented systems cost enterprises millions annually.
-2. **"Event-Driven Architecture: Why Real-Time Matters"** — Category: Engineering. Benefits of event-driven vs batch processing for enterprise workflows.
-3. **"5 Signs Your Integration Strategy Needs an Overhaul"** — Category: Strategy. Warning signs and modernization approaches.
-4. **"Building Resilient Data Pipelines at Scale"** — Category: Engineering. Best practices for fault-tolerant data infrastructure.
-5. **"The Future of Workflow Automation in Financial Services"** — Category: Industry Insights. How automation is transforming compliance and operations.
-6. **"From Legacy to Modern: A Practical Migration Playbook"** — Category: Strategy. Step-by-step guide for legacy system modernization.
+**New table: `content_views`**
+```sql
+CREATE TABLE public.content_views (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  content_type text NOT NULL,        -- 'blog_post', 'case_study', 'resource_download'
+  content_id uuid NOT NULL,
+  created_at timestamptz NOT NULL DEFAULT now(),
+  viewer_ip text,                     -- optional, for dedup
+  user_agent text                     -- optional metadata
+);
+```
 
-Each post will have: title, slug, excerpt, full content (500-800 words of rich HTML), author, date, category, read_time, published=true.
+**RLS policies:**
+- Anyone can INSERT (public tracking — no auth required)
+- No public SELECT/UPDATE/DELETE
+- Admins can SELECT all
 
-#### Case Studies (4 studies)
-1. **"Global Bank Unifies 47 Trading Systems"** — Financial Services. Challenge: fragmented trading infrastructure. Results: 99.99% uptime, 340ms latency reduction.
-2. **"Healthcare Network Automates Patient Data Exchange"** — Healthcare. Challenge: manual data reconciliation across 12 hospitals. Results: 94% reduction in manual processes.
-3. **"Fortune 500 Retailer Builds Real-Time Inventory Intelligence"** — Retail. Challenge: inventory visibility across 2,400 locations. Results: $23M annual savings.
-4. **"Energy Provider Modernizes Grid Monitoring Infrastructure"** — Energy. Challenge: legacy SCADA systems with no real-time analytics. Results: 67% faster incident response.
+**Add `view_count` and `download_count` as computed values** — we'll query aggregates from `content_views` rather than maintaining counters on the content tables (simpler, no race conditions).
 
-Each with: title, slug, industry, summary, challenge, solution, results array, metrics JSON, published=true. Will also delete the existing irrelevant case study.
+### Frontend Changes
 
-#### Resources (5 items)
-1. **"Enterprise Integration Patterns Whitepaper"** — Type: Whitepaper. Modern integration architecture patterns.
-2. **"Data Pipeline Architecture Guide"** — Type: Guide. Designing fault-tolerant data pipelines.
-3. **"ROI Calculator: System Integration vs. Point Solutions"** — Type: Whitepaper. Framework for calculating integration ROI.
-4. **"Workflow Automation Best Practices"** — Type: Guide. Implementing enterprise workflow automation.
-5. **"Real-Time Analytics Infrastructure Checklist"** — Type: Whitepaper. Pre-deployment checklist for streaming analytics.
+#### 1. Track Blog Post Views (`src/pages/BlogPost.tsx`)
+- On page load (after post loads), fire a single INSERT to `content_views` with `content_type: 'blog_post'` and `content_id: post.id`
+- Use a `useEffect` with a ref to prevent double-counting on re-renders
 
-Each with: title, slug, description, type, published=true.
+#### 2. Track Case Study Views (`src/pages/CaseStudyDetail.tsx`)
+- Same pattern: INSERT on load with `content_type: 'case_study'`
 
-### Execution
-- Use the database insert tool for all data operations (INSERT statements)
-- DELETE the existing irrelevant case study first
-- All content published=true so it appears on the public site immediately
+#### 3. Track Resource Downloads (`src/components/CardComponents.tsx` + `src/pages/Resources.tsx`)
+- On download click, INSERT to `content_views` with `content_type: 'resource_download'` before opening the file URL
+- Pass `resource.id` through to the ResourceCard component
+
+#### 4. Create a shared tracking hook (`src/hooks/useContentTracking.ts`)
+- `useTrackView(contentType, contentId)` — fires once on mount
+- `trackDownload(contentId)` — callable function for download clicks
+
+#### 5. Update Admin Dashboard (`src/pages/admin/AdminDashboard.tsx`)
+- Add new KPI: "Total Views" (sum of all content_views)
+- Add "Top Performing Content" section showing a ranked table with:
+  - Content title, type, view/download count
+  - Sorted by count descending, top 10
+- Add a "Views Over Time" line chart (last 30 days, aggregated daily)
+- Query `content_views` with aggregation using `.select()` and group by content_id
+- Since Supabase JS client doesn't support GROUP BY, create a database function `get_content_analytics()` that returns aggregated data
+
+**New database function: `get_content_analytics()`**
+```sql
+CREATE FUNCTION public.get_content_analytics()
+RETURNS TABLE (content_type text, content_id uuid, title text, view_count bigint)
+SECURITY DEFINER
+```
+This joins `content_views` with blog_posts/case_studies/resources to return titles and counts.
+
+**New database function: `get_daily_views(days int)`**
+Returns daily view counts for the chart.
+
+### Files to Create
+- `src/hooks/useContentTracking.ts`
 
 ### Files to Edit
-No code files need changes — this is purely database content population.
+- `src/pages/BlogPost.tsx` — add view tracking
+- `src/pages/CaseStudyDetail.tsx` — add view tracking
+- `src/components/CardComponents.tsx` — add download tracking to ResourceCard
+- `src/pages/Resources.tsx` — pass resource id to ResourceCard
+- `src/pages/admin/AdminDashboard.tsx` — add analytics widgets
+
+### Execution Order
+1. Database migration (table + functions + RLS)
+2. Create tracking hook
+3. Wire tracking into public pages
+4. Update dashboard with analytics
 
