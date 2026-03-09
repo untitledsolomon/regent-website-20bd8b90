@@ -43,6 +43,8 @@ const ConsultationList = lazy(() => import("./pages/admin/ConsultationList"));
 const ConsultationDetail = lazy(() => import("./pages/admin/ConsultationDetail"));
 const CareerList = lazy(() => import("./pages/admin/CareerList"));
 const CareerEditor = lazy(() => import("./pages/admin/CareerEditor"));
+const AdminSettings = lazy(() => import("./pages/admin/AdminSettings"));
+const AdminDocumentation = lazy(() => import("./pages/admin/AdminDocumentation"));
 const Unsubscribe = lazy(() => import("./pages/Unsubscribe"));
 
 const queryClient = new QueryClient();
@@ -136,6 +138,8 @@ function AdminRoutes() {
           <Route path="newsletter/compose" element={<NewsletterCompose />} />
           <Route path="inquiries" element={<ConsultationList />} />
           <Route path="inquiries/:id" element={<ConsultationDetail />} />
+          <Route path="settings" element={<AdminSettings />} />
+          <Route path="documentation" element={<AdminDocumentation />} />
         </Route>
       </Routes>
     </Suspense>
