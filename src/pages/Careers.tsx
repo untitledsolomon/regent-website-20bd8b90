@@ -99,6 +99,12 @@ export default function CareersPage() {
 
           {loading ? (
             <div className="space-y-3">{[1, 2, 3].map(i => <div key={i} className="h-20 bg-card border border-border rounded-xl animate-pulse" />)}</div>
+          ) : isError ? (
+            <div className="text-center py-16">
+              <h2 className="font-heading text-xl font-semibold text-text-primary mb-4">Unable to load positions</h2>
+              <p className="text-text-secondary mb-6">Something went wrong. Please try again.</p>
+              <button onClick={() => refetch()} className="font-heading text-sm font-medium bg-primary text-primary-foreground rounded-lg px-6 py-3 hover:bg-primary/90 transition-all">Retry</button>
+            </div>
           ) : (
             <>
               <div className="flex flex-wrap gap-2 mb-8">
