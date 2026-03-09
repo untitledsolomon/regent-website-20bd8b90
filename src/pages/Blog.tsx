@@ -126,18 +126,28 @@ export default function BlogPage() {
                     whileHover={{ boxShadow: "0 12px 40px rgba(0,0,0,0.08)", y: -4 }}
                     className="border border-border rounded-2xl overflow-hidden grid grid-cols-1 md:grid-cols-2 cursor-pointer transition-all"
                   >
-                    <div className="bg-gradient-to-br from-accent-light to-primary/[0.08] p-10 md:p-16 flex items-center justify-center min-h-[240px] md:min-h-[300px] relative overflow-hidden">
-                      <motion.div
-                        className="absolute inset-0 bg-gradient-to-r from-primary/10 via-transparent to-accent-mid/10"
-                        animate={{ x: ["-100%", "100%"] }}
-                        transition={{ duration: 6, repeat: Infinity, ease: "linear" }}
-                      />
-                      <div className="opacity-20 text-primary relative z-10">
-                        <svg width="100" height="100" viewBox="0 0 100 100" fill="none">
-                          <rect x="10" y="10" width="80" height="80" rx="8" stroke="currentColor" strokeWidth="3"/>
-                          <path d="M25 35h50M25 50h50M25 65h30" stroke="currentColor" strokeWidth="3" strokeLinecap="round"/>
-                        </svg>
-                      </div>
+                    <div className="min-h-[240px] md:min-h-[300px] relative overflow-hidden bg-gradient-to-br from-accent-light to-primary/[0.08]">
+                      {featured.image_url ? (
+                        <img
+                          src={featured.image_url}
+                          alt={featured.title}
+                          className="w-full h-full object-cover absolute inset-0"
+                        />
+                      ) : (
+                        <>
+                          <motion.div
+                            className="absolute inset-0 bg-gradient-to-r from-primary/10 via-transparent to-accent-mid/10"
+                            animate={{ x: ["-100%", "100%"] }}
+                            transition={{ duration: 6, repeat: Infinity, ease: "linear" }}
+                          />
+                          <div className="opacity-20 text-primary absolute inset-0 flex items-center justify-center">
+                            <svg width="100" height="100" viewBox="0 0 100 100" fill="none">
+                              <rect x="10" y="10" width="80" height="80" rx="8" stroke="currentColor" strokeWidth="3"/>
+                              <path d="M25 35h50M25 50h50M25 65h30" stroke="currentColor" strokeWidth="3" strokeLinecap="round"/>
+                            </svg>
+                          </div>
+                        </>
+                      )}
                     </div>
                     <div className="p-8 md:p-12">
                       <div className="flex items-center gap-3 mb-5">
