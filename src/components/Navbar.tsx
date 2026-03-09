@@ -66,38 +66,22 @@ export function Navbar() {
         </div>
       </div>
 
-      <AnimatePresence>
-        {menuOpen && (
-          <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            className="fixed top-16 left-0 right-0 bottom-0 bg-background z-[99] p-5 border-t border-border lg:hidden overflow-y-auto"
-          >
-            {links.map((l, i) => (
-              <motion.div
+      {menuOpen && (
+        <div className="fixed inset-0 top-16 bg-background z-[200] lg:hidden overflow-y-auto">
+          <div className="p-5 border-t border-border">
+            {links.map((l) => (
+              <Link
                 key={l.to}
-                initial={{ opacity: 0, x: -12 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: i * 0.05, duration: 0.25 }}
+                to={l.to}
+                onClick={() => setMenuOpen(false)}
+                className={`block py-3.5 border-b border-border text-lg font-heading font-medium ${
+                  location.pathname === l.to ? "text-primary" : "text-text-primary"
+                }`}
               >
-                <Link
-                  to={l.to}
-                  onClick={() => setMenuOpen(false)}
-                  className={`block py-3.5 border-b border-border text-lg font-heading font-medium ${
-                    location.pathname === l.to ? "text-primary" : "text-text-primary"
-                  }`}
-                >
-                  {l.label}
-                </Link>
-              </motion.div>
+                {l.label}
+              </Link>
             ))}
-            <motion.div
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: links.length * 0.05 + 0.1 }}
-              className="mt-6"
-            >
+            <div className="mt-6">
               <Link
                 to="/demo"
                 onClick={() => setMenuOpen(false)}
@@ -105,10 +89,10 @@ export function Navbar() {
               >
                 Start a Project
               </Link>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+            </div>
+          </div>
+        </div>
+      )}
     </nav>
   );
 }
