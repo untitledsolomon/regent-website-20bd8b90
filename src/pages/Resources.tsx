@@ -7,6 +7,7 @@ import { Icons } from "@/components/Icons";
 import { PageMeta } from "@/components/PageMeta";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
+import { trackDownload } from "@/hooks/useContentTracking";
 
 const types = ["All", "Whitepaper", "Research", "Documentation", "Case Study"];
 
@@ -118,14 +119,15 @@ export default function ResourcesPage() {
                   </div>
                   <div className="flex-shrink-0">
                     {featuredResource.file_url ? (
-                      <a
-                        href={featuredResource.file_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
+                      <button
+                        onClick={() => {
+                          trackDownload(featuredResource.id);
+                          window.open(featuredResource.file_url!, "_blank", "noopener,noreferrer");
+                        }}
                         className="font-heading text-[15px] font-medium bg-primary text-primary-foreground rounded-lg px-7 py-3.5 inline-flex items-center gap-2 hover:shadow-[0_8px_24px_rgba(79,70,229,0.25)] transition-all"
                       >
                         Download PDF <Icons.ArrowRight />
-                      </a>
+                      </button>
                     ) : (
                       <motion.button
                         whileHover={{ scale: 1.02, y: -2 }}
