@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { Icons } from "@/components/Icons";
 import { logActivity } from "@/hooks/useActivityLog";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Plus, Search, Trash2, Eye, EyeOff, X, Star } from "lucide-react";
 
 interface Resource {
   id: string;
@@ -70,64 +70,71 @@ export default function ResourceList() {
     <div className="p-4 sm:p-6 lg:p-8">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
         <div>
-          <h1 className="font-heading text-xl sm:text-2xl font-semibold tracking-[-0.03em] text-text-primary">Resources</h1>
-          <p className="text-xs sm:text-sm text-text-secondary mt-1">{items.length} resources total</p>
+          <h1 className="font-heading text-xl sm:text-2xl font-semibold tracking-[-0.03em] text-foreground">Resources</h1>
+          <p className="text-xs sm:text-sm text-muted-foreground mt-1">{items.length} resources total</p>
         </div>
-        <Link to="/admin/resources/new" className="h-9 px-4 bg-primary text-primary-foreground rounded-lg text-sm font-medium flex items-center justify-center gap-2 hover:bg-primary/90 transition-all w-full sm:w-auto">
-          New Resource <Icons.ArrowRight />
+        <Link to="/admin/resources/new" className="h-10 px-5 bg-primary text-primary-foreground rounded-xl text-sm font-medium flex items-center justify-center gap-2 hover:bg-primary/90 transition-all w-full sm:w-auto shadow-sm shadow-primary/20">
+          <Plus size={16} /> New Resource
         </Link>
       </div>
 
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 mb-6">
-        <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search resources..." className="flex-1 h-9 border border-border rounded-lg px-3 text-sm bg-background text-text-primary focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all" />
-        <div className="flex items-center gap-1 border border-border rounded-lg p-0.5 self-start sm:self-auto">
+        <div className="relative flex-1">
+          <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+          <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search resources..." className="w-full h-10 border border-input rounded-xl pl-10 pr-3 text-sm bg-background text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all" />
+        </div>
+        <div className="flex items-center gap-1 border border-input rounded-xl p-1 self-start sm:self-auto bg-background">
           {(["all", "published", "draft"] as const).map(f => (
-            <button key={f} onClick={() => setFilter(f)} className={`text-xs px-3 py-1.5 rounded-md transition-colors capitalize ${filter === f ? "bg-primary text-primary-foreground" : "text-text-secondary hover:bg-surface"}`}>{f}</button>
+            <button key={f} onClick={() => setFilter(f)} className={`text-xs px-3 py-1.5 rounded-lg transition-colors capitalize ${filter === f ? "bg-primary text-primary-foreground shadow-sm" : "text-muted-foreground hover:text-foreground hover:bg-muted"}`}>{f}</button>
           ))}
         </div>
       </div>
 
       {selected.size > 0 && (
-        <div className="bg-card border border-primary/20 rounded-xl px-4 py-3 mb-4 flex items-center justify-between gap-4 shadow-sm">
-          <span className="text-sm font-medium text-text-primary">{selected.size} selected</span>
+        <div className="bg-card/80 backdrop-blur-xl border border-primary/20 rounded-2xl px-5 py-3 mb-4 flex items-center justify-between gap-4 shadow-lg shadow-primary/5">
+          <span className="text-sm font-medium text-foreground">{selected.size} selected</span>
           <div className="flex gap-2">
-            <button onClick={() => bulkAction("publish")} className="text-xs px-3 py-1.5 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100 transition-colors">Publish</button>
-            <button onClick={() => bulkAction("unpublish")} className="text-xs px-3 py-1.5 rounded-lg bg-amber-50 text-amber-700 border border-amber-200 hover:bg-amber-100 transition-colors">Unpublish</button>
-            <button onClick={() => bulkAction("delete")} className="text-xs px-3 py-1.5 rounded-lg bg-destructive/10 text-destructive border border-destructive/20 hover:bg-destructive/20 transition-colors">Delete</button>
-            <button onClick={() => setSelected(new Set())} className="text-xs px-3 py-1.5 text-text-muted hover:text-text-primary transition-colors">Cancel</button>
+            <button onClick={() => bulkAction("publish")} className="text-xs px-3 py-1.5 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/20 transition-colors flex items-center gap-1.5"><Eye size={12} /> Publish</button>
+            <button onClick={() => bulkAction("unpublish")} className="text-xs px-3 py-1.5 rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-400 hover:bg-amber-500/20 transition-colors flex items-center gap-1.5"><EyeOff size={12} /> Unpublish</button>
+            <button onClick={() => bulkAction("delete")} className="text-xs px-3 py-1.5 rounded-lg bg-destructive/10 text-destructive hover:bg-destructive/20 transition-colors flex items-center gap-1.5"><Trash2 size={12} /> Delete</button>
+            <button onClick={() => setSelected(new Set())} className="text-xs px-2 py-1.5 text-muted-foreground hover:text-foreground transition-colors"><X size={14} /></button>
           </div>
         </div>
       )}
 
       {loading ? (
-        <div className="space-y-3">{[1, 2, 3].map(i => <div key={i} className="h-16 bg-card border border-border rounded-lg animate-pulse" />)}</div>
+        <div className="space-y-2">{[1, 2, 3].map(i => <div key={i} className="h-16 bg-card border border-border rounded-xl animate-pulse" />)}</div>
       ) : filtered.length === 0 ? (
-        <div className="text-center py-20 text-text-muted">{search || filter !== "all" ? "No matching resources." : "No resources yet."}</div>
+        <div className="text-center py-20 text-muted-foreground">{search || filter !== "all" ? "No matching resources." : "No resources yet."}</div>
       ) : (
-        <div className="space-y-2">
-          <div className="px-4 py-2 flex items-center gap-3">
+        <div className="bg-card border border-border rounded-2xl overflow-hidden">
+          <div className="hidden sm:grid grid-cols-[auto_1fr_auto_auto_auto] gap-4 items-center px-5 py-3 border-b border-border bg-muted/30">
             <Checkbox checked={allSelected} onCheckedChange={toggleAll} />
-            <span className="text-xs text-text-muted">Select all</span>
+            <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Title</span>
+            <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground w-24">Type</span>
+            <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground w-24">Status</span>
+            <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground w-36 text-right">Actions</span>
           </div>
-          {filtered.map(item => (
-            <div key={item.id} className="bg-card border border-border rounded-lg px-4 sm:px-5 py-3 sm:py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
-              <div className="flex items-center gap-3 min-w-0">
-                <Checkbox checked={selected.has(item.id)} onCheckedChange={() => toggleOne(item.id)} />
-                <div className="min-w-0">
-                  <div className="font-medium text-sm text-text-primary truncate">{item.title}</div>
-                  <div className="flex items-center gap-2 sm:gap-3 mt-1 flex-wrap">
-                    <span className="text-xs text-text-muted font-mono">{item.type}</span>
-                    {item.featured && <span className="text-xs px-2 py-0.5 rounded-full bg-primary/10 text-primary">Featured</span>}
-                    <span className={`text-xs px-2 py-0.5 rounded-full ${item.published ? "bg-green-100 text-green-700" : "bg-yellow-100 text-yellow-700"}`}>
-                      {item.published ? "Published" : "Draft"}
-                    </span>
-                  </div>
-                </div>
+          {filtered.map((item, idx) => (
+            <div key={item.id} className={`grid grid-cols-1 sm:grid-cols-[auto_1fr_auto_auto_auto] gap-3 sm:gap-4 items-center px-5 py-3 hover:bg-muted/30 transition-colors ${idx < filtered.length - 1 ? "border-b border-border" : ""}`}>
+              <Checkbox checked={selected.has(item.id)} onCheckedChange={() => toggleOne(item.id)} />
+              <div className="min-w-0 flex items-center gap-2">
+                <div className="font-medium text-sm text-foreground truncate">{item.title}</div>
+                {item.featured && <Star size={12} className="text-primary shrink-0 fill-primary" />}
               </div>
-              <div className="flex items-center gap-2 shrink-0">
-                <button onClick={() => toggle(item.id, item.published)} className="text-xs px-3 py-1.5 rounded-lg border border-border hover:bg-surface text-text-secondary transition-colors">{item.published ? "Unpublish" : "Publish"}</button>
-                <Link to={`/admin/resources/${item.id}/edit`} className="text-xs px-3 py-1.5 rounded-lg border border-border hover:bg-surface text-text-secondary transition-colors">Edit</Link>
-                <button onClick={() => remove(item.id)} className="text-xs px-3 py-1.5 rounded-lg border border-destructive/20 hover:bg-destructive/10 text-destructive transition-colors">Delete</button>
+              <span className="text-[11px] text-muted-foreground font-mono w-24">{item.type}</span>
+              <div className="w-24">
+                <span className={`inline-flex items-center gap-1 text-[11px] px-2 py-0.5 rounded-full font-medium ${
+                  item.published ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400" : "bg-amber-500/10 text-amber-600 dark:text-amber-400"
+                }`}>
+                  <div className={`w-1.5 h-1.5 rounded-full ${item.published ? "bg-emerald-500" : "bg-amber-500"}`} />
+                  {item.published ? "Published" : "Draft"}
+                </span>
+              </div>
+              <div className="flex items-center gap-1.5 w-36 justify-end">
+                <button onClick={() => toggle(item.id, item.published)} className="text-[11px] px-2.5 py-1.5 rounded-lg border border-input hover:bg-muted text-muted-foreground hover:text-foreground transition-colors">{item.published ? "Unpublish" : "Publish"}</button>
+                <Link to={`/admin/resources/${item.id}/edit`} className="text-[11px] px-2.5 py-1.5 rounded-lg border border-input hover:bg-muted text-muted-foreground hover:text-foreground transition-colors">Edit</Link>
+                <button onClick={() => remove(item.id)} className="text-[11px] px-2 py-1.5 rounded-lg hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-colors"><Trash2 size={13} /></button>
               </div>
             </div>
           ))}

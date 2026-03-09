@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -9,7 +9,7 @@ import {
 import { formatDistanceToNow, subDays, startOfMonth, format, parseISO } from "date-fns";
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip as RechartsTooltip, ResponsiveContainer,
-  PieChart, Pie, Cell, LineChart, Line, CartesianGrid, Area, AreaChart,
+  PieChart, Pie, Cell, CartesianGrid, Area, AreaChart,
 } from "recharts";
 
 interface Stats {
@@ -36,10 +36,10 @@ interface RecentItem {
 }
 
 const PIE_COLORS = [
-  "hsl(243, 76%, 59%)",    // primary - new
-  "hsl(232, 85%, 74%)",    // accent-mid - viewed
-  "hsl(142, 71%, 45%)",    // green - replied
-  "hsl(42, 87%, 55%)",     // amber - closed
+  "hsl(var(--primary))",
+  "hsl(var(--accent-mid))",
+  "hsl(142, 71%, 45%)",
+  "hsl(42, 87%, 55%)",
 ];
 
 export default function AdminDashboard() {
@@ -81,7 +81,6 @@ export default function AdminDashboard() {
       const inqs = inqRes.data || [];
       const subsAll = subsAllRes.data || [];
 
-      // Inquiry breakdown by status
       const statusMap: Record<string, number> = {};
       const weekAgo = subDays(new Date(), 7);
       let newInquiries = 0;
@@ -94,11 +93,7 @@ export default function AdminDashboard() {
         value,
       }));
 
-      // Subscriber growth (last 30 days)
-      const days30 = Array.from({ length: 30 }, (_, i) => {
-        const d = subDays(new Date(), 29 - i);
-        return format(d, "MMM dd");
-      });
+      const days30 = Array.from({ length: 30 }, (_, i) => format(subDays(new Date(), 29 - i), "MMM dd"));
       const subsByDay: Record<string, number> = {};
       for (const s of subsAll) {
         const day = format(parseISO(s.created_at), "MMM dd");
@@ -110,20 +105,14 @@ export default function AdminDashboard() {
         return { date: day, count: cumulative };
       });
 
-      // Content by month (last 6 months)
-      const months6 = Array.from({ length: 6 }, (_, i) => {
-        const d = startOfMonth(subDays(new Date(), i * 30));
-        return format(d, "MMM yyyy");
-      }).reverse();
+      const months6 = Array.from({ length: 6 }, (_, i) => format(startOfMonth(subDays(new Date(), i * 30)), "MMM yyyy")).reverse();
+      const contentByMonth = months6.map(month => ({
+        month,
+        posts: posts.filter(x => format(parseISO(x.created_at), "MMM yyyy") === month).length,
+        caseStudies: cs.filter(x => format(parseISO(x.created_at), "MMM yyyy") === month).length,
+        resources: res.filter(x => format(parseISO(x.created_at), "MMM yyyy") === month).length,
+      }));
 
-      const contentByMonth = months6.map(month => {
-        const p = posts.filter(x => format(parseISO(x.created_at), "MMM yyyy") === month).length;
-        const c = cs.filter(x => format(parseISO(x.created_at), "MMM yyyy") === month).length;
-        const r = res.filter(x => format(parseISO(x.created_at), "MMM yyyy") === month).length;
-        return { month, posts: p, caseStudies: c, resources: r };
-      });
-
-      // Analytics data
       const topContent = (analyticsRes.data || []).map((item: any) => ({
         content_type: item.content_type,
         content_id: item.content_id,
@@ -139,8 +128,6 @@ export default function AdminDashboard() {
         return { date: displayDate, views: found ? Number(found.view_count) : 0 };
       });
 
-      const totalViews = totalViewsRes.count || 0;
-
       setStats({
         posts: { total: posts.length, published: posts.filter(p => p.published).length },
         caseStudies: { total: cs.length, published: cs.filter(c => c.published).length },
@@ -151,7 +138,7 @@ export default function AdminDashboard() {
         inquiryBreakdown,
         subscriberGrowth,
         contentByMonth,
-        totalViews,
+        totalViews: totalViewsRes.count || 0,
         topContent,
         dailyViews,
       });
@@ -197,38 +184,10 @@ export default function AdminDashboard() {
   };
 
   const kpis = [
-    {
-      label: "Total Content",
-      value: totalContent,
-      sub: `${totalPublished} published`,
-      icon: FileText,
-      trend: publishRate > 50 ? "up" : "neutral",
-      trendValue: `${publishRate}% live`,
-    },
-    {
-      label: "Total Views",
-      value: stats.totalViews,
-      sub: "all time",
-      icon: Eye,
-      trend: stats.totalViews > 0 ? "up" : "neutral",
-      trendValue: stats.topContent.length > 0 ? `${stats.topContent.length} tracked` : "no data",
-    },
-    {
-      label: "New Inquiries",
-      value: stats.newInquiries,
-      sub: "this week",
-      icon: MessageSquare,
-      trend: stats.newInquiries > 0 ? "up" : "neutral",
-      trendValue: `${stats.inquiries} total`,
-    },
-    {
-      label: "Subscribers",
-      value: stats.subscribers,
-      sub: "active",
-      icon: Mail,
-      trend: "up",
-      trendValue: "growing",
-    },
+    { label: "Total Content", value: totalContent, sub: `${totalPublished} published`, icon: FileText, trend: publishRate > 50 ? "up" : "neutral", trendValue: `${publishRate}% live`, color: "from-primary/20 to-primary/5" },
+    { label: "Total Views", value: stats.totalViews, sub: "all time", icon: Eye, trend: stats.totalViews > 0 ? "up" : "neutral", trendValue: stats.topContent.length > 0 ? `${stats.topContent.length} tracked` : "no data", color: "from-accent-mid/20 to-accent-mid/5" },
+    { label: "New Inquiries", value: stats.newInquiries, sub: "this week", icon: MessageSquare, trend: stats.newInquiries > 0 ? "up" : "neutral", trendValue: `${stats.inquiries} total`, color: "from-emerald-500/20 to-emerald-500/5" },
+    { label: "Subscribers", value: stats.subscribers, sub: "active", icon: Mail, trend: "up", trendValue: "growing", color: "from-amber-500/20 to-amber-500/5" },
   ];
 
   if (loading) {
@@ -236,10 +195,14 @@ export default function AdminDashboard() {
       <div className="p-4 sm:p-6 lg:p-8">
         <div className="h-8 w-48 bg-muted rounded-lg animate-pulse mb-8" />
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-          {[1, 2, 3, 4].map(i => <div key={i} className="h-[120px] bg-card border border-border rounded-xl animate-pulse" />)}
+          {[1, 2, 3, 4].map(i => (
+            <div key={i} className="h-[130px] bg-card border border-border rounded-2xl animate-pulse relative overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-muted/50 to-transparent animate-[shimmer_2s_infinite]" />
+            </div>
+          ))}
         </div>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-8">
-          {[1, 2].map(i => <div key={i} className="h-[300px] bg-card border border-border rounded-xl animate-pulse" />)}
+          {[1, 2].map(i => <div key={i} className="h-[300px] bg-card border border-border rounded-2xl animate-pulse" />)}
         </div>
       </div>
     );
@@ -262,20 +225,25 @@ export default function AdminDashboard() {
         {kpis.map(kpi => {
           const Icon = kpi.icon;
           return (
-            <div key={kpi.label} className="bg-card border border-border rounded-xl p-4 sm:p-5 relative overflow-hidden group hover:border-primary/20 hover:shadow-md transition-all duration-300">
-              <div className="flex items-start justify-between mb-3">
-                <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center">
-                  <Icon size={18} className="text-primary" />
+            <div key={kpi.label} className="bg-card border border-border rounded-2xl p-4 sm:p-5 relative overflow-hidden group hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5 transition-all duration-300">
+              {/* Gradient background */}
+              <div className={`absolute inset-0 bg-gradient-to-br ${kpi.color} opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
+              
+              <div className="relative">
+                <div className="flex items-start justify-between mb-3">
+                  <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
+                    <Icon size={18} className="text-primary" />
+                  </div>
+                  <div className={`flex items-center gap-1 text-[11px] font-medium px-2 py-0.5 rounded-full ${
+                    kpi.trend === "up" ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400" : kpi.trend === "down" ? "bg-destructive/10 text-destructive" : "bg-muted text-muted-foreground"
+                  }`}>
+                    {kpi.trend === "up" ? <TrendingUp size={11} /> : kpi.trend === "down" ? <TrendingDown size={11} /> : null}
+                    {kpi.trendValue}
+                  </div>
                 </div>
-                <div className={`flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full ${
-                  kpi.trend === "up" ? "bg-emerald-50 text-emerald-600" : kpi.trend === "down" ? "bg-destructive/10 text-destructive" : "bg-muted text-muted-foreground"
-                }`}>
-                  {kpi.trend === "up" ? <TrendingUp size={12} /> : kpi.trend === "down" ? <TrendingDown size={12} /> : null}
-                  {kpi.trendValue}
-                </div>
+                <div className="text-2xl sm:text-3xl font-heading font-bold text-foreground tracking-tight">{kpi.value}</div>
+                <div className="text-[11px] text-muted-foreground mt-1 font-medium">{kpi.label} · {kpi.sub}</div>
               </div>
-              <div className="text-2xl sm:text-3xl font-heading font-bold text-foreground tracking-tight">{kpi.value}</div>
-              <div className="text-xs text-muted-foreground mt-1 font-medium">{kpi.label} · {kpi.sub}</div>
             </div>
           );
         })}
@@ -283,11 +251,10 @@ export default function AdminDashboard() {
 
       {/* Charts Row */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-8">
-        {/* Content by Month */}
-        <div className="lg:col-span-2 bg-card border border-border rounded-xl p-5">
+        <div className="lg:col-span-2 bg-card border border-border rounded-2xl p-5">
           <div className="flex items-center justify-between mb-4">
             <h3 className="font-heading text-sm font-semibold text-foreground">Content Published</h3>
-            <span className="text-xs text-muted-foreground">Last 6 months</span>
+            <span className="text-[11px] text-muted-foreground bg-muted px-2 py-1 rounded-full">Last 6 months</span>
           </div>
           <div className="h-[220px]">
             <ResponsiveContainer width="100%" height="100%">
@@ -295,48 +262,30 @@ export default function AdminDashboard() {
                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
                 <XAxis dataKey="month" tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} tickLine={false} axisLine={false} />
                 <YAxis tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} tickLine={false} axisLine={false} allowDecimals={false} />
-                <RechartsTooltip
-                  contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: "8px", fontSize: "12px" }}
-                />
-                <Bar dataKey="posts" name="Posts" fill="hsl(243, 76%, 59%)" radius={[4, 4, 0, 0]} />
-                <Bar dataKey="caseStudies" name="Case Studies" fill="hsl(232, 85%, 74%)" radius={[4, 4, 0, 0]} />
+                <RechartsTooltip contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: "12px", fontSize: "12px" }} />
+                <Bar dataKey="posts" name="Posts" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="caseStudies" name="Case Studies" fill="hsl(var(--accent-mid))" radius={[4, 4, 0, 0]} />
                 <Bar dataKey="resources" name="Resources" fill="hsl(142, 71%, 45%)" radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>
         </div>
 
-        {/* Inquiry Status */}
-        <div className="bg-card border border-border rounded-xl p-5">
+        <div className="bg-card border border-border rounded-2xl p-5">
           <h3 className="font-heading text-sm font-semibold text-foreground mb-4">Inquiry Status</h3>
           {stats.inquiryBreakdown.length > 0 ? (
             <div className="h-[220px] flex items-center justify-center">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
-                  <Pie
-                    data={stats.inquiryBreakdown}
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={50}
-                    outerRadius={75}
-                    paddingAngle={3}
-                    dataKey="value"
-                    stroke="none"
-                  >
-                    {stats.inquiryBreakdown.map((_, index) => (
-                      <Cell key={index} fill={PIE_COLORS[index % PIE_COLORS.length]} />
-                    ))}
+                  <Pie data={stats.inquiryBreakdown} cx="50%" cy="50%" innerRadius={50} outerRadius={75} paddingAngle={3} dataKey="value" stroke="none">
+                    {stats.inquiryBreakdown.map((_, index) => <Cell key={index} fill={PIE_COLORS[index % PIE_COLORS.length]} />)}
                   </Pie>
-                  <RechartsTooltip
-                    contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: "8px", fontSize: "12px" }}
-                  />
+                  <RechartsTooltip contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: "12px", fontSize: "12px" }} />
                 </PieChart>
               </ResponsiveContainer>
             </div>
           ) : (
-            <div className="h-[220px] flex items-center justify-center text-sm text-muted-foreground">
-              No inquiries yet
-            </div>
+            <div className="h-[220px] flex items-center justify-center text-sm text-muted-foreground">No inquiries yet</div>
           )}
           {stats.inquiryBreakdown.length > 0 && (
             <div className="flex flex-wrap gap-3 mt-2 justify-center">
@@ -351,13 +300,12 @@ export default function AdminDashboard() {
         </div>
       </div>
 
-      {/* Content Views Over Time + Top Performing Content */}
+      {/* Content Views + Top Content */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-8">
-        {/* Views Over Time */}
-        <div className="lg:col-span-2 bg-card border border-border rounded-xl p-5">
+        <div className="lg:col-span-2 bg-card border border-border rounded-2xl p-5">
           <div className="flex items-center justify-between mb-4">
             <h3 className="font-heading text-sm font-semibold text-foreground">Content Views</h3>
-            <span className="text-xs text-muted-foreground">Last 30 days</span>
+            <span className="text-[11px] text-muted-foreground bg-muted px-2 py-1 rounded-full">Last 30 days</span>
           </div>
           <div className="h-[220px]">
             <ResponsiveContainer width="100%" height="100%">
@@ -371,22 +319,19 @@ export default function AdminDashboard() {
                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
                 <XAxis dataKey="date" tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }} tickLine={false} axisLine={false} interval={6} />
                 <YAxis tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} tickLine={false} axisLine={false} allowDecimals={false} />
-                <RechartsTooltip
-                  contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: "8px", fontSize: "12px" }}
-                />
+                <RechartsTooltip contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: "12px", fontSize: "12px" }} />
                 <Area type="monotone" dataKey="views" stroke="hsl(142, 71%, 45%)" fill="url(#viewsGrad)" strokeWidth={2} />
               </AreaChart>
             </ResponsiveContainer>
           </div>
         </div>
 
-        {/* Top Performing Content */}
-        <div className="bg-card border border-border rounded-xl p-5">
+        <div className="bg-card border border-border rounded-2xl p-5">
           <h3 className="font-heading text-sm font-semibold text-foreground mb-4">Top Content</h3>
           {stats.topContent.length > 0 ? (
             <div className="space-y-1">
               {stats.topContent.slice(0, 8).map((item, i) => (
-                <div key={item.content_id} className="flex items-center gap-3 px-2 py-2 rounded-lg hover:bg-muted transition-colors">
+                <div key={item.content_id} className="flex items-center gap-3 px-2 py-2 rounded-xl hover:bg-muted transition-colors">
                   <span className="text-xs font-mono text-muted-foreground w-5 text-right">{i + 1}</span>
                   <div className="flex-1 min-w-0">
                     <div className="text-sm font-medium text-foreground truncate">{item.title}</div>
@@ -397,47 +342,42 @@ export default function AdminDashboard() {
               ))}
             </div>
           ) : (
-            <div className="h-[220px] flex items-center justify-center text-sm text-muted-foreground">
-              No views tracked yet
-            </div>
+            <div className="h-[220px] flex items-center justify-center text-sm text-muted-foreground">No views tracked yet</div>
           )}
         </div>
       </div>
 
+      {/* Subscriber Growth + Quick Actions */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-8">
-        {/* Subscriber Growth */}
-        <div className="lg:col-span-2 bg-card border border-border rounded-xl p-5">
+        <div className="lg:col-span-2 bg-card border border-border rounded-2xl p-5">
           <div className="flex items-center justify-between mb-4">
             <h3 className="font-heading text-sm font-semibold text-foreground">Subscriber Growth</h3>
-            <span className="text-xs text-muted-foreground">Last 30 days</span>
+            <span className="text-[11px] text-muted-foreground bg-muted px-2 py-1 rounded-full">Last 30 days</span>
           </div>
           <div className="h-[200px]">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={stats.subscriberGrowth}>
                 <defs>
                   <linearGradient id="subGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="hsl(243, 76%, 59%)" stopOpacity={0.2} />
-                    <stop offset="100%" stopColor="hsl(243, 76%, 59%)" stopOpacity={0} />
+                    <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity={0.2} />
+                    <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity={0} />
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
                 <XAxis dataKey="date" tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }} tickLine={false} axisLine={false} interval={6} />
                 <YAxis tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} tickLine={false} axisLine={false} allowDecimals={false} />
-                <RechartsTooltip
-                  contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: "8px", fontSize: "12px" }}
-                />
-                <Area type="monotone" dataKey="count" stroke="hsl(243, 76%, 59%)" fill="url(#subGrad)" strokeWidth={2} />
+                <RechartsTooltip contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: "12px", fontSize: "12px" }} />
+                <Area type="monotone" dataKey="count" stroke="hsl(var(--primary))" fill="url(#subGrad)" strokeWidth={2} />
               </AreaChart>
             </ResponsiveContainer>
           </div>
         </div>
 
-        {/* Quick Actions */}
-        <div className="bg-card border border-border rounded-xl p-5">
+        <div className="bg-card border border-border rounded-2xl p-5">
           <h3 className="font-heading text-sm font-semibold text-foreground mb-4 flex items-center gap-2">
             <Plus size={14} className="text-primary" /> Quick Actions
           </h3>
-          <div className="space-y-2">
+          <div className="space-y-1">
             {[
               { label: "New Blog Post", icon: PenSquare, link: "/admin/posts/new" },
               { label: "New Case Study", icon: BookOpen, link: "/admin/case-studies/new" },
@@ -447,12 +387,10 @@ export default function AdminDashboard() {
             ].map(action => {
               const Icon = action.icon;
               return (
-                <Link
-                  key={action.label}
-                  to={action.link}
-                  className="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-muted transition-colors group"
-                >
-                  <Icon size={16} className="text-primary" />
+                <Link key={action.label} to={action.link} className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-muted transition-colors group">
+                  <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                    <Icon size={14} className="text-primary" />
+                  </div>
                   <span className="text-sm font-medium text-foreground group-hover:text-primary transition-colors">{action.label}</span>
                   <ArrowRight size={14} className="text-muted-foreground ml-auto opacity-0 group-hover:opacity-100 transition-opacity" />
                 </Link>
@@ -462,12 +400,11 @@ export default function AdminDashboard() {
         </div>
       </div>
 
-      {/* Content Overview + Recent Activity + Activity Log */}
+      {/* Content Overview + Recent + Activity Log */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        {/* Content Overview */}
-        <div className="bg-card border border-border rounded-xl p-5">
+        <div className="bg-card border border-border rounded-2xl p-5">
           <h3 className="font-heading text-sm font-semibold text-foreground mb-4">Content Overview</h3>
-          <div className="space-y-3">
+          <div className="space-y-2">
             {[
               { label: "Blog Posts", ...stats.posts, link: "/admin/posts", icon: FileText },
               { label: "Case Studies", ...stats.caseStudies, link: "/admin/case-studies", icon: BarChart3 },
@@ -476,8 +413,10 @@ export default function AdminDashboard() {
               const Icon = card.icon;
               const pct = card.total > 0 ? Math.round((card.published / card.total) * 100) : 0;
               return (
-                <Link key={card.label} to={card.link} className="flex items-center gap-3 p-3 rounded-lg hover:bg-muted transition-colors group">
-                  <Icon size={16} className="text-primary shrink-0" />
+                <Link key={card.label} to={card.link} className="flex items-center gap-3 p-3 rounded-xl hover:bg-muted transition-colors group">
+                  <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center">
+                    <Icon size={16} className="text-primary" />
+                  </div>
                   <div className="flex-1 min-w-0">
                     <div className="text-sm font-medium text-foreground">{card.label}</div>
                     <div className="w-full h-1.5 bg-muted rounded-full mt-1.5 overflow-hidden">
@@ -494,8 +433,7 @@ export default function AdminDashboard() {
           </div>
         </div>
 
-        {/* Recent Activity */}
-        <div className="bg-card border border-border rounded-xl p-5">
+        <div className="bg-card border border-border rounded-2xl p-5">
           <h3 className="font-heading text-sm font-semibold text-foreground mb-4 flex items-center gap-2">
             <Clock size={14} className="text-primary" /> Recent Activity
           </h3>
@@ -505,7 +443,7 @@ export default function AdminDashboard() {
                 <FileText size={20} className="text-primary" />
               </div>
               <p className="text-sm text-muted-foreground mb-3">No content yet</p>
-              <Link to="/admin/posts/new" className="inline-flex items-center gap-2 h-9 px-4 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary/90 transition-all">
+              <Link to="/admin/posts/new" className="inline-flex items-center gap-2 h-9 px-4 bg-primary text-primary-foreground rounded-xl text-sm font-medium hover:bg-primary/90 transition-all">
                 <Plus size={14} /> Create Post
               </Link>
             </div>
@@ -514,11 +452,7 @@ export default function AdminDashboard() {
               {recent.map(item => {
                 const config = typeConfig[item.type];
                 return (
-                  <Link
-                    key={`${item.type}-${item.id}`}
-                    to={editLink(item)}
-                    className="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-muted transition-colors group"
-                  >
+                  <Link key={`${item.type}-${item.id}`} to={editLink(item)} className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-muted transition-colors group">
                     <div className={`w-2 h-2 rounded-full shrink-0 ${config.dot}`} />
                     <div className="min-w-0 flex-1">
                       <div className="text-sm font-medium text-foreground truncate group-hover:text-primary transition-colors">{item.title}</div>
@@ -527,7 +461,7 @@ export default function AdminDashboard() {
                       </div>
                     </div>
                     <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full ${
-                      item.published ? "bg-emerald-50 text-emerald-600" : "bg-amber-50 text-amber-600"
+                      item.published ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400" : "bg-amber-500/10 text-amber-600 dark:text-amber-400"
                     }`}>
                       {item.published ? "Live" : "Draft"}
                     </span>
@@ -538,7 +472,6 @@ export default function AdminDashboard() {
           )}
         </div>
 
-        {/* Admin Activity Log */}
         <ActivityLogWidget />
       </div>
     </div>
@@ -578,18 +511,18 @@ function ActivityLogWidget() {
   };
 
   return (
-    <div className="bg-card border border-border rounded-xl p-5">
+    <div className="bg-card border border-border rounded-2xl p-5">
       <h3 className="font-heading text-sm font-semibold text-foreground mb-4 flex items-center gap-2">
         <Activity size={14} className="text-primary" /> Activity Log
       </h3>
       {loading ? (
-        <div className="space-y-2">{[1, 2, 3].map(i => <div key={i} className="h-8 bg-muted rounded animate-pulse" />)}</div>
+        <div className="space-y-2">{[1, 2, 3].map(i => <div key={i} className="h-8 bg-muted rounded-lg animate-pulse" />)}</div>
       ) : logs.length === 0 ? (
         <p className="text-sm text-muted-foreground text-center py-8">No activity recorded yet</p>
       ) : (
         <div className="space-y-1 max-h-[320px] overflow-y-auto">
           {logs.map((log: any) => (
-            <div key={log.id} className="px-2 py-2 rounded-lg hover:bg-muted transition-colors">
+            <div key={log.id} className="px-2 py-2 rounded-xl hover:bg-muted transition-colors">
               <div className="text-sm text-foreground">
                 <span className="font-medium">{actionLabels[log.action] || log.action}</span>
                 {log.entity_title && <span className="text-muted-foreground"> · {log.entity_title}</span>}
