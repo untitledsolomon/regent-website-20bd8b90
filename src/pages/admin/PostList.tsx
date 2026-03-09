@@ -2,7 +2,9 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Icons } from "@/components/Icons";
-import { formatDistanceToNow } from "date-fns";
+import { formatDistanceToNow, format } from "date-fns";
+import { logActivity } from "@/hooks/useActivityLog";
+import { Checkbox } from "@/components/ui/checkbox";
 
 interface Post {
   id: string;
@@ -11,6 +13,7 @@ interface Post {
   category: string;
   published: boolean;
   updated_at: string;
+  publish_at: string | null;
 }
 
 export default function PostList() {
@@ -18,13 +21,14 @@ export default function PostList() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<"all" | "published" | "draft">("all");
+  const [selected, setSelected] = useState<Set<string>>(new Set());
 
   const fetchData = async () => {
     const { data } = await supabase
       .from("blog_posts")
-      .select("id, title, slug, category, published, updated_at")
+      .select("id, title, slug, category, published, updated_at, publish_at")
       .order("created_at", { ascending: false });
-    setItems(data || []);
+    setItems((data as any) || []);
     setLoading(false);
   };
 
@@ -32,12 +36,16 @@ export default function PostList() {
 
   const toggle = async (id: string, published: boolean) => {
     await supabase.from("blog_posts").update({ published: !published }).eq("id", id);
+    const item = items.find(i => i.id === id);
+    if (item) await logActivity(published ? "unpublished_post" : "published_post", "blog_post", item.title, id);
     fetchData();
   };
 
   const remove = async (id: string) => {
     if (!confirm("Delete this post?")) return;
+    const item = items.find(i => i.id === id);
     await supabase.from("blog_posts").delete().eq("id", id);
+    if (item) await logActivity("deleted_post", "blog_post", item.title, id);
     fetchData();
   };
 
@@ -47,6 +55,33 @@ export default function PostList() {
     if (filter === "draft" && item.published) return false;
     return true;
   });
+
+  const allSelected = filtered.length > 0 && filtered.every(i => selected.has(i.id));
+  const toggleAll = () => {
+    if (allSelected) setSelected(new Set());
+    else setSelected(new Set(filtered.map(i => i.id)));
+  };
+  const toggleOne = (id: string) => {
+    const s = new Set(selected);
+    s.has(id) ? s.delete(id) : s.add(id);
+    setSelected(s);
+  };
+
+  const bulkAction = async (action: "publish" | "unpublish" | "delete") => {
+    const ids = Array.from(selected);
+    if (ids.length === 0) return;
+    if (action === "delete" && !confirm(`Delete ${ids.length} posts?`)) return;
+
+    if (action === "publish") await supabase.from("blog_posts").update({ published: true }).in("id", ids);
+    else if (action === "unpublish") await supabase.from("blog_posts").update({ published: false }).in("id", ids);
+    else await supabase.from("blog_posts").delete().in("id", ids);
+
+    await logActivity(`bulk_${action}_posts`, "blog_post", `${ids.length} posts`);
+    setSelected(new Set());
+    fetchData();
+  };
+
+  const isScheduled = (item: Post) => item.published && item.publish_at && new Date(item.publish_at) > new Date();
 
   return (
     <div className="p-4 sm:p-6 lg:p-8">
@@ -80,24 +115,51 @@ export default function PostList() {
         </div>
       </div>
 
+      {/* Bulk action bar */}
+      {selected.size > 0 && (
+        <div className="bg-card border border-primary/20 rounded-xl px-4 py-3 mb-4 flex items-center justify-between gap-4 shadow-sm">
+          <span className="text-sm font-medium text-text-primary">{selected.size} selected</span>
+          <div className="flex gap-2">
+            <button onClick={() => bulkAction("publish")} className="text-xs px-3 py-1.5 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100 transition-colors">Publish</button>
+            <button onClick={() => bulkAction("unpublish")} className="text-xs px-3 py-1.5 rounded-lg bg-amber-50 text-amber-700 border border-amber-200 hover:bg-amber-100 transition-colors">Unpublish</button>
+            <button onClick={() => bulkAction("delete")} className="text-xs px-3 py-1.5 rounded-lg bg-destructive/10 text-destructive border border-destructive/20 hover:bg-destructive/20 transition-colors">Delete</button>
+            <button onClick={() => setSelected(new Set())} className="text-xs px-3 py-1.5 text-text-muted hover:text-text-primary transition-colors">Cancel</button>
+          </div>
+        </div>
+      )}
+
       {loading ? (
         <div className="space-y-3">{[1, 2, 3].map(i => <div key={i} className="h-16 bg-card border border-border rounded-lg animate-pulse" />)}</div>
       ) : filtered.length === 0 ? (
         <div className="text-center py-20 text-text-muted">{search || filter !== "all" ? "No matching posts." : "No posts yet."}</div>
       ) : (
         <div className="space-y-2">
+          {/* Select all */}
+          <div className="px-4 py-2 flex items-center gap-3">
+            <Checkbox checked={allSelected} onCheckedChange={toggleAll} />
+            <span className="text-xs text-text-muted">Select all</span>
+          </div>
           {filtered.map(item => (
             <div key={item.id} className="bg-card border border-border rounded-lg px-4 sm:px-5 py-3 sm:py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
-              <div className="min-w-0">
-                <div className="font-medium text-sm text-text-primary truncate">{item.title}</div>
-                <div className="flex items-center gap-2 sm:gap-3 mt-1 flex-wrap">
-                  {item.category && <span className="text-xs text-text-muted font-mono">{item.category}</span>}
-                  <span className="text-xs text-text-muted hidden sm:inline">
-                    {formatDistanceToNow(new Date(item.updated_at), { addSuffix: true })}
-                  </span>
-                  <span className={`text-xs px-2 py-0.5 rounded-full ${item.published ? "bg-emerald-50 text-emerald-600 border border-emerald-100" : "bg-amber-50 text-amber-600 border border-amber-100"}`}>
-                    {item.published ? "Published" : "Draft"}
-                  </span>
+              <div className="flex items-center gap-3 min-w-0">
+                <Checkbox checked={selected.has(item.id)} onCheckedChange={() => toggleOne(item.id)} />
+                <div className="min-w-0">
+                  <div className="font-medium text-sm text-text-primary truncate">{item.title}</div>
+                  <div className="flex items-center gap-2 sm:gap-3 mt-1 flex-wrap">
+                    {item.category && <span className="text-xs text-text-muted font-mono">{item.category}</span>}
+                    <span className="text-xs text-text-muted hidden sm:inline">
+                      {formatDistanceToNow(new Date(item.updated_at), { addSuffix: true })}
+                    </span>
+                    {isScheduled(item) ? (
+                      <span className="text-xs px-2 py-0.5 rounded-full bg-blue-50 text-blue-600 border border-blue-100">
+                        Scheduled {format(new Date(item.publish_at!), "MMM d")}
+                      </span>
+                    ) : (
+                      <span className={`text-xs px-2 py-0.5 rounded-full ${item.published ? "bg-emerald-50 text-emerald-600 border border-emerald-100" : "bg-amber-50 text-amber-600 border border-amber-100"}`}>
+                        {item.published ? "Published" : "Draft"}
+                      </span>
+                    )}
+                  </div>
                 </div>
               </div>
               <div className="flex items-center gap-2 shrink-0">

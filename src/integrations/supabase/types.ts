@@ -14,6 +14,36 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_activity_log: {
+        Row: {
+          action: string
+          created_at: string
+          entity_id: string | null
+          entity_title: string | null
+          entity_type: string
+          id: string
+          user_id: string | null
+        }
+        Insert: {
+          action: string
+          created_at?: string
+          entity_id?: string | null
+          entity_title?: string | null
+          entity_type: string
+          id?: string
+          user_id?: string | null
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          entity_id?: string | null
+          entity_title?: string | null
+          entity_type?: string
+          id?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       blog_posts: {
         Row: {
           author: string
@@ -24,6 +54,10 @@ export type Database = {
           excerpt: string
           id: string
           image_url: string | null
+          meta_description: string | null
+          meta_title: string | null
+          og_image: string | null
+          publish_at: string | null
           published: boolean
           read_time: string
           slug: string
@@ -39,6 +73,10 @@ export type Database = {
           excerpt?: string
           id?: string
           image_url?: string | null
+          meta_description?: string | null
+          meta_title?: string | null
+          og_image?: string | null
+          publish_at?: string | null
           published?: boolean
           read_time?: string
           slug: string
@@ -54,6 +92,10 @@ export type Database = {
           excerpt?: string
           id?: string
           image_url?: string | null
+          meta_description?: string | null
+          meta_title?: string | null
+          og_image?: string | null
+          publish_at?: string | null
           published?: boolean
           read_time?: string
           slug?: string
@@ -105,7 +147,11 @@ export type Database = {
           id: string
           image_url: string | null
           industry: string
+          meta_description: string | null
+          meta_title: string | null
           metrics: Json
+          og_image: string | null
+          publish_at: string | null
           published: boolean
           results: string[]
           slug: string
@@ -120,7 +166,11 @@ export type Database = {
           id?: string
           image_url?: string | null
           industry?: string
+          meta_description?: string | null
+          meta_title?: string | null
           metrics?: Json
+          og_image?: string | null
+          publish_at?: string | null
           published?: boolean
           results?: string[]
           slug: string
@@ -135,7 +185,11 @@ export type Database = {
           id?: string
           image_url?: string | null
           industry?: string
+          meta_description?: string | null
+          meta_title?: string | null
           metrics?: Json
+          og_image?: string | null
+          publish_at?: string | null
           published?: boolean
           results?: string[]
           slug?: string

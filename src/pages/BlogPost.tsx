@@ -79,8 +79,9 @@ export default function BlogPostPage() {
   return (
     <div>
       <PageMeta
-        title={`${post.title} — Regent`}
-        description={post.excerpt}
+        title={(post as any).meta_title || `${post.title} — Regent`}
+        description={(post as any).meta_description || post.excerpt}
+        ogImage={(post as any).og_image || undefined}
         ogType="article"
         jsonLd={{
           "@context": "https://schema.org",

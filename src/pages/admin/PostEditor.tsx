@@ -1,10 +1,17 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import RichTextEditor from "@/components/admin/RichTextEditor";
-import { ArrowLeft, Upload, X, Image as ImageIcon, Save, Eye } from "lucide-react";
+import { ArrowLeft, Upload, X, Image as ImageIcon, Save, Eye, CalendarIcon, ChevronDown } from "lucide-react";
 import { Link } from "react-router-dom";
+import { logActivity } from "@/hooks/useActivityLog";
+import { format } from "date-fns";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
+
+const DRAFT_KEY_PREFIX = "regent_post_draft_";
 
 export default function PostEditor() {
   const { id } = useParams();
@@ -14,6 +21,9 @@ export default function PostEditor() {
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [dragOver, setDragOver] = useState(false);
+  const [showSeo, setShowSeo] = useState(false);
+  const [draftBanner, setDraftBanner] = useState(false);
+  const autoSaveRef = useRef<NodeJS.Timeout | null>(null);
   const [form, setForm] = useState({
     title: "",
     slug: "",
@@ -25,20 +35,59 @@ export default function PostEditor() {
     read_time: "",
     image_url: "" as string | null,
     published: false,
+    publish_at: null as Date | null,
+    meta_title: "",
+    meta_description: "",
+    og_image: "",
   });
+
+  const draftKey = DRAFT_KEY_PREFIX + (id || "new");
 
   useEffect(() => {
     if (isEdit) {
       supabase.from("blog_posts").select("*").eq("id", id).single().then(({ data }) => {
-        if (data) setForm({
-          title: data.title, slug: data.slug, excerpt: data.excerpt,
-          content: data.content, author: data.author, date: data.date,
-          category: data.category, read_time: data.read_time,
-          image_url: (data as any).image_url || null, published: data.published,
-        });
+        if (data) {
+          const d = data as any;
+          setForm({
+            title: d.title, slug: d.slug, excerpt: d.excerpt,
+            content: d.content, author: d.author, date: d.date,
+            category: d.category, read_time: d.read_time,
+            image_url: d.image_url || null, published: d.published,
+            publish_at: d.publish_at ? new Date(d.publish_at) : null,
+            meta_title: d.meta_title || "",
+            meta_description: d.meta_description || "",
+            og_image: d.og_image || "",
+          });
+        }
       });
     }
+    // Check for draft
+    const saved = localStorage.getItem(draftKey);
+    if (saved) setDraftBanner(true);
   }, [id, isEdit]);
+
+  // Auto-save every 30s
+  useEffect(() => {
+    autoSaveRef.current = setInterval(() => {
+      localStorage.setItem(draftKey, JSON.stringify(form));
+    }, 30000);
+    return () => { if (autoSaveRef.current) clearInterval(autoSaveRef.current); };
+  }, [form, draftKey]);
+
+  const restoreDraft = () => {
+    const saved = localStorage.getItem(draftKey);
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      if (parsed.publish_at) parsed.publish_at = new Date(parsed.publish_at);
+      setForm(parsed);
+    }
+    setDraftBanner(false);
+  };
+
+  const discardDraft = () => {
+    localStorage.removeItem(draftKey);
+    setDraftBanner(false);
+  };
 
   const generateSlug = (title: string) =>
     title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
@@ -80,11 +129,15 @@ export default function PostEditor() {
       return;
     }
     setLoading(true);
-    const payload = {
+    const payload: any = {
       title: form.title, slug: form.slug, excerpt: form.excerpt,
       content: form.content, author: form.author, date: form.date,
       category: form.category, read_time: form.read_time,
       image_url: form.image_url || null, published: form.published,
+      publish_at: form.publish_at?.toISOString() || null,
+      meta_title: form.meta_title || null,
+      meta_description: form.meta_description || null,
+      og_image: form.og_image || null,
       updated_at: new Date().toISOString(),
     };
 
@@ -96,6 +149,8 @@ export default function PostEditor() {
     if (error) {
       toast({ title: "Error saving post", description: error.message, variant: "destructive" });
     } else {
+      localStorage.removeItem(draftKey);
+      await logActivity(isEdit ? "updated_post" : "created_post", "blog_post", form.title, id);
       toast({ title: isEdit ? "Post updated" : "Post created" });
       navigate("/admin/posts");
     }
@@ -105,6 +160,17 @@ export default function PostEditor() {
 
   return (
     <div className="min-h-screen flex flex-col">
+      {/* Draft restore banner */}
+      {draftBanner && (
+        <div className="bg-amber-50 border-b border-amber-200 px-4 sm:px-8 py-3 flex items-center justify-between gap-4">
+          <p className="text-sm text-amber-800">Unsaved draft found — would you like to restore it?</p>
+          <div className="flex gap-2">
+            <button onClick={restoreDraft} className="text-xs px-3 py-1.5 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-colors">Restore</button>
+            <button onClick={discardDraft} className="text-xs px-3 py-1.5 border border-amber-300 text-amber-700 rounded-lg hover:bg-amber-100 transition-colors">Discard</button>
+          </div>
+        </div>
+      )}
+
       {/* Top bar */}
       <div className="sticky top-0 z-10 bg-card/80 backdrop-blur-md border-b border-border">
         <div className="flex items-center justify-between px-4 sm:px-8 h-14">
@@ -139,7 +205,7 @@ export default function PostEditor() {
       {/* Editor content */}
       <div className="flex-1 px-4 sm:px-8 py-6 sm:py-8 w-full">
         <div className="space-y-5 sm:space-y-6">
-          {/* Title — large input */}
+          {/* Title */}
           <div>
             <input
               value={form.title}
@@ -160,7 +226,7 @@ export default function PostEditor() {
 
           <div className="h-px bg-border" />
 
-          {/* Cover Image — Drop zone */}
+          {/* Cover Image */}
           <div>
             <label className="block text-xs font-medium uppercase tracking-wider text-text-muted mb-2">Cover Image</label>
             {form.image_url ? (
@@ -224,6 +290,36 @@ export default function PostEditor() {
                   <input value={form.date} onChange={e => setForm(f => ({ ...f, date: e.target.value }))} className={inputClass} />
                 </div>
               </div>
+              {/* Schedule */}
+              <div>
+                <label className="block text-sm font-medium text-text-primary mb-1.5">Schedule Publish</label>
+                <div className="flex items-center gap-3">
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <button className={cn("h-10 border border-border rounded-lg px-3 text-sm bg-background text-left flex items-center gap-2 min-w-[200px]", !form.publish_at && "text-text-muted")}>
+                        <CalendarIcon size={14} />
+                        {form.publish_at ? format(form.publish_at, "PPP") : "No schedule (immediate)"}
+                      </button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={form.publish_at || undefined}
+                        onSelect={(d) => setForm(f => ({ ...f, publish_at: d || null }))}
+                        disabled={(date) => date < new Date()}
+                        initialFocus
+                        className={cn("p-3 pointer-events-auto")}
+                      />
+                    </PopoverContent>
+                  </Popover>
+                  {form.publish_at && (
+                    <button onClick={() => setForm(f => ({ ...f, publish_at: null }))} className="text-xs text-destructive hover:underline">Clear</button>
+                  )}
+                </div>
+                {form.publish_at && (
+                  <p className="text-xs text-text-muted mt-1.5">Post will go live on {format(form.publish_at, "PPP")}</p>
+                )}
+              </div>
             </div>
           </div>
 
@@ -243,6 +339,35 @@ export default function PostEditor() {
           <div>
             <label className="block text-xs font-medium uppercase tracking-wider text-text-muted mb-2">Content</label>
             <RichTextEditor content={form.content} onChange={content => setForm(f => ({ ...f, content }))} placeholder="Write your blog post..." />
+          </div>
+
+          {/* SEO Settings */}
+          <div className="border border-border rounded-xl overflow-hidden">
+            <button
+              onClick={() => setShowSeo(!showSeo)}
+              className="w-full flex items-center justify-between px-5 py-3.5 bg-card hover:bg-surface transition-colors"
+            >
+              <span className="text-xs font-medium uppercase tracking-wider text-text-muted">SEO Settings</span>
+              <ChevronDown size={16} className={cn("text-text-muted transition-transform", showSeo && "rotate-180")} />
+            </button>
+            {showSeo && (
+              <div className="p-4 sm:p-5 space-y-4 border-t border-border">
+                <div>
+                  <label className="block text-sm font-medium text-text-primary mb-1.5">Meta Title</label>
+                  <input value={form.meta_title} onChange={e => setForm(f => ({ ...f, meta_title: e.target.value }))} className={inputClass} placeholder="Custom title for search engines (defaults to post title)" />
+                  <p className="text-xs text-text-muted mt-1">{form.meta_title.length}/60 characters</p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-text-primary mb-1.5">Meta Description</label>
+                  <textarea value={form.meta_description} onChange={e => setForm(f => ({ ...f, meta_description: e.target.value }))} rows={2} className={`${inputClass} h-auto py-2.5 resize-y`} placeholder="Custom description for search engines (defaults to excerpt)" />
+                  <p className="text-xs text-text-muted mt-1">{form.meta_description.length}/160 characters</p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-text-primary mb-1.5">OG Image URL</label>
+                  <input value={form.og_image} onChange={e => setForm(f => ({ ...f, og_image: e.target.value }))} className={inputClass} placeholder="Custom social sharing image URL" />
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>

@@ -149,7 +149,13 @@ export function ResourceCard({ res, fileUrl, resourceId, delay = 0 }: { res: Res
       trackDownload(resourceId);
     }
     if (fileUrl) {
-      window.open(fileUrl, "_blank", "noopener,noreferrer");
+      const a = document.createElement("a");
+      a.href = fileUrl;
+      a.download = "";
+      a.rel = "noopener noreferrer";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
     }
   };
 
