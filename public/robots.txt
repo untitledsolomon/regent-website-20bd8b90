@@ -13,4 +13,4 @@ Allow: /
 User-agent: *
 Allow: /
 
-Sitemap: https://regent.systems/sitemap.xml
+Sitemap: https://iurdokrmcuxvqluoyjmr.supabase.co/functions/v1/sitemap

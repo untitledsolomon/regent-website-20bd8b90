@@ -201,7 +201,17 @@ export default function BlogPage() {
             </AnimatePresence>
           </div>
 
-          {filtered.length === 0 && (
+          {posts.length === 0 && (
+            <div className="text-center py-20">
+              <div className="w-16 h-16 mx-auto mb-6 rounded-2xl bg-accent-light flex items-center justify-center text-primary">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6"/><path d="M16 13H8"/><path d="M16 17H8"/><path d="M10 9H8"/></svg>
+              </div>
+              <h3 className="font-heading text-lg font-semibold text-text-primary mb-2">No articles published yet</h3>
+              <p className="text-sm text-text-muted">Check back soon — new insights are on the way.</p>
+            </div>
+          )}
+
+          {posts.length > 0 && filtered.length === 0 && (
             <div className="text-center py-20 text-text-muted">
               No articles in this category yet.
             </div>
