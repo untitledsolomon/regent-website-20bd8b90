@@ -132,8 +132,9 @@ export default function CaseStudyDetail() {
   return (
     <div>
       <PageMeta
-        title={`${cs.title} — Regent Case Study`}
-        description={cs.summary}
+        title={(cs as any).meta_title || `${cs.title} — Regent Case Study`}
+        description={(cs as any).meta_description || cs.summary}
+        ogImage={(cs as any).og_image || undefined}
         ogType="article"
         jsonLd={{
           "@context": "https://schema.org",
