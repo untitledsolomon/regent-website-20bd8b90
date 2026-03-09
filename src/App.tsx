@@ -9,6 +9,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { AuthProvider, useAuth } from "@/hooks/useAuth";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 
 const Index = lazy(() => import("./pages/Index"));
 const Platform = lazy(() => import("./pages/Platform"));
@@ -157,18 +158,20 @@ function AppRouter() {
 }
 
 const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <AuthProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <AppRouter />
-          <CookieConsent />
-        </BrowserRouter>
-      </AuthProvider>
-    </TooltipProvider>
-  </QueryClientProvider>
+  <ErrorBoundary>
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <AuthProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <AppRouter />
+            <CookieConsent />
+          </BrowserRouter>
+        </AuthProvider>
+      </TooltipProvider>
+    </QueryClientProvider>
+  </ErrorBoundary>
 );
 
 export default App;
