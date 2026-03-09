@@ -136,39 +136,34 @@ export default function ResourcesPage() {
                     <p className="text-[15px] text-text-secondary leading-[1.7] max-w-[520px]">{featuredResource.description}</p>
                   </div>
                   <div className="flex-shrink-0">
-                    {featuredResource.file_url ? (
-                      <button
-                        onClick={async () => {
-                          trackDownload(featuredResource.id);
-                          const fileUrl = featuredResource.file_url!;
-                          try {
-                            const response = await fetch(fileUrl);
-                            const blob = await response.blob();
-                            const url = window.URL.createObjectURL(blob);
-                            const a = document.createElement("a");
-                            a.href = url;
-                            a.download = fileUrl.split("/").pop() || "download";
-                            document.body.appendChild(a);
-                            a.click();
-                            document.body.removeChild(a);
-                            window.URL.revokeObjectURL(url);
-                          } catch {
-                            window.open(fileUrl, "_blank", "noopener");
-                          }
-                        }}
-                        className="font-heading text-[15px] font-medium bg-primary text-primary-foreground rounded-lg px-7 py-3.5 inline-flex items-center gap-2 hover:shadow-[0_8px_24px_rgba(79,70,229,0.25)] transition-all"
-                      >
-                        Download PDF <Icons.ArrowRight />
-                      </button>
-                    ) : (
-                      <motion.button
-                        whileHover={{ scale: 1.02, y: -2 }}
-                        whileTap={{ scale: 0.98 }}
-                        className="font-heading text-[15px] font-medium bg-primary text-primary-foreground rounded-lg px-7 py-3.5 inline-flex items-center gap-2 hover:shadow-[0_8px_24px_rgba(79,70,229,0.25)] transition-all"
-                      >
-                        Download PDF <Icons.ArrowRight />
-                      </motion.button>
-                    )}
+                    <button
+                      onClick={async () => {
+                        const fileUrl = featuredResource.file_url;
+                        if (!fileUrl) {
+                          const { toast } = await import("@/hooks/use-toast");
+                          toast({ title: "Coming soon", description: "This file will be available for download shortly." });
+                          return;
+                        }
+                        trackDownload(featuredResource.id);
+                        try {
+                          const response = await fetch(fileUrl);
+                          const blob = await response.blob();
+                          const url = window.URL.createObjectURL(blob);
+                          const a = document.createElement("a");
+                          a.href = url;
+                          a.download = fileUrl.split("/").pop() || "download";
+                          document.body.appendChild(a);
+                          a.click();
+                          document.body.removeChild(a);
+                          window.URL.revokeObjectURL(url);
+                        } catch {
+                          window.open(fileUrl, "_blank", "noopener");
+                        }
+                      }}
+                      className="font-heading text-[15px] font-medium bg-primary text-primary-foreground rounded-lg px-7 py-3.5 inline-flex items-center gap-2 hover:shadow-[0_8px_24px_rgba(79,70,229,0.25)] transition-all"
+                    >
+                      Download PDF <Icons.ArrowRight />
+                    </button>
                   </div>
                 </div>
               </motion.div>
