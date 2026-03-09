@@ -1,84 +1,166 @@
 
+# Inquiry and Contact Form Enhancement Plan
 
-## Content Analytics & Downloadable Resources
+## Overview
+Based on user requirements, I'll enhance the consultation form system with admin status tracking and improved user experience through better validation, new fields, and a multi-step wizard interface.
 
-### What We're Building
-1. A `content_views` table to track views on blog posts, case studies, and resource downloads
-2. Tracking logic on public pages (blog post view, case study view, resource download)
-3. Updated admin dashboard with content performance analytics (top content, view counts, download counts)
-4. Functional download buttons on resources (already wired to `file_url` — just need tracking)
+## 1. Database Schema Updates
 
-### Database Changes
+### Add Status Tracking to consultation_requests
+- Add `status` column (enum: 'new', 'viewed', 'replied', 'closed')
+- Add `admin_notes` text column for internal notes
+- Add `replied_at` timestamp
+- Add `replied_by` UUID reference (for admin user tracking)
+- Add `phone` text column for the new phone field
 
-**New table: `content_views`**
-```sql
-CREATE TABLE public.content_views (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  content_type text NOT NULL,        -- 'blog_post', 'case_study', 'resource_download'
-  content_id uuid NOT NULL,
-  created_at timestamptz NOT NULL DEFAULT now(),
-  viewer_ip text,                     -- optional, for dedup
-  user_agent text                     -- optional metadata
-);
+## 2. Admin Panel Enhancements
+
+### Update ConsultationList.tsx
+- Add status filter buttons (All, New, Viewed, Replied, Closed)
+- Add visual status indicators with color-coded badges
+- Add quick action buttons for status changes
+- Add modal/drawer for viewing full details and adding notes
+- Add admin notes display and editing
+- Add phone number display
+- Add bulk actions for status updates
+- Improve responsive design for mobile admin access
+
+### Create ConsultationDetail Component
+- Full-screen modal or dedicated detail page
+- Complete inquiry information display
+- Admin notes section with rich text editor
+- Status change history
+- Quick reply actions
+- Contact information with click-to-call for phone numbers
+
+## 3. Form Validation & Schema
+
+### Create Zod Validation Schema
+- Strong client-side validation using existing zod dependency
+- Phone number validation with international format support
+- Enhanced email validation
+- Required field validation with better error messages
+- Message length limits and character counting
+- Form submission debouncing
+
+### Input Validation Features
+- Real-time validation feedback
+- Field-level error states
+- Success states for completed fields
+- Input masking for phone numbers
+- Auto-formatting for phone and email inputs
+
+## 4. Multi-Step Wizard Enhancement
+
+### Step 1: Contact Information
+- Name, Company, Email, Phone (required fields)
+- Progress indicator
+- Auto-save draft functionality
+
+### Step 2: Project Details  
+- Industry, Company Size, Budget Range
+- Dynamic follow-up questions based on selections
+- Conditional logic for enterprise vs smaller companies
+
+### Step 3: Project Description
+- Enhanced message textarea with character count
+- Suggested prompts to help users provide better information
+- File attachment capability for requirements docs
+
+### Step 4: Review & Submit
+- Summary of all entered information
+- Edit buttons for each section
+- Terms acceptance
+- Submit with loading states and success animation
+
+## 5. UX/UI Improvements
+
+### Enhanced Form Design
+- Better visual hierarchy with sectioned layouts
+- Improved focus states and accessibility
+- Loading skeletons during submission
+- Progressive disclosure for optional fields
+- Mobile-first responsive design
+- Improved error messaging with helpful suggestions
+
+### Animation & Feedback
+- Smooth transitions between steps
+- Progress bar with completion percentage
+- Success microinteractions
+- Form field animations (slide-in errors, success checkmarks)
+- Enhanced submission confirmation with personalized messaging
+
+## 6. Additional Features
+
+### Form Analytics
+- Track step completion rates
+- Identify drop-off points
+- Form field engagement metrics
+- A/B testing preparation for form variations
+
+### Auto-Save & Recovery
+- Browser storage for form drafts
+- Session restoration on page refresh
+- Warning before leaving incomplete forms
+- Recovery of accidentally closed forms
+
+### Enhanced Email Notifications
+- Improved admin notification emails with better formatting
+- Status change notifications
+- Admin reply notifications to users (if email addresses are configured)
+- Weekly summary reports of inquiry activity
+
+## 7. Technical Implementation Details
+
+### Component Structure
+```
+src/
+  components/
+    forms/
+      ConsultationWizard.tsx (main wizard component)
+      ContactStep.tsx (step 1)
+      ProjectDetailsStep.tsx (step 2)  
+      MessageStep.tsx (step 3)
+      ReviewStep.tsx (step 4)
+      StepIndicator.tsx (progress component)
+    admin/
+      ConsultationDetail.tsx (detail view/modal)
+      StatusBadge.tsx (status indicator)
+      NotesEditor.tsx (admin notes component)
+  schemas/
+    consultationSchema.ts (zod validation)
+  hooks/
+    useConsultationForm.ts (form state management)
+    useFormPersistence.ts (auto-save functionality)
 ```
 
-**RLS policies:**
-- Anyone can INSERT (public tracking — no auth required)
-- No public SELECT/UPDATE/DELETE
-- Admins can SELECT all
+### State Management
+- React Hook Form integration with zod resolver
+- Local storage for form persistence
+- Optimistic updates for admin actions
+- Real-time updates using Supabase realtime subscriptions
 
-**Add `view_count` and `download_count` as computed values** — we'll query aggregates from `content_views` rather than maintaining counters on the content tables (simpler, no race conditions).
+### Accessibility Features
+- WCAG 2.1 AA compliance
+- Keyboard navigation support
+- Screen reader compatibility
+- High contrast mode support
+- Focus management in wizard steps
 
-### Frontend Changes
+## 8. Testing Strategy
 
-#### 1. Track Blog Post Views (`src/pages/BlogPost.tsx`)
-- On page load (after post loads), fire a single INSERT to `content_views` with `content_type: 'blog_post'` and `content_id: post.id`
-- Use a `useEffect` with a ref to prevent double-counting on re-renders
+### User Flow Testing
+- Complete wizard flow from start to finish
+- Form validation at each step
+- Admin panel status management
+- Mobile responsiveness
+- Cross-browser compatibility
 
-#### 2. Track Case Study Views (`src/pages/CaseStudyDetail.tsx`)
-- Same pattern: INSERT on load with `content_type: 'case_study'`
+### Edge Cases
+- Form submission failures and recovery
+- Network connectivity issues
+- Concurrent admin status updates
+- Large file attachments (if implemented)
+- Form spam protection
 
-#### 3. Track Resource Downloads (`src/components/CardComponents.tsx` + `src/pages/Resources.tsx`)
-- On download click, INSERT to `content_views` with `content_type: 'resource_download'` before opening the file URL
-- Pass `resource.id` through to the ResourceCard component
-
-#### 4. Create a shared tracking hook (`src/hooks/useContentTracking.ts`)
-- `useTrackView(contentType, contentId)` — fires once on mount
-- `trackDownload(contentId)` — callable function for download clicks
-
-#### 5. Update Admin Dashboard (`src/pages/admin/AdminDashboard.tsx`)
-- Add new KPI: "Total Views" (sum of all content_views)
-- Add "Top Performing Content" section showing a ranked table with:
-  - Content title, type, view/download count
-  - Sorted by count descending, top 10
-- Add a "Views Over Time" line chart (last 30 days, aggregated daily)
-- Query `content_views` with aggregation using `.select()` and group by content_id
-- Since Supabase JS client doesn't support GROUP BY, create a database function `get_content_analytics()` that returns aggregated data
-
-**New database function: `get_content_analytics()`**
-```sql
-CREATE FUNCTION public.get_content_analytics()
-RETURNS TABLE (content_type text, content_id uuid, title text, view_count bigint)
-SECURITY DEFINER
-```
-This joins `content_views` with blog_posts/case_studies/resources to return titles and counts.
-
-**New database function: `get_daily_views(days int)`**
-Returns daily view counts for the chart.
-
-### Files to Create
-- `src/hooks/useContentTracking.ts`
-
-### Files to Edit
-- `src/pages/BlogPost.tsx` — add view tracking
-- `src/pages/CaseStudyDetail.tsx` — add view tracking
-- `src/components/CardComponents.tsx` — add download tracking to ResourceCard
-- `src/pages/Resources.tsx` — pass resource id to ResourceCard
-- `src/pages/admin/AdminDashboard.tsx` — add analytics widgets
-
-### Execution Order
-1. Database migration (table + functions + RLS)
-2. Create tracking hook
-3. Wire tracking into public pages
-4. Update dashboard with analytics
-
+This plan provides a comprehensive upgrade to both the user-facing consultation form and admin management capabilities, significantly improving the inquiry handling workflow while maintaining the current design aesthetic and brand consistency.

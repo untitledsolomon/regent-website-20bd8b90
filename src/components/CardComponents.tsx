@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import type { BlogPost, Resource, ArchLayer } from "@/data/siteData";
 import { archLayers } from "@/data/siteData";
+import { trackDownload } from "@/hooks/useContentTracking";
 
 /* CapabilityCard */
 export function CapabilityCard({ icon, title, desc, delay = 0 }: { icon: IconName; title: string; desc: string; delay?: number }) {
@@ -142,12 +143,22 @@ export function BlogCard({ post, delay = 0 }: { post: BlogPost; delay?: number }
 /* ResourceCard */
 const typeColors: Record<string, string> = { Whitepaper: 'var(--accent)', Research: '#059669', Documentation: '#d97706', 'Case Study': '#dc2626' };
 
-export function ResourceCard({ res, fileUrl, delay = 0 }: { res: Resource; fileUrl?: string | null; delay?: number }) {
+export function ResourceCard({ res, fileUrl, resourceId, delay = 0 }: { res: Resource; fileUrl?: string | null; resourceId?: string; delay?: number }) {
+  const handleDownload = () => {
+    if (resourceId) {
+      trackDownload(resourceId);
+    }
+    if (fileUrl) {
+      window.open(fileUrl, "_blank", "noopener,noreferrer");
+    }
+  };
+
   const content = (
     <RevealOnScroll delay={delay * 0.1}>
       <motion.div
         whileHover={{ y: -3, boxShadow: "0 4px 20px rgba(0,0,0,0.06)" }}
         className="border border-border rounded-xl p-7 transition-colors hover:border-border-strong cursor-pointer"
+        onClick={handleDownload}
       >
         <div className="mb-3.5">
           <span className="font-mono text-[11px] tracking-[0.06em] uppercase" style={{ color: typeColors[res.type] || 'hsl(var(--accent))' }}>
@@ -163,9 +174,6 @@ export function ResourceCard({ res, fileUrl, delay = 0 }: { res: Resource; fileU
     </RevealOnScroll>
   );
 
-  if (fileUrl) {
-    return <a href={fileUrl} target="_blank" rel="noopener noreferrer">{content}</a>;
-  }
   return content;
 }
 

@@ -197,6 +197,27 @@ export type Database = {
         }
         Relationships: []
       }
+      content_views: {
+        Row: {
+          content_id: string
+          content_type: string
+          created_at: string
+          id: string
+        }
+        Insert: {
+          content_id: string
+          content_type: string
+          created_at?: string
+          id?: string
+        }
+        Update: {
+          content_id?: string
+          content_type?: string
+          created_at?: string
+          id?: string
+        }
+        Relationships: []
+      }
       newsletter_sends: {
         Row: {
           failed_count: number
@@ -307,6 +328,22 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_content_analytics: {
+        Args: never
+        Returns: {
+          content_id: string
+          content_type: string
+          title: string
+          view_count: number
+        }[]
+      }
+      get_daily_views: {
+        Args: { days_back?: number }
+        Returns: {
+          view_count: number
+          view_date: string
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
