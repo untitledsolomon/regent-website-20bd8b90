@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "react-router-dom";
 import { RevealOnScroll } from "@/components/RevealOnScroll";
@@ -7,6 +7,7 @@ import { Icons } from "@/components/Icons";
 import { companyValues, benefits } from "@/data/siteData";
 import { PageMeta } from "@/components/PageMeta";
 import { supabase } from "@/integrations/supabase/client";
+import { useQuery } from "@tanstack/react-query";
 
 interface Career {
   id: string;
@@ -18,20 +19,18 @@ interface Career {
 
 export default function CareersPage() {
   const [activeDept, setActiveDept] = useState("All");
-  const [careers, setCareers] = useState<Career[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    supabase
-      .from("careers")
-      .select("id, title, department, location, type")
-      .eq("published", true)
-      .order("created_at", { ascending: false })
-      .then(({ data }) => {
-        setCareers(data || []);
-        setLoading(false);
-      });
-  }, []);
+  const { data: careers = [], isLoading: loading, isError, refetch } = useQuery({
+    queryKey: ["careers"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("careers")
+        .select("id, title, department, location, type")
+        .eq("published", true)
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      return (data || []) as Career[];
+    },
+  });
 
   const departments = ["All", ...Array.from(new Set(careers.map(c => c.department).filter(Boolean)))];
   const filtered = activeDept === "All" ? careers : careers.filter(c => c.department === activeDept);
@@ -100,6 +99,12 @@ export default function CareersPage() {
 
           {loading ? (
             <div className="space-y-3">{[1, 2, 3].map(i => <div key={i} className="h-20 bg-card border border-border rounded-xl animate-pulse" />)}</div>
+          ) : isError ? (
+            <div className="text-center py-16">
+              <h2 className="font-heading text-xl font-semibold text-text-primary mb-4">Unable to load positions</h2>
+              <p className="text-text-secondary mb-6">Something went wrong. Please try again.</p>
+              <button onClick={() => refetch()} className="font-heading text-sm font-medium bg-primary text-primary-foreground rounded-lg px-6 py-3 hover:bg-primary/90 transition-all">Retry</button>
+            </div>
           ) : (
             <>
               <div className="flex flex-wrap gap-2 mb-8">
