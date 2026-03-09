@@ -144,18 +144,25 @@ export function BlogCard({ post, delay = 0 }: { post: BlogPost; delay?: number }
 const typeColors: Record<string, string> = { Whitepaper: 'var(--accent)', Research: '#059669', Documentation: '#d97706', 'Case Study': '#dc2626' };
 
 export function ResourceCard({ res, fileUrl, resourceId, delay = 0 }: { res: Resource; fileUrl?: string | null; resourceId?: string; delay?: number }) {
-  const handleDownload = () => {
+  const handleDownload = async () => {
     if (resourceId) {
       trackDownload(resourceId);
     }
     if (fileUrl) {
-      const a = document.createElement("a");
-      a.href = fileUrl;
-      a.download = "";
-      a.rel = "noopener noreferrer";
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
+      try {
+        const response = await fetch(fileUrl);
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = fileUrl.split("/").pop() || "download";
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+      } catch {
+        window.open(fileUrl, "_blank", "noopener");
+      }
     }
   };
 
