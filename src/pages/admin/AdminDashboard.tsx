@@ -22,6 +22,9 @@ interface Stats {
   inquiryBreakdown: { name: string; value: number }[];
   subscriberGrowth: { date: string; count: number }[];
   contentByMonth: { month: string; posts: number; caseStudies: number; resources: number }[];
+  totalViews: number;
+  topContent: { content_type: string; content_id: string; title: string; view_count: number }[];
+  dailyViews: { date: string; views: number }[];
 }
 
 interface RecentItem {
@@ -51,19 +54,25 @@ export default function AdminDashboard() {
     inquiryBreakdown: [],
     subscriberGrowth: [],
     contentByMonth: [],
+    totalViews: 0,
+    topContent: [],
+    dailyViews: [],
   });
   const [recent, setRecent] = useState<RecentItem[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const load = async () => {
-      const [postsRes, csRes, resRes, subsRes, inqRes, subsAllRes] = await Promise.all([
+      const [postsRes, csRes, resRes, subsRes, inqRes, subsAllRes, analyticsRes, dailyViewsRes, totalViewsRes] = await Promise.all([
         supabase.from("blog_posts").select("id, title, published, updated_at, created_at"),
         supabase.from("case_studies").select("id, title, published, updated_at, created_at"),
         supabase.from("resources").select("id, title, published, updated_at, created_at"),
         supabase.from("newsletter_subscribers").select("id", { count: "exact", head: true }),
         supabase.from("consultation_requests").select("id, status, created_at"),
         supabase.from("newsletter_subscribers").select("id, created_at"),
+        supabase.rpc("get_content_analytics"),
+        supabase.rpc("get_daily_views", { days_back: 30 }),
+        supabase.from("content_views").select("id", { count: "exact", head: true }),
       ]);
 
       const posts = postsRes.data || [];
@@ -114,6 +123,24 @@ export default function AdminDashboard() {
         return { month, posts: p, caseStudies: c, resources: r };
       });
 
+      // Analytics data
+      const topContent = (analyticsRes.data || []).map((item: any) => ({
+        content_type: item.content_type,
+        content_id: item.content_id,
+        title: item.title,
+        view_count: Number(item.view_count),
+      }));
+
+      const dailyViews = Array.from({ length: 30 }, (_, i) => {
+        const d = subDays(new Date(), 29 - i);
+        const dateStr = format(d, "yyyy-MM-dd");
+        const displayDate = format(d, "MMM dd");
+        const found = (dailyViewsRes.data || []).find((v: any) => v.view_date === dateStr);
+        return { date: displayDate, views: found ? Number(found.view_count) : 0 };
+      });
+
+      const totalViews = totalViewsRes.count || 0;
+
       setStats({
         posts: { total: posts.length, published: posts.filter(p => p.published).length },
         caseStudies: { total: cs.length, published: cs.filter(c => c.published).length },
@@ -124,6 +151,9 @@ export default function AdminDashboard() {
         inquiryBreakdown,
         subscriberGrowth,
         contentByMonth,
+        totalViews,
+        topContent,
+        dailyViews,
       });
 
       const all: RecentItem[] = [
@@ -160,6 +190,12 @@ export default function AdminDashboard() {
     return "Good evening";
   };
 
+  const contentTypeLabel: Record<string, string> = {
+    blog_post: "Blog Post",
+    case_study: "Case Study",
+    resource_download: "Download",
+  };
+
   const kpis = [
     {
       label: "Total Content",
@@ -168,6 +204,14 @@ export default function AdminDashboard() {
       icon: FileText,
       trend: publishRate > 50 ? "up" : "neutral",
       trendValue: `${publishRate}% live`,
+    },
+    {
+      label: "Total Views",
+      value: stats.totalViews,
+      sub: "all time",
+      icon: Eye,
+      trend: stats.totalViews > 0 ? "up" : "neutral",
+      trendValue: stats.topContent.length > 0 ? `${stats.topContent.length} tracked` : "no data",
     },
     {
       label: "New Inquiries",
@@ -184,14 +228,6 @@ export default function AdminDashboard() {
       icon: Mail,
       trend: "up",
       trendValue: "growing",
-    },
-    {
-      label: "Publish Rate",
-      value: `${publishRate}%`,
-      sub: "of content live",
-      icon: Activity,
-      trend: publishRate >= 70 ? "up" : publishRate >= 40 ? "neutral" : "down",
-      trendValue: publishRate >= 70 ? "healthy" : "needs attention",
     },
   ];
 
@@ -315,7 +351,59 @@ export default function AdminDashboard() {
         </div>
       </div>
 
-      {/* Subscriber Growth + Quick Actions */}
+      {/* Content Views Over Time + Top Performing Content */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-8">
+        {/* Views Over Time */}
+        <div className="lg:col-span-2 bg-card border border-border rounded-xl p-5">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="font-heading text-sm font-semibold text-foreground">Content Views</h3>
+            <span className="text-xs text-muted-foreground">Last 30 days</span>
+          </div>
+          <div className="h-[220px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart data={stats.dailyViews}>
+                <defs>
+                  <linearGradient id="viewsGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="hsl(142, 71%, 45%)" stopOpacity={0.2} />
+                    <stop offset="100%" stopColor="hsl(142, 71%, 45%)" stopOpacity={0} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
+                <XAxis dataKey="date" tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }} tickLine={false} axisLine={false} interval={6} />
+                <YAxis tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} tickLine={false} axisLine={false} allowDecimals={false} />
+                <RechartsTooltip
+                  contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: "8px", fontSize: "12px" }}
+                />
+                <Area type="monotone" dataKey="views" stroke="hsl(142, 71%, 45%)" fill="url(#viewsGrad)" strokeWidth={2} />
+              </AreaChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        {/* Top Performing Content */}
+        <div className="bg-card border border-border rounded-xl p-5">
+          <h3 className="font-heading text-sm font-semibold text-foreground mb-4">Top Content</h3>
+          {stats.topContent.length > 0 ? (
+            <div className="space-y-1">
+              {stats.topContent.slice(0, 8).map((item, i) => (
+                <div key={item.content_id} className="flex items-center gap-3 px-2 py-2 rounded-lg hover:bg-muted transition-colors">
+                  <span className="text-xs font-mono text-muted-foreground w-5 text-right">{i + 1}</span>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-sm font-medium text-foreground truncate">{item.title}</div>
+                    <div className="text-[10px] text-muted-foreground">{contentTypeLabel[item.content_type] || item.content_type}</div>
+                  </div>
+                  <div className="text-sm font-heading font-bold text-foreground">{item.view_count}</div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="h-[220px] flex items-center justify-center text-sm text-muted-foreground">
+              No views tracked yet
+            </div>
+          )}
+        </div>
+      </div>
+
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-8">
         {/* Subscriber Growth */}
         <div className="lg:col-span-2 bg-card border border-border rounded-xl p-5">
