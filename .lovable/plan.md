@@ -1,61 +1,166 @@
 
+# Inquiry and Contact Form Enhancement Plan
 
-## Implement Remaining Launch Items
+## Overview
+Based on user requirements, I'll enhance the consultation form system with admin status tracking and improved user experience through better validation, new fields, and a multi-step wizard interface.
 
-Based on my review, several items from the suggestions are **already done** (CSV export, image upload for blog/case study editors). Here's what actually needs building:
+## 1. Database Schema Updates
 
----
+### Add Status Tracking to consultation_requests
+- Add `status` column (enum: 'new', 'viewed', 'replied', 'closed')
+- Add `admin_notes` text column for internal notes
+- Add `replied_at` timestamp
+- Add `replied_by` UUID reference (for admin user tracking)
+- Add `phone` text column for the new phone field
 
-### 1. Add Empty States to Public Pages
+## 2. Admin Panel Enhancements
 
-Currently, when no content is published:
-- **Blog** (line 204): Already has an empty state for filtered results, but no overall empty state when zero posts exist
-- **Case Studies**: No empty state — just renders an empty grid
-- **Resources**: No empty state — just renders an empty grid
-- **Careers**: Needs checking but likely same issue
+### Update ConsultationList.tsx
+- Add status filter buttons (All, New, Viewed, Replied, Closed)
+- Add visual status indicators with color-coded badges
+- Add quick action buttons for status changes
+- Add modal/drawer for viewing full details and adding notes
+- Add admin notes display and editing
+- Add phone number display
+- Add bulk actions for status updates
+- Improve responsive design for mobile admin access
 
-**Fix**: Add friendly empty-state messages to each page when the database returns zero items. Something like "No [content] published yet. Check back soon." with a subtle icon.
+### Create ConsultationDetail Component
+- Full-screen modal or dedicated detail page
+- Complete inquiry information display
+- Admin notes section with rich text editor
+- Status change history
+- Quick reply actions
+- Contact information with click-to-call for phone numbers
 
-### 2. Wire Up Resources Page Newsletter Subscribe
+## 3. Form Validation & Schema
 
-The Resources page (lines 204-217) has a subscribe form that is **completely non-functional** — the button and input aren't connected to any handler. Need to wire it up the same way the Blog page does (insert into `newsletter_subscribers`, call `newsletter-welcome` function).
+### Create Zod Validation Schema
+- Strong client-side validation using existing zod dependency
+- Phone number validation with international format support
+- Enhanced email validation
+- Required field validation with better error messages
+- Message length limits and character counting
+- Form submission debouncing
 
-### 3. Dynamic Sitemap Generation
+### Input Validation Features
+- Real-time validation feedback
+- Field-level error states
+- Success states for completed fields
+- Input masking for phone numbers
+- Auto-formatting for phone and email inputs
 
-Create an edge function `generate-sitemap` that:
-- Queries published blog posts, case studies, and resources from the database
-- Generates a proper XML sitemap with all static pages + dynamic content URLs
-- Returns XML with correct `Content-Type: application/xml`
+## 4. Multi-Step Wizard Enhancement
 
-Update the approach: Instead of a static `public/sitemap.xml`, serve it from an edge function. Update `robots.txt` to point to the edge function URL.
+### Step 1: Contact Information
+- Name, Company, Email, Phone (required fields)
+- Progress indicator
+- Auto-save draft functionality
 
-Alternatively (simpler): Create an admin button that regenerates `sitemap.xml` by querying the DB. But since we can't write to `public/` at runtime, the edge function approach is better.
+### Step 2: Project Details  
+- Industry, Company Size, Budget Range
+- Dynamic follow-up questions based on selections
+- Conditional logic for enterprise vs smaller companies
 
-### 4. Not Doing (Already Complete)
-- CSV export for subscribers — already implemented with download button
-- Image upload for blog posts — already has drag-and-drop upload to storage
-- Image upload for case studies — already has upload support
+### Step 3: Project Description
+- Enhanced message textarea with character count
+- Suggested prompts to help users provide better information
+- File attachment capability for requirements docs
 
----
+### Step 4: Review & Submit
+- Summary of all entered information
+- Edit buttons for each section
+- Terms acceptance
+- Submit with loading states and success animation
 
-### Files to Create
-| File | Purpose |
-|------|---------|
-| `supabase/functions/sitemap/index.ts` | Dynamic sitemap endpoint |
+## 5. UX/UI Improvements
 
-### Files to Edit
-| File | Change |
-|------|--------|
-| `src/pages/Blog.tsx` | Add overall empty state when zero posts |
-| `src/pages/CaseStudies.tsx` | Add empty state when zero case studies |
-| `src/pages/Resources.tsx` | Add empty state + wire up newsletter subscribe |
-| `src/pages/Careers.tsx` | Add empty state for zero openings |
-| `public/robots.txt` | Update sitemap URL to edge function |
-| `supabase/config.toml` | Add sitemap function config with `verify_jwt = false` |
+### Enhanced Form Design
+- Better visual hierarchy with sectioned layouts
+- Improved focus states and accessibility
+- Loading skeletons during submission
+- Progressive disclosure for optional fields
+- Mobile-first responsive design
+- Improved error messaging with helpful suggestions
 
-### Execution Order
-1. Add empty states to all four public pages
-2. Wire up Resources page newsletter subscribe
-3. Create sitemap edge function
-4. Update robots.txt
+### Animation & Feedback
+- Smooth transitions between steps
+- Progress bar with completion percentage
+- Success microinteractions
+- Form field animations (slide-in errors, success checkmarks)
+- Enhanced submission confirmation with personalized messaging
 
+## 6. Additional Features
+
+### Form Analytics
+- Track step completion rates
+- Identify drop-off points
+- Form field engagement metrics
+- A/B testing preparation for form variations
+
+### Auto-Save & Recovery
+- Browser storage for form drafts
+- Session restoration on page refresh
+- Warning before leaving incomplete forms
+- Recovery of accidentally closed forms
+
+### Enhanced Email Notifications
+- Improved admin notification emails with better formatting
+- Status change notifications
+- Admin reply notifications to users (if email addresses are configured)
+- Weekly summary reports of inquiry activity
+
+## 7. Technical Implementation Details
+
+### Component Structure
+```
+src/
+  components/
+    forms/
+      ConsultationWizard.tsx (main wizard component)
+      ContactStep.tsx (step 1)
+      ProjectDetailsStep.tsx (step 2)  
+      MessageStep.tsx (step 3)
+      ReviewStep.tsx (step 4)
+      StepIndicator.tsx (progress component)
+    admin/
+      ConsultationDetail.tsx (detail view/modal)
+      StatusBadge.tsx (status indicator)
+      NotesEditor.tsx (admin notes component)
+  schemas/
+    consultationSchema.ts (zod validation)
+  hooks/
+    useConsultationForm.ts (form state management)
+    useFormPersistence.ts (auto-save functionality)
+```
+
+### State Management
+- React Hook Form integration with zod resolver
+- Local storage for form persistence
+- Optimistic updates for admin actions
+- Real-time updates using Supabase realtime subscriptions
+
+### Accessibility Features
+- WCAG 2.1 AA compliance
+- Keyboard navigation support
+- Screen reader compatibility
+- High contrast mode support
+- Focus management in wizard steps
+
+## 8. Testing Strategy
+
+### User Flow Testing
+- Complete wizard flow from start to finish
+- Form validation at each step
+- Admin panel status management
+- Mobile responsiveness
+- Cross-browser compatibility
+
+### Edge Cases
+- Form submission failures and recovery
+- Network connectivity issues
+- Concurrent admin status updates
+- Large file attachments (if implemented)
+- Form spam protection
+
+This plan provides a comprehensive upgrade to both the user-facing consultation form and admin management capabilities, significantly improving the inquiry handling workflow while maintaining the current design aesthetic and brand consistency.

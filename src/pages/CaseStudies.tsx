@@ -93,6 +93,15 @@ export default function CaseStudiesPage() {
               <button onClick={() => refetch()} className="font-heading text-sm font-medium bg-primary text-primary-foreground rounded-lg px-6 py-3 hover:bg-primary/90 transition-all">Retry</button>
             </div>
           ) : (
+            caseStudies.length === 0 ? (
+              <div className="text-center py-20">
+                <div className="w-16 h-16 mx-auto mb-6 rounded-2xl bg-accent-light flex items-center justify-center text-primary">
+                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+                </div>
+                <h3 className="font-heading text-lg font-semibold text-text-primary mb-2">No case studies published yet</h3>
+                <p className="text-sm text-text-muted">Check back soon — client success stories are on the way.</p>
+              </div>
+            ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {caseStudies.map((cs, i) => (
                 <RevealOnScroll key={cs.id} delay={i * 0.1}>
@@ -137,6 +146,7 @@ export default function CaseStudiesPage() {
                 </RevealOnScroll>
               ))}
             </div>
+            )
           )}
         </div>
       </section>

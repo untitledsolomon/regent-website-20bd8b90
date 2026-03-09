@@ -33,10 +33,28 @@ async function fetchResources(): Promise<DbResource[]> {
 
 export default function ResourcesPage() {
   const [filter, setFilter] = useState("All");
+  const [email, setEmail] = useState("");
+  const [subscribing, setSubscribing] = useState(false);
   const { data: resources = [], isLoading, isError, refetch } = useQuery({
     queryKey: ["resources"],
     queryFn: fetchResources,
   });
+
+  const handleSubscribe = async () => {
+    const trimmed = email.trim();
+    if (!trimmed || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed)) return;
+    setSubscribing(true);
+    try {
+      const { error } = await supabase.from("newsletter_subscribers").insert({ email: trimmed, source: "resources" });
+      if (error && error.code !== "23505") throw error;
+      setEmail("");
+      supabase.functions.invoke("newsletter-welcome", { body: { email: trimmed } }).catch(() => {});
+    } catch {
+      // silent
+    } finally {
+      setSubscribing(false);
+    }
+  };
 
   const filtered = filter === "All" ? resources : resources.filter(r => r.type === filter);
   const featuredResource = resources.find(r => r.featured) || resources[0];
@@ -167,6 +185,15 @@ export default function ResourcesPage() {
               </span>
             </div>
           </RevealOnScroll>
+          {resources.length === 0 ? (
+            <div className="text-center py-20">
+              <div className="w-16 h-16 mx-auto mb-6 rounded-2xl bg-accent-light flex items-center justify-center text-primary">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg>
+              </div>
+              <h3 className="font-heading text-lg font-semibold text-text-primary mb-2">No resources published yet</h3>
+              <p className="text-sm text-text-muted">Check back soon — whitepapers and guides are on the way.</p>
+            </div>
+          ) : (
           <AnimatePresence mode="wait">
             <motion.div
               key={filter}
@@ -187,6 +214,7 @@ export default function ResourcesPage() {
               ))}
             </motion.div>
           </AnimatePresence>
+          )}
         </div>
       </section>
 
@@ -204,15 +232,19 @@ export default function ResourcesPage() {
               <div className="flex gap-3 max-w-[420px] mx-auto">
                 <input
                   type="email"
+                  value={email}
+                  onChange={e => setEmail(e.target.value)}
                   placeholder="you@company.com"
                   className="flex-1 font-mono text-sm px-4 py-3 rounded-lg border border-border bg-card text-text-primary placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
                 />
                 <motion.button
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
-                  className="font-heading text-[13px] font-medium bg-text-primary text-background rounded-lg px-5 py-3 hover:shadow-lg transition-all flex-shrink-0"
+                  onClick={handleSubscribe}
+                  disabled={subscribing}
+                  className="font-heading text-[13px] font-medium bg-text-primary text-background rounded-lg px-5 py-3 hover:shadow-lg transition-all flex-shrink-0 disabled:opacity-50"
                 >
-                  Subscribe
+                  {subscribing ? "..." : "Subscribe"}
                 </motion.button>
               </div>
               <p className="text-xs text-text-muted mt-3">No spam. Unsubscribe anytime.</p>
