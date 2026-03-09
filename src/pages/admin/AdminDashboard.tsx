@@ -22,6 +22,9 @@ interface Stats {
   inquiryBreakdown: { name: string; value: number }[];
   subscriberGrowth: { date: string; count: number }[];
   contentByMonth: { month: string; posts: number; caseStudies: number; resources: number }[];
+  totalViews: number;
+  topContent: { content_type: string; content_id: string; title: string; view_count: number }[];
+  dailyViews: { date: string; views: number }[];
 }
 
 interface RecentItem {
@@ -51,19 +54,25 @@ export default function AdminDashboard() {
     inquiryBreakdown: [],
     subscriberGrowth: [],
     contentByMonth: [],
+    totalViews: 0,
+    topContent: [],
+    dailyViews: [],
   });
   const [recent, setRecent] = useState<RecentItem[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const load = async () => {
-      const [postsRes, csRes, resRes, subsRes, inqRes, subsAllRes] = await Promise.all([
+      const [postsRes, csRes, resRes, subsRes, inqRes, subsAllRes, analyticsRes, dailyViewsRes, totalViewsRes] = await Promise.all([
         supabase.from("blog_posts").select("id, title, published, updated_at, created_at"),
         supabase.from("case_studies").select("id, title, published, updated_at, created_at"),
         supabase.from("resources").select("id, title, published, updated_at, created_at"),
         supabase.from("newsletter_subscribers").select("id", { count: "exact", head: true }),
         supabase.from("consultation_requests").select("id, status, created_at"),
         supabase.from("newsletter_subscribers").select("id, created_at"),
+        supabase.rpc("get_content_analytics"),
+        supabase.rpc("get_daily_views", { days_back: 30 }),
+        supabase.from("content_views").select("id", { count: "exact", head: true }),
       ]);
 
       const posts = postsRes.data || [];
@@ -114,6 +123,24 @@ export default function AdminDashboard() {
         return { month, posts: p, caseStudies: c, resources: r };
       });
 
+      // Analytics data
+      const topContent = (analyticsRes.data || []).map((item: any) => ({
+        content_type: item.content_type,
+        content_id: item.content_id,
+        title: item.title,
+        view_count: Number(item.view_count),
+      }));
+
+      const dailyViews = Array.from({ length: 30 }, (_, i) => {
+        const d = subDays(new Date(), 29 - i);
+        const dateStr = format(d, "yyyy-MM-dd");
+        const displayDate = format(d, "MMM dd");
+        const found = (dailyViewsRes.data || []).find((v: any) => v.view_date === dateStr);
+        return { date: displayDate, views: found ? Number(found.view_count) : 0 };
+      });
+
+      const totalViews = totalViewsRes.count || 0;
+
       setStats({
         posts: { total: posts.length, published: posts.filter(p => p.published).length },
         caseStudies: { total: cs.length, published: cs.filter(c => c.published).length },
@@ -124,6 +151,9 @@ export default function AdminDashboard() {
         inquiryBreakdown,
         subscriberGrowth,
         contentByMonth,
+        totalViews,
+        topContent,
+        dailyViews,
       });
 
       const all: RecentItem[] = [
