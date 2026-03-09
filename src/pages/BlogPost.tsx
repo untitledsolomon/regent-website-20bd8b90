@@ -7,6 +7,7 @@ import { RevealOnScroll } from "@/components/RevealOnScroll";
 import { PageMeta } from "@/components/PageMeta";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
+import { useTrackView } from "@/hooks/useContentTracking";
 
 async function fetchPostBySlug(slug: string) {
   const { data, error } = await supabase.from("blog_posts").select("*").eq("slug", slug).eq("published", true).single();
