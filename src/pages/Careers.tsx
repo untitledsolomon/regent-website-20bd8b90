@@ -159,7 +159,17 @@ export default function CareersPage() {
                 </AnimatePresence>
               </div>
 
-              {filtered.length === 0 && (
+              {careers.length === 0 && (
+                <div className="text-center py-16">
+                  <div className="w-16 h-16 mx-auto mb-6 rounded-2xl bg-accent-light flex items-center justify-center text-primary">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect width="20" height="14" x="2" y="7" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+                  </div>
+                  <h3 className="font-heading text-lg font-semibold text-text-primary mb-2">No open positions right now</h3>
+                  <p className="text-sm text-text-muted">Check back soon — we're always growing.</p>
+                </div>
+              )}
+
+              {careers.length > 0 && filtered.length === 0 && (
                 <div className="text-center py-16 text-text-muted">No open positions in this department.</div>
               )}
             </>
