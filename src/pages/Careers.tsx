@@ -15,6 +15,7 @@ interface Career {
   department: string;
   location: string;
   type: string;
+  description: string;
 }
 
 export default function CareersPage() {
@@ -24,7 +25,7 @@ export default function CareersPage() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("careers")
-        .select("id, title, department, location, type")
+        .select("id, title, department, location, type, description")
         .eq("published", true)
         .order("created_at", { ascending: false });
       if (error) throw error;
@@ -148,6 +149,9 @@ export default function CareersPage() {
                               <span className="w-1 h-1 rounded-full bg-border-strong" />
                               <span>{job.type}</span>
                             </div>
+                            {job.description && (  // ← add this block
+                              <p className="text-[13px] text-text-secondary leading-[1.65] mt-2 line-clamp-2">{job.description}</p>
+                            )}
                           </div>
                           <div className="text-primary shrink-0">
                             <Icons.ArrowRight />

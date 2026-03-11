@@ -48,6 +48,7 @@ export interface BlogPost {
   category: string;
   readTime: string;
   content: string;
+  image_url?: string | null;
 }
 
 export interface Resource {

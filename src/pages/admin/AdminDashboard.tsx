@@ -384,6 +384,7 @@ export default function AdminDashboard() {
               { label: "New Resource", icon: FileStack, link: "/admin/resources/new" },
               { label: "Send Newsletter", icon: Send, link: "/admin/newsletter/compose" },
               { label: "View Inquiries", icon: Eye, link: "/admin/inquiries" },
+              { label: "View Applications", icon: FileText, link: "/admin/applications" },
             ].map(action => {
               const Icon = action.icon;
               return (

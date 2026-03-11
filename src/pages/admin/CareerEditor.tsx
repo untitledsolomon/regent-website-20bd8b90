@@ -15,6 +15,7 @@ export default function CareerEditor() {
     department: "",
     location: "",
     type: "Full-time",
+    description: "",
     published: true,
   });
 
@@ -26,6 +27,7 @@ export default function CareerEditor() {
           department: data.department,
           location: data.location,
           type: data.type,
+          description: data.description || "",
           published: data.published,
         });
       });
@@ -112,6 +114,20 @@ export default function CareerEditor() {
               <option>Internship</option>
             </select>
           </div>
+
+          <div>
+            <label className="text-sm font-medium text-text-primary mb-1.5 block">Description</label>
+            <textarea
+              value={form.description}
+              onChange={e => set("description", e.target.value)}
+              rows={6}
+              placeholder="Describe the role, responsibilities, and requirements..."
+              className="w-full border border-border rounded-lg px-3 py-2.5 text-sm bg-background text-text-primary focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all resize-y"
+            />
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 gap-4">
           <div className="flex items-end">
             <label className="flex items-center gap-3 cursor-pointer">
               <input

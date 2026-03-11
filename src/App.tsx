@@ -50,6 +50,7 @@ const AdminSettings = lazy(() => import("./pages/admin/AdminSettings"));
 const AdminDocumentation = lazy(() => import("./pages/admin/AdminDocumentation"));
 const AdminAnalytics = lazy(() => import("./pages/admin/AdminAnalytics"));
 const Unsubscribe = lazy(() => import("./pages/Unsubscribe"));
+const Applications = lazy(() => import("./pages/admin/Applications"));
 
 const queryClient = new QueryClient();
 
@@ -146,6 +147,7 @@ function AdminRoutes() {
           <Route path="inquiries/:id" element={<ConsultationDetail />} />
           <Route path="settings" element={<AdminSettings />} />
           <Route path="documentation" element={<AdminDocumentation />} />
+          <Route path="applications" element={<Applications />} />
         </Route>
       </Routes>
     </Suspense>
