@@ -21,8 +21,12 @@ export default function NewsletterCompose() {
 
     setSending(true);
     try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) throw new Error("Not authenticated");
+
       const { data, error } = await supabase.functions.invoke("send-newsletter", {
         body: { subject: subject.trim(), html: body },
+        headers: { Authorization: `Bearer ${session.access_token}` },
       });
       if (error) throw error;
       toast({
