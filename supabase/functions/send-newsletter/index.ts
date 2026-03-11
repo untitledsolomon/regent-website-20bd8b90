@@ -11,37 +11,46 @@ Deno.serve(async (req) => {
   }
 
   try {
-    // Verify auth
+    // Verify auth using service role client to validate the JWT
     const authHeader = req.headers.get("Authorization");
     if (!authHeader?.startsWith("Bearer ")) {
-      return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
-    const anonClient = createClient(SUPABASE_URL, Deno.env.get("SUPABASE_ANON_KEY")!, {
-      global: { headers: { Authorization: authHeader } },
-    });
-    const { data: { user }, error: userErr } = await anonClient.auth.getUser();
+    const token = authHeader.replace("Bearer ", "");
+    const admin = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
+    const { data: { user }, error: userErr } = await admin.auth.getUser(token);
     if (userErr || !user) {
-      return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
     const { subject, html } = await req.json();
     if (!subject || !html) {
-      return new Response(JSON.stringify({ error: "Subject and html body required" }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      return new Response(JSON.stringify({ error: "Subject and html body required" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
-    // Fetch all subscribers using service role
-    const admin = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
+    // Fetch all subscribers
     const { data: subscribers, error: subErr } = await admin.from("newsletter_subscribers").select("email");
     if (subErr) throw subErr;
 
     if (!subscribers || subscribers.length === 0) {
-      return new Response(JSON.stringify({ error: "No subscribers found" }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      return new Response(JSON.stringify({ error: "No subscribers found" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
     const emails = subscribers.map((s: { email: string }) => s.email);
 
-    // Send individually for personalized unsubscribe links
     let sent = 0;
     let failed = 0;
     const batchSize = 10;
@@ -52,7 +61,10 @@ Deno.serve(async (req) => {
         batch.map(async (recipient: string) => {
           const res = await fetch("https://api.resend.com/emails", {
             method: "POST",
-            headers: { Authorization: `Bearer ${RESEND_API_KEY}`, "Content-Type": "application/json" },
+            headers: {
+              Authorization: `Bearer ${RESEND_API_KEY}`,
+              "Content-Type": "application/json",
+            },
             body: JSON.stringify({
               from: "Regent Systems <updates@regent.systems>",
               to: [recipient],
@@ -92,9 +104,14 @@ Deno.serve(async (req) => {
       }
     }
 
-    return new Response(JSON.stringify({ sent, failed, total: emails.length }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    return new Response(JSON.stringify({ sent, failed, total: emails.length }), {
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
   } catch (err) {
     console.error("Error:", err);
-    return new Response(JSON.stringify({ error: "Internal error" }), { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    return new Response(JSON.stringify({ error: "Internal error" }), {
+      status: 500,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
   }
 });

@@ -24,11 +24,25 @@ export default function NewsletterCompose() {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) throw new Error("Not authenticated");
 
-      const { data, error } = await supabase.functions.invoke("send-newsletter", {
-        body: { subject: subject.trim(), html: body },
-        headers: { Authorization: `Bearer ${session.access_token}` },
-      });
-      if (error) throw error;
+      // Use fetch directly — functions.invoke can silently drop auth headers
+      const res = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/send-newsletter`,
+        {
+          method: "POST",
+          headers: {
+            "Authorization": `Bearer ${session.access_token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ subject: subject.trim(), html: body }),
+        }
+      );
+
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.error || "Send failed");
+      }
+
+      const data = await res.json();
       toast({
         title: "Newsletter sent!",
         description: `Delivered to ${data.sent} subscriber${data.sent !== 1 ? "s" : ""}${data.failed > 0 ? `. ${data.failed} failed.` : "."}`,
@@ -37,7 +51,7 @@ export default function NewsletterCompose() {
       setBody("");
     } catch (err) {
       console.error(err);
-      toast({ title: "Failed to send", description: "Please try again.", variant: "destructive" });
+      toast({ title: "Failed to send", description: err.message || "Please try again.", variant: "destructive" });
     } finally {
       setSending(false);
     }
