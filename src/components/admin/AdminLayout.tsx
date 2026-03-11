@@ -6,6 +6,7 @@ import {
   LayoutDashboard, FileText, BarChart3, FolderOpen, Mail, MessageSquare,
   Briefcase, LogOut, ExternalLink, ChevronRight, Menu, X, Settings,
   BookOpen, Activity, PanelLeftClose, PanelLeft,
+  ClipboardList,
 } from "lucide-react";
 
 const contentNavItems = [
@@ -15,6 +16,7 @@ const contentNavItems = [
   { label: "Case Studies", path: "/admin/case-studies", icon: BarChart3 },
   { label: "Resources", path: "/admin/resources", icon: FolderOpen },
   { label: "Careers", path: "/admin/careers", icon: Briefcase },
+  { label: "Applications", path: "/admin/applications", icon: ClipboardList },
   { label: "Subscribers", path: "/admin/subscribers", icon: Mail },
   { label: "Inquiries", path: "/admin/inquiries", icon: MessageSquare },
 ];
