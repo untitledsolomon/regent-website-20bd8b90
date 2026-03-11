@@ -48,6 +48,7 @@ export default function BlogPage() {
       toast({ title: "Subscribed!", description: "You'll receive our latest insights." });
         setEmail("");
         supabase.functions.invoke("newsletter-welcome", { body: { email: trimmed } }).catch(() => {});
+        supabase.functions.invoke("sync-resend-contact", { body: { email: trimmed } }).catch(() => {});
       }
     } catch {
       toast({ title: "Something went wrong", description: "Please try again.", variant: "destructive" });
