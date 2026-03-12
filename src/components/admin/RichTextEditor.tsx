@@ -204,7 +204,6 @@ export default function RichTextEditor({ content, onChange, placeholder = "Start
       {/* Image Bubble Menu */}
       <BubbleMenu
         editor={editor}
-        tippyOptions={{ duration: 150, maxWidth: "none" }}
         shouldShow={({ editor: ed }) => ed.isActive("image")}
       >
         <div className="bg-popover border border-border rounded-lg shadow-lg p-2 flex flex-col gap-2">
