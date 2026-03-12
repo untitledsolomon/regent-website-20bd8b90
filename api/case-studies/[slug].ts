@@ -12,9 +12,10 @@ export default async function handler(
   }
 
   const userAgent = req.headers["user-agent"] || ""
-  const isBrowser = /mozilla|chrome|safari|firefox|edge|opera/i.test(userAgent)
+  const isRealBrowser = /mozilla|chrome|safari|firefox|edge|opera/i.test(userAgent)
+    && !/bot|crawler|spider|chatgpt|gptbot|openai|anthropic|claude|facebookexternalhit|twitterbot|linkedinbot|slurp|baiduspider|yandex/i.test(userAgent)
 
-  if (isBrowser) {
+  if (isRealBrowser) {
     return res.redirect(302, `/case-studies/${slug}`)
   }
 
