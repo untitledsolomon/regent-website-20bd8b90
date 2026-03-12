@@ -11,6 +11,8 @@ import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { AuthProvider, useAuth } from "@/hooks/useAuth";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { Analytics } from "@vercel/analytics/next"
+import { SpeedInsights } from "@vercel/speed-insights/next"
 
 const Index = lazy(() => import("./pages/Index"));
 const Platform = lazy(() => import("./pages/Platform"));
@@ -173,6 +175,8 @@ const App = () => (
             <BrowserRouter>
               <AppRouter />
               <CookieConsent />
+              <Analytics />
+              <SpeedInsights />
             </BrowserRouter>
           </AuthProvider>
         </TooltipProvider>
