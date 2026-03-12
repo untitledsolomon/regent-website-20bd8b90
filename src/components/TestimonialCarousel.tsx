@@ -4,22 +4,34 @@ import { RevealOnScroll } from "./RevealOnScroll";
 
 const testimonials = [
   {
-    quote: "Regent reduced our integration timeline from 18 months to 6 weeks. The platform's architecture is genuinely enterprise-grade.",
-    author: "CTO",
-    role: "Global Financial Exchange",
-    metric: "94% reduction in data latency",
+    quote: "Regent helped us structure our marketing and operations in a way that finally made everything scalable. The clarity alone changed how we run campaigns.",
+    author: "Director",
+    role: "Trevix Media",
+    metric: "2x increase in campaign efficiency",
   },
   {
-    quote: "We connected 23 legacy systems without a single production incident. That kind of reliability at our scale is exceptional.",
-    author: "VP Engineering",
-    role: "Tier-1 Investment Bank",
-    metric: "23 systems unified",
+    quote: "Working with Regent gave our business a much stronger strategic direction. Their insight into branding and digital positioning was extremely valuable.",
+    author: "Founder",
+    role: "Luminary Graphics",
+    metric: "40% growth in client inquiries",
   },
   {
-    quote: "The intelligence layer transformed how we monitor operations. We went from reactive to predictive in under a quarter.",
-    author: "Director of Infrastructure",
-    role: "Major Energy Company",
-    metric: "3x faster incident response",
+    quote: "Regent helped us streamline internal processes and improve how we present our services online. The impact was immediate.",
+    author: "Operations Manager",
+    role: "Next Level Store",
+    metric: "30% increase in customer engagement",
+  },
+  {
+    quote: "Regent brought structure to how we approach partnerships and growth opportunities. Their strategic input helped us move faster with more confidence.",
+    author: "Managing Director",
+    role: "Trevix Trading LTD",
+    metric: "Expanded into 2 new markets",
+  },
+  {
+    quote: "The team at Regent helped us refine our digital presence and improve how we communicate our value to clients. The results were noticeable within weeks.",
+    author: "Business Development Lead",
+    role: "Akawang GI",
+    metric: "45% increase in qualified leads",
   },
 ];
 

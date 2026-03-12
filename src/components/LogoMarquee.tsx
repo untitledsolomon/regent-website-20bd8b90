@@ -1,9 +1,8 @@
 import { motion } from "framer-motion";
 
 const logos = [
-  "Accenture", "Deloitte", "McKinsey", "Goldman Sachs", "JP Morgan",
-  "Citadel", "Palantir", "Raytheon", "Lockheed Martin", "Boeing",
-  "Shell", "Chevron", "Siemens", "Booz Allen", "KPMG",
+  "Trevix Trading LTD", "Trevix Media", "Luminary Graphics",
+  "Akawang GI", "Next Level Store"
 ];
 
 function LogoItem({ name }: { name: string }) {
