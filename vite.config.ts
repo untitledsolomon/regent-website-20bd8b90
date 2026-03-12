@@ -7,10 +7,15 @@ import fs from "fs";
 import { createClient } from "@supabase/supabase-js";
 
 async function getDynamicRoutes() {
-  const supabase = createClient(
-    process.env.VITE_SUPABASE_URL!,
-    process.env.VITE_SUPABASE_ANON_KEY!
-  )
+  const supabaseUrl = process.env.VITE_SUPABASE_URL
+  const supabaseKey = process.env.VITE_SUPABASE_ANON_KEY
+
+  if (!supabaseUrl || !supabaseKey) {
+    console.warn("Supabase env vars missing — skipping dynamic sitemap routes")
+    return []
+  }
+
+  const supabase = createClient(supabaseUrl, supabaseKey)
 
   const [{ data: posts }, { data: caseStudies }] = await Promise.all([
     supabase.from("blog_posts").select("slug"),
