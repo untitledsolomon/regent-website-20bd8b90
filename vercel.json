@@ -5,6 +5,14 @@
       "destination": "/api/$1"
     },
     {
+      "source": "/blog/:slug",
+      "destination": "/api/blog/:slug"
+    },
+    {
+      "source": "/case-studies/:slug",
+      "destination": "/api/case-studies/:slug"
+    },
+    {
       "source": "/((?!api/).*)",
       "destination": "/index.html"
     }

@@ -11,6 +11,13 @@ export default async function handler(
     return res.status(400).send("Invalid slug")
   }
 
+  const userAgent = req.headers["user-agent"] || ""
+  const isBot = /googlebot|bingbot|slurp|duckduckbot|baiduspider|yandexbot|facebookexternalhit|twitterbot|linkedinbot|whatsapp|telegrambot|chatgpt|gptbot|claude|anthropic/i.test(userAgent)
+
+  if (!isBot) {
+    return res.redirect(302, `/blog/${slug}`)
+  }
+
   const supabaseUrl = process.env.SUPABASE_URL
   const supabaseKey = process.env.SUPABASE_ANON_KEY
 
