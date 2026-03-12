@@ -119,7 +119,7 @@ export default function CaseStudiesPage() {
                       </div>
                     )}
                     <div className="p-8">
-                      <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4 mb-4">
+                      <div className="flex flex-col md:items-start md:justify-between gap-4 mb-4">
                         <div>
                           <span className="font-mono text-[11px] tracking-[0.06em] px-2.5 py-0.5 rounded-full bg-accent-light text-primary border border-primary/20 inline-block mb-3">
                             {cs.industry}
@@ -129,12 +129,19 @@ export default function CaseStudiesPage() {
                           </h3>
                         </div>
                         <div className="flex gap-6 shrink-0">
-                          {cs.metrics.map((m, j) => (
-                            <div key={j} className="text-center">
-                              <div className="font-heading text-xl font-semibold text-primary">{m.value}</div>
-                              <div className="text-[11px] text-text-muted">{m.label}</div>
-                            </div>
-                          ))}
+                          <div className="flex flex-wrap gap-6 w-full">
+                            {cs.metrics.map((m, j) => (
+                              <div
+                                key={j}
+                                className="text-center min-w-[80px] max-w-[120px] flex-1 break-words max-h-[60px] overflow-hidden"
+                              >
+                                <div className="font-heading text-xl font-semibold text-primary">{m.value}</div>
+                                <div className="text-[11px] text-text-muted">
+                                  {m.label}
+                                </div>
+                              </div>
+                            ))}
+                          </div>
                         </div>
                       </div>
                       <p className="text-[15px] text-text-secondary leading-[1.7] mb-4">{cs.summary}</p>
