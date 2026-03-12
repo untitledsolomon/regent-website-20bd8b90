@@ -139,9 +139,11 @@ export function useTrackView(contentType: string, contentId: string | undefined)
       if (viewIdRef.current) {
         const timeOnPage = Math.round((Date.now() - startTimeRef.current) / 1000);
         const scrollDepth = stopScrollTracking();
-        // time_on_page/scroll_depth not in schema yet, skip update
-        void timeOnPage;
-        void scrollDepth;
+        supabase
+          .from("content_views")
+          .update({ time_on_page: timeOnPage, scroll_depth: scrollDepth })
+          .eq("id", viewIdRef.current)
+          .then(() => {});
       }
     };
   }, [contentType, contentId]);
