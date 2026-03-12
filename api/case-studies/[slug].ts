@@ -48,20 +48,32 @@ export default async function handler(
   }
 
   const html = `
-<!DOCTYPE html>
-<html>
-<head>
-  <title>${data.title}</title>
-  <meta name="description" content="${data.excerpt ?? ""}">
-</head>
-<body>
-  <article>
-    <h1>${data.title}</h1>
-    ${data.content}
-  </article>
-</body>
-</html>
-`
+  <!DOCTYPE html>
+  <html>
+  <head>
+    <title>${data.meta_title || data.title}</title>
+    <meta name="description" content="${data.meta_description || data.summary || ""}">
+  </head>
+  <body>
+    <article>
+      <h1>${data.title}</h1>
+      <p>${data.summary || ""}</p>
+      <h2>Challenge</h2>
+      ${data.challenge || ""}
+      <h2>Solution</h2>
+      ${data.solution || ""}
+      <h2>Results</h2>
+      <ul>
+        ${(data.results || []).map((r: string) => `<li>${r}</li>`).join("")}
+      </ul>
+      <h2>Metrics</h2>
+      <ul>
+        ${(data.metrics || []).map((m: { value: string, label: string }) => `<li>${m.value} — ${m.label}</li>`).join("")}
+      </ul>
+    </article>
+  </body>
+  </html>
+  `
 
   res.setHeader("Content-Type", "text/html")
   res.status(200).send(html)
