@@ -16,7 +16,16 @@ export default async function handler(
     && !/bot|crawler|spider|chatgpt|gptbot|openai|anthropic|claude|facebookexternalhit|twitterbot|linkedinbot|slurp|baiduspider|yandex/i.test(userAgent)
 
   if (isRealBrowser) {
-    return res.redirect(302, `/case-studies/${slug}`)
+    return res.status(200).send(`
+  <!DOCTYPE html>
+  <html>
+  <head>
+    <meta http-equiv="refresh" content="0;url=/case-studies/${slug}">
+    <title>Redirecting...</title>
+  </head>
+  <body></body>
+  </html>
+    `)
   }
 
   const supabaseUrl = process.env.SUPABASE_URL
