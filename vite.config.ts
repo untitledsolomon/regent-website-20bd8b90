@@ -9,15 +9,23 @@ export default defineConfig(({ mode }) => ({
   server: {
     host: "::",
     port: 8080,
-    hmr: {
-      overlay: false,
-    },
+    hmr: { overlay: false },
   },
   plugins: [
     react(),
     mode === "development" && componentTagger(),
     sitemap({
-      hostname: "https://www.regentplatform.com", // <-- add this line
+      hostname: "https://www.regentplatform.com",
+      outDir: "dist",
+      // type-safe robots array
+      robots: [
+        {
+          userAgent: "*",
+          allow: "/",
+          // disallow: "/private", // optional
+          // crawlDelay: 5, // optional
+        },
+      ],
     }),
   ].filter(Boolean),
   resolve: {
