@@ -15,10 +15,10 @@ import { PageMeta } from "@/components/PageMeta";
 import { supabase } from "@/integrations/supabase/client";
 
 const metrics = [
-  { n: "400+", l: "Systems Delivered" },
+  { n: "6+", l: "Systems Delivered" },
   { n: "99.99%", l: "System Uptime SLA" },
-  { n: "2.4B+", l: "Daily Events Processed" },
-  { n: "50+", l: "Enterprise Clients" },
+  { n: "1.4M+", l: "Daily Events Processed" },
+  { n: "2+", l: "Enterprise Clients" },
 ];
 
 // Staggered word reveal for the headline
@@ -99,7 +99,7 @@ export default function HomePage() {
           "name": "Regent Systems",
           "url": "https://regent.systems",
           "description": "Regent architects and builds enterprise systems that connect data, workflows, and intelligence across organizations.",
-          "foundingDate": "2018",
+          "foundingDate": "2026",
           "sameAs": [],
         }}
       />
