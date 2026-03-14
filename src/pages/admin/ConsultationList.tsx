@@ -320,7 +320,10 @@ export default function ConsultationList() {
       ) : (
         <div className="space-y-3">
           {filtered.map(item => {
-            const status = STATUS_CONFIG[item.status];
+            const status = STATUS_CONFIG[item.status as ConsultationStatus] ?? {
+            label: item.status ?? "Unknown",
+            classes: "bg-muted text-muted-foreground border-border"
+          };
             const isExpanded = expanded === item.id;
             const itemNotes = notes[item.id] || [];
 
