@@ -8,12 +8,13 @@ import { GradientText } from "@/components/GradientText";
 import { InteractiveDemo, type DemoStep } from "@/components/InteractiveDemo";
 import { detailedCapabilities } from "@/data/siteData";
 import { PageMeta } from "@/components/PageMeta";
+import { ChartArea, Cog, Ruler, Search } from "lucide-react";
 
 const capabilityStats = [
-  { label: "Systems Delivered", value: "400+" },
-  { label: "Industries Served", value: "12+" },
-  { label: "Uptime SLA", value: "99.99%" },
-  { label: "Enterprise Clients", value: "50+" },
+  { label: "Protocols Supported", value: "10+" },
+  { label: "Integration Patterns", value: "25+" },
+  { label: "System Uptime SLA", value: "99.99%" },
+  { label: "Deployment Time", value: "8–16 Weeks" },
 ];
 
 const approachComparison = [
@@ -26,7 +27,7 @@ const workflowSteps: DemoStep[] = [
   {
     id: "discover",
     title: "Discover",
-    icon: <span>🔍</span>,
+    icon: <span><Search/></span>,
     content: (
       <div>
         <div className="flex items-center gap-3 mb-5">
@@ -49,7 +50,7 @@ const workflowSteps: DemoStep[] = [
   {
     id: "architect",
     title: "Architect",
-    icon: <span>📐</span>,
+    icon: <span><Ruler/></span>,
     content: (
       <div>
         <div className="flex items-center gap-3 mb-5">
@@ -72,7 +73,7 @@ const workflowSteps: DemoStep[] = [
   {
     id: "implement",
     title: "Implement",
-    icon: <span>⚡</span>,
+    icon: <span><Cog/></span>,
     content: (
       <div>
         <div className="flex items-center gap-3 mb-5">
@@ -95,7 +96,7 @@ const workflowSteps: DemoStep[] = [
   {
     id: "optimize",
     title: "Optimize",
-    icon: <span>📊</span>,
+    icon: <span><ChartArea/></span>,
     content: (
       <div>
         <div className="flex items-center gap-3 mb-5">
@@ -138,10 +139,10 @@ export default function CapabilitiesPage() {
           >
             <div className="font-mono text-[11px] tracking-[0.12em] uppercase text-primary mb-4">SOLUTIONS & CAPABILITIES</div>
             <h1 className="text-[clamp(36px,5vw,64px)] font-heading font-semibold tracking-[-0.04em] leading-[1.0] text-text-primary mb-6">
-              End-to-end integration <GradientText>consulting & delivery</GradientText>
+              Operational Systems <GradientText>Engineering</GradientText>
             </h1>
             <p className="text-[clamp(16px,2vw,20px)] font-light text-text-secondary leading-[1.65] max-w-[560px]">
-              Five core capabilities that address every layer of the enterprise integration and intelligence challenge — from discovery through ongoing optimization.
+              Six core capabilities spanning the full operational systems stack — from data infrastructure and integration to applications, intelligence, and risk monitoring.
             </p>
           </motion.div>
 
@@ -167,6 +168,48 @@ export default function CapabilitiesPage() {
               </motion.div>
             ))}
           </motion.div>
+        </div>
+      </section>
+
+      <section className="py-[100px] bg-surface">
+        <div className="section-container">
+          <RevealOnScroll>
+            <div className="text-center mb-12">
+              <div className="font-mono text-[11px] tracking-[0.12em] uppercase text-primary mb-4">COMPARISON</div>
+              <h2 className="text-[clamp(28px,4vw,48px)] font-heading font-semibold tracking-[-0.03em] text-text-primary mb-4">
+                Why Regent Is Different
+              </h2>
+              <p className="text-[17px] text-text-secondary max-w-[560px] mx-auto leading-[1.65]">
+                Not all approaches to systems integration are equal. See how Regent's consulting model compares.
+              </p>
+            </div>
+          </RevealOnScroll>
+          <RevealOnScroll delay={0.15}>
+            <div className="overflow-x-auto">
+              <table className="w-full border-collapse">
+                <thead>
+                  <tr>
+                    {["Approach", "Timeline", "Risk", "Scalability", "Expertise"].map(h => (
+                      <th key={h} className="font-mono text-[11px] tracking-[0.1em] uppercase text-text-muted text-left p-4 border-b border-border">{h}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {approachComparison.map((row) => (
+                    <tr key={row.approach} className={row.highlighted ? "bg-accent-light" : ""}>
+                      <td className={`p-4 border-b border-border font-heading text-[15px] font-semibold ${row.highlighted ? "text-primary" : "text-text-primary"}`}>
+                        {row.approach}
+                      </td>
+                      <td className={`p-4 border-b border-border text-sm font-medium ${row.highlighted ? "text-primary" : "text-text-secondary"}`}>{row.timeline}</td>
+                      <td className="p-4 border-b border-border text-sm text-text-secondary">{row.risk}</td>
+                      <td className="p-4 border-b border-border text-sm text-text-secondary">{row.scalability}</td>
+                      <td className="p-4 border-b border-border text-sm text-text-secondary">{row.expertise}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </RevealOnScroll>
         </div>
       </section>
 
@@ -229,84 +272,6 @@ export default function CapabilitiesPage() {
       </section>
 
       <hr className="border-t border-border" />
-
-      <section className="py-[100px] bg-surface">
-        <div className="section-container">
-          <RevealOnScroll>
-            <div className="text-center mb-12">
-              <div className="font-mono text-[11px] tracking-[0.12em] uppercase text-primary mb-4">COMPARISON</div>
-              <h2 className="text-[clamp(28px,4vw,48px)] font-heading font-semibold tracking-[-0.03em] text-text-primary mb-4">
-                Why Regent Is Different
-              </h2>
-              <p className="text-[17px] text-text-secondary max-w-[560px] mx-auto leading-[1.65]">
-                Not all approaches to systems integration are equal. See how Regent's consulting model compares.
-              </p>
-            </div>
-          </RevealOnScroll>
-          <RevealOnScroll delay={0.15}>
-            <div className="overflow-x-auto">
-              <table className="w-full border-collapse">
-                <thead>
-                  <tr>
-                    {["Approach", "Timeline", "Risk", "Scalability", "Expertise"].map(h => (
-                      <th key={h} className="font-mono text-[11px] tracking-[0.1em] uppercase text-text-muted text-left p-4 border-b border-border">{h}</th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {approachComparison.map((row) => (
-                    <tr key={row.approach} className={row.highlighted ? "bg-accent-light" : ""}>
-                      <td className={`p-4 border-b border-border font-heading text-[15px] font-semibold ${row.highlighted ? "text-primary" : "text-text-primary"}`}>
-                        {row.approach}
-                      </td>
-                      <td className={`p-4 border-b border-border text-sm font-medium ${row.highlighted ? "text-primary" : "text-text-secondary"}`}>{row.timeline}</td>
-                      <td className="p-4 border-b border-border text-sm text-text-secondary">{row.risk}</td>
-                      <td className="p-4 border-b border-border text-sm text-text-secondary">{row.scalability}</td>
-                      <td className="p-4 border-b border-border text-sm text-text-secondary">{row.expertise}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </RevealOnScroll>
-        </div>
-      </section>
-
-      {/* How It Works */}
-      <section className="py-[100px]">
-        <div className="section-container">
-          <RevealOnScroll>
-            <div className="text-center mb-14">
-              <div className="font-mono text-[11px] tracking-[0.12em] uppercase text-primary mb-4">ENGAGEMENT MODEL</div>
-              <h2 className="text-[clamp(28px,4vw,48px)] font-heading font-semibold tracking-[-0.03em] text-text-primary mb-4">
-                From Discovery to Operational Intelligence
-              </h2>
-              <p className="text-[17px] text-text-secondary max-w-[560px] mx-auto leading-[1.65]">
-                Every engagement follows a proven methodology — moving from understanding your landscape to delivering unified operational intelligence.
-              </p>
-            </div>
-          </RevealOnScroll>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-            {[
-              { step: "01", title: "Discover", desc: "We map every system, data flow, and integration gap across your organization to build a complete picture of your landscape." },
-              { step: "02", title: "Architect", desc: "We design integration architectures tailored to your scale, compliance requirements, and operational priorities." },
-              { step: "03", title: "Build", desc: "Our engineers build and deploy production-grade integrations, workflows, and monitoring — tested and documented." },
-              { step: "04", title: "Optimize", desc: "We continuously monitor, tune, and evolve your integration infrastructure to keep pace with your business." },
-            ].map((s, i) => (
-              <RevealOnScroll key={s.step} delay={i * 0.12}>
-                <motion.div
-                  whileHover={{ y: -4 }}
-                  className="relative bg-card border border-border rounded-xl p-7 transition-all hover:border-border-strong"
-                >
-                  <div className="font-mono text-[40px] font-semibold text-primary/10 absolute top-4 right-5">{s.step}</div>
-                  <div className="font-heading text-lg font-semibold text-text-primary mb-3 mt-6">{s.title}</div>
-                  <p className="text-sm text-text-secondary leading-[1.65]">{s.desc}</p>
-                </motion.div>
-              </RevealOnScroll>
-            ))}
-          </div>
-        </div>
-      </section>
 
       <CTASection />
     </div>

@@ -9,16 +9,17 @@ import { GradientText } from "@/components/GradientText";
 import { InteractiveDemo, type DemoStep } from "@/components/InteractiveDemo";
 import { archLayers, modules } from "@/data/siteData";
 import { PageMeta } from "@/components/PageMeta";
+import { ChartArea, Cog, Ruler, Search } from "lucide-react";
 
 const platformStats = [
-  { label: "Systems Delivered", value: "400+" },
-  { label: "Industries Served", value: "12+" },
+  { label: "Protocols Supported", value: "12+" },
+  { label: "Integration Patterns", value: "25+" },
+  { label: "Deployment Time", value: "8–16 Weeks" },
   { label: "Uptime SLA", value: "99.99%" },
-  { label: "Enterprise Clients", value: "50+" },
 ];
 
 const deploymentOptions = [
-  { title: "Cloud-Native", desc: "We deploy fully managed solutions on AWS, Azure, or GCP with auto-scaling, zero-downtime deployments, and global edge distribution.", icon: "Globe" as const },
+  { title: "Cloud-Native", desc: "Fully managed deployments on AWS, Azure, or GCP with auto-scaling, zero-downtime releases, and global edge distribution.", icon: "Globe" as const },
   { title: "On-Premises", desc: "We deploy within your data center with full control over infrastructure, networking, and data residency.", icon: "Building" as const },
   { title: "Hybrid", desc: "We architect split workloads between cloud and on-premises environments with unified management and seamless data flow.", icon: "Integration" as const },
 ];
@@ -34,7 +35,7 @@ const methodologySteps: DemoStep[] = [
   {
     id: "assessment",
     title: "Assessment",
-    icon: <span>🔍</span>,
+    icon: <span><Search/></span>,
     content: (
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         <div>
@@ -68,7 +69,7 @@ const methodologySteps: DemoStep[] = [
   {
     id: "architecture",
     title: "Architecture",
-    icon: <span>📐</span>,
+    icon: <span><Ruler/></span>,
     content: (
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         <div>
@@ -102,7 +103,7 @@ const methodologySteps: DemoStep[] = [
   {
     id: "implementation",
     title: "Implementation",
-    icon: <span>⚙️</span>,
+    icon: <span><Cog/></span>,
     content: (
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         <div>
@@ -136,7 +137,7 @@ const methodologySteps: DemoStep[] = [
   {
     id: "optimization",
     title: "Optimization",
-    icon: <span>📈</span>,
+    icon: <span><ChartArea/></span>,
     content: (
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         <div>
@@ -190,7 +191,7 @@ export default function PlatformPage() {
           >
             <div className="font-mono text-[11px] tracking-[0.12em] uppercase text-primary mb-4">HOW WE BUILD</div>
             <h1 className="text-[clamp(36px,5vw,64px)] font-heading font-semibold tracking-[-0.04em] leading-[1.0] text-text-primary mb-6">
-              How we architect <GradientText>operational infrastructure</GradientText>
+              Engineering Operational <GradientText>Infrastructure</GradientText>
             </h1>
             <p className="text-[clamp(16px,2vw,20px)] font-light text-text-secondary leading-[1.65] max-w-[560px] mb-10">
               We architect and deploy complete operational infrastructure that connects systems, enables automation, and delivers intelligence across your organization.
@@ -245,27 +246,40 @@ export default function PlatformPage() {
             </RevealOnScroll>
             <RevealOnScroll delay={0.2}>
               <div className="bg-surface border border-border rounded-2xl p-10">
-                <div className="font-mono text-[11px] tracking-[0.08em] uppercase text-text-muted mb-6">OUR METHODOLOGY</div>
-                <div className="space-y-6">
+                <div className="font-mono text-[11px] tracking-[0.08em] uppercase text-text-muted mb-6">SYSTEM MODEL</div>
+                <div className="space-y-4">
                   {[
-                    { phase: "01", title: "Assess", desc: "Audit systems, data flows, and integration points" },
-                    { phase: "02", title: "Design", desc: "Architect the target-state with security and scale" },
-                    { phase: "03", title: "Build", desc: "Deploy using proven patterns and rigorous testing" },
-                    { phase: "04", title: "Optimize", desc: "Monitor, tune, and evolve as your needs change" },
-                  ].map((step, i) => (
-                    <div key={step.phase} className="flex items-start gap-4">
-                      <div className="w-10 h-10 rounded-lg bg-accent-light flex items-center justify-center flex-shrink-0">
-                        <span className="font-mono text-xs font-semibold text-primary">{step.phase}</span>
-                      </div>
-                      <div>
-                        <h4 className="font-heading text-[15px] font-semibold text-text-primary">{step.title}</h4>
-                        <p className="text-[13px] text-text-secondary leading-[1.6] mt-0.5">{step.desc}</p>
-                      </div>
+                    "Data Infrastructure",
+                    "Systems Integration",
+                    "Application Systems",
+                    "Workflow Automation",
+                    "Intelligence Systems",
+                    "Risk Monitoring",
+                  ].map(layer => (
+                    <div key={layer} className="flex items-center gap-3">
+                      <span className="w-2 h-2 rounded-full bg-primary" />
+                      <span className="text-[14px] text-text-primary">{layer}</span>
                     </div>
                   ))}
                 </div>
               </div>
             </RevealOnScroll>
+          </div>
+        </div>
+      </section>
+
+      <hr className="border-t border-border" />
+
+      {/* Architecture */}
+      <section className="py-[100px] bg-surface">
+        <div className="section-container">
+          <RevealOnScroll>
+            <SectionHeader label="ARCHITECTURE" title="System Architecture Layers" subtitle="Six integrated layers we use in every system we build." />
+          </RevealOnScroll>
+          <div className="max-w-[680px] mx-auto">
+            {archLayers.map((layer, i) => (
+              <ArchitectureLayer key={layer.name} layer={layer} index={i} />
+            ))}
           </div>
         </div>
       </section>
@@ -303,7 +317,7 @@ export default function PlatformPage() {
       <hr className="border-t border-border" />
 
       {/* Interactive Methodology Explorer */}
-      <section className="py-[100px]">
+      <section className="py-[100px] bg-surface">
         <div className="section-container">
           <RevealOnScroll>
             <InteractiveDemo
@@ -318,27 +332,11 @@ export default function PlatformPage() {
 
       <hr className="border-t border-border" />
 
-      {/* Architecture */}
-      <section className="py-[100px] bg-surface">
-        <div className="section-container">
-          <RevealOnScroll>
-            <SectionHeader label="ARCHITECTURE" title="System Architecture Layers" subtitle="Six integrated layers we use in every system we build." />
-          </RevealOnScroll>
-          <div className="max-w-[680px] mx-auto">
-            {archLayers.map((layer, i) => (
-              <ArchitectureLayer key={layer.name} layer={layer} index={i} />
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <hr className="border-t border-border" />
-
       {/* Performance — What We Deliver */}
       <section className="py-[100px]">
         <div className="section-container">
           <RevealOnScroll>
-            <SectionHeader label="WHAT WE DELIVER" title="Built for Scale" subtitle="Enterprise-grade performance outcomes measured across our client deployments." />
+            <SectionHeader label="WHAT WE DELIVER" title="System Performance Benchmarks" subtitle="Enterprise-grade performance outcomes measured across our client deployments." />
           </RevealOnScroll>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             {performanceMetrics.map((pm, i) => (
@@ -397,6 +395,33 @@ export default function PlatformPage() {
           </div>
         </div>
       </section>
+
+      <hr className="border-t border-border" />
+
+      <section className="py-[80px] bg-surface">
+        <div className="section-container">
+          <SectionHeader
+            label="OUTCOMES"
+            title="What Organizations Achieve"
+          />
+
+          <div className="grid md:grid-cols-2 gap-6">
+            {[
+              "Unified visibility across previously siloed systems",
+              "40–70% reduction in manual operational processes",
+              "Real-time operational intelligence for decision making",
+              "Automated compliance and audit reporting",
+            ].map(item => (
+              <div className="flex items-center gap-3">
+                <Icons.Check />
+                <span>{item}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <hr className="border-t border-border" />
 
       <CTASection />
     </div>

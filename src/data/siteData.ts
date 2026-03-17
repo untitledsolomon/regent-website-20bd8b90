@@ -283,30 +283,71 @@ export const team: TeamMember[] = [
 
 export const detailedCapabilities = [
   {
-    icon: 'Integration' as IconName, title: 'Systems Integration', tag: '01',
-    desc: 'We connect any system — regardless of age, protocol, or vendor — into a unified integration layer tailored to your organization.',
-    points: ['Custom connector engineering for any enterprise system', 'Full protocol support: REST, GraphQL, gRPC, SOAP, event-driven', 'Real-time and batch synchronization architectures', 'Data transformation and mapping designed for your data model', 'Ongoing connector maintenance and evolution'],
-  },
-  {
-    icon: 'Database' as IconName, title: 'Data Infrastructure', tag: '02',
+    icon: 'Database' as IconName, title: 'Data Infrastructure', tag: '01',
     desc: 'We architect and deploy enterprise-grade data infrastructure — from ingestion pipelines to warehousing and real-time delivery.',
-    points: ['Custom data pipeline engineering with guaranteed delivery', 'Real-time streaming architectures for event-driven operations', 'Data quality monitoring and anomaly detection frameworks', 'Schema governance and data lineage tooling', 'Integration with major data platforms and warehouses'],
+    points: [
+      'Custom data pipeline engineering with guaranteed delivery',
+      'Real-time streaming architectures for event-driven operations',
+      'Data quality monitoring and anomaly detection frameworks',
+      'Schema governance and data lineage tooling',
+      'Integration with major data platforms and warehouses'
+    ],
   },
   {
-    icon: 'Workflow' as IconName, title: 'Workflow Automation', tag: '03',
-    desc: 'We design and build complex multi-system workflows with institutional-grade reliability, audit trails, and error handling.',
-    points: ['Custom workflow design for cross-system processes', 'Conditional logic, branching, and sophisticated error handling', 'Human-in-the-loop approval and escalation workflows', 'Complete audit trails for compliance and governance', 'SLA monitoring and proactive alerting'],
+    icon: 'Integration' as IconName, title: 'Systems Integration', tag: '02',
+    desc: 'We connect any system — regardless of age, protocol, or vendor — into a unified integration layer tailored to your organization.',
+    points: [
+      'Custom connector engineering for any enterprise system',
+      'Full protocol support: REST, GraphQL, gRPC, SOAP, event-driven',
+      'Real-time and batch synchronization architectures',
+      'Data transformation and mapping designed for your data model',
+      'Ongoing connector maintenance and evolution'
+    ],
   },
   {
-    icon: 'Intelligence' as IconName, title: 'Intelligence Systems', tag: '04',
-    desc: 'We embed analytical and predictive capabilities directly into your operational workflows — turning data into actionable intelligence.',
-    points: ['Operational AI integration for real-time decision support', 'Anomaly detection across integrated data streams', 'Predictive analytics tailored to your operational context', 'Natural language interfaces for querying operational data', 'Model deployment and lifecycle management'],
+    icon: 'Application' as IconName, title: 'Application Systems', tag: '03',
+    desc: 'We engineer mission-critical applications that power operations on top of your integrated systems.',
+    points: [
+      'Custom operational platforms for internal teams and clients',
+      'Enterprise dashboards and control interfaces for integrated systems',
+      'Full-stack application architecture and deployment',
+      'Secure authentication, authorization, and role management',
+      'Scalable SaaS-style platforms built for long-term evolution'
+    ],
   },
   {
-    icon: 'Monitor' as IconName, title: 'Risk Monitoring', tag: '05',
-    desc: 'We build real-time observability and risk monitoring solutions across all integrated systems and workflows.',
-    points: ['Full-stack observability with distributed tracing', 'Custom alerting and incident escalation workflows', 'Operational health dashboards and executive reporting', 'SLA tracking with predictive breach detection', 'Integration health scoring and diagnostics'],
+    icon: 'Workflow' as IconName, title: 'Workflow Automation', tag: '04',
+    desc: 'We design and build complex multi-system workflows with institutional-grade reliability and governance.',
+    points: [
+      'Custom workflow design for cross-system processes',
+      'Conditional logic, branching, and sophisticated error handling',
+      'Human-in-the-loop approval and escalation workflows',
+      'Complete audit trails for compliance and governance',
+      'SLA monitoring and proactive alerting'
+    ],
   },
+  {
+    icon: 'Intelligence' as IconName, title: 'Intelligence Systems', tag: '05',
+    desc: 'We embed analytical and predictive capabilities into operational systems — turning data into decision intelligence.',
+    points: [
+      'Operational AI integration for real-time decision support',
+      'Anomaly detection across integrated data streams',
+      'Predictive analytics tailored to your operational context',
+      'Natural language interfaces for querying operational data',
+      'Model deployment and lifecycle management'
+    ],
+  },
+  {
+    icon: 'Monitor' as IconName, title: 'Risk Monitoring', tag: '06',
+    desc: 'We build real-time observability and risk monitoring across integrated systems and workflows.',
+    points: [
+      'Full-stack observability with distributed tracing',
+      'Custom alerting and incident escalation workflows',
+      'Operational health dashboards and executive reporting',
+      'SLA tracking with predictive breach detection',
+      'Integration health scoring and diagnostics'
+    ],
+  }
 ];
 
 export const industriesDetailed = industries.map((ind, i) => ({
