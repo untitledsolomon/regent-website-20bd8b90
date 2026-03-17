@@ -179,32 +179,8 @@ export default function CareersPage() {
             </>
           )}
         </div>
-      </section>
 
-      <hr className="border-t border-border" />
-
-      {/* Benefits */}
-      <section className="py-[100px]">
-        <div className="section-container">
-          <RevealOnScroll>
-            <div className="font-mono text-[11px] tracking-[0.12em] uppercase text-primary mb-4">LIFE AT REGENT</div>
-            <h2 className="font-heading text-[clamp(24px,3vw,40px)] font-semibold tracking-[-0.03em] leading-[1.1] text-text-primary mb-10">
-              Benefits & Perks
-            </h2>
-          </RevealOnScroll>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5">
-            {benefits.map((b, i) => (
-              <RevealOnScroll key={b.title} delay={i * 0.08}>
-                <div className="border border-border rounded-xl p-6 bg-card">
-                  <div className="text-lg mb-3">{b.emoji}</div>
-                  <div className="font-heading text-[15px] font-semibold text-text-primary mb-1.5">{b.title}</div>
-                  <p className="text-[13px] text-text-secondary leading-[1.65]">{b.desc}</p>
-                </div>
-              </RevealOnScroll>
-            ))}
-          </div>
-
-          <RevealOnScroll delay={0.3}>
+        <RevealOnScroll delay={0.3}>
             <div className="mt-16 text-center">
               <p className="text-text-secondary mb-6">Don't see a role that fits? We're always looking for exceptional people.</p>
               <Link
@@ -214,9 +190,10 @@ export default function CareersPage() {
                 Send Us Your Resume <Icons.ArrowRight />
               </Link>
             </div>
-          </RevealOnScroll>
-        </div>
+        </RevealOnScroll>
       </section>
+
+      <hr className="border-t border-border" />
     </div>
   );
 }
