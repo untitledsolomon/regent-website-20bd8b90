@@ -1,8 +1,11 @@
+"use client";
+
 import { useState } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams } from "next/navigation";
+import Link from "next/link";
 import { motion } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { createClient } from "@/lib/supabase/client";
 import { GradientText } from "@/components/GradientText";
 import { Icons } from "@/components/Icons";
 import { PageMeta } from "@/components/PageMeta";
@@ -20,7 +23,8 @@ const applicationSchema = z.object({
 });
 
 export default function CareerApply() {
-  const { id } = useParams<{ id: string }>();
+  const supabase = createClient();
+  const { id } = useParams() as { id?: string };
   const { toast } = useToast();
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
@@ -140,7 +144,7 @@ export default function CareerApply() {
                 Thank you for your interest in joining Regent. We'll review your application and get back to you soon.
               </p>
               <Link
-                to="/careers"
+                href="/careers"
                 className="font-heading text-[15px] font-medium bg-primary text-primary-foreground rounded-lg px-7 py-3.5 inline-flex items-center gap-2 hover:bg-primary/90 transition-all"
               >
                 <Icons.ArrowLeft /> Back to Careers
@@ -161,7 +165,7 @@ export default function CareerApply() {
       <section className="pt-[140px] pb-[100px] bg-surface border-b border-border">
         <div className="section-container">
           <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}>
-            <Link to="/careers" className="inline-flex items-center gap-1.5 text-sm text-text-muted hover:text-text-primary transition-colors mb-6">
+            <Link href="/careers" className="inline-flex items-center gap-1.5 text-sm text-text-muted hover:text-text-primary transition-colors mb-6">
               <Icons.ArrowLeft /> Back to Careers
             </Link>
             <div className="font-mono text-[11px] tracking-[0.12em] uppercase text-primary mb-4">

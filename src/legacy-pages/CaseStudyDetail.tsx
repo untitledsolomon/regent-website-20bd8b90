@@ -1,8 +1,11 @@
-import { useParams, Link } from "react-router-dom";
+"use client";
+
+import { useParams } from "next/navigation";
+import Link from "next/link";
 import { useState, useEffect, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { motion, useScroll } from "framer-motion";
-import { supabase } from "@/integrations/supabase/client";
+import { createClient } from "@/lib/supabase/client";
 import { PageMeta } from "@/components/PageMeta";
 import { GradientText } from "@/components/GradientText";
 import { RevealOnScroll } from "@/components/RevealOnScroll";
@@ -23,21 +26,24 @@ interface CaseStudy {
   image_url?: string | null;
 }
 
-async function fetchRelatedStudies(slug: string) {
-  const { data } = await supabase
-    .from("case_studies")
-    .select("slug, title, industry, summary, image_url")
-    .eq("published", true)
-    .neq("slug", slug)
-    .limit(3);
-  return data || [];
-}
-
 export default function CaseStudyDetail() {
-  const { slug } = useParams();
+  const supabase = createClient();
+  const { slug } = useParams() as { slug?: string };
   const { scrollYProgress } = useScroll();
   const [progress, setProgress] = useState(0);
   const [copied, setCopied] = useState(false);
+  const currentUrl =
+    typeof window !== "undefined" ? window.location.href : "";
+
+  const fetchRelatedStudies = async (s: string) => {
+    const { data } = await supabase
+      .from("case_studies")
+      .select("slug, title, industry, summary, image_url")
+      .eq("published", true)
+      .neq("slug", s)
+      .limit(3);
+    return data || [];
+  };
 
   const { data: cs, isLoading, error } = useQuery({
     queryKey: ["case_study", slug],
@@ -121,7 +127,7 @@ export default function CaseStudyDetail() {
       <div className="pt-[140px] pb-[100px]">
         <div className="section-container text-center">
           <h1 className="font-heading text-3xl font-semibold text-text-primary mb-4">Case study not found</h1>
-          <Link to="/case-studies" className="text-primary hover:underline inline-flex items-center gap-2">
+          <Link href="/case-studies" className="text-primary hover:underline inline-flex items-center gap-2">
             <ArrowLeft size={16} /> Back to case studies
           </Link>
         </div>
@@ -161,9 +167,9 @@ export default function CaseStudyDetail() {
           >
             {/* Breadcrumbs */}
             <div className="font-mono text-xs text-text-muted mb-6 flex items-center gap-2 flex-wrap">
-              <Link to="/" className="text-text-secondary hover:text-text-primary transition-colors">Home</Link>
+              <Link href="/" className="text-text-secondary hover:text-text-primary transition-colors">Home</Link>
               <span className="text-border-strong">→</span>
-              <Link to="/case-studies" className="text-text-secondary hover:text-text-primary transition-colors">Case Studies</Link>
+              <Link href="/case-studies" className="text-text-secondary hover:text-text-primary transition-colors">Case Studies</Link>
               <span className="text-border-strong">→</span>
               {cs.industry}
             </div>
@@ -195,10 +201,10 @@ export default function CaseStudyDetail() {
               <button onClick={handleCopyLink} className="text-[12px] font-medium text-text-secondary border border-border rounded-lg px-3 py-1.5 hover:bg-surface hover:text-text-primary transition-all">
                 {copied ? "Copied!" : "Copy Link"}
               </button>
-              <a href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(cs.title)}&url=${encodeURIComponent(window.location.href)}`} target="_blank" rel="noopener noreferrer" className="text-[12px] font-medium text-text-secondary border border-border rounded-lg px-3 py-1.5 hover:bg-surface hover:text-text-primary transition-all">
+              <a href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(cs.title)}&url=${encodeURIComponent(currentUrl)}`} target="_blank" rel="noopener noreferrer" className="text-[12px] font-medium text-text-secondary border border-border rounded-lg px-3 py-1.5 hover:bg-surface hover:text-text-primary transition-all">
                 Twitter
               </a>
-              <a href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(window.location.href)}`} target="_blank" rel="noopener noreferrer" className="text-[12px] font-medium text-text-secondary border border-border rounded-lg px-3 py-1.5 hover:bg-surface hover:text-text-primary transition-all">
+              <a href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(currentUrl)}`} target="_blank" rel="noopener noreferrer" className="text-[12px] font-medium text-text-secondary border border-border rounded-lg px-3 py-1.5 hover:bg-surface hover:text-text-primary transition-all">
                 LinkedIn
               </a>
             </div>
@@ -261,10 +267,10 @@ export default function CaseStudyDetail() {
 
               {/* Footer nav */}
               <div className="pt-8 border-t border-border flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                <Link to="/case-studies" className="font-heading text-[13px] font-medium bg-transparent text-text-primary border border-border-strong rounded-lg px-[18px] py-[9px] inline-flex items-center gap-1.5 hover:bg-surface transition-all">
+                <Link href="/case-studies" className="font-heading text-[13px] font-medium bg-transparent text-text-primary border border-border-strong rounded-lg px-[18px] py-[9px] inline-flex items-center gap-1.5 hover:bg-surface transition-all">
                   ← Back to Case Studies
                 </Link>
-                <Link to="/demo" className="font-heading text-[13px] font-medium bg-text-primary text-background rounded-lg px-[18px] py-[9px] inline-flex items-center gap-1.5 hover:shadow-lg hover:-translate-y-px transition-all">
+                <Link href="/demo" className="font-heading text-[13px] font-medium bg-text-primary text-background rounded-lg px-[18px] py-[9px] inline-flex items-center gap-1.5 hover:shadow-lg hover:-translate-y-px transition-all">
                   Request a Demo <Icons.ArrowRight />
                 </Link>
               </div>
@@ -300,7 +306,7 @@ export default function CaseStudyDetail() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {related.map((r: any, i: number) => (
                 <RevealOnScroll key={r.slug} delay={i * 0.1}>
-                  <Link to={`/case-studies/${r.slug}`} className="group block bg-card border border-border rounded-2xl overflow-hidden hover:border-primary/30 hover:shadow-lg transition-all">
+                  <Link href={`/case-studies/${r.slug}`} className="group block bg-card border border-border rounded-2xl overflow-hidden hover:border-primary/30 hover:shadow-lg transition-all">
                     {r.image_url && (
                       <div className="h-[180px] overflow-hidden">
                         <img src={r.image_url} alt={r.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />

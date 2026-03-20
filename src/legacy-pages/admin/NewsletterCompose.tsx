@@ -1,11 +1,14 @@
+"use client";
+
 import { useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { createClient } from "@/lib/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import RichTextEditor from "@/components/admin/RichTextEditor";
 import { Send, Eye, ArrowLeft } from "lucide-react";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 
 export default function NewsletterCompose() {
+  const supabase = createClient();
   const [subject, setSubject] = useState("");
   const [body, setBody] = useState("");
   const [sending, setSending] = useState(false);
@@ -26,7 +29,7 @@ export default function NewsletterCompose() {
 
       // Use fetch directly — functions.invoke can silently drop auth headers
       const res = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/send-newsletter`,
+        `${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/send-newsletter`,
         {
           method: "POST",
           headers: {
@@ -49,7 +52,7 @@ export default function NewsletterCompose() {
       });
       setSubject("");
       setBody("");
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
       toast({ title: "Failed to send", description: err.message || "Please try again.", variant: "destructive" });
     } finally {
@@ -61,7 +64,7 @@ export default function NewsletterCompose() {
     <div className="p-8 lg:p-10 max-w-[800px]">
       {/* Header */}
       <div className="flex items-center gap-3 mb-8">
-        <Link to="/admin/subscribers" className="p-2 rounded-lg hover:bg-surface text-text-muted hover:text-text-primary transition-all">
+        <Link href="/admin/subscribers" className="p-2 rounded-lg hover:bg-surface text-text-muted hover:text-text-primary transition-all">
           <ArrowLeft size={18} />
         </Link>
         <div>

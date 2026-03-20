@@ -1,5 +1,7 @@
+"use client";
+
 import { motion } from "framer-motion";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 import { Icons } from "@/components/Icons";
 import { SectionHeader } from "@/components/SectionHeader";
 import { RevealOnScroll } from "@/components/RevealOnScroll";
@@ -179,7 +181,7 @@ export default function PlatformPage() {
         <div className="absolute inset-0 grid-bg opacity-50" />
         <div className="section-container relative z-10">
           <div className="font-mono text-xs text-text-muted mb-6 flex items-center gap-2">
-            <Link to="/" className="text-text-secondary hover:text-text-primary transition-colors">Home</Link>
+            <Link href="/" className="text-text-secondary hover:text-text-primary transition-colors">Home</Link>
             <span className="text-border-strong">→</span>
             Solutions
           </div>

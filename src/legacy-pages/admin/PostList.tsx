@@ -1,6 +1,8 @@
+"use client";
+
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
+import Link from "next/link";
+import { createClient } from "@/lib/supabase/client";
 import { formatDistanceToNow, format } from "date-fns";
 import { logActivity } from "@/hooks/useActivityLog";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -17,6 +19,7 @@ interface Post {
 }
 
 export default function PostList() {
+  const supabase = createClient();
   const [items, setItems] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -99,7 +102,7 @@ export default function PostList() {
           <h1 className="font-heading text-xl sm:text-2xl font-semibold tracking-[-0.03em] text-foreground">Blog Posts</h1>
           <p className="text-xs sm:text-sm text-muted-foreground mt-1">{items.length} posts total</p>
         </div>
-        <Link to="/admin/posts/new" className="h-10 px-5 bg-primary text-primary-foreground rounded-xl text-sm font-medium flex items-center justify-center gap-2 hover:bg-primary/90 transition-all w-full sm:w-auto shadow-sm shadow-primary/20">
+        <Link href="/admin/posts/new" className="h-10 px-5 bg-primary text-primary-foreground rounded-xl text-sm font-medium flex items-center justify-center gap-2 hover:bg-primary/90 transition-all w-full sm:w-auto shadow-sm shadow-primary/20">
           <Plus size={16} /> New Post
         </Link>
       </div>
@@ -165,7 +168,7 @@ export default function PostList() {
                 <button onClick={() => toggle(item.id, item.published)} className="text-[11px] px-2.5 py-1.5 rounded-lg border border-input hover:bg-muted text-muted-foreground hover:text-foreground transition-colors">
                   {item.published ? "Unpublish" : "Publish"}
                 </button>
-                <Link to={`/admin/posts/${item.id}/edit`} className="text-[11px] px-2.5 py-1.5 rounded-lg border border-input hover:bg-muted text-muted-foreground hover:text-foreground transition-colors">
+                <Link href={`/admin/posts/${item.id}/edit`} className="text-[11px] px-2.5 py-1.5 rounded-lg border border-input hover:bg-muted text-muted-foreground hover:text-foreground transition-colors">
                   Edit
                 </Link>
                 <button onClick={() => remove(item.id)} className="text-[11px] px-2 py-1.5 rounded-lg hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-colors">

@@ -1,5 +1,7 @@
+"use client";
+
 import { useEffect, useState, useMemo } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { createClient } from "@/lib/supabase/client";
 import { formatDistanceToNow, format } from "date-fns";
 import {
   User, Mail, Phone, FileText, Briefcase, ChevronDown, ChevronUp,
@@ -39,6 +41,7 @@ const STATUS_CONFIG: Record<string, { label: string; classes: string }> = {
 const STATUSES = Object.keys(STATUS_CONFIG);
 
 export default function Applications() {
+  const supabase = createClient();
   const [applications, setApplications] = useState<Application[]>([]);
   const [loading, setLoading] = useState(true);
   const [expanded, setExpanded] = useState<string | null>(null);

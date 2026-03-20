@@ -1,10 +1,14 @@
+"use client";
+
 import { useEffect, useState } from "react";
-import { useSearchParams, Link } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
+import { useSearchParams } from "next/navigation";
+import Link from "next/link";
+import { createClient } from "@/lib/supabase/client";
 import { MailX, CheckCircle2, XCircle, Loader2 } from "lucide-react";
 
 export default function Unsubscribe() {
-  const [params] = useSearchParams();
+  const supabase = createClient();
+  const params = useSearchParams();
   const email = params.get("email");
   const [status, setStatus] = useState<"loading" | "success" | "error" | "no-email">("loading");
 
@@ -45,7 +49,7 @@ export default function Unsubscribe() {
             <p className="text-sm text-muted-foreground mb-6">
               You won't receive any more emails from Regent Insights. We're sorry to see you go.
             </p>
-            <Link to="/" className="text-sm text-primary hover:underline">← Back to site</Link>
+            <Link href="/" className="text-sm text-primary hover:underline">← Back to site</Link>
           </>
         )}
         {status === "error" && (
@@ -55,7 +59,7 @@ export default function Unsubscribe() {
             <p className="text-sm text-muted-foreground mb-6">
               We couldn't process your unsubscribe request. Please try again or contact us.
             </p>
-            <Link to="/" className="text-sm text-primary hover:underline">← Back to site</Link>
+            <Link href="/" className="text-sm text-primary hover:underline">← Back to site</Link>
           </>
         )}
         {status === "no-email" && (
@@ -65,7 +69,7 @@ export default function Unsubscribe() {
             <p className="text-sm text-muted-foreground mb-6">
               This unsubscribe link appears to be invalid. Please use the link from your email.
             </p>
-            <Link to="/" className="text-sm text-primary hover:underline">← Back to site</Link>
+            <Link href="/" className="text-sm text-primary hover:underline">← Back to site</Link>
           </>
         )}
       </div>

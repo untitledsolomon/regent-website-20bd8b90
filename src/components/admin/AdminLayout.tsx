@@ -1,5 +1,8 @@
+"use client";
+
 import { useState, useEffect } from "react";
-import { Link, useLocation, useNavigate, Outlet } from "react-router-dom";
+import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
 import { ThemeToggle } from "@/components/admin/ThemeToggle";
 import {
@@ -26,31 +29,31 @@ const utilityNavItems = [
   { label: "Documentation", path: "/admin/documentation", icon: BookOpen },
 ];
 
-export default function AdminLayout() {
+export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const { user, signOut } = useAuth();
-  const location = useLocation();
-  const navigate = useNavigate();
+  const pathname = usePathname();
+  const router = useRouter();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
 
-  useEffect(() => { setSidebarOpen(false); }, [location.pathname]);
+  useEffect(() => { setSidebarOpen(false); }, [pathname]);
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => { if (e.key === "Escape") setSidebarOpen(false); };
     document.addEventListener("keydown", handleEscape);
     return () => document.removeEventListener("keydown", handleEscape);
   }, []);
 
-  const handleSignOut = async () => { await signOut(); navigate("/admin/login"); };
+  const handleSignOut = async () => { await signOut(); router.push("/admin/login"); };
   const initials = user?.email?.slice(0, 2).toUpperCase() || "AD";
 
   const NavItem = ({ item }: { item: typeof contentNavItems[0] }) => {
     const isActive = item.exact
-      ? location.pathname === item.path
-      : location.pathname.startsWith(item.path);
+      ? pathname === item.path
+      : pathname.startsWith(item.path);
     const Icon = item.icon;
     return (
       <Link
-        to={item.path}
+        href={item.path}
         title={collapsed ? item.label : undefined}
         className={`flex items-center gap-3 rounded-lg text-sm transition-all duration-200 group relative ${
           collapsed ? "justify-center px-2 py-2.5" : "px-3 py-2.5"
@@ -82,9 +85,9 @@ export default function AdminLayout() {
       {/* Brand */}
       <div className={`h-16 flex items-center border-b border-border ${collapsed && !mobile ? "justify-center px-2" : "justify-between px-5"}`}>
         {collapsed && !mobile ? (
-          <Link to="/" className="font-heading font-bold text-lg text-primary">R</Link>
+          <Link href="/" className="font-heading font-bold text-lg text-primary">R</Link>
         ) : (
-          <Link to="/" className="flex items-center gap-2 font-heading font-semibold text-lg tracking-[-0.03em] text-foreground">
+          <Link href="/" className="flex items-center gap-2 font-heading font-semibold text-lg tracking-[-0.03em] text-foreground">
             Regent<span className="text-primary">.</span>
             <span className="text-[10px] font-mono tracking-wider uppercase bg-primary/10 text-primary px-1.5 py-0.5 rounded font-medium">
               CMS
@@ -111,11 +114,11 @@ export default function AdminLayout() {
       {/* View Site */}
       <div className={`px-3 mb-2 ${collapsed ? "flex justify-center" : ""}`}>
         {collapsed ? (
-          <Link to="/" target="_blank" title="View Site" className="w-9 h-9 flex items-center justify-center rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground transition-colors">
+          <Link href="/" target="_blank" title="View Site" className="w-9 h-9 flex items-center justify-center rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground transition-colors">
             <ExternalLink size={16} />
           </Link>
         ) : (
-          <Link to="/" target="_blank" className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-muted-foreground hover:bg-muted hover:text-foreground transition-all duration-200 group">
+          <Link href="/" target="_blank" className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-muted-foreground hover:bg-muted hover:text-foreground transition-all duration-200 group">
             <ExternalLink size={16} />
             <span>View Site</span>
           </Link>
@@ -182,7 +185,7 @@ export default function AdminLayout() {
     <div className="min-h-screen bg-background flex">
       {/* Mobile header */}
       <div className="fixed top-0 left-0 right-0 h-14 bg-card/80 backdrop-blur-xl border-b border-border flex items-center justify-between px-4 z-40 lg:hidden">
-        <Link to="/" className="flex items-center gap-2 font-heading font-semibold text-lg tracking-[-0.03em] text-foreground">
+        <Link href="/" className="flex items-center gap-2 font-heading font-semibold text-lg tracking-[-0.03em] text-foreground">
           Regent<span className="text-primary">.</span>
           <span className="text-[10px] font-mono tracking-wider uppercase bg-primary/10 text-primary px-1.5 py-0.5 rounded font-medium">CMS</span>
         </Link>
@@ -215,7 +218,7 @@ export default function AdminLayout() {
 
       {/* Main content */}
       <main className="flex-1 overflow-y-auto bg-background pt-14 lg:pt-0">
-        <Outlet />
+        {children}
       </main>
     </div>
   );

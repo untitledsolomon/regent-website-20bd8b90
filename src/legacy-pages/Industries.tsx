@@ -1,5 +1,7 @@
+"use client";
+
 import { motion } from "framer-motion";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 import { Icons } from "@/components/Icons";
 import { RevealOnScroll } from "@/components/RevealOnScroll";
 import { CTASection } from "@/components/CardComponents";
@@ -84,7 +86,7 @@ export default function IndustriesPage() {
                     <h2 className="text-[clamp(28px,4vw,48px)] font-heading font-semibold tracking-[-0.03em] leading-[1.1] text-text-primary mb-4">{ind.name}</h2>
                     <p className="text-[17px] text-text-secondary leading-[1.7] mb-8">{ind.detail}</p>
                     <Link
-                      to="/demo"
+                      href="/demo"
                       className="font-heading text-[13px] font-medium bg-text-primary text-background rounded-lg px-[18px] py-[9px] inline-flex items-center gap-1.5 hover:shadow-lg hover:-translate-y-px transition-all"
                     >
                       Discuss Your Use Case <Icons.ArrowRight />

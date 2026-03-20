@@ -1,12 +1,14 @@
+"use client";
+
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 import { RevealOnScroll } from "@/components/RevealOnScroll";
 import { GradientText } from "@/components/GradientText";
 import { Icons } from "@/components/Icons";
 import { companyValues, benefits } from "@/data/siteData";
 import { PageMeta } from "@/components/PageMeta";
-import { supabase } from "@/integrations/supabase/client";
+import { createClient } from "@/lib/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 
 interface Career {
@@ -19,6 +21,7 @@ interface Career {
 }
 
 export default function CareersPage() {
+  const supabase = createClient();
   const [activeDept, setActiveDept] = useState("All");
   const { data: careers = [], isLoading: loading, isError, refetch } = useQuery({
     queryKey: ["careers"],
@@ -135,7 +138,7 @@ export default function CareersPage() {
                       exit={{ opacity: 0, y: -8 }}
                       transition={{ duration: 0.25 }}
                     >
-                      <Link to={`/careers/apply/${job.id}`}>
+                      <Link href={`/careers/apply/${job.id}`}>
                         <motion.div
                           whileHover={{ x: 4 }}
                           className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border border-border rounded-xl p-6 bg-card hover:border-border-strong transition-colors cursor-pointer"
@@ -184,7 +187,7 @@ export default function CareersPage() {
             <div className="mt-16 text-center">
               <p className="text-text-secondary mb-6">Don't see a role that fits? We're always looking for exceptional people.</p>
               <Link
-                to="/careers/apply/general"
+                href="/careers/apply/general"
                 className="font-heading text-[15px] font-medium bg-primary text-primary-foreground rounded-lg px-7 py-3.5 inline-flex items-center gap-2 hover:bg-primary/90 transition-all"
               >
                 Send Us Your Resume <Icons.ArrowRight />

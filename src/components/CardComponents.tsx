@@ -1,6 +1,8 @@
+"use client";
+
 import { Icons, type IconName } from "./Icons";
 import { RevealOnScroll } from "./RevealOnScroll";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 import { motion } from "framer-motion";
 import type { BlogPost, Resource, ArchLayer } from "@/data/siteData";
 import { archLayers } from "@/data/siteData";
@@ -71,7 +73,7 @@ export function ModuleCard({ mod, delay = 0 }: { mod: { name: string; num: strin
 
   return (
     <RevealOnScroll delay={delay * 0.1}>
-      {mod.slug ? <Link to={`/platform/${mod.slug}`}>{content}</Link> : content}
+      {mod.slug ? <Link href={`/platform/${mod.slug}`}>{content}</Link> : content}
     </RevealOnScroll>
   );
 }
@@ -103,7 +105,7 @@ export function BlogCard({ post, delay = 0 }: { post: BlogPost; delay?: number }
   const color = categoryColors[post.category] || '#4f46e5';
   return (
     <RevealOnScroll delay={delay * 0.1}>
-      <Link to={`/blog/${post.slug}`}>
+      <Link href={`/blog/${post.slug}`}>
         <motion.div
           whileHover={{ y: -4, boxShadow: "0 8px 32px rgba(0,0,0,0.07)" }}
           className="border border-border rounded-xl overflow-hidden transition-colors hover:border-border-strong cursor-pointer"
@@ -218,13 +220,13 @@ export function CTASection() {
             </p>
             <div className="flex gap-3 justify-center flex-wrap">
               <Link
-                to="/demo"
+                href="/demo"
                 className="font-heading text-[15px] font-medium bg-primary text-primary-foreground rounded-lg px-7 py-3.5 inline-flex items-center gap-2 hover:bg-primary/90 hover:shadow-[0_8px_24px_rgba(79,70,229,0.25)] hover:-translate-y-0.5 transition-all"
               >
                 Start a Project <Icons.ArrowRight />
               </Link>
               <Link
-                to="/resources"
+                href="/resources"
                 className="font-heading text-[15px] font-medium bg-transparent text-background/80 border border-background/25 rounded-lg px-7 py-3.5 inline-flex items-center gap-2 hover:border-background/50 hover:text-background transition-all"
               >
                 Read Whitepaper
