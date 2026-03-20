@@ -7,6 +7,7 @@ import { TooltipProvider } from '@/components/ui/tooltip'
 import { Toaster } from '@/components/ui/toaster'
 import { Toaster as Sonner } from '@/components/ui/sonner'
 import { CookieConsent } from '@/components/CookieConsent'
+import { AuthProvider } from '@/hooks/useAuth'
 import { useState } from 'react'
 
 const AnalyticsBundle = dynamic(
@@ -28,11 +29,13 @@ export function Providers({ children }: { children: React.ReactNode }) {
     <QueryClientProvider client={queryClient}>
       <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
         <TooltipProvider>
-          {children}
-          <Toaster />
-          <Sonner />
-          <CookieConsent />
-          <AnalyticsBundle />
+          <AuthProvider>
+            {children}
+            <Toaster />
+            <Sonner />
+            <CookieConsent />
+            <AnalyticsBundle />
+          </AuthProvider>
         </TooltipProvider>
       </ThemeProvider>
     </QueryClientProvider>
