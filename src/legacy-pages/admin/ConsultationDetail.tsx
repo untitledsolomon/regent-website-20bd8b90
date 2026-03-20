@@ -6,9 +6,9 @@ import { createClient } from "@/lib/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { ArrowLeft, Mail, Building2, Send, Save, Clock, User, DollarSign, Users } from "lucide-react";
 import { formatDistanceToNow, format } from "date-fns";
-import type { Database } from "@/integrations/supabase/types";
 
-type ConsultationStatus = Database["public"]["Enums"]["consultation_request_status"];
+type ConsultationStatus = "new" | "viewed" | "replied" | "closed";
+
 
 interface Consultation {
   id: string;
