@@ -1,11 +1,13 @@
+"use client";
+
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Link } from "react-router-dom";
 import { Icons } from "@/components/Icons";
 import { RevealOnScroll } from "@/components/RevealOnScroll";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { PageMeta } from "@/components/PageMeta";
-import { supabase } from "@/integrations/supabase/client";
+import Link from "next/link";
+import { createClient } from "@/lib/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
 const steps = [
@@ -25,6 +27,7 @@ const faqs = [
 const trustLogos = ["Fortune 500 Bank", "Global Consultancy", "Defense Contractor", "Industrial Conglomerate", "Energy Major", "Tier-1 Investment Bank"];
 
 export default function DemoPage() {
+  const supabase = createClient();
   const [formData, setFormData] = useState({ name: "", company: "", email: "", industry: "", size: "", budget: "", message: "" });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitted, setSubmitted] = useState(false);
@@ -272,7 +275,7 @@ export default function DemoPage() {
                       </motion.div>
                       <h3 className="font-heading text-[22px] font-semibold tracking-[-0.02em] mb-3">Request Received</h3>
                       <p className="text-[15px] text-text-secondary mb-7">Thank you, {formData.name}. A member of our team will contact you within one business day to schedule your consultation.</p>
-                      <Link to="/" className="font-heading text-[13px] font-medium bg-transparent text-text-primary border border-border-strong rounded-lg px-[18px] py-[9px] inline-flex items-center gap-1.5 hover:bg-surface transition-all">Return to Home</Link>
+                      <Link href="/" className="font-heading text-[13px] font-medium bg-transparent text-text-primary border border-border-strong rounded-lg px-[18px] py-[9px] inline-flex items-center gap-1.5 hover:bg-surface transition-all">Return to Home</Link>
                     </div>
                   </motion.div>
                 ) : (

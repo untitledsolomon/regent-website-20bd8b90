@@ -1,6 +1,8 @@
+"use client";
+
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
+import Link from "next/link";
+import { createClient } from "@/lib/supabase/client";
 import { Icons } from "@/components/Icons";
 import { formatDistanceToNow } from "date-fns";
 
@@ -15,6 +17,7 @@ interface Career {
 }
 
 export default function CareerList() {
+  const supabase = createClient();
   const [items, setItems] = useState<Career[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -56,7 +59,7 @@ export default function CareerList() {
           <h1 className="font-heading text-xl sm:text-2xl font-semibold tracking-[-0.03em] text-text-primary">Careers</h1>
           <p className="text-xs sm:text-sm text-text-secondary mt-1">{items.length} positions total</p>
         </div>
-        <Link to="/admin/careers/new" className="h-9 px-4 bg-primary text-primary-foreground rounded-lg text-sm font-medium flex items-center justify-center gap-2 hover:bg-primary/90 transition-all w-full sm:w-auto">
+        <Link href="/admin/careers/new" className="h-9 px-4 bg-primary text-primary-foreground rounded-lg text-sm font-medium flex items-center justify-center gap-2 hover:bg-primary/90 transition-all w-full sm:w-auto">
           New Position <Icons.ArrowRight />
         </Link>
       </div>
@@ -104,7 +107,7 @@ export default function CareerList() {
                 <button onClick={() => toggle(item.id, item.published)} className="text-xs px-3 py-1.5 rounded-lg border border-border hover:bg-surface text-text-secondary transition-colors">
                   {item.published ? "Unpublish" : "Publish"}
                 </button>
-                <Link to={`/admin/careers/${item.id}/edit`} className="text-xs px-3 py-1.5 rounded-lg border border-border hover:bg-surface text-text-secondary transition-colors">
+                <Link href={`/admin/careers/${item.id}/edit`} className="text-xs px-3 py-1.5 rounded-lg border border-border hover:bg-surface text-text-secondary transition-colors">
                   Edit
                 </Link>
                 <button onClick={() => remove(item.id)} className="text-xs px-3 py-1.5 rounded-lg border border-destructive/20 hover:bg-destructive/10 text-destructive transition-colors">

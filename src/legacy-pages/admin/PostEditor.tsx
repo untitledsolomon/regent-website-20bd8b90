@@ -1,10 +1,12 @@
+"use client";
+
 import { useEffect, useState, useRef, useCallback } from "react";
-import { useNavigate, useParams } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
+import { useParams, useRouter } from "next/navigation";
+import { createClient } from "@/lib/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import RichTextEditor from "@/components/admin/RichTextEditor";
 import { ArrowLeft, Upload, X, Image as ImageIcon, Save, Eye, CalendarIcon, ChevronDown } from "lucide-react";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 import { logActivity } from "@/hooks/useActivityLog";
 import { format } from "date-fns";
 import { Calendar } from "@/components/ui/calendar";
@@ -14,9 +16,10 @@ import { cn } from "@/lib/utils";
 const DRAFT_KEY_PREFIX = "regent_post_draft_";
 
 export default function PostEditor() {
-  const { id } = useParams();
+  const supabase = createClient();
+  const { id } = useParams() as { id?: string };
   const isEdit = !!id;
-  const navigate = useNavigate();
+  const router = useRouter();
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -152,7 +155,7 @@ export default function PostEditor() {
       localStorage.removeItem(draftKey);
       await logActivity(isEdit ? "updated_post" : "created_post", "blog_post", form.title, id);
       toast({ title: isEdit ? "Post updated" : "Post created" });
-      navigate("/admin/posts");
+      router.push("/admin/posts");
     }
   };
 
@@ -175,7 +178,7 @@ export default function PostEditor() {
       <div className="sticky top-0 z-10 bg-card/80 backdrop-blur-md border-b border-border">
         <div className="flex items-center justify-between px-4 sm:px-8 h-14">
           <div className="flex items-center gap-2 sm:gap-3">
-            <Link to="/admin" className="w-8 h-8 rounded-lg border border-border flex items-center justify-center hover:bg-surface transition-colors">
+            <Link href="/admin" className="w-8 h-8 rounded-lg border border-border flex items-center justify-center hover:bg-surface transition-colors">
               <ArrowLeft size={16} className="text-text-muted" />
             </Link>
             <h1 className="font-heading text-sm sm:text-base font-semibold text-text-primary">

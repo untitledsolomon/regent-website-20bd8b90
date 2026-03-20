@@ -1,6 +1,8 @@
+"use client";
+
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
+import Link from "next/link";
+import { createClient } from "@/lib/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import {
   FileText, BarChart3, FolderOpen, Plus, ArrowRight, Clock, TrendingUp, TrendingDown,
@@ -43,6 +45,7 @@ const PIE_COLORS = [
 ];
 
 export default function AdminDashboard() {
+  const supabase = createClient();
   const { user } = useAuth();
   const [stats, setStats] = useState<Stats>({
     posts: { total: 0, published: 0 },
@@ -388,7 +391,7 @@ export default function AdminDashboard() {
             ].map(action => {
               const Icon = action.icon;
               return (
-                <Link key={action.label} to={action.link} className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-muted transition-colors group">
+                <Link key={action.label} href={action.link} className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-muted transition-colors group">
                   <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
                     <Icon size={14} className="text-primary" />
                   </div>
@@ -414,7 +417,7 @@ export default function AdminDashboard() {
               const Icon = card.icon;
               const pct = card.total > 0 ? Math.round((card.published / card.total) * 100) : 0;
               return (
-                <Link key={card.label} to={card.link} className="flex items-center gap-3 p-3 rounded-xl hover:bg-muted transition-colors group">
+                <Link key={card.label} href={card.link} className="flex items-center gap-3 p-3 rounded-xl hover:bg-muted transition-colors group">
                   <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center">
                     <Icon size={16} className="text-primary" />
                   </div>
@@ -444,7 +447,7 @@ export default function AdminDashboard() {
                 <FileText size={20} className="text-primary" />
               </div>
               <p className="text-sm text-muted-foreground mb-3">No content yet</p>
-              <Link to="/admin/posts/new" className="inline-flex items-center gap-2 h-9 px-4 bg-primary text-primary-foreground rounded-xl text-sm font-medium hover:bg-primary/90 transition-all">
+              <Link href="/admin/posts/new" className="inline-flex items-center gap-2 h-9 px-4 bg-primary text-primary-foreground rounded-xl text-sm font-medium hover:bg-primary/90 transition-all">
                 <Plus size={14} /> Create Post
               </Link>
             </div>
@@ -453,7 +456,7 @@ export default function AdminDashboard() {
               {recent.map(item => {
                 const config = typeConfig[item.type];
                 return (
-                  <Link key={`${item.type}-${item.id}`} to={editLink(item)} className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-muted transition-colors group">
+                  <Link key={`${item.type}-${item.id}`} href={editLink(item)} className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-muted transition-colors group">
                     <div className={`w-2 h-2 rounded-full shrink-0 ${config.dot}`} />
                     <div className="min-w-0 flex-1">
                       <div className="text-sm font-medium text-foreground truncate group-hover:text-primary transition-colors">{item.title}</div>
@@ -480,6 +483,7 @@ export default function AdminDashboard() {
 }
 
 function ActivityLogWidget() {
+  const supabase = createClient();
   const [logs, setLogs] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 

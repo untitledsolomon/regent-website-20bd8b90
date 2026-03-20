@@ -1,10 +1,13 @@
+"use client";
+
 import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
-import { supabase } from "@/integrations/supabase/client";
+import { createClient } from "@/lib/supabase/client";
 import { Settings, Mail, Shield, LogOut, AlertTriangle, Check } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 export default function AdminSettings() {
+  const supabase = createClient();
   const { user, signOut } = useAuth();
   const { toast } = useToast();
   const [newPassword, setNewPassword] = useState("");

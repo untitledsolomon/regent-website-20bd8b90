@@ -1,5 +1,7 @@
+"use client";
+
 import { useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { createClient } from "@/lib/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Mail, Download, Trash2, Users } from "lucide-react";
 import { format } from "date-fns";
@@ -12,6 +14,7 @@ interface Subscriber {
 }
 
 export default function SubscriberList() {
+  const supabase = createClient();
   const [subscribers, setSubscribers] = useState<Subscriber[]>([]);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();

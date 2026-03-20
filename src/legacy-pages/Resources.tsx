@@ -1,3 +1,5 @@
+"use client";
+
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { RevealOnScroll } from "@/components/RevealOnScroll";
@@ -5,7 +7,7 @@ import { ResourceCard, CTASection } from "@/components/CardComponents";
 import { GradientText } from "@/components/GradientText";
 import { Icons } from "@/components/Icons";
 import { PageMeta } from "@/components/PageMeta";
-import { supabase } from "@/integrations/supabase/client";
+import { createClient } from "@/lib/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import { trackDownload } from "@/hooks/useContentTracking";
 
@@ -21,20 +23,22 @@ interface DbResource {
   featured: boolean;
 }
 
-async function fetchResources(): Promise<DbResource[]> {
-  const { data, error } = await supabase
-    .from("resources")
-    .select("*")
-    .eq("published", true)
-    .order("created_at", { ascending: false });
-  if (error) throw error;
-  return data || [];
-}
-
 export default function ResourcesPage() {
+  const supabase = createClient();
   const [filter, setFilter] = useState("All");
   const [email, setEmail] = useState("");
   const [subscribing, setSubscribing] = useState(false);
+
+  const fetchResources = async (): Promise<DbResource[]> => {
+    const { data, error } = await supabase
+      .from("resources")
+      .select("*")
+      .eq("published", true)
+      .order("created_at", { ascending: false });
+    if (error) throw error;
+    return data || [];
+  };
+
   const { data: resources = [], isLoading, isError, refetch } = useQuery({
     queryKey: ["resources"],
     queryFn: fetchResources,

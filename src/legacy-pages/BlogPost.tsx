@@ -1,30 +1,34 @@
-import { useParams, Link } from "react-router-dom";
+"use client";
+
+import { useParams } from "next/navigation";
+import Link from "next/link";
 import { useState, useEffect, useMemo } from "react";
 import { motion, useScroll } from "framer-motion";
 import { Icons } from "@/components/Icons";
 import { BlogCard } from "@/components/CardComponents";
 import { RevealOnScroll } from "@/components/RevealOnScroll";
 import { PageMeta } from "@/components/PageMeta";
-import { supabase } from "@/integrations/supabase/client";
+import { createClient } from "@/lib/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import { useTrackView } from "@/hooks/useContentTracking";
 
-async function fetchPostBySlug(slug: string) {
-  const { data, error } = await supabase.from("blog_posts").select("*").eq("slug", slug).eq("published", true).single();
-  if (error) throw error;
-  return data;
-}
-
-async function fetchRelatedPosts(slug: string) {
-  const { data } = await supabase.from("blog_posts").select("*").eq("published", true).neq("slug", slug).limit(3);
-  return data || [];
-}
-
 export default function BlogPostPage() {
-  const { slug } = useParams();
+  const supabase = createClient();
+  const { slug } = useParams() as { slug?: string };
   const { scrollYProgress } = useScroll();
   const [progress, setProgress] = useState(0);
   const [copied, setCopied] = useState(false);
+
+  const fetchPostBySlug = async (s: string) => {
+    const { data, error } = await supabase.from("blog_posts").select("*").eq("slug", s).eq("published", true).single();
+    if (error) throw error;
+    return data;
+  };
+
+  const fetchRelatedPosts = async (s: string) => {
+    const { data } = await supabase.from("blog_posts").select("*").eq("published", true).neq("slug", s).limit(3);
+    return data || [];
+  };
 
   const { data: post, isLoading } = useQuery({
     queryKey: ["blog_post", slug],
@@ -106,9 +110,9 @@ export default function BlogPostPage() {
             transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
           >
             <div className="font-mono text-xs text-text-muted mb-6 flex items-center gap-2 flex-wrap">
-              <Link to="/" className="text-text-secondary hover:text-text-primary transition-colors">Home</Link>
+              <Link href="/" className="text-text-secondary hover:text-text-primary transition-colors">Home</Link>
               <span className="text-border-strong">→</span>
-              <Link to="/blog" className="text-text-secondary hover:text-text-primary transition-colors">Insights</Link>
+              <Link href="/blog" className="text-text-secondary hover:text-text-primary transition-colors">Insights</Link>
               <span className="text-border-strong">→</span>
               {post.category}
             </div>
@@ -173,10 +177,10 @@ export default function BlogPostPage() {
           </div>
 
           <div className="max-w-[720px] mx-auto mt-16 pt-8 border-t border-border flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-            <Link to="/blog" className="font-heading text-[13px] font-medium bg-transparent text-text-primary border border-border-strong rounded-lg px-[18px] py-[9px] inline-flex items-center gap-1.5 hover:bg-surface transition-all">
+            <Link href="/blog" className="font-heading text-[13px] font-medium bg-transparent text-text-primary border border-border-strong rounded-lg px-[18px] py-[9px] inline-flex items-center gap-1.5 hover:bg-surface transition-all">
               ← Back to Insights
             </Link>
-            <Link to="/demo" className="font-heading text-[13px] font-medium bg-text-primary text-background rounded-lg px-[18px] py-[9px] inline-flex items-center gap-1.5 hover:shadow-lg hover:-translate-y-px transition-all">
+            <Link href="/demo" className="font-heading text-[13px] font-medium bg-text-primary text-background rounded-lg px-[18px] py-[9px] inline-flex items-center gap-1.5 hover:shadow-lg hover:-translate-y-px transition-all">
               Start a Project <Icons.ArrowRight />
             </Link>
           </div>

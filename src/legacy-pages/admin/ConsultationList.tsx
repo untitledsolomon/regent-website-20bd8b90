@@ -1,5 +1,7 @@
+"use client";
+
 import { useEffect, useState, useMemo } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { createClient } from "@/lib/supabase/client";
 import {
   MessageSquare, Trash2, Download, Search, Building2, Mail, Phone,
   ChevronDown, ChevronUp, X, Send, Pencil, Check, User, DollarSign,
@@ -41,6 +43,7 @@ const STATUS_CONFIG: Record<ConsultationStatus, { label: string; classes: string
 const STATUSES = Object.keys(STATUS_CONFIG) as ConsultationStatus[];
 
 export default function ConsultationList() {
+  const supabase = createClient();
   const [items, setItems] = useState<Consultation[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");

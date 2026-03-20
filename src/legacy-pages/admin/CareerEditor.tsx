@@ -1,13 +1,17 @@
+"use client";
+
 import { useEffect, useState } from "react";
-import { useNavigate, useParams, Link } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
+import Link from "next/link";
+import { useParams, useRouter } from "next/navigation";
+import { createClient } from "@/lib/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft, Save } from "lucide-react";
 
 export default function CareerEditor() {
-  const { id } = useParams();
+  const supabase = createClient();
+  const { id } = useParams() as { id?: string };
   const isEdit = !!id;
-  const navigate = useNavigate();
+  const router = useRouter();
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [form, setForm] = useState({
@@ -53,14 +57,14 @@ export default function CareerEditor() {
       toast({ title: "Error saving", description: error.message, variant: "destructive" });
     } else {
       toast({ title: isEdit ? "Position updated" : "Position created" });
-      navigate("/admin/careers");
+      router.push("/admin/careers");
     }
   };
 
   return (
     <div className="p-8 max-w-2xl">
       <div className="flex items-center gap-3 mb-8">
-        <Link to="/admin/careers" className="w-8 h-8 rounded-lg border border-border flex items-center justify-center hover:bg-surface transition-colors">
+        <Link href="/admin/careers" className="w-8 h-8 rounded-lg border border-border flex items-center justify-center hover:bg-surface transition-colors">
           <ArrowLeft size={16} className="text-text-secondary" />
         </Link>
         <h1 className="font-heading text-2xl font-semibold tracking-[-0.03em] text-text-primary">
@@ -150,7 +154,7 @@ export default function CareerEditor() {
             <Save size={16} />
             {loading ? "Saving..." : isEdit ? "Update Position" : "Create Position"}
           </button>
-          <Link to="/admin/careers" className="h-10 px-5 border border-border rounded-lg text-sm font-medium flex items-center text-text-secondary hover:bg-surface transition-all">
+          <Link href="/admin/careers" className="h-10 px-5 border border-border rounded-lg text-sm font-medium flex items-center text-text-secondary hover:bg-surface transition-all">
             Cancel
           </Link>
         </div>

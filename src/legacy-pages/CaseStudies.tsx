@@ -1,12 +1,14 @@
+"use client";
+
 import { motion } from "framer-motion";
 import { RevealOnScroll } from "@/components/RevealOnScroll";
 import { AnimatedCounter } from "@/components/AnimatedCounter";
 import { GradientText } from "@/components/GradientText";
 import { Icons } from "@/components/Icons";
 import { PageMeta } from "@/components/PageMeta";
-import { supabase } from "@/integrations/supabase/client";
+import { createClient } from "@/lib/supabase/client";
 import { useQuery } from "@tanstack/react-query";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 
 const heroStats = [
   { value: "94%", label: "Avg Latency Reduction" },
@@ -25,20 +27,22 @@ interface CaseStudy {
   metrics: { value: string; label: string }[];
 }
 
-async function fetchCaseStudies(): Promise<CaseStudy[]> {
-  const { data, error } = await supabase
-    .from("case_studies")
-    .select("*")
-    .eq("published", true)
-    .order("created_at", { ascending: false });
-  if (error) throw error;
-  return (data || []).map(d => ({
-    ...d,
-    metrics: d.metrics as { value: string; label: string }[],
-  }));
-}
-
 export default function CaseStudiesPage() {
+  const supabase = createClient();
+
+  const fetchCaseStudies = async (): Promise<CaseStudy[]> => {
+    const { data, error } = await supabase
+      .from("case_studies")
+      .select("*")
+      .eq("published", true)
+      .order("created_at", { ascending: false });
+    if (error) throw error;
+    return (data || []).map(d => ({
+      ...d,
+      metrics: d.metrics as { value: string; label: string }[],
+    }));
+  };
+
   const { data: caseStudies = [], isLoading, isError, refetch } = useQuery({
     queryKey: ["case_studies"],
     queryFn: fetchCaseStudies,
@@ -106,7 +110,7 @@ export default function CaseStudiesPage() {
               {caseStudies.map((cs, i) => (
                 <RevealOnScroll key={cs.id} delay={i * 0.1}>
                   <Link
-                    to={`/case-studies/${cs.slug}`}
+                    href={`/case-studies/${cs.slug}`}
                     className={`block border border-border rounded-2xl overflow-hidden bg-card hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5 transition-all duration-300 group h-full ${i === 0 ? 'md:col-span-2' : ''}`}
                   >
                     {cs.image_url && (

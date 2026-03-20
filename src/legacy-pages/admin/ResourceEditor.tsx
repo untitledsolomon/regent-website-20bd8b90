@@ -1,15 +1,18 @@
+"use client";
+
 import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
+import { useParams, useRouter } from "next/navigation";
+import { createClient } from "@/lib/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import RichTextEditor from "@/components/admin/RichTextEditor";
 
 const resourceTypes = ["Whitepaper", "Research", "Documentation", "Case Study"] as const;
 
 export default function ResourceEditor() {
-  const { id } = useParams();
+  const supabase = createClient();
+  const { id } = useParams() as { id?: string };
   const isEdit = !!id;
-  const navigate = useNavigate();
+  const router = useRouter();
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -63,7 +66,7 @@ export default function ResourceEditor() {
       : await supabase.from("resources").insert(payload);
     setLoading(false);
     if (error) { toast({ title: "Error", description: error.message, variant: "destructive" }); }
-    else { toast({ title: isEdit ? "Updated" : "Created" }); navigate("/admin/resources"); }
+    else { toast({ title: isEdit ? "Updated" : "Created" }); router.push("/admin/resources"); }
   };
 
   const inputClass = "w-full h-10 border border-border rounded-lg px-3 text-sm bg-background text-text-primary focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all";

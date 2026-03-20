@@ -1,5 +1,7 @@
+"use client";
+
 import { useEffect, useRef } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { createClient } from "@/lib/supabase/client";
 
 function getSessionId(): string {
   let sid = sessionStorage.getItem("regent_session_id");
@@ -45,6 +47,7 @@ function getTrackingPayload() {
 }
 
 async function checkIsReturning(session_id: string): Promise<boolean> {
+  const supabase = createClient();
   // Check if this session has been seen before
   const { data } = await (supabase as any)
     .from("known_sessions")
@@ -83,6 +86,7 @@ function trackScrollDepth(): () => number {
 }
 
 export function useTrackView(contentType: string, contentId: string | undefined) {
+  const supabase = createClient();
   const tracked = useRef(false);
   const viewIdRef = useRef<string | null>(null);
   const startTimeRef = useRef<number>(Date.now());
@@ -124,7 +128,7 @@ export function useTrackView(contentType: string, contentId: string | undefined)
       const scrollDepth = stopScrollTracking();
 
       // Use sendBeacon for reliability on page unload
-      const url = `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/content_views?id=eq.${viewIdRef.current}`;
+      const url = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/content_views?id=eq.${viewIdRef.current}`;
       const body = JSON.stringify({ time_on_page: timeOnPage, scroll_depth: scrollDepth });
       navigator.sendBeacon(
         url,
@@ -150,6 +154,7 @@ export function useTrackView(contentType: string, contentId: string | undefined)
 }
 
 export async function trackDownload(contentId: string) {
+  const supabase = createClient();
   const payload = getTrackingPayload();
   const is_returning = await checkIsReturning(payload.session_id);
   await supabase
@@ -167,6 +172,7 @@ export async function trackDownload(contentId: string) {
 // Call this after a successful newsletter signup or inquiry submission
 // Pass the session_id so we can attribute the conversion
 export async function trackConversion(conversionType: "newsletter" | "inquiry") {
+  const supabase = createClient();
   const session_id = getSessionId();
   // Update the most recent view from this session
   const { data } = await supabase

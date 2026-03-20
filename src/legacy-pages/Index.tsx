@@ -1,18 +1,37 @@
+"use client";
+
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Link } from "react-router-dom";
+import dynamic from "next/dynamic";
+import Link from "next/link";
 import { Icons } from "@/components/Icons";
 import { SectionHeader } from "@/components/SectionHeader";
 import { RevealOnScroll } from "@/components/RevealOnScroll";
 import { CapabilityCard, ArchitectureLayer, ModuleCard, IndustryCard, BlogCard, CTASection } from "@/components/CardComponents";
-import { AnimatedBackground } from "@/components/AnimatedBackground";
-import { AnimatedCounter } from "@/components/AnimatedCounter";
 import { GradientText } from "@/components/GradientText";
-import { LogoMarquee } from "@/components/LogoMarquee";
-import { TestimonialCarousel } from "@/components/TestimonialCarousel";
 import { capabilities, archLayers, modules, industries } from "@/data/siteData";
 import { PageMeta } from "@/components/PageMeta";
-import { supabase } from "@/integrations/supabase/client";
+import { createClient } from "@/lib/supabase/client";
+
+const AnimatedBackground = dynamic(
+  () => import("@/components/AnimatedBackground").then((m) => m.AnimatedBackground),
+  { ssr: false }
+);
+
+const AnimatedCounter = dynamic(
+  () => import("@/components/AnimatedCounter").then((m) => m.AnimatedCounter),
+  { ssr: false }
+);
+
+const LogoMarquee = dynamic(
+  () => import("@/components/LogoMarquee").then((m) => m.LogoMarquee),
+  { ssr: false }
+);
+
+const TestimonialCarousel = dynamic(
+  () => import("@/components/TestimonialCarousel").then((m) => m.TestimonialCarousel),
+  { ssr: false }
+);
 
 const metrics = [
   { n: "6+", l: "Systems Delivered" },
@@ -77,6 +96,13 @@ export default function HomePage() {
   const [blogPosts, setBlogPosts] = useState<Array<{ slug: string; title: string; excerpt: string; category: string; readTime: string; date: string; author: string; content: string; image_url?: string | null }>>([]);
 
   useEffect(() => {
+    let supabase;
+    try {
+      supabase = createClient();
+    } catch {
+      return;
+    }
+
     supabase
       .from("blog_posts")
       .select("slug, title, excerpt, category, read_time, date, author, image_url")
@@ -138,13 +164,13 @@ export default function HomePage() {
               className="flex flex-col sm:flex-row gap-3"
             >
               <Link
-                to="/demo"
+                href="/demo"
                 className="font-heading text-[15px] font-medium bg-primary text-primary-foreground rounded-lg px-7 py-3.5 inline-flex items-center justify-center gap-2 hover:shadow-[0_8px_24px_rgba(79,70,229,0.25)] hover:-translate-y-0.5 transition-all w-full sm:w-auto"
               >
                 Start a Project <Icons.ArrowRight />
               </Link>
               <Link
-                to="/platform"
+                href="/platform"
                 className="font-heading text-[15px] font-medium bg-transparent text-text-primary border border-border-strong rounded-lg px-7 py-3.5 inline-flex items-center justify-center gap-2 hover:bg-surface hover:border-text-muted hover:-translate-y-px transition-all w-full sm:w-auto"
               >
                 Explore Our Capabilities
@@ -215,7 +241,7 @@ export default function HomePage() {
               />
               <div className="mt-8">
                 <Link
-                  to="/platform"
+                  href="/platform"
                   className="font-heading text-[13px] font-medium bg-text-primary text-background rounded-lg px-[18px] py-[9px] inline-flex items-center gap-1.5 hover:shadow-lg hover:-translate-y-px transition-all"
                 >
                   View How We Build <Icons.ArrowRight />
@@ -301,7 +327,7 @@ export default function HomePage() {
                 </p>
               </div>
               <Link
-                to="/blog"
+                href="/blog"
                 className="font-heading text-[13px] font-medium bg-transparent text-text-primary border border-border-strong rounded-lg px-[18px] py-[9px] inline-flex items-center gap-1.5 hover:bg-surface hover:-translate-y-px transition-all shrink-0"
               >
                 View All Articles <Icons.ArrowRight />

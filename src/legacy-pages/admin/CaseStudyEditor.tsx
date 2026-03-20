@@ -1,6 +1,8 @@
+"use client";
+
 import { useEffect, useState, useRef } from "react";
-import { useNavigate, useParams } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
+import { useParams, useRouter } from "next/navigation";
+import { createClient } from "@/lib/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import RichTextEditor from "@/components/admin/RichTextEditor";
 import { Upload, X, Loader2, CalendarIcon, ChevronDown } from "lucide-react";
@@ -13,9 +15,10 @@ import { cn } from "@/lib/utils";
 const DRAFT_KEY_PREFIX = "regent_cs_draft_";
 
 export default function CaseStudyEditor() {
-  const { id } = useParams();
+  const supabase = createClient();
+  const { id } = useParams() as { id?: string };
   const isEdit = !!id;
-  const navigate = useNavigate();
+  const router = useRouter();
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [imageUploading, setImageUploading] = useState(false);
@@ -114,7 +117,7 @@ export default function CaseStudyEditor() {
       localStorage.removeItem(draftKey);
       await logActivity(isEdit ? "updated_case_study" : "created_case_study", "case_study", form.title, id);
       toast({ title: isEdit ? "Updated" : "Created" });
-      navigate("/admin/case-studies");
+      router.push("/admin/case-studies");
     }
   };
 

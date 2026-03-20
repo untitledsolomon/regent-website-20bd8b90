@@ -1,6 +1,8 @@
+"use client";
+
 import { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
+import { useParams, useRouter } from "next/navigation";
+import { createClient } from "@/lib/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { ArrowLeft, Mail, Building2, Send, Save, Clock, User, DollarSign, Users } from "lucide-react";
 import { formatDistanceToNow, format } from "date-fns";
@@ -33,8 +35,9 @@ const statusColors: Record<ConsultationStatus, string> = {
 };
 
 export default function ConsultationDetail() {
-  const { id } = useParams<{ id: string }>();
-  const navigate = useNavigate();
+  const supabase = createClient();
+  const { id } = useParams() as { id?: string };
+  const router = useRouter();
   const [item, setItem] = useState<Consultation | null>(null);
   const [loading, setLoading] = useState(true);
   const [adminNotes, setAdminNotes] = useState("");
@@ -55,7 +58,7 @@ export default function ConsultationDetail() {
         .single();
       if (error || !data) {
         toast({ title: "Not found", variant: "destructive" });
-        navigate("/admin/inquiries");
+        router.push("/admin/inquiries");
         return;
       }
       setItem(data as Consultation);
@@ -70,7 +73,7 @@ export default function ConsultationDetail() {
       setLoading(false);
     };
     load();
-  }, [id, navigate]);
+  }, [id, router]);
 
   const handleSave = async () => {
     if (!id) return;
@@ -131,7 +134,7 @@ export default function ConsultationDetail() {
   return (
     <div className="p-4 sm:p-6 lg:p-10 max-w-4xl">
       {/* Back */}
-      <button onClick={() => navigate("/admin/inquiries")} className="flex items-center gap-2 text-sm text-text-muted hover:text-text-primary transition-colors mb-4 sm:mb-6">
+      <button onClick={() => router.push("/admin/inquiries")} className="flex items-center gap-2 text-sm text-text-muted hover:text-text-primary transition-colors mb-4 sm:mb-6">
         <ArrowLeft size={16} /> Back to Inquiries
       </button>
 

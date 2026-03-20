@@ -1,3 +1,5 @@
+'use client';
+
 import { motion } from "framer-motion";
 import { RevealOnScroll } from "@/components/RevealOnScroll";
 import { CTASection } from "@/components/CardComponents";

@@ -1,4 +1,8 @@
-import { useParams, Link, Navigate } from "react-router-dom";
+"use client";
+
+import { useEffect } from "react";
+import { useParams, useRouter } from "next/navigation";
+import Link from "next/link";
 import { motion } from "framer-motion";
 import { modules } from "@/data/siteData";
 import { Icons } from "@/components/Icons";
@@ -7,10 +11,15 @@ import { PageMeta } from "@/components/PageMeta";
 import { CTASection } from "@/components/CardComponents";
 
 export default function ModuleDetail() {
-  const { moduleSlug } = useParams<{ moduleSlug: string }>();
+  const router = useRouter();
+  const { moduleSlug } = useParams() as { moduleSlug?: string };
   const mod = modules.find(m => m.slug === moduleSlug);
 
-  if (!mod) return <Navigate to="/platform" replace />;
+  useEffect(() => {
+    if (!mod) router.push("/platform");
+  }, [mod, router]);
+
+  if (!mod) return null;
 
   const moduleIndex = modules.findIndex(m => m.slug === moduleSlug);
   const prevModule = moduleIndex > 0 ? modules[moduleIndex - 1] : null;
@@ -31,7 +40,7 @@ export default function ModuleDetail() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
           >
-            <Link to="/platform" className="inline-flex items-center gap-1.5 text-[13px] text-text-muted hover:text-primary transition-colors mb-8">
+            <Link href="/platform" className="inline-flex items-center gap-1.5 text-[13px] text-text-muted hover:text-primary transition-colors mb-8">
               <Icons.ArrowLeft /> Back to Solutions
             </Link>
             <div className="flex items-center gap-4 mb-6">
@@ -172,12 +181,12 @@ export default function ModuleDetail() {
         <div className="section-container">
           <div className="flex justify-between items-center">
             {prevModule ? (
-              <Link to={`/platform/${prevModule.slug}`} className="flex items-center gap-2 text-[14px] text-text-secondary hover:text-primary transition-colors">
+              <Link href={`/platform/${prevModule.slug}`} className="flex items-center gap-2 text-[14px] text-text-secondary hover:text-primary transition-colors">
                 <Icons.ArrowLeft /> {prevModule.name}
               </Link>
             ) : <div />}
             {nextModule ? (
-              <Link to={`/platform/${nextModule.slug}`} className="flex items-center gap-2 text-[14px] text-text-secondary hover:text-primary transition-colors">
+              <Link href={`/platform/${nextModule.slug}`} className="flex items-center gap-2 text-[14px] text-text-secondary hover:text-primary transition-colors">
                 {nextModule.name} <Icons.ArrowRight />
               </Link>
             ) : <div />}

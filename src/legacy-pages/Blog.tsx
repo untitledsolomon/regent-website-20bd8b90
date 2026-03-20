@@ -1,29 +1,32 @@
+"use client";
+
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 import { RevealOnScroll } from "@/components/RevealOnScroll";
 import { BlogCard } from "@/components/CardComponents";
 import { GradientText } from "@/components/GradientText";
 import { Icons } from "@/components/Icons";
 import { PageMeta } from "@/components/PageMeta";
-import { supabase } from "@/integrations/supabase/client";
+import { createClient } from "@/lib/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery } from "@tanstack/react-query";
 
-async function fetchBlogPosts() {
-  const { data, error } = await supabase
-    .from("blog_posts")
-    .select("*")
-    .eq("published", true)
-    .order("created_at", { ascending: false });
-  if (error) throw error;
-  return data || [];
-}
-
 export default function BlogPage() {
+  const supabase = createClient();
   const [active, setActive] = useState("All");
   const [email, setEmail] = useState("");
   const { toast } = useToast();
+
+  const fetchBlogPosts = async () => {
+    const { data, error } = await supabase
+      .from("blog_posts")
+      .select("*")
+      .eq("published", true)
+      .order("created_at", { ascending: false });
+    if (error) throw error;
+    return data || [];
+  };
 
   const { data: posts = [], isLoading, isError, refetch } = useQuery({
     queryKey: ["blog_posts"],
@@ -122,7 +125,7 @@ export default function BlogPage() {
             <RevealOnScroll>
               <div className="mb-16">
                 <div className="font-mono text-[11px] tracking-[0.12em] uppercase text-primary mb-5">FEATURED</div>
-                <Link to={`/blog/${featured.slug}`}>
+                <Link href={`/blog/${featured.slug}`}>
                   <motion.div
                     whileHover={{ boxShadow: "0 12px 40px rgba(0,0,0,0.08)", y: -4 }}
                     className="border border-border rounded-2xl overflow-hidden grid grid-cols-1 md:grid-cols-2 cursor-pointer transition-all"

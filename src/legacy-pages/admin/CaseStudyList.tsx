@@ -1,6 +1,8 @@
+"use client";
+
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
+import Link from "next/link";
+import { createClient } from "@/lib/supabase/client";
 import { format } from "date-fns";
 import { logActivity } from "@/hooks/useActivityLog";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -16,6 +18,7 @@ interface CaseStudy {
 }
 
 export default function CaseStudyList() {
+  const supabase = createClient();
   const [items, setItems] = useState<CaseStudy[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -96,7 +99,7 @@ export default function CaseStudyList() {
           <h1 className="font-heading text-xl sm:text-2xl font-semibold tracking-[-0.03em] text-foreground">Case Studies</h1>
           <p className="text-xs sm:text-sm text-muted-foreground mt-1">{items.length} case studies total</p>
         </div>
-        <Link to="/admin/case-studies/new" className="h-10 px-5 bg-primary text-primary-foreground rounded-xl text-sm font-medium flex items-center justify-center gap-2 hover:bg-primary/90 transition-all w-full sm:w-auto shadow-sm shadow-primary/20">
+        <Link href="/admin/case-studies/new" className="h-10 px-5 bg-primary text-primary-foreground rounded-xl text-sm font-medium flex items-center justify-center gap-2 hover:bg-primary/90 transition-all w-full sm:w-auto shadow-sm shadow-primary/20">
           <Plus size={16} /> New Case Study
         </Link>
       </div>
@@ -148,7 +151,7 @@ export default function CaseStudyList() {
               <span className="text-[11px] text-muted-foreground font-mono w-24">{item.industry}</span>
               <div className="flex items-center gap-1.5 w-36 justify-end">
                 <button onClick={() => toggle(item.id, item.published)} className="text-[11px] px-2.5 py-1.5 rounded-lg border border-input hover:bg-muted text-muted-foreground hover:text-foreground transition-colors">{item.published ? "Unpublish" : "Publish"}</button>
-                <Link to={`/admin/case-studies/${item.id}/edit`} className="text-[11px] px-2.5 py-1.5 rounded-lg border border-input hover:bg-muted text-muted-foreground hover:text-foreground transition-colors">Edit</Link>
+                <Link href={`/admin/case-studies/${item.id}/edit`} className="text-[11px] px-2.5 py-1.5 rounded-lg border border-input hover:bg-muted text-muted-foreground hover:text-foreground transition-colors">Edit</Link>
                 <button onClick={() => remove(item.id)} className="text-[11px] px-2 py-1.5 rounded-lg hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-colors"><Trash2 size={13} /></button>
               </div>
             </div>

@@ -1,5 +1,7 @@
+"use client";
+
 import { useEffect, useState, useCallback } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { createClient } from "@/lib/supabase/client";
 import { format, subDays } from "date-fns";
 import {
   Eye, Users, Globe, Monitor, Smartphone, Tablet, Clock, ExternalLink,
@@ -128,6 +130,7 @@ function TrendBadge({ value, suffix = "" }: { value: number; suffix?: string }) 
 }
 
 export default function AdminAnalytics() {
+  const supabase = createClient();
   const [views, setViews] = useState<AnalyticsView[]>([]);
   const [audience, setAudience] = useState<AudienceItem[]>([]);
   const [topContent, setTopContent] = useState<TopContent[]>([]);
@@ -220,7 +223,7 @@ export default function AdminAnalytics() {
     );
 
     setLoading(false);
-  }, [daysBack]);
+  }, [daysBack, supabase]);
 
   useEffect(() => { load(); }, [load]);
 
