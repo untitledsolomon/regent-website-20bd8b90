@@ -168,7 +168,7 @@ export default function PostList() {
                 <button onClick={() => toggle(item.id, item.published)} className="text-[11px] px-2.5 py-1.5 rounded-lg border border-input hover:bg-muted text-muted-foreground hover:text-foreground transition-colors">
                   {item.published ? "Unpublish" : "Publish"}
                 </button>
-                <Link href={`/admin/posts/${item.id}/edit`} className="text-[11px] px-2.5 py-1.5 rounded-lg border border-input hover:bg-muted text-muted-foreground hover:text-foreground transition-colors">
+                <Link href={`/admin/posts/${item.id}/edit`} prefetch={false} className="text-[11px] px-2.5 py-1.5 rounded-lg border border-input hover:bg-muted text-muted-foreground hover:text-foreground transition-colors">
                   Edit
                 </Link>
                 <button onClick={() => remove(item.id)} className="text-[11px] px-2 py-1.5 rounded-lg hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-colors">
