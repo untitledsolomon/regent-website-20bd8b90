@@ -1,3 +1,5 @@
+"use client"
+
 import ConsultationList from '@/legacy-pages/admin/ConsultationList'
 
 export default function InquiriesPage() {
