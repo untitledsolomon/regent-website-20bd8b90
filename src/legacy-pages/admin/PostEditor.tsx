@@ -17,7 +17,8 @@ const DRAFT_KEY_PREFIX = "regent_post_draft_";
 
 export default function PostEditor() {
   const supabase = createClient();
-  const { id } = useParams() as { id?: string };
+  const params = useParams();
+  const id = Array.isArray(params.id) ? params.id[0] : params.id;
   const isEdit = !!id;
   const router = useRouter();
   const { toast } = useToast();
