@@ -1,3 +1,5 @@
+"use client"
+
 import CareerList from '@/legacy-pages/admin/CareerList'
 
 export default function CareerListPage() {
