@@ -24,7 +24,10 @@ const faqs = [
   { q: "What happens after the consultation?", a: "We'll provide a detailed proposal including architecture recommendations, project scope, timeline, and pricing tailored to your specific requirements." },
 ];
 
-const trustLogos = ["Fortune 500 Bank", "Global Consultancy", "Defense Contractor", "Industrial Conglomerate", "Energy Major", "Tier-1 Investment Bank"];
+const trustLogos = [
+  "Trevix Trading LTD", "Trevix Media", "Luminary Graphics",
+  "Akawang GI", "Next Level Store"
+];
 
 export default function DemoPage() {
   const supabase = createClient();

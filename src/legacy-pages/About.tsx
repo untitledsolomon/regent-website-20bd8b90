@@ -26,16 +26,45 @@ const values = [
   },
 ];
 
-const milestones = [
-  { year: "2018", event: "Founded in London with a focus on financial systems integration" },
-  { year: "2019", event: "First enterprise deployment — unified 12 trading systems for a global bank" },
-  { year: "2020", event: "Launched Regent Data and Automate modules; expanded to government sector" },
-  { year: "2021", event: "Opened offices in New York, Singapore, and Zurich; surpassed 100 enterprise clients" },
-  { year: "2022", event: "Introduced Intelligence Layer with embedded ML; processing 500M+ daily events" },
-  { year: "2023", event: "Series C funding; expanded to energy and critical infrastructure sectors" },
-  { year: "2024", event: "400+ enterprise clients across 28 countries; 2.4B+ daily events processed" },
-  { year: "2025", event: "Launched Regent Monitor; achieved SOC 2 Type II and ISO 27001 certification" },
+const stats = [
+  { n: "2026", l: "Year Founded" },
+  { n: "6+", l: "Projects Delivered" },
+  { n: "5+", l: "Team" },
+  { n: "1", l: "Core Mission" },
 ];
+
+const milestones = [
+  {
+    year: "Feb 2026",
+    event: "Regent founded with a focus on solving the operational coherence problem in modern organizations",
+  },
+  {
+    year: "Present",
+    event: "Designing and refining core architecture for integration, intelligence, and system unification",
+  },
+  {
+    year: "Next",
+    event: "First production deployments with organizations operating at meaningful scale",
+  },
+];
+
+const why_it_matters = [
+  {
+    icon: "Database" as const,
+    stat: "Fragmented",
+    desc: "Most organizations operate disconnected systems with limited visibility across operations",
+  },
+  {
+    icon: "Workflow" as const,
+    stat: "Manual",
+    desc: "Critical workflows often rely on human coordination between systems instead of automation",
+  },
+  {
+    icon: "Monitor" as const,
+    stat: "Opaque",
+    desc: "Leadership lacks real-time insight into how systems behave under real operational conditions",
+  },
+]
 
 export default function AboutPage() {
   return (
@@ -59,7 +88,7 @@ export default function AboutPage() {
               Regent was founded on the belief that organizations cannot reach their operational potential when their systems don't communicate. We build the connective tissue that transforms fragmented technology landscapes into unified operational platforms.
             </p>
             <p className="text-base text-text-secondary leading-[1.65] max-w-[600px]">
-              From financial exchanges processing trillions in daily volume to government agencies modernizing decades-old infrastructure — we operate where complexity is highest and failure is not an option.
+              We are early by design — focused on building the core infrastructure layer before scaling outward. Regent is being built to operate where complexity is highest and failure is not an option.
             </p>
           </motion.div>
         </div>
@@ -69,12 +98,7 @@ export default function AboutPage() {
       <section className="py-0 border-b border-border">
         <div className="section-container">
           <div className="grid grid-cols-2 md:grid-cols-4">
-            {[
-              { n: "2018", l: "Year Founded" },
-              { n: "400+", l: "Enterprise Clients" },
-              { n: "620", l: "Team Members" },
-              { n: "28", l: "Countries" },
-            ].map((s, i) => (
+            {stats.map((s, i) => (
               <div
                 key={s.l}
                 className={`py-10 px-8 ${i < 3 ? "border-r border-border" : ""} ${i % 2 === 0 ? "bg-card" : "bg-surface"}`}
@@ -101,7 +125,7 @@ export default function AboutPage() {
                 Every significant organization today operates dozens of distinct software systems. The problem is not the systems — it's the absence of connective infrastructure. When systems don't communicate, data becomes inconsistent, workflows fragment, and the organization loses the ability to understand itself.
               </p>
               <p className="text-base text-text-secondary leading-[1.75] mb-5">
-                Regent exists to solve this problem. We design and deploy the integration and intelligence infrastructure that allows organizations to operate as unified systems — with real-time data flows, automated workflows, and embedded intelligence at every layer.
+                Regent is being built to solve this problem.. We design and deploy the integration and intelligence infrastructure that allows organizations to operate as unified systems — with real-time data flows, automated workflows, and embedded intelligence at every layer.
               </p>
               <p className="text-base text-text-secondary leading-[1.75]">
                 The systems we build don't just connect data. They create the conditions for a fundamentally new kind of organizational capability: the ability to observe, analyze, and optimize operations as a single, coherent system.
@@ -111,11 +135,7 @@ export default function AboutPage() {
               <div className="bg-surface border border-border rounded-xl p-8">
                 <div className="font-mono text-[11px] tracking-[0.12em] uppercase text-primary mb-6">WHY IT MATTERS</div>
                 <div className="space-y-6">
-                  {[
-                    { icon: "Database" as const, stat: "73%", desc: "of enterprise data is never analyzed due to system fragmentation" },
-                    { icon: "Workflow" as const, stat: "40%", desc: "of operational time is spent on manual data reconciliation across systems" },
-                    { icon: "Monitor" as const, stat: "$15M", desc: "average annual cost of integration failures for large enterprises" },
-                  ].map((item) => {
+                  {why_it_matters.map((item) => {
                     const IconComp = Icons[item.icon];
                     return (
                       <div key={item.stat} className="flex gap-4 items-start">
@@ -181,7 +201,7 @@ export default function AboutPage() {
               <div className="font-mono text-[11px] tracking-[0.12em] uppercase text-primary mb-4">OUR JOURNEY</div>
               <h2 className="text-[clamp(28px,4vw,48px)] font-heading font-semibold tracking-[-0.03em] leading-[1.1] text-text-primary mb-3">Building for the long term</h2>
               <p className="text-lg font-light text-text-secondary leading-relaxed max-w-[520px] mx-auto">
-                From our first deployment to serving 400+ enterprises — a timeline of deliberate, compounding progress.
+                Early stages of a long-term build — focused on architecture, not speed.
               </p>
             </div>
           </RevealOnScroll>

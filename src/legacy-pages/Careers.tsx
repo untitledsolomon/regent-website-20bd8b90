@@ -78,7 +78,7 @@ export default function CareersPage() {
                   className="border border-border rounded-xl p-7 bg-card hover:border-border-strong transition-colors"
                 >
                   <div className="w-10 h-10 bg-accent-light rounded-[10px] flex items-center justify-center mb-5 text-primary text-lg">
-                    {v.emoji}
+                    {v.icon && <v.icon className="w-5 h-5 text-primary" />}
                   </div>
                   <div className="font-heading text-base font-semibold tracking-[-0.02em] mb-2 text-text-primary">{v.title}</div>
                   <p className="text-sm text-text-secondary leading-[1.65]">{v.desc}</p>
