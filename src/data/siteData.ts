@@ -1,4 +1,18 @@
 import type { IconName } from "@/components/Icons";
+import {
+  Cog,
+  Microscope,
+  Handshake,
+  DraftingCompass,
+  Rocket,
+  Globe,
+  DollarSign,
+  HeartPulse,
+  Home,
+  BookOpen,
+  Palmtree,
+  Baby,
+} from "lucide-react";
 
 export interface Capability {
   icon: IconName;
@@ -445,20 +459,68 @@ export const careers: CareerPosition[] = [
   { id: "mk-1", title: "Content Marketing Manager", department: "Marketing", location: "Remote", type: "Full-time" },
 ];
 
-export const companyValues: CompanyValue[] = [
-  { emoji: "⚙️", title: "Engineering Excellence", desc: "We build systems that work at institutional scale. Every architectural decision is deliberate, tested, and designed for reliability." },
-  { emoji: "🔬", title: "First Principles Thinking", desc: "We start from fundamentals, not trends. Complex problems deserve rigorous analysis and creative solutions." },
-  { emoji: "🤝", title: "Radical Collaboration", desc: "The best infrastructure is built by diverse teams working in concert. We value every perspective and expertise." },
-  { emoji: "📐", title: "Precision in Craft", desc: "Details matter at scale. We hold ourselves to the highest standards in code quality, documentation, and communication." },
-  { emoji: "🚀", title: "Bias for Impact", desc: "We measure success by outcomes, not activity. Every project ships with a clear understanding of the problem it solves." },
-  { emoji: "🌍", title: "Long-term Thinking", desc: "We build for decades, not quarters. Our infrastructure decisions consider the organizations that will depend on them for years." },
+export const companyValues = [
+  {
+    icon: Cog,
+    title: "Engineering Excellence",
+    desc: "We build systems that work at institutional scale. Every architectural decision is deliberate, tested, and designed for reliability.",
+  },
+  {
+    icon: Microscope,
+    title: "First Principles Thinking",
+    desc: "We start from fundamentals, not trends. Complex problems deserve rigorous analysis and creative solutions.",
+  },
+  {
+    icon: Handshake,
+    title: "Collective Intelligence",
+    desc: "The best infrastructure is built by diverse teams working in concert. We value every perspective and expertise.",
+  },
+  {
+    icon: DraftingCompass,
+    title: "Precision in Craft",
+    desc: "Details matter at scale. We hold ourselves to the highest standards in code quality, documentation, and communication.",
+  },
+  {
+    icon: Rocket,
+    title: "Outcome Orientation",
+    desc: "We measure success by outcomes, not activity. Every project ships with a clear understanding of the problem it solves.",
+  },
+  {
+    icon: Globe,
+    title: "Long-term Thinking",
+    desc: "We build for decades, not quarters. Our infrastructure decisions consider the organizations that will depend on them for years.",
+  },
 ];
 
-export const benefits: Benefit[] = [
-  { emoji: "💰", title: "Competitive Compensation", desc: "Top-of-market salary, equity, and annual performance bonuses." },
-  { emoji: "🏥", title: "Premium Healthcare", desc: "Full medical, dental, and vision coverage for you and your family." },
-  { emoji: "🏠", title: "Flexible Work", desc: "Remote-first culture with optional offices in SF and NYC." },
-  { emoji: "📚", title: "Learning Budget", desc: "$5,000 annual budget for conferences, courses, and books." },
-  { emoji: "🏖️", title: "Unlimited PTO", desc: "Take the time you need. We trust you to manage your schedule." },
-  { emoji: "🍼", title: "Parental Leave", desc: "16 weeks paid leave for all new parents, regardless of gender." },
+export const benefits = [
+  {
+    icon: DollarSign,
+    title: "Competitive Compensation",
+    desc: "Top-of-market salary, equity, and annual performance bonuses.",
+  },
+  {
+    icon: HeartPulse,
+    title: "Premium Healthcare",
+    desc: "Full medical, dental, and vision coverage for you and your family.",
+  },
+  {
+    icon: Home,
+    title: "Flexible Work",
+    desc: "Remote-first culture with optional offices in SF and NYC.",
+  },
+  {
+    icon: BookOpen,
+    title: "Learning Budget",
+    desc: "$5,000 annual budget for conferences, courses, and books.",
+  },
+  {
+    icon: Palmtree,
+    title: "Unlimited PTO",
+    desc: "Take the time you need. We trust you to manage your schedule.",
+  },
+  {
+    icon: Baby,
+    title: "Parental Leave",
+    desc: "16 weeks paid leave for all new parents, regardless of gender.",
+  },
 ];

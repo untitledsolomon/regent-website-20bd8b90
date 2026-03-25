@@ -10,7 +10,7 @@ import { GradientText } from "@/components/GradientText";
 import { InteractiveDemo, type DemoStep } from "@/components/InteractiveDemo";
 import { detailedCapabilities } from "@/data/siteData";
 import { PageMeta } from "@/components/PageMeta";
-import { ChartArea, Cog, Ruler, Search } from "lucide-react";
+import { ChartArea, Cog, Puzzle, Ruler, Search } from "lucide-react";
 
 const capabilityStats = [
   { label: "Protocols Supported", value: "10+" },
@@ -29,7 +29,7 @@ const workflowSteps: DemoStep[] = [
   {
     id: "discover",
     title: "Discover",
-    icon: <span><Search/></span>,
+    icon: <Search size={18} strokeWidth={1.5} />,
     content: (
       <div>
         <div className="flex items-center gap-3 mb-5">
@@ -52,7 +52,7 @@ const workflowSteps: DemoStep[] = [
   {
     id: "architect",
     title: "Architect",
-    icon: <span><Ruler/></span>,
+    icon: <Ruler size={18} strokeWidth={1.5} />,
     content: (
       <div>
         <div className="flex items-center gap-3 mb-5">
@@ -75,7 +75,7 @@ const workflowSteps: DemoStep[] = [
   {
     id: "implement",
     title: "Implement",
-    icon: <span><Cog/></span>,
+    icon: <Cog size={18} strokeWidth={1.5} />,
     content: (
       <div>
         <div className="flex items-center gap-3 mb-5">
@@ -98,7 +98,7 @@ const workflowSteps: DemoStep[] = [
   {
     id: "optimize",
     title: "Optimize",
-    icon: <span><ChartArea/></span>,
+    icon: <ChartArea size={18} strokeWidth={1.5} />,
     content: (
       <div>
         <div className="flex items-center gap-3 mb-5">
@@ -123,13 +123,19 @@ const workflowSteps: DemoStep[] = [
 export default function CapabilitiesPage() {
   return (
     <div>
-      <PageMeta title="Solutions & Capabilities — Regent | Integration Consulting" description="Five core capabilities that address every layer of enterprise integration and intelligence challenges." />
+      <PageMeta
+        title="Solutions & Capabilities — Regent | Integration Consulting"
+        description="Five core capabilities that address every layer of enterprise integration and intelligence challenges."
+      />
+
       {/* Hero */}
       <section className="pt-[140px] pb-[100px] bg-surface border-b border-border relative overflow-hidden">
         <div className="absolute inset-0 grid-bg opacity-50" />
         <div className="section-container relative z-10">
           <div className="font-mono text-xs text-text-muted mb-6 flex items-center gap-2">
-            <Link href="/" className="text-text-secondary hover:text-text-primary transition-colors">Home</Link>
+            <Link href="/" className="text-text-secondary hover:text-text-primary transition-colors">
+              Home
+            </Link>
             <span className="text-border-strong">→</span>
             Solutions & Capabilities
           </div>
@@ -139,7 +145,9 @@ export default function CapabilitiesPage() {
             transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
             className="max-w-[720px]"
           >
-            <div className="font-mono text-[11px] tracking-[0.12em] uppercase text-primary mb-4">SOLUTIONS & CAPABILITIES</div>
+            <div className="font-mono text-[11px] tracking-[0.12em] uppercase text-primary mb-4">
+              SOLUTIONS & CAPABILITIES
+            </div>
             <h1 className="text-[clamp(36px,5vw,64px)] font-heading font-semibold tracking-[-0.04em] leading-[1.0] text-text-primary mb-6">
               Operational Systems <GradientText>Engineering</GradientText>
             </h1>
@@ -166,18 +174,23 @@ export default function CapabilitiesPage() {
                 <div className="font-heading text-[clamp(28px,3vw,36px)] font-semibold tracking-[-0.03em] text-text-primary">
                   <AnimatedCounter value={stat.value} />
                 </div>
-                <div className="font-mono text-[11px] tracking-[0.06em] uppercase text-text-muted mt-1">{stat.label}</div>
+                <div className="font-mono text-[11px] tracking-[0.06em] uppercase text-text-muted mt-1">
+                  {stat.label}
+                </div>
               </motion.div>
             ))}
           </motion.div>
         </div>
       </section>
 
+      {/* Comparison table */}
       <section className="py-[100px] bg-surface">
         <div className="section-container">
           <RevealOnScroll>
             <div className="text-center mb-12">
-              <div className="font-mono text-[11px] tracking-[0.12em] uppercase text-primary mb-4">COMPARISON</div>
+              <div className="font-mono text-[11px] tracking-[0.12em] uppercase text-primary mb-4">
+                COMPARISON
+              </div>
               <h2 className="text-[clamp(28px,4vw,48px)] font-heading font-semibold tracking-[-0.03em] text-text-primary mb-4">
                 Why Regent Is Different
               </h2>
@@ -191,23 +204,49 @@ export default function CapabilitiesPage() {
               <table className="w-full border-collapse">
                 <thead>
                   <tr>
-                    {["Approach", "Timeline", "Risk", "Scalability", "Expertise"].map(h => (
-                      <th key={h} className="font-mono text-[11px] tracking-[0.1em] uppercase text-text-muted text-left p-4 border-b border-border">{h}</th>
+                    {["Approach", "Timeline", "Risk", "Scalability", "Expertise"].map((h) => (
+                      <th
+                        key={h}
+                        className="font-mono text-[11px] tracking-[0.1em] uppercase text-text-muted text-left p-4 border-b border-border"
+                      >
+                        {h}
+                      </th>
                     ))}
                   </tr>
                 </thead>
                 <tbody>
-                  {approachComparison.map((row) => (
-                    <tr key={row.approach} className={row.highlighted ? "bg-accent-light" : ""}>
-                      <td className={`p-4 border-b border-border font-heading text-[15px] font-semibold ${row.highlighted ? "text-primary" : "text-text-primary"}`}>
-                        {row.approach}
-                      </td>
-                      <td className={`p-4 border-b border-border text-sm font-medium ${row.highlighted ? "text-primary" : "text-text-secondary"}`}>{row.timeline}</td>
-                      <td className="p-4 border-b border-border text-sm text-text-secondary">{row.risk}</td>
-                      <td className="p-4 border-b border-border text-sm text-text-secondary">{row.scalability}</td>
-                      <td className="p-4 border-b border-border text-sm text-text-secondary">{row.expertise}</td>
-                    </tr>
-                  ))}
+                  {approachComparison.map((row) => {
+                    // All cells use the same color treatment on the highlighted row
+                    const cellCls = row.highlighted
+                      ? "text-primary"
+                      : "text-text-secondary";
+                    return (
+                      <tr
+                        key={row.approach}
+                        className={row.highlighted ? "bg-accent-light" : ""}
+                      >
+                        <td
+                          className={`p-4 border-b border-border font-heading text-[15px] font-semibold ${
+                            row.highlighted ? "text-primary" : "text-text-primary"
+                          }`}
+                        >
+                          {row.approach}
+                        </td>
+                        <td className={`p-4 border-b border-border text-sm font-medium ${cellCls}`}>
+                          {row.timeline}
+                        </td>
+                        <td className={`p-4 border-b border-border text-sm ${cellCls}`}>
+                          {row.risk}
+                        </td>
+                        <td className={`p-4 border-b border-border text-sm ${cellCls}`}>
+                          {row.scalability}
+                        </td>
+                        <td className={`p-4 border-b border-border text-sm ${cellCls}`}>
+                          {row.expertise}
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
@@ -217,44 +256,75 @@ export default function CapabilitiesPage() {
 
       {/* Detailed Capabilities */}
       {detailedCapabilities.map((cap, idx) => {
-        const IconComp = Icons[cap.icon] || Icons.Integration;
+        // Safe icon lookup — falls back to lucide Puzzle instead of Icons.Integration
+        const IconComp = Icons[cap.icon];
         return (
           <div key={cap.title}>
-            <section className={`py-20 ${idx % 2 === 1 ? 'bg-surface' : 'bg-card'}`}>
+            <section className={`py-20 ${idx % 2 === 1 ? "bg-surface" : "bg-card"}`}>
               <div className="section-container">
-                <div className={`grid grid-cols-1 md:grid-cols-2 gap-20 items-center`}>
-                  <RevealOnScroll className={idx % 2 === 1 ? 'md:order-2' : ''}>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-20 items-center">
+                  {/* Text column */}
+                  <RevealOnScroll className={idx % 2 === 1 ? "md:order-2" : ""}>
                     <div className="flex items-center gap-3 mb-5">
-                      <span className="font-mono text-[11px] tracking-[0.06em] px-2.5 py-0.5 rounded-full bg-surface text-text-secondary border border-border">{cap.tag}</span>
-                      <span className="font-mono text-[11px] tracking-[0.12em] uppercase text-primary">CAPABILITY</span>
+                      <span className="font-mono text-[11px] tracking-[0.06em] px-2.5 py-0.5 rounded-full bg-surface text-text-secondary border border-border">
+                        {cap.tag}
+                      </span>
+                      <span className="font-mono text-[11px] tracking-[0.12em] uppercase text-primary">
+                        CAPABILITY
+                      </span>
                     </div>
-                    <h2 className="text-[clamp(28px,4vw,48px)] font-heading font-semibold tracking-[-0.03em] leading-[1.1] text-text-primary mb-4">{cap.title}</h2>
-                    <p className="text-[17px] text-text-secondary leading-[1.7] mb-8">{cap.desc}</p>
-                    <div className="flex flex-col gap-3">
-                      {cap.points.map(p => (
-                        <div key={p} className="flex items-center gap-2.5">
-                          <div className="text-primary flex-shrink-0"><Icons.Check /></div>
-                          <span className="text-[15px] text-text-primary">{p}</span>
-                        </div>
-                      ))}
-                    </div>
+                    <h2 className="text-[clamp(28px,4vw,48px)] font-heading font-semibold tracking-[-0.03em] leading-[1.1] text-text-primary mb-4">
+                      {cap.title}
+                    </h2>
+                    <p className="text-[17px] text-text-secondary leading-[1.7] mb-8">
+                      {cap.desc}
+                    </p>
+                    {/* Guard: only render points list if non-empty */}
+                    {cap.points?.length > 0 && (
+                      <div className="flex flex-col gap-3">
+                        {cap.points.map((p) => (
+                          <div key={p} className="flex items-center gap-2.5">
+                            <div className="text-primary flex-shrink-0">
+                              <Icons.Check />
+                            </div>
+                            <span className="text-[15px] text-text-primary">{p}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </RevealOnScroll>
-                  <RevealOnScroll delay={0.2} className={idx % 2 === 1 ? 'md:order-1' : ''}>
+
+                  {/* Icon panel — min-h guards against collapse when points list is empty */}
+                  <RevealOnScroll
+                    delay={0.2}
+                    className={idx % 2 === 1 ? "md:order-1" : ""}
+                  >
                     <div className="bg-accent-light border border-primary/15 rounded-2xl p-16 flex items-center justify-center min-h-[280px] relative overflow-hidden">
                       <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,hsl(var(--primary)/0.06)_0%,transparent_70%)]" />
                       <motion.div
                         animate={{ scale: [1, 1.05, 1], rotate: [0, 2, -2, 0] }}
                         transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-                        className="text-primary opacity-40 scale-[4]"
+                        className="text-primary opacity-40"
                       >
-                        <IconComp />
+                        {/*
+                          Render at native large size via size prop instead of
+                          CSS scale-[4] which blurs rasterised SVGs.
+                          Lucide Puzzle is the fallback for unrecognised icon names.
+                        */}
+                        {IconComp ? (
+                          <IconComp/>
+                        ) : (
+                          <Puzzle size={96} strokeWidth={1} />
+                        )}
                       </motion.div>
                     </div>
                   </RevealOnScroll>
                 </div>
               </div>
             </section>
-            {idx < detailedCapabilities.length - 1 && <hr className="border-t border-border" />}
+            {idx < detailedCapabilities.length - 1 && (
+              <hr className="border-t border-border" />
+            )}
           </div>
         );
       })}
