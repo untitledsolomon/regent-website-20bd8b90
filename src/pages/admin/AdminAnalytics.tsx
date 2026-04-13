@@ -199,7 +199,6 @@ export default function AdminAnalytics() {
       return {
         date: displayDate,
         views: found ? Number(found.view_count) : 0,
-        unique_sessions: found ? Number(found.unique_sessions) : 0,
       };
     });
     setDailyViews(daily);
