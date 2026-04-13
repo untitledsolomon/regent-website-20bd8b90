@@ -107,7 +107,7 @@ export default function CareerList() {
                 <button onClick={() => toggle(item.id, item.published)} className="text-xs px-3 py-1.5 rounded-lg border border-border hover:bg-surface text-text-secondary transition-colors">
                   {item.published ? "Unpublish" : "Publish"}
                 </button>
-                <Link href={`/admin/careers/${item.id}/edit`} className="text-xs px-3 py-1.5 rounded-lg border border-border hover:bg-surface text-text-secondary transition-colors">
+                <Link href={`/admin/careers/${item.id}`} className="text-xs px-3 py-1.5 rounded-lg border border-border hover:bg-surface text-text-secondary transition-colors">
                   Edit
                 </Link>
                 <button onClick={() => remove(item.id)} className="text-xs px-3 py-1.5 rounded-lg border border-destructive/20 hover:bg-destructive/10 text-destructive transition-colors">
