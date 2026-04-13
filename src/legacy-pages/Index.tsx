@@ -299,13 +299,8 @@ export default function HomePage() {
               subtitle="Regent serves organizations where operational complexity demands institutional-grade infrastructure."
             />
           </RevealOnScroll>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-            {industries.slice(0, 3).map((ind, i) => (
-              <IndustryCard key={ind.name} {...ind} delay={i + 1} />
-            ))}
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mt-5">
-            {industries.slice(3).map((ind, i) => (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+            {industries.map((ind, i) => (
               <IndustryCard key={ind.name} {...ind} delay={i + 1} />
             ))}
           </div>

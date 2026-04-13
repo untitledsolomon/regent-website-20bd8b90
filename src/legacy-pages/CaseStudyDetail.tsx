@@ -10,7 +10,7 @@ import { PageMeta } from "@/components/PageMeta";
 import { GradientText } from "@/components/GradientText";
 import { RevealOnScroll } from "@/components/RevealOnScroll";
 import { Icons } from "@/components/Icons";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Calendar } from "lucide-react";
 import { useTrackView } from "@/hooks/useContentTracking";
 
 interface CaseStudy {
@@ -265,14 +265,41 @@ export default function CaseStudyDetail() {
                 </ul>
               </div>
 
-              {/* Footer nav */}
-              <div className="pt-8 border-t border-border flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                <Link href="/case-studies" className="font-heading text-[13px] font-medium bg-transparent text-text-primary border border-border-strong rounded-lg px-[18px] py-[9px] inline-flex items-center gap-1.5 hover:bg-surface transition-all">
-                  ← Back to Case Studies
-                </Link>
-                <Link href="/demo" className="font-heading text-[13px] font-medium bg-text-primary text-background rounded-lg px-[18px] py-[9px] inline-flex items-center gap-1.5 hover:shadow-lg hover:-translate-y-px transition-all">
-                  Request a Demo <Icons.ArrowRight />
-                </Link>
+              {/* Enhanced CTA Section */}
+              <div className="mt-20">
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.98 }}
+                  whileInView={{ opacity: 1, scale: 1 }}
+                  viewport={{ once: true }}
+                  className="bg-accent-light border border-primary/15 rounded-2xl p-8 md:p-12 text-center relative overflow-hidden"
+                >
+                  <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_-20%,hsl(var(--primary)/0.05)_0%,transparent_70%)]" />
+                  <div className="relative z-10">
+                    <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center mx-auto mb-6 text-primary">
+                      <Calendar size={24} />
+                    </div>
+                    <h3 className="font-heading text-2xl md:text-3xl font-semibold tracking-[-0.03em] text-text-primary mb-4">
+                      Get similar results for your organization
+                    </h3>
+                    <p className="text-text-secondary text-[16px] leading-[1.6] max-w-[500px] mx-auto mb-8">
+                      Discuss your specific challenges with our systems engineers and see how Regent Integrate can unify your infrastructure.
+                    </p>
+                    <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+                      <Link
+                        href="/demo"
+                        className="w-full sm:w-auto font-heading text-[15px] font-medium bg-primary text-primary-foreground rounded-lg px-8 py-4 inline-flex items-center justify-center gap-2 hover:shadow-lg hover:-translate-y-px transition-all"
+                      >
+                        Book a Discovery Call <Icons.ArrowRight size={16} />
+                      </Link>
+                      <Link
+                        href="/case-studies"
+                        className="w-full sm:w-auto font-heading text-[15px] font-medium bg-transparent text-text-primary border border-border rounded-lg px-8 py-4 inline-flex items-center justify-center gap-2 hover:bg-surface transition-all"
+                      >
+                        <ArrowLeft size={16} /> Back to Case Studies
+                      </Link>
+                    </div>
+                  </div>
+                </motion.div>
               </div>
             </motion.div>
 

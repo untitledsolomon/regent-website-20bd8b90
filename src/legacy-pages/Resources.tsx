@@ -7,6 +7,13 @@ import { ResourceCard, CTASection } from "@/components/CardComponents";
 import { GradientText } from "@/components/GradientText";
 import { Icons } from "@/components/Icons";
 import { PageMeta } from "@/components/PageMeta";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 import { createClient } from "@/lib/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import { trackDownload } from "@/hooks/useContentTracking";
@@ -28,6 +35,9 @@ export default function ResourcesPage() {
   const [filter, setFilter] = useState("All");
   const [email, setEmail] = useState("");
   const [subscribing, setSubscribing] = useState(false);
+  const [gateOpen, setGateOpen] = useState(false);
+  const [pendingResource, setPendingResource] = useState<DbResource | null>(null);
+  const [gateEmail, setGateEmail] = useState("");
 
   const fetchResources = async (): Promise<DbResource[]> => {
     const { data, error } = await supabase
@@ -62,6 +72,60 @@ export default function ResourcesPage() {
 
   const filtered = filter === "All" ? resources : resources.filter(r => r.type === filter);
   const featuredResource = resources.find(r => r.featured) || resources[0];
+
+  const handleDownloadClick = (res: DbResource) => {
+    const savedEmail = localStorage.getItem("regent_lead_email");
+    if (savedEmail) {
+      executeDownload(res);
+    } else {
+      setPendingResource(res);
+      setGateOpen(true);
+    }
+  };
+
+  const handleGateSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!gateEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(gateEmail)) return;
+
+    setSubscribing(true);
+    try {
+      await supabase.from("newsletter_subscribers").insert({
+        email: gateEmail,
+        source: `resource_gate_${pendingResource?.slug || 'unknown'}`
+      });
+      localStorage.setItem("regent_lead_email", gateEmail);
+      if (pendingResource) executeDownload(pendingResource);
+      setGateOpen(false);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setSubscribing(false);
+    }
+  };
+
+  const executeDownload = async (res: DbResource) => {
+    const fileUrl = res.file_url;
+    if (!fileUrl) {
+      const { toast } = await import("@/hooks/use-toast");
+      toast({ title: "Coming soon", description: "This file will be available for download shortly." });
+      return;
+    }
+    trackDownload(res.id);
+    try {
+      const response = await fetch(fileUrl);
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = fileUrl.split("/").pop() || "download";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+    } catch {
+      window.open(fileUrl, "_blank", "noopener");
+    }
+  };
 
   if (isLoading) {
     return (
@@ -141,29 +205,7 @@ export default function ResourcesPage() {
                   </div>
                   <div className="flex-shrink-0">
                     <button
-                      onClick={async () => {
-                        const fileUrl = featuredResource.file_url;
-                        if (!fileUrl) {
-                          const { toast } = await import("@/hooks/use-toast");
-                          toast({ title: "Coming soon", description: "This file will be available for download shortly." });
-                          return;
-                        }
-                        trackDownload(featuredResource.id);
-                        try {
-                          const response = await fetch(fileUrl);
-                          const blob = await response.blob();
-                          const url = window.URL.createObjectURL(blob);
-                          const a = document.createElement("a");
-                          a.href = url;
-                          a.download = fileUrl.split("/").pop() || "download";
-                          document.body.appendChild(a);
-                          a.click();
-                          document.body.removeChild(a);
-                          window.URL.revokeObjectURL(url);
-                        } catch {
-                          window.open(fileUrl, "_blank", "noopener");
-                        }
-                      }}
+                      onClick={() => handleDownloadClick(featuredResource)}
                       className="font-heading text-[15px] font-medium bg-primary text-primary-foreground rounded-lg px-7 py-3.5 inline-flex items-center gap-2 hover:shadow-[0_8px_24px_rgba(79,70,229,0.25)] transition-all"
                     >
                       Download PDF <Icons.ArrowRight />
@@ -217,13 +259,17 @@ export default function ResourcesPage() {
               className="grid grid-cols-1 md:grid-cols-3 gap-6"
             >
               {filtered.map((res, i) => (
-                <ResourceCard
-                  key={res.id}
-                  res={{ type: res.type, title: res.title, desc: res.description }}
-                  fileUrl={res.file_url}
-                  resourceId={res.id}
-                  delay={Math.min(i + 1, 5)}
-                />
+                <div key={res.id} onClick={(e) => {
+                  e.preventDefault();
+                  handleDownloadClick(res);
+                }} className="cursor-pointer">
+                  <ResourceCard
+                    res={{ type: res.type, title: res.title, desc: res.description }}
+                    fileUrl={res.file_url}
+                    resourceId={res.id}
+                    delay={Math.min(i + 1, 5)}
+                  />
+                </div>
               ))}
             </motion.div>
           </AnimatePresence>
@@ -267,6 +313,49 @@ export default function ResourcesPage() {
       </section>
 
       <CTASection />
+
+      {/* Lead Gate Dialog */}
+      <Dialog open={gateOpen} onOpenChange={setGateOpen}>
+        <DialogContent className="sm:max-w-[420px] p-0 overflow-hidden border-none bg-card">
+          <div className="relative h-2 bg-primary" />
+          <div className="p-8">
+            <DialogHeader className="mb-6">
+              <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center mb-4 text-primary">
+                <Icons.FileText size={24} />
+              </div>
+              <DialogTitle className="text-2xl font-heading font-semibold tracking-[-0.02em]">
+                Download Resource
+              </DialogTitle>
+              <DialogDescription className="text-muted-foreground pt-2">
+                Enter your professional email to access "{pendingResource?.title}". We'll also send you our latest technical insights.
+              </DialogDescription>
+            </DialogHeader>
+
+            <form onSubmit={handleGateSubmit} className="space-y-4">
+              <div className="space-y-2">
+                <input
+                  type="email"
+                  required
+                  value={gateEmail}
+                  onChange={(e) => setGateEmail(e.target.value)}
+                  placeholder="you@company.com"
+                  className="w-full h-12 border border-border rounded-lg px-4 text-sm bg-surface text-foreground outline-none focus:border-primary focus:ring-[3px] focus:ring-primary/10 transition-all"
+                />
+              </div>
+              <button
+                type="submit"
+                disabled={subscribing}
+                className="w-full h-12 font-heading text-[14px] font-medium bg-primary text-primary-foreground rounded-lg flex items-center justify-center gap-2 hover:bg-primary/90 transition-all disabled:opacity-50"
+              >
+                {subscribing ? "Processing..." : "Access Resource"} <Icons.ArrowRight size={16} />
+              </button>
+              <p className="text-[11px] text-center text-muted-foreground">
+                By clicking, you agree to receive technical content from Regent. Unsubscribe anytime.
+              </p>
+            </form>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
