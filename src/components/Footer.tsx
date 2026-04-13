@@ -9,7 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 const cols = [
   { title: "Solutions", links: [{ label: "Overview", to: "/platform" }, { label: "Architecture", to: "/platform" }, { label: "Modules", to: "/platform" }, { label: "Security", to: "/platform" }] },
   { title: "Capabilities", links: [{ label: "Systems Integration", to: "/capabilities" }, { label: "Data Infrastructure", to: "/capabilities" }, { label: "Workflow Automation", to: "/capabilities" }, { label: "Intelligence Systems", to: "/capabilities" }] },
-  { title: "Industries", links: [{ label: "Finance", to: "/industries" }, { label: "Government", to: "/industries" }, { label: "Infrastructure", to: "/industries" }, { label: "Enterprise", to: "/industries" }] },
+  { title: "Industries", links: [{ label: "Finance", to: "/industries" }, { label: "Government", to: "/industries" }, { label: "Education", to: "/industries" }, { label: "Real Estate", to: "/industries" }] },
   { title: "Resources", links: [{ label: "Whitepapers", to: "/resources" }, { label: "Case Studies", to: "/case-studies" }, { label: "Documentation", to: "/resources" }, { label: "Blog", to: "/blog" }] },
   { title: "Company", links: [{ label: "About", to: "/about" }, { label: "Careers", to: "/careers" }, { label: "News", to: "/about" }, { label: "Contact", to: "/demo" }] },
 ];
