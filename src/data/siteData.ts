@@ -244,6 +244,9 @@ export const industries: Industry[] = [
   { icon: 'Globe', name: 'Infrastructure', desc: 'We build operational technology integration for critical infrastructure operators — connecting OT systems with enterprise platforms and monitoring infrastructure.' },
   { icon: 'Zap', name: 'Enterprise', desc: 'We deliver end-to-end enterprise integration across ERP, CRM, HRMS, and custom systems — eliminating data silos and enabling unified operational intelligence.' },
   { icon: 'Monitor', name: 'Energy', desc: 'We integrate SCADA systems, asset management platforms, and market data feeds into unified operational architectures for energy companies.' },
+  { icon: 'BookOpen', name: 'Education', desc: 'We unify Student Information Systems (SIS) and Learning Management Systems (LMS) into resilient, event-driven architectures for large-scale educational institutions.' },
+  { icon: 'Home', name: 'Real Estate', desc: 'We bridge the gap between physical property data and digital investment platforms, enabling real-time portfolio analytics and asset tokenization.' },
+  { icon: 'Zap', name: 'Media', desc: 'We engineer high-throughput streaming data fabrics and edge-computing microservices for global broadcasters and content distributors.' },
 ];
 
 export const blogPosts: BlogPost[] = [
@@ -372,6 +375,9 @@ export const industriesDetailed = industries.map((ind, i) => ({
     'Critical infrastructure operators need integration architectures that connect operational technology with enterprise systems — while maintaining the reliability and security standards that critical operations demand. Our team builds exactly that.',
     "Large enterprises typically manage dozens of business applications from different vendors and technology generations. Regent's consulting teams eliminate data silos and deliver a unified operational view across the entire enterprise application landscape.",
     'Energy companies operate at the intersection of operational technology and enterprise systems. Our engineers integrate SCADA systems, energy management platforms, and market data feeds into unified operational architectures designed for resilience.',
+    'Educational institutions face the challenge of fragmented data across Student Information Systems, Learning Management Systems, and administrative portals. Regent builds unified, event-driven architectures that ensure data consistency and enable real-time student performance insights.',
+    'Real estate firms and investment platforms require a seamless bridge between physical asset data and digital portfolio management. We integrate property management ERPs with analytical platforms and blockchain ledgers to enable real-time reporting and asset tokenization.',
+    'Media and entertainment organizations must manage massive data flows and deliver low-latency content globally. We engineer streaming analytics fabrics and edge-computing microservices that optimize content distribution and audience engagement.',
   ][i],
   useCases: [
     ['Real-time trading system integration', 'Regulatory reporting automation', 'Risk data aggregation', 'Client data platform unification'],
@@ -379,6 +385,9 @@ export const industriesDetailed = industries.map((ind, i) => ({
     ['SCADA system integration', 'Asset management platform connectivity', 'Maintenance workflow automation', 'Operations center data consolidation'],
     ['ERP and CRM unification', 'Supply chain data integration', 'HR system connectivity', 'Business intelligence data consolidation'],
     ['SCADA and EMS integration', 'Market data feed management', 'Asset performance monitoring', 'Trading and scheduling system connectivity'],
+    ['SIS and LMS real-time synchronization', 'Unified student performance dashboards', 'Automated course enrollment workflows', 'Educational data warehouse population'],
+    ['Property management ERP integration', 'Real-time portfolio performance analytics', 'Real estate asset tokenization oracles', 'Automated rent-roll reconciliation'],
+    ['Multi-CDN streaming analytics', 'Edge-based content personalization', 'Real-time audience engagement telemetry', 'Automated ad-insertion orchestration'],
   ][i],
 }));
 

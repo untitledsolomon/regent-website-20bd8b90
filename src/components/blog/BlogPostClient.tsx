@@ -4,7 +4,7 @@ import { useState, useEffect, useMemo } from "react";
 import { motion, useScroll } from "framer-motion";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
-import { ArrowRight, ArrowLeft, Copy, Check } from "lucide-react";
+import { ArrowRight, ArrowLeft, Copy, Check, Calendar } from "lucide-react";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -303,20 +303,41 @@ export function BlogPostClient({ post }: { post: BlogPostFull }) {
             )}
           </div>
 
-          {/* Bottom CTA row */}
-          <div className="max-w-[720px] mx-auto mt-16 pt-8 border-t border-border flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-            <Link
-              href="/blog"
-              className="font-heading text-[13px] font-medium text-foreground border border-border rounded-lg px-[18px] py-[9px] inline-flex items-center gap-1.5 hover:bg-muted transition-all"
+          {/* Enhanced CTA Section */}
+          <div className="max-w-[800px] mx-auto mt-20">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.98 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true }}
+              className="bg-accent-light border border-primary/15 rounded-2xl p-8 md:p-12 text-center relative overflow-hidden"
             >
-              <ArrowLeft size={14} /> Back to Insights
-            </Link>
-            <Link
-              href="/contact"
-              className="font-heading text-[13px] font-medium bg-foreground text-background rounded-lg px-[18px] py-[9px] inline-flex items-center gap-1.5 hover:shadow-lg hover:-translate-y-px transition-all"
-            >
-              Start a Project <ArrowRight size={14} />
-            </Link>
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_-20%,hsl(var(--primary)/0.05)_0%,transparent_70%)]" />
+              <div className="relative z-10">
+                <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center mx-auto mb-6 text-primary">
+                  <Calendar size={24} />
+                </div>
+                <h3 className="font-heading text-2xl md:text-3xl font-semibold tracking-[-0.03em] text-foreground mb-4">
+                  Ready to optimize your systems?
+                </h3>
+                <p className="text-muted-foreground text-[16px] leading-[1.6] max-w-[500px] mx-auto mb-8">
+                  Our engineers are ready to discuss your architecture and how we can help you build institutional-grade infrastructure.
+                </p>
+                <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+                  <Link
+                    href="/demo"
+                    className="w-full sm:w-auto font-heading text-[15px] font-medium bg-primary text-primary-foreground rounded-lg px-8 py-4 inline-flex items-center justify-center gap-2 hover:shadow-lg hover:-translate-y-px transition-all"
+                  >
+                    Book a Discovery Call <ArrowRight size={16} />
+                  </Link>
+                  <Link
+                    href="/blog"
+                    className="w-full sm:w-auto font-heading text-[15px] font-medium bg-transparent text-foreground border border-border rounded-lg px-8 py-4 inline-flex items-center justify-center gap-2 hover:bg-muted transition-all"
+                  >
+                    <ArrowLeft size={16} /> Back to Blog
+                  </Link>
+                </div>
+              </div>
+            </motion.div>
           </div>
         </div>
       </section>
