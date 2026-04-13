@@ -6,6 +6,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { ArrowRight } from "lucide-react";
+import { trackConversion } from "@/hooks/useContentTracking";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -196,6 +197,7 @@ export function BlogClient({ posts }: { posts: BlogPost[] }) {
       } else {
         toast({ title: "Subscribed!", description: "You'll receive our latest insights." });
         setEmail("");
+        trackConversion("newsletter");
         supabase.functions.invoke("newsletter-welcome", { body: { email: trimmed } }).catch(() => {});
         supabase.functions.invoke("sync-resend-contact", { body: { email: trimmed } }).catch(() => {});
       }

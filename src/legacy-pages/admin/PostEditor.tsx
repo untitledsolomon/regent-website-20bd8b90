@@ -5,19 +5,20 @@ import { useParams, useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import RichTextEditor from "@/components/admin/RichTextEditor";
-import { ArrowLeft, Upload, X, Image as ImageIcon, Save, Eye, CalendarIcon, ChevronDown } from "lucide-react";
+import { ArrowLeft, Upload, X, Image as ImageIcon, Save, Eye, CalendarIcon, ChevronDown, Sparkles } from "lucide-react";
 import Link from "next/link";
 import { logActivity } from "@/hooks/useActivityLog";
 import { format } from "date-fns";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 
 const DRAFT_KEY_PREFIX = "regent_post_draft_";
 
 export default function PostEditor() {
   const supabase = createClient();
-  const params = useParams();
   const { id } = useParams() as { id?: string };
   const isEdit = !!id && id !== "new";
   const router = useRouter();
@@ -27,7 +28,8 @@ export default function PostEditor() {
   const [dragOver, setDragOver] = useState(false);
   const [showSeo, setShowSeo] = useState(false);
   const [draftBanner, setDraftBanner] = useState(false);
-  const autoSaveRef = useRef<NodeJS.Timeout | null>(null);
+  const [lastSaved, setLastSaved] = useState<Date | null>(null);
+
   const [form, setForm] = useState({
     title: "",
     slug: "",
@@ -78,18 +80,35 @@ export default function PostEditor() {
     };
 
     fetchPost();
-    // Check for draft
+    // Check for local draft
     const saved = localStorage.getItem(draftKey);
     if (saved) setDraftBanner(true);
   }, [id, isEdit]);
 
-  // Auto-save every 30s
+  // Database-backed Auto-save every 60s
   useEffect(() => {
-    autoSaveRef.current = setInterval(() => {
-      localStorage.setItem(draftKey, JSON.stringify(form));
-    }, 30000);
-    return () => { if (autoSaveRef.current) clearInterval(autoSaveRef.current); };
-  }, [form, draftKey]);
+    const autoSave = async () => {
+      if (!form.title || !isEdit) return;
+
+      try {
+        await fetch('/api/admin/autosave', {
+          method: 'POST',
+          body: JSON.stringify({
+            id,
+            type: 'blog_post',
+            content: form
+          })
+        });
+        setLastSaved(new Date());
+        localStorage.setItem(draftKey, JSON.stringify(form));
+      } catch (e) {
+        console.error("Autosave failed", e);
+      }
+    };
+
+    const timer = setInterval(autoSave, 60000);
+    return () => clearInterval(timer);
+  }, [form, id, isEdit, draftKey]);
 
   const restoreDraft = () => {
     const saved = localStorage.getItem(draftKey);
@@ -173,219 +192,227 @@ export default function PostEditor() {
     }
   };
 
-  const inputClass = "w-full h-10 border border-border rounded-lg px-3 text-sm bg-background text-text-primary focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all";
+  const inputClass = "w-full h-11 border border-border rounded-xl px-4 text-sm bg-card text-foreground focus:border-primary focus:ring-2 focus:ring-primary/10 outline-none transition-all";
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-[#F8F9FC] dark:bg-background">
       {/* Draft restore banner */}
       {draftBanner && (
-        <div className="bg-amber-50 border-b border-amber-200 px-4 sm:px-8 py-3 flex items-center justify-between gap-4">
-          <p className="text-sm text-amber-800">Unsaved draft found — would you like to restore it?</p>
+        <div className="bg-indigo-600 text-white px-8 py-3 flex items-center justify-between gap-4 animate-in slide-in-from-top duration-300">
+          <div className="flex items-center gap-3">
+            <Sparkles size={18} className="text-indigo-200" />
+            <p className="text-sm font-medium">We found an unsaved version of this post. Would you like to restore it?</p>
+          </div>
           <div className="flex gap-2">
-            <button onClick={restoreDraft} className="text-xs px-3 py-1.5 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-colors">Restore</button>
-            <button onClick={discardDraft} className="text-xs px-3 py-1.5 border border-amber-300 text-amber-700 rounded-lg hover:bg-amber-100 transition-colors">Discard</button>
+            <Button size="sm" onClick={restoreDraft} className="bg-white text-indigo-600 hover:bg-indigo-50 rounded-xl px-5 font-bold">Restore</Button>
+            <Button variant="ghost" size="sm" onClick={discardDraft} className="text-white hover:bg-white/10 rounded-xl px-5">Discard</Button>
           </div>
         </div>
       )}
 
       {/* Top bar */}
-      <div className="sticky top-0 z-10 bg-card/80 backdrop-blur-md border-b border-border">
-        <div className="flex items-center justify-between px-4 sm:px-8 h-14">
-          <div className="flex items-center gap-2 sm:gap-3">
-            <Link href="/admin" className="w-8 h-8 rounded-lg border border-border flex items-center justify-center hover:bg-surface transition-colors">
-              <ArrowLeft size={16} className="text-text-muted" />
+      <div className="sticky top-0 z-30 bg-card/80 backdrop-blur-xl border-b border-border">
+        <div className="flex items-center justify-between px-8 h-16">
+          <div className="flex items-center gap-4">
+            <Link href="/admin/posts">
+              <Button variant="ghost" size="icon" className="rounded-xl">
+                <ArrowLeft size={18} className="text-muted-foreground" />
+              </Button>
             </Link>
-            <h1 className="font-heading text-sm sm:text-base font-semibold text-text-primary">
-              {isEdit ? "Edit Post" : "New Post"}
-            </h1>
+            <div>
+              <h1 className="text-sm font-bold text-foreground">
+                {isEdit ? "Edit Blog Post" : "Create New Post"}
+              </h1>
+              {lastSaved && (
+                <p className="text-[10px] text-muted-foreground">Autosaved at {format(lastSaved, "HH:mm:ss")}</p>
+              )}
+            </div>
           </div>
-          <div className="flex items-center gap-2 sm:gap-3">
-            <label className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm text-text-secondary cursor-pointer select-none hover:text-text-primary transition-colors">
-              <input type="checkbox" checked={form.published} onChange={e => setForm(f => ({ ...f, published: e.target.checked }))} className="rounded border-border accent-primary" />
-              <Eye size={14} className="hidden sm:inline" />
-              <span className="hidden sm:inline">Published</span>
-              <span className="sm:hidden">Live</span>
-            </label>
-            <button
-              onClick={handleSave}
-              disabled={loading}
-              className="h-8 sm:h-9 px-3 sm:px-5 bg-primary text-primary-foreground rounded-lg text-xs sm:text-sm font-medium hover:bg-primary/90 transition-all disabled:opacity-50 flex items-center gap-1.5 sm:gap-2 shadow-sm shadow-primary/20"
-            >
-              <Save size={14} />
-              <span className="hidden sm:inline">{loading ? "Saving..." : "Save"}</span>
-              <span className="sm:hidden">{loading ? "..." : "Save"}</span>
-            </button>
+
+          <div className="flex items-center gap-4">
+            <Badge variant="outline" className={cn("rounded-full border-none px-3 py-1 text-[10px] font-bold uppercase tracking-wider", form.published ? "bg-emerald-500/10 text-emerald-600" : "bg-slate-500/10 text-slate-600")}>
+              {form.published ? "Live" : "Draft"}
+            </Badge>
+
+            <div className="h-6 w-px bg-border mx-1" />
+
+            <div className="flex items-center gap-2">
+              <Button
+                variant="ghost"
+                className="rounded-xl text-xs font-bold"
+                onClick={() => setForm(f => ({ ...f, published: !f.published }))}
+              >
+                {form.published ? "Switch to Draft" : "Make Live"}
+              </Button>
+              <Button
+                onClick={handleSave}
+                disabled={loading}
+                className="rounded-xl bg-primary hover:bg-primary/90 px-6 font-bold shadow-lg shadow-primary/20"
+              >
+                {loading ? "Saving..." : "Save Changes"}
+              </Button>
+            </div>
           </div>
         </div>
       </div>
 
       {/* Editor content */}
-      <div className="flex-1 px-4 sm:px-8 py-6 sm:py-8 w-full">
-        <div className="space-y-5 sm:space-y-6">
-          {/* Title */}
-          <div>
-            <input
-              value={form.title}
-              onChange={e => handleTitleChange(e.target.value)}
-              placeholder="Post title..."
-              className="w-full text-xl sm:text-2xl lg:text-3xl font-heading font-semibold tracking-[-0.03em] text-text-primary bg-transparent border-0 outline-none placeholder:text-text-muted/40"
-            />
-            <div className="flex items-center gap-2 mt-2">
-              <span className="text-xs text-text-muted font-mono">/blog/</span>
-              <input
-                value={form.slug}
-                onChange={e => setForm(f => ({ ...f, slug: e.target.value }))}
-                className="text-xs font-mono text-text-secondary bg-transparent border-0 outline-none flex-1"
-                placeholder="post-slug"
+      <div className="flex-1 px-8 py-10 w-full max-w-[1200px] mx-auto">
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-10">
+
+          <div className="space-y-8">
+            {/* Title */}
+            <div className="bg-card border border-border rounded-3xl p-8 shadow-sm">
+              <textarea
+                value={form.title}
+                onChange={e => handleTitleChange(e.target.value)}
+                placeholder="Enter a captivating title..."
+                className="w-full text-4xl font-heading font-bold tracking-tight text-foreground bg-transparent border-none outline-none placeholder:text-muted-foreground/30 resize-none min-h-[80px]"
+                rows={2}
+              />
+              <div className="flex items-center gap-2 mt-4 pt-4 border-t border-border">
+                <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-widest">Slug</span>
+                <span className="text-[11px] text-muted-foreground/50 font-mono">/blog/</span>
+                <input
+                  value={form.slug}
+                  onChange={e => setForm(f => ({ ...f, slug: e.target.value }))}
+                  className="text-[11px] font-mono text-primary bg-transparent border-none outline-none flex-1 font-bold"
+                  placeholder="post-slug-here"
+                />
+              </div>
+            </div>
+
+            {/* Content */}
+            <div className="bg-card border border-border rounded-3xl p-8 shadow-sm">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-sm font-bold uppercase tracking-widest text-muted-foreground">Article Content</h3>
+                <div className="flex gap-2">
+                  <Button variant="ghost" size="sm" className="h-8 rounded-lg text-[11px] font-bold">Preview</Button>
+                </div>
+              </div>
+              <RichTextEditor content={form.content} onChange={content => setForm(f => ({ ...f, content }))} placeholder="Start writing your story..." />
+            </div>
+
+            {/* Excerpt */}
+            <div className="bg-card border border-border rounded-3xl p-8 shadow-sm">
+              <h3 className="text-sm font-bold uppercase tracking-widest text-muted-foreground mb-4">Summary / Excerpt</h3>
+              <textarea
+                value={form.excerpt}
+                onChange={e => setForm(f => ({ ...f, excerpt: e.target.value }))}
+                rows={4}
+                placeholder="Briefly describe what this article is about for SEO and cards..."
+                className="w-full border border-border rounded-2xl p-4 text-sm bg-muted/30 text-foreground focus:border-primary outline-none transition-all resize-none"
               />
             </div>
           </div>
 
-          <div className="h-px bg-border" />
-
-          {/* Cover Image */}
-          <div>
-            <label className="block text-xs font-medium uppercase tracking-wider text-text-muted mb-2">Cover Image</label>
-            {form.image_url ? (
-              <div className="relative rounded-xl overflow-hidden border border-border group">
-                <img src={form.image_url} alt="Cover" className="w-full h-36 sm:h-48 object-cover" />
-                <div className="absolute inset-0 bg-foreground/0 group-hover:bg-foreground/20 transition-colors duration-200" />
-                <button
-                  onClick={() => setForm(f => ({ ...f, image_url: null }))}
-                  className="absolute top-3 right-3 h-8 w-8 bg-card/90 backdrop-blur rounded-lg flex items-center justify-center text-destructive hover:bg-destructive hover:text-destructive-foreground border border-border transition-all opacity-0 group-hover:opacity-100"
-                >
-                  <X size={14} />
-                </button>
-              </div>
-            ) : (
-              <div
-                onDragOver={e => { e.preventDefault(); setDragOver(true); }}
-                onDragLeave={() => setDragOver(false)}
-                onDrop={handleDrop}
-                className={`border-2 border-dashed rounded-xl p-6 sm:p-8 text-center transition-all duration-200 cursor-pointer ${
-                  dragOver ? "border-primary bg-primary/5" : "border-border hover:border-primary/30 hover:bg-surface"
-                }`}
-                onClick={() => document.getElementById("cover-upload")?.click()}
-              >
-                <input id="cover-upload" type="file" accept="image/*" onChange={handleImageUpload} className="hidden" />
-                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-surface border border-border flex items-center justify-center mx-auto mb-2 sm:mb-3">
-                  {uploading ? (
-                    <div className="w-5 h-5 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
-                  ) : (
-                    <ImageIcon size={18} className="text-text-muted sm:w-5 sm:h-5" />
+          <aside className="space-y-6">
+            {/* Cover Image */}
+            <div className="bg-card border border-border rounded-3xl p-6 shadow-sm">
+              <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-4">Cover Media</h3>
+              {form.image_url ? (
+                <div className="relative rounded-2xl overflow-hidden border border-border group aspect-[16/10]">
+                  <img src={form.image_url} alt="Cover" className="w-full h-full object-cover" />
+                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                    <Button size="icon" variant="secondary" className="rounded-xl h-9 w-9" onClick={() => document.getElementById("cover-upload")?.click()}>
+                      <Upload size={16} />
+                    </Button>
+                    <Button size="icon" variant="destructive" className="rounded-xl h-9 w-9" onClick={() => setForm(f => ({ ...f, image_url: null }))}>
+                      <X size={16} />
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <div
+                  onDragOver={e => { e.preventDefault(); setDragOver(true); }}
+                  onDragLeave={() => setDragOver(false)}
+                  onDrop={handleDrop}
+                  className={cn(
+                    "border-2 border-dashed rounded-2xl p-8 text-center transition-all cursor-pointer aspect-[16/10] flex flex-col items-center justify-center",
+                    dragOver ? "border-primary bg-primary/5" : "border-border hover:border-primary/30"
                   )}
+                  onClick={() => document.getElementById("cover-upload")?.click()}
+                >
+                  <input id="cover-upload" type="file" accept="image/*" onChange={handleImageUpload} className="hidden" />
+                  <div className="w-12 h-12 rounded-2xl bg-muted flex items-center justify-center mb-4">
+                    {uploading ? (
+                      <div className="w-5 h-5 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
+                    ) : (
+                      <ImageIcon size={20} className="text-muted-foreground" />
+                    )}
+                  </div>
+                  <p className="text-xs font-bold text-foreground">Upload Image</p>
+                  <p className="text-[10px] text-muted-foreground mt-1">1600x900 recommended</p>
                 </div>
-                <p className="text-xs sm:text-sm font-medium text-text-secondary">
-                  {uploading ? "Uploading..." : "Drop image here or click to upload"}
-                </p>
-                <p className="text-xs text-text-muted mt-1">PNG, JPG up to 5MB</p>
-              </div>
-            )}
-          </div>
+              )}
+            </div>
 
-          {/* Meta fields */}
-          <div>
-            <label className="block text-xs font-medium uppercase tracking-wider text-text-muted mb-2 sm:mb-3">Post Details</label>
-            <div className="bg-card border border-border rounded-xl p-4 sm:p-5 space-y-3 sm:space-y-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+            {/* Settings */}
+            <div className="bg-card border border-border rounded-3xl p-6 shadow-sm space-y-6">
+              <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-2">Publishing Settings</h3>
+
+              <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-text-primary mb-1.5">Category</label>
-                  <input value={form.category} onChange={e => setForm(f => ({ ...f, category: e.target.value }))} className={inputClass} placeholder="e.g. AI, Technology" />
+                  <label className="text-[11px] font-bold text-muted-foreground uppercase block mb-1.5 ml-1">Category</label>
+                  <input value={form.category} onChange={e => setForm(f => ({ ...f, category: e.target.value }))} className={inputClass} placeholder="e.g. Technology" />
                 </div>
+
                 <div>
-                  <label className="block text-sm font-medium text-text-primary mb-1.5">Read Time</label>
-                  <input value={form.read_time} onChange={e => setForm(f => ({ ...f, read_time: e.target.value }))} placeholder="e.g. 8 min" className={inputClass} />
+                  <label className="text-[11px] font-bold text-muted-foreground uppercase block mb-1.5 ml-1">Read Time</label>
+                  <input value={form.read_time} onChange={e => setForm(f => ({ ...f, read_time: e.target.value }))} placeholder="8 min" className={inputClass} />
                 </div>
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+
                 <div>
-                  <label className="block text-sm font-medium text-text-primary mb-1.5">Author</label>
+                  <label className="text-[11px] font-bold text-muted-foreground uppercase block mb-1.5 ml-1">Author</label>
                   <input value={form.author} onChange={e => setForm(f => ({ ...f, author: e.target.value }))} className={inputClass} />
                 </div>
+
                 <div>
-                  <label className="block text-sm font-medium text-text-primary mb-1.5">Date</label>
-                  <input value={form.date} onChange={e => setForm(f => ({ ...f, date: e.target.value }))} className={inputClass} />
-                </div>
-              </div>
-              {/* Schedule */}
-              <div>
-                <label className="block text-sm font-medium text-text-primary mb-1.5">Schedule Publish</label>
-                <div className="flex items-center gap-3">
+                  <label className="text-[11px] font-bold text-muted-foreground uppercase block mb-1.5 ml-1">Schedule</label>
                   <Popover>
                     <PopoverTrigger asChild>
-                      <button className={cn("h-10 border border-border rounded-lg px-3 text-sm bg-background text-left flex items-center gap-2 min-w-[200px]", !form.publish_at && "text-text-muted")}>
-                        <CalendarIcon size={14} />
-                        {form.publish_at ? format(form.publish_at, "PPP") : "No schedule (immediate)"}
-                      </button>
+                      <Button variant="outline" className={cn("w-full h-11 justify-start font-normal rounded-xl border-border bg-card", !form.publish_at && "text-muted-foreground")}>
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {form.publish_at ? format(form.publish_at, "PPP") : "Set date"}
+                      </Button>
                     </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
+                    <PopoverContent className="w-auto p-0 rounded-2xl overflow-hidden shadow-2xl" align="end">
                       <Calendar
                         mode="single"
                         selected={form.publish_at || undefined}
                         onSelect={(d) => setForm(f => ({ ...f, publish_at: d || null }))}
                         disabled={(date) => date < new Date()}
                         initialFocus
-                        className={cn("p-3 pointer-events-auto")}
                       />
                     </PopoverContent>
                   </Popover>
-                  {form.publish_at && (
-                    <button onClick={() => setForm(f => ({ ...f, publish_at: null }))} className="text-xs text-destructive hover:underline">Clear</button>
-                  )}
                 </div>
-                {form.publish_at && (
-                  <p className="text-xs text-text-muted mt-1.5">Post will go live on {format(form.publish_at, "PPP")}</p>
-                )}
               </div>
             </div>
-          </div>
 
-          {/* Excerpt */}
-          <div>
-            <label className="block text-xs font-medium uppercase tracking-wider text-text-muted mb-2">Excerpt</label>
-            <textarea
-              value={form.excerpt}
-              onChange={e => setForm(f => ({ ...f, excerpt: e.target.value }))}
-              rows={3}
-              placeholder="Brief summary of the post..."
-              className={`${inputClass} h-auto py-2.5 resize-y`}
-            />
-          </div>
-
-          {/* Content */}
-          <div>
-            <label className="block text-xs font-medium uppercase tracking-wider text-text-muted mb-2">Content</label>
-            <RichTextEditor content={form.content} onChange={content => setForm(f => ({ ...f, content }))} placeholder="Write your blog post..." />
-          </div>
-
-          {/* SEO Settings */}
-          <div className="border border-border rounded-xl overflow-hidden">
-            <button
-              onClick={() => setShowSeo(!showSeo)}
-              className="w-full flex items-center justify-between px-5 py-3.5 bg-card hover:bg-surface transition-colors"
-            >
-              <span className="text-xs font-medium uppercase tracking-wider text-text-muted">SEO Settings</span>
-              <ChevronDown size={16} className={cn("text-text-muted transition-transform", showSeo && "rotate-180")} />
-            </button>
-            {showSeo && (
-              <div className="p-4 sm:p-5 space-y-4 border-t border-border">
-                <div>
-                  <label className="block text-sm font-medium text-text-primary mb-1.5">Meta Title</label>
-                  <input value={form.meta_title} onChange={e => setForm(f => ({ ...f, meta_title: e.target.value }))} className={inputClass} placeholder="Custom title for search engines (defaults to post title)" />
-                  <p className="text-xs text-text-muted mt-1">{form.meta_title.length}/60 characters</p>
+            {/* SEO */}
+            <div className="bg-card border border-border rounded-3xl overflow-hidden shadow-sm">
+              <button
+                onClick={() => setShowSeo(!showSeo)}
+                className="w-full flex items-center justify-between p-6 hover:bg-muted/30 transition-colors"
+              >
+                <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground">SEO Optimization</h3>
+                <ChevronDown size={16} className={cn("text-muted-foreground transition-transform", showSeo && "rotate-180")} />
+              </button>
+              {showSeo && (
+                <div className="px-6 pb-6 space-y-4 animate-in fade-in slide-in-from-top-2 duration-300">
+                  <div>
+                    <label className="text-[11px] font-bold text-muted-foreground uppercase block mb-1.5 ml-1">Meta Title</label>
+                    <input value={form.meta_title} onChange={e => setForm(f => ({ ...f, meta_title: e.target.value }))} className={inputClass} placeholder="Focus keyword here" />
+                  </div>
+                  <div>
+                    <label className="text-[11px] font-bold text-muted-foreground uppercase block mb-1.5 ml-1">Meta Description</label>
+                    <textarea value={form.meta_description} onChange={e => setForm(f => ({ ...f, meta_description: e.target.value }))} rows={3} className={cn(inputClass, "h-auto py-3 resize-none")} placeholder="Summarize the value..." />
+                  </div>
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-text-primary mb-1.5">Meta Description</label>
-                  <textarea value={form.meta_description} onChange={e => setForm(f => ({ ...f, meta_description: e.target.value }))} rows={2} className={`${inputClass} h-auto py-2.5 resize-y`} placeholder="Custom description for search engines (defaults to excerpt)" />
-                  <p className="text-xs text-text-muted mt-1">{form.meta_description.length}/160 characters</p>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-text-primary mb-1.5">OG Image URL</label>
-                  <input value={form.og_image} onChange={e => setForm(f => ({ ...f, og_image: e.target.value }))} className={inputClass} placeholder="Custom social sharing image URL" />
-                </div>
-              </div>
-            )}
-          </div>
+              )}
+            </div>
+          </aside>
         </div>
       </div>
     </div>

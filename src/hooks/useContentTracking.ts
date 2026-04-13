@@ -127,18 +127,29 @@ export function useTrackView(contentType: string, contentId: string | undefined)
       const timeOnPage = Math.round((Date.now() - startTimeRef.current) / 1000);
       const scrollDepth = stopScrollTracking();
 
-      // Use sendBeacon for reliability on page unload
+      // Use fetch with keepalive for reliability on page unload
       const url = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/content_views?id=eq.${viewIdRef.current}`;
       const body = JSON.stringify({ time_on_page: timeOnPage, scroll_depth: scrollDepth });
-      navigator.sendBeacon(
-        url,
-        new Blob([body], { type: "application/json" })
-      );
+
+      fetch(url, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '',
+          'Authorization': `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''}`
+        },
+        body,
+        keepalive: true
+      });
     };
 
-    window.addEventListener("beforeunload", handleUnload);
+    window.addEventListener("visibilitychange", () => {
+      if (document.visibilityState === 'hidden') {
+        handleUnload();
+      }
+    });
+
     return () => {
-      window.removeEventListener("beforeunload", handleUnload);
       // Also update on component unmount (SPA navigation)
       if (viewIdRef.current) {
         const timeOnPage = Math.round((Date.now() - startTimeRef.current) / 1000);

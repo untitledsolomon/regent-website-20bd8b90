@@ -57,11 +57,21 @@ export default function CaseStudyEditor() {
   }, [id, isEdit]);
 
   useEffect(() => {
-    autoSaveRef.current = setInterval(() => {
-      localStorage.setItem(draftKey, JSON.stringify(form));
-    }, 30000);
+    const autoSave = async () => {
+      if (!form.title || !isEdit) return;
+      try {
+        await fetch('/api/admin/autosave', {
+          method: 'POST',
+          body: JSON.stringify({ id, type: 'case_study', content: form })
+        });
+        localStorage.setItem(draftKey, JSON.stringify(form));
+      } catch (e) {
+        console.error("Autosave failed", e);
+      }
+    };
+    autoSaveRef.current = setInterval(autoSave, 60000);
     return () => { if (autoSaveRef.current) clearInterval(autoSaveRef.current); };
-  }, [form, draftKey]);
+  }, [form, id, isEdit, draftKey]);
 
   const restoreDraft = () => {
     const saved = localStorage.getItem(draftKey);
