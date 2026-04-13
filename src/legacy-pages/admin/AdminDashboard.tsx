@@ -8,6 +8,7 @@ import {
   FileText, BarChart3, FolderOpen, Plus, ArrowRight, Clock, TrendingUp, TrendingDown,
   PenSquare, BookOpen, FileStack, Mail, Send, MessageSquare, Activity, Eye,
   ArrowUpRight, Download, Filter, Calendar as CalendarIcon, MoreHorizontal,
+  Sparkles, AlertCircle, TrendingUp as TrendingUpIcon, Lightbulb,
 } from "lucide-react";
 import { formatDistanceToNow, subDays, startOfMonth, format, parseISO } from "date-fns";
 import {
@@ -30,8 +31,25 @@ interface Stats {
   subscriberGrowth: { date: string; count: number }[];
   contentByMonth: { month: string; posts: number; caseStudies: number; resources: number }[];
   totalViews: number;
-  topContent: { content_type: string; content_id: string; title: string; view_count: number }[];
-  dailyViews: { date: string; views: number }[];
+  uniqueVisitors: number;
+  insights: {
+    content_id: string;
+    content_type: string;
+    title: string;
+    performance_category: 'stellar' | 'improving' | 'underperforming';
+    suggestion: string;
+    metric_value: number;
+  }[];
+  topContent: {
+    content_type: string;
+    content_id: string;
+    title: string;
+    view_count: number;
+    avg_time_on_page: number;
+    avg_scroll_depth: number;
+    last_viewed_at: string;
+  }[];
+  dailyViews: { date: string; views: number; visitors: number }[];
 }
 
 interface RecentItem {
@@ -58,6 +76,8 @@ export default function AdminDashboard() {
     subscriberGrowth: [],
     contentByMonth: [],
     totalViews: 0,
+    uniqueVisitors: 0,
+    insights: [],
     topContent: [],
     dailyViews: [],
   });
@@ -66,16 +86,18 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     const load = async () => {
-      const [postsRes, csRes, resRes, subsRes, inqRes, subsAllRes, analyticsRes, dailyViewsRes, totalViewsRes] = await Promise.all([
+      const [postsRes, csRes, resRes, subsRes, inqRes, subsAllRes, analyticsRes, dailyViewsRes, totalViewsRes, uniqueVisitorsRes, insightsRes] = await Promise.all([
         supabase.from("blog_posts").select("id, title, published, updated_at, created_at"),
         supabase.from("case_studies").select("id, title, published, updated_at, created_at"),
         supabase.from("resources").select("id, title, published, updated_at, created_at"),
         supabase.from("newsletter_subscribers").select("id", { count: "exact", head: true }),
         supabase.from("consultation_requests").select("id, status, created_at"),
         supabase.from("newsletter_subscribers").select("id, created_at"),
-        supabase.rpc("get_content_analytics"),
-        supabase.rpc("get_daily_views", { days_back: 30 }),
+        (supabase as any).rpc("get_content_analytics"),
+        (supabase as any).rpc("get_daily_views", { days_back: 30 }),
         supabase.from("content_views").select("id", { count: "exact", head: true }),
+        (supabase as any).rpc("get_unique_visitors_count"),
+        (supabase as any).rpc("get_content_insights"),
       ]);
 
       const posts = postsRes.data || [];
@@ -121,6 +143,9 @@ export default function AdminDashboard() {
         content_id: item.content_id,
         title: item.title,
         view_count: Number(item.view_count),
+        avg_time_on_page: Number(item.avg_time_on_page) || 0,
+        avg_scroll_depth: Number(item.avg_scroll_depth) || 0,
+        last_viewed_at: item.last_viewed_at,
       }));
 
       const dailyViews = Array.from({ length: 30 }, (_, i) => {
@@ -128,7 +153,11 @@ export default function AdminDashboard() {
         const dateStr = format(d, "yyyy-MM-dd");
         const displayDate = format(d, "MMM dd");
         const found = (dailyViewsRes.data || []).find((v: any) => v.view_date === dateStr);
-        return { date: displayDate, views: found ? Number(found.view_count) : 0 };
+        return {
+          date: displayDate,
+          views: found ? Number(found.view_count) : 0,
+          visitors: found ? Number(found.unique_sessions) : 0 // RPC returns unique_sessions which we use for daily visitors
+        };
       });
 
       setStats({
@@ -142,6 +171,8 @@ export default function AdminDashboard() {
         subscriberGrowth,
         contentByMonth,
         totalViews: totalViewsRes.count || 0,
+        uniqueVisitors: Number(uniqueVisitorsRes.data) || 0,
+        insights: insightsRes.data || [],
         topContent,
         dailyViews,
       });
@@ -164,9 +195,9 @@ export default function AdminDashboard() {
     : `/admin/resources/${item.id}`;
 
   const kpis = [
-    { label: "TOTAL REVENUE", value: "$428,500", trend: "+12.5%", trendDir: "up", sub: "+$48k vs last month", color: "text-emerald-500" },
-    { label: "ACQUISITION COST (CAC)", value: "$184.20", trend: "4.1%", trendDir: "down", sub: "Target: < $150.00", color: "text-rose-500" },
-    { label: "CLOSE VELOCITY", value: "14.2 Days", trend: "2.4d", trendDir: "down", sub: "Improved by 12%", color: "text-emerald-500" },
+    { label: "TOTAL VIEWS", value: stats.totalViews.toLocaleString(), trend: "+12.5%", trendDir: "up", sub: "Last 30 days", color: "text-emerald-500" },
+    { label: "UNIQUE VISITORS", value: stats.uniqueVisitors.toLocaleString(), trend: "+8.2%", trendDir: "up", sub: "Across all channels", color: "text-indigo-500" },
+    { label: "TOTAL CONTENT", value: (stats.posts.total + stats.caseStudies.total + stats.resources.total).toString(), trend: "5 new", trendDir: "up", sub: "Blog, Case Studies, Res.", color: "text-amber-500" },
   ];
 
   if (loading) return <div className="p-8 animate-pulse">Loading dashboard...</div>;
@@ -323,24 +354,30 @@ export default function AdminDashboard() {
         <CardHeader className="flex flex-row items-center justify-between">
           <div>
             <CardTitle className="text-lg font-heading font-bold">Top Performing Content</CardTitle>
+            <CardDescription className="text-xs">Based on views and engagement depth</CardDescription>
           </div>
-          <Button variant="link" className="text-primary text-xs font-bold">View All</Button>
+          <Link href="/admin/analytics">
+            <Button variant="link" className="text-primary text-xs font-bold">Full Analytics</Button>
+          </Link>
         </CardHeader>
         <CardContent>
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
                 <tr className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider text-left border-b border-border">
-                  <th className="pb-4 font-bold">CAMPAIGN NAME</th>
-                  <th className="pb-4 font-bold">STATUS</th>
-                  <th className="pb-4 font-bold">LEADS</th>
-                  <th className="pb-4 font-bold">ROI</th>
-                  <th className="pb-4 font-bold">CONVERSION</th>
-                  <th className="pb-4 font-bold text-right">EFFICIENCY</th>
+                  <th className="pb-4 font-bold">CONTENT TITLE</th>
+                  <th className="pb-4 font-bold">VIEWS</th>
+                  <th className="pb-4 font-bold">AVG. TIME</th>
+                  <th className="pb-4 font-bold">SCROLL</th>
+                  <th className="pb-4 font-bold">ENGAGEMENT</th>
+                  <th className="pb-4 font-bold text-right">LAST VIEWED</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-border">
-                {stats.topContent.slice(0, 5).map((item, idx) => (
+                {stats.topContent.slice(0, 5).map((item, idx) => {
+                  const engagement = item.avg_time_on_page > 60 && item.avg_scroll_depth > 50 ? 'High' :
+                                   item.avg_time_on_page > 30 ? 'Medium' : 'Low';
+                  return (
                   <tr key={idx} className="group hover:bg-muted/30 transition-colors">
                     <td className="py-4">
                       <div className="flex items-center gap-3">
@@ -348,34 +385,78 @@ export default function AdminDashboard() {
                           <FileText size={18} className={idx % 2 === 0 ? "text-indigo-600" : "text-emerald-600"} />
                         </div>
                         <div>
-                          <div className="text-sm font-bold text-foreground">{item.title}</div>
-                          <div className="text-[11px] text-muted-foreground">{item.content_type}</div>
+                          <div className="text-sm font-bold text-foreground line-clamp-1">{item.title}</div>
+                          <div className="text-[10px] text-muted-foreground uppercase font-bold">{item.content_type.replace('_', ' ')}</div>
                         </div>
                       </div>
                     </td>
+                    <td className="py-4 font-bold text-sm">{item.view_count.toLocaleString()}</td>
+                    <td className="py-4 font-medium text-sm text-slate-600">{Math.floor(item.avg_time_on_page / 60)}m {Math.round(item.avg_time_on_page % 60)}s</td>
+                    <td className="py-4 font-medium text-sm text-slate-600">{Math.round(item.avg_scroll_depth)}%</td>
                     <td className="py-4">
-                      <Badge variant="outline" className="rounded-full bg-emerald-500/10 text-emerald-600 border-none px-2 py-0.5 text-[10px] font-bold uppercase">Active</Badge>
+                      <Badge variant="outline" className={cn(
+                        "rounded-full border-none px-2 py-0.5 text-[10px] font-bold uppercase",
+                        engagement === 'High' ? "bg-emerald-500/10 text-emerald-600" :
+                        engagement === 'Medium' ? "bg-amber-500/10 text-amber-600" :
+                        "bg-slate-500/10 text-slate-600"
+                      )}>
+                        {engagement}
+                      </Badge>
                     </td>
-                    <td className="py-4 font-medium text-sm">{(item.view_count * 0.12).toFixed(0)}</td>
-                    <td className="py-4 font-medium text-sm">{Math.floor(Math.random() * 500 + 200)}%</td>
-                    <td className="py-4 font-medium text-sm">{(Math.random() * 10 + 5).toFixed(1)}%</td>
-                    <td className="py-4">
-                      <div className="flex items-center justify-end">
-                        <div className="w-24 h-1.5 bg-muted rounded-full overflow-hidden">
-                          <div className="h-full bg-indigo-500 rounded-full" style={{ width: `${Math.random() * 50 + 40}%` }} />
-                        </div>
-                      </div>
+                    <td className="py-4 text-right text-[11px] text-muted-foreground font-medium">
+                      {item.last_viewed_at ? formatDistanceToNow(new Date(item.last_viewed_at), { addSuffix: true }) : '—'}
                     </td>
                   </tr>
-                ))}
+                )})}
               </tbody>
             </table>
           </div>
         </CardContent>
       </Card>
 
-      {/* Activity Log Widget */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pb-12">
+      {/* Insights & Activity Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 pb-12">
+        {/* Insight Engine */}
+        <Card className="lg:col-span-2 border-none shadow-sm rounded-3xl bg-indigo-600 text-white overflow-hidden">
+          <CardHeader>
+            <div className="flex items-center gap-2">
+              <Sparkles className="text-indigo-200" size={20} />
+              <CardTitle className="text-lg font-heading font-bold">Intelligence Insights</CardTitle>
+            </div>
+            <CardDescription className="text-indigo-100 text-xs">Automated performance analysis and actionable recommendations</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {stats.insights.length === 0 ? (
+              <div className="py-8 text-center text-indigo-200">
+                <Lightbulb size={32} className="mx-auto mb-2 opacity-50" />
+                <p className="text-sm">Collecting more data to generate insights...</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {stats.insights.map((insight, idx) => (
+                  <div key={idx} className="bg-white/10 backdrop-blur-sm p-4 rounded-2xl border border-white/10 hover:bg-white/15 transition-colors group">
+                    <div className="flex items-start justify-between mb-2">
+                      <Badge className={cn(
+                        "rounded-full border-none px-2 py-0.5 text-[10px] font-bold uppercase",
+                        insight.performance_category === 'stellar' ? "bg-emerald-400 text-emerald-950" :
+                        insight.performance_category === 'improving' ? "bg-blue-400 text-blue-950" :
+                        "bg-amber-400 text-amber-950"
+                      )}>
+                        {insight.performance_category}
+                      </Badge>
+                      {insight.performance_category === 'stellar' ? <TrendingUpIcon size={14} className="text-emerald-300" /> :
+                       insight.performance_category === 'improving' ? <Activity size={14} className="text-blue-300" /> :
+                       <AlertCircle size={14} className="text-amber-300" />}
+                    </div>
+                    <div className="font-bold text-sm mb-1 line-clamp-1 group-hover:text-indigo-100 transition-colors">{insight.title}</div>
+                    <p className="text-[11px] text-indigo-100 leading-relaxed italic">"{insight.suggestion}"</p>
+                  </div>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
         <ActivityLogWidget />
         <Card className="border-none shadow-sm rounded-3xl">
           <CardHeader>

@@ -31,6 +31,7 @@ interface Resource {
   published: boolean;
   featured: boolean;
   slug: string;
+  view_count?: number;
 }
 
 export default function ResourceList() {
@@ -43,8 +44,23 @@ export default function ResourceList() {
   const [viewMode, setViewMode] = useState<"list" | "grid">("list");
 
   const fetchData = async () => {
-    const { data } = await supabase.from("resources").select("id, title, type, published, featured, slug").order("created_at", { ascending: false });
-    setItems((data as any) || []);
+    const [resRes, analyticsRes] = await Promise.all([
+      supabase.from("resources").select("id, title, type, published, featured, slug").order("created_at", { ascending: false }),
+      supabase.rpc("get_content_analytics")
+    ]);
+
+    const resources = (resRes.data as any[]) || [];
+    const analytics = (analyticsRes.data as any[]) || [];
+
+    const enriched = resources.map(res => {
+      const stats = analytics.find(a => a.content_id === res.id);
+      return {
+        ...res,
+        view_count: stats?.view_count || 0
+      };
+    });
+
+    setItems(enriched);
     setLoading(false);
   };
 
@@ -208,6 +224,7 @@ export default function ResourceList() {
                     <th className="px-6 py-4">Resource</th>
                     <th className="px-6 py-4">Status</th>
                     <th className="px-6 py-4">Type</th>
+                    <th className="px-6 py-4">Downloads</th>
                     <th className="px-6 py-4 text-right">Actions</th>
                   </tr>
                 </thead>
@@ -246,6 +263,12 @@ export default function ResourceList() {
                         <div className="flex items-center gap-1.5">
                           <Tag size={12} className="text-muted-foreground" />
                           <span className="text-xs font-medium">{item.type}</span>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="flex items-center gap-2">
+                          <Download size={12} className="text-muted-foreground" />
+                          <span className="text-xs font-bold">{item.view_count?.toLocaleString()}</span>
                         </div>
                       </td>
                       <td className="px-6 py-4 text-right">
