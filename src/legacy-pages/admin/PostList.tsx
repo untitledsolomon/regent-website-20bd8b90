@@ -34,6 +34,9 @@ interface Post {
   updated_at: string;
   publish_at: string | null;
   author: string;
+  view_count?: number;
+  avg_time_on_page?: number;
+  avg_scroll_depth?: number;
 }
 
 export default function PostList() {
@@ -46,8 +49,25 @@ export default function PostList() {
   const [viewMode, setViewMode] = useState<"list" | "grid">("list");
 
   const fetchData = async () => {
-    const { data } = await supabase.from("blog_posts").select("id, title, slug, category, published, updated_at, publish_at, author").order("created_at", { ascending: false });
-    setItems((data as any) || []);
+    const [postsRes, analyticsRes] = await Promise.all([
+      supabase.from("blog_posts").select("id, title, slug, category, published, updated_at, publish_at, author").order("created_at", { ascending: false }),
+      supabase.rpc("get_content_analytics")
+    ]);
+
+    const posts = (postsRes.data as any[]) || [];
+    const analytics = (analyticsRes.data as any[]) || [];
+
+    const enriched = posts.map(post => {
+      const stats = analytics.find(a => a.content_id === post.id);
+      return {
+        ...post,
+        view_count: stats?.view_count || 0,
+        avg_time_on_page: stats?.avg_time_on_page || 0,
+        avg_scroll_depth: stats?.avg_scroll_depth || 0
+      };
+    });
+
+    setItems(enriched);
     setLoading(false);
   };
 
@@ -229,6 +249,7 @@ export default function PostList() {
                     <th className="px-6 py-4">Article</th>
                     <th className="px-6 py-4">Status</th>
                     <th className="px-6 py-4">Category</th>
+                    <th className="px-6 py-4">Performance</th>
                     <th className="px-6 py-4">Last Updated</th>
                     <th className="px-6 py-4 text-right">Actions</th>
                   </tr>
@@ -269,6 +290,24 @@ export default function PostList() {
                         <div className="flex items-center gap-1.5">
                           <Tag size={12} className="text-muted-foreground" />
                           <span className="text-xs font-medium">{item.category}</span>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="flex flex-col gap-1">
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs font-bold">{item.view_count?.toLocaleString()} views</span>
+                            {item.avg_time_on_page && item.avg_time_on_page > 0 && (
+                              <Badge variant="outline" className={cn(
+                                "rounded-full border-none px-1.5 py-0 text-[9px] font-bold uppercase",
+                                item.avg_time_on_page > 60 ? "bg-emerald-500/10 text-emerald-600" : "bg-slate-500/10 text-slate-600"
+                              )}>
+                                {item.avg_time_on_page > 60 ? 'High' : 'Low'} Eng.
+                              </Badge>
+                            )}
+                          </div>
+                          <div className="w-20 h-1 bg-muted rounded-full overflow-hidden">
+                            <div className="h-full bg-indigo-500" style={{ width: `${Math.min((item.avg_scroll_depth || 0), 100)}%` }} />
+                          </div>
                         </div>
                       </td>
                       <td className="px-6 py-4">

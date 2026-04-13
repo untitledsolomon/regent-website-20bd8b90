@@ -110,7 +110,7 @@ export default function AdminAnalytics() {
     const [detailRes, audienceRes, analyticsRes, dailyRes, totalRes, prevTotalRes, convRes] = await Promise.all([
       supabase.rpc("get_analytics_detail", { p_limit: 200, p_offset: 0 }),
       supabase.rpc("get_audience_breakdown"),
-      supabase.rpc("get_content_analytics"),
+      (supabase as any).rpc("get_content_analytics"),
       supabase.rpc("get_daily_views", { days_back: daysBack }),
       supabase
         .from("content_views")

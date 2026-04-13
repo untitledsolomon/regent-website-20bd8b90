@@ -33,6 +33,9 @@ interface CaseStudy {
   published: boolean;
   publish_at: string | null;
   updated_at: string;
+  view_count?: number;
+  avg_time_on_page?: number;
+  avg_scroll_depth?: number;
 }
 
 export default function CaseStudyList() {
@@ -45,8 +48,25 @@ export default function CaseStudyList() {
   const [viewMode, setViewMode] = useState<"list" | "grid">("list");
 
   const fetchData = async () => {
-    const { data } = await supabase.from("case_studies").select("id, slug, title, industry, published, publish_at, updated_at").order("created_at", { ascending: false });
-    setItems((data as any) || []);
+    const [csRes, analyticsRes] = await Promise.all([
+      supabase.from("case_studies").select("id, slug, title, industry, published, publish_at, updated_at").order("created_at", { ascending: false }),
+      supabase.rpc("get_content_analytics")
+    ]);
+
+    const studies = (csRes.data as any[]) || [];
+    const analytics = (analyticsRes.data as any[]) || [];
+
+    const enriched = studies.map(study => {
+      const stats = analytics.find(a => a.content_id === study.id);
+      return {
+        ...study,
+        view_count: stats?.view_count || 0,
+        avg_time_on_page: stats?.avg_time_on_page || 0,
+        avg_scroll_depth: stats?.avg_scroll_depth || 0
+      };
+    });
+
+    setItems(enriched);
     setLoading(false);
   };
 
@@ -215,6 +235,7 @@ export default function CaseStudyList() {
                     <th className="px-6 py-4">Case Study</th>
                     <th className="px-6 py-4">Status</th>
                     <th className="px-6 py-4">Industry</th>
+                    <th className="px-6 py-4">Performance</th>
                     <th className="px-6 py-4 text-right">Actions</th>
                   </tr>
                 </thead>
@@ -252,6 +273,24 @@ export default function CaseStudyList() {
                         <div className="flex items-center gap-1.5">
                           <Briefcase size={12} className="text-muted-foreground" />
                           <span className="text-xs font-medium">{item.industry}</span>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="flex flex-col gap-1">
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs font-bold">{item.view_count?.toLocaleString()} views</span>
+                            {item.avg_time_on_page && item.avg_time_on_page > 0 && (
+                              <Badge variant="outline" className={cn(
+                                "rounded-full border-none px-1.5 py-0 text-[9px] font-bold uppercase",
+                                item.avg_time_on_page > 60 ? "bg-indigo-500/10 text-indigo-600" : "bg-slate-500/10 text-slate-600"
+                              )}>
+                                {item.avg_time_on_page > 60 ? 'High' : 'Low'} Eng.
+                              </Badge>
+                            )}
+                          </div>
+                          <div className="w-20 h-1 bg-muted rounded-full overflow-hidden">
+                            <div className="h-full bg-primary" style={{ width: `${Math.min((item.avg_scroll_depth || 0), 100)}%` }} />
+                          </div>
                         </div>
                       </td>
                       <td className="px-6 py-4 text-right">
