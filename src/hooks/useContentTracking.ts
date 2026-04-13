@@ -117,34 +117,8 @@ export function useTrackView(contentType: string, contentId: string | undefined)
 
     insertView();
 
-    // On page unload, update with final time_on_page and scroll_depth
-    const handleUnload = () => {
-      if (!viewIdRef.current) return;
-      const timeOnPage = Math.round((Date.now() - startTimeRef.current) / 1000);
-      const scrollDepth = stopScrollTracking();
-
-      // Use sendBeacon for reliability on page unload
-      const url = `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/content_views?id=eq.${viewIdRef.current}`;
-      const body = JSON.stringify({ time_on_page: timeOnPage, scroll_depth: scrollDepth });
-      navigator.sendBeacon(
-        url,
-        new Blob([body], { type: "application/json" })
-      );
-    };
-
-    window.addEventListener("beforeunload", handleUnload);
     return () => {
-      window.removeEventListener("beforeunload", handleUnload);
-      // Also update on component unmount (SPA navigation)
-      if (viewIdRef.current) {
-        const timeOnPage = Math.round((Date.now() - startTimeRef.current) / 1000);
-        const scrollDepth = stopScrollTracking();
-        supabase
-          .from("content_views")
-          .update({ time_on_page: timeOnPage, scroll_depth: scrollDepth })
-          .eq("id", viewIdRef.current)
-          .then(() => {});
-      }
+      stopScrollTracking();
     };
   }, [contentType, contentId]);
 }
