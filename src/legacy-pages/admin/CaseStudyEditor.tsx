@@ -17,7 +17,7 @@ const DRAFT_KEY_PREFIX = "regent_cs_draft_";
 export default function CaseStudyEditor() {
   const supabase = createClient();
   const { id } = useParams() as { id?: string };
-  const isEdit = !!id;
+  const isEdit = !!id && id !== "new";
   const router = useRouter();
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);

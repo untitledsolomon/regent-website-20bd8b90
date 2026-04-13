@@ -151,7 +151,7 @@ export default function CaseStudyList() {
               <span className="text-[11px] text-muted-foreground font-mono w-24">{item.industry}</span>
               <div className="flex items-center gap-1.5 w-36 justify-end">
                 <button onClick={() => toggle(item.id, item.published)} className="text-[11px] px-2.5 py-1.5 rounded-lg border border-input hover:bg-muted text-muted-foreground hover:text-foreground transition-colors">{item.published ? "Unpublish" : "Publish"}</button>
-                <Link href={`/admin/case-studies/${item.id}/edit`} className="text-[11px] px-2.5 py-1.5 rounded-lg border border-input hover:bg-muted text-muted-foreground hover:text-foreground transition-colors">Edit</Link>
+                <Link href={`/admin/case-studies/${item.id}`} className="text-[11px] px-2.5 py-1.5 rounded-lg border border-input hover:bg-muted text-muted-foreground hover:text-foreground transition-colors">Edit</Link>
                 <button onClick={() => remove(item.id)} className="text-[11px] px-2 py-1.5 rounded-lg hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-colors"><Trash2 size={13} /></button>
               </div>
             </div>
