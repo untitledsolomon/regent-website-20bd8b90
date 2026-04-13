@@ -22,6 +22,22 @@ export default function ResourceEditor() {
   });
 
   useEffect(() => {
+    const autoSave = async () => {
+      if (!form.title || !isEdit) return;
+      try {
+        await fetch('/api/admin/autosave', {
+          method: 'POST',
+          body: JSON.stringify({ id, type: 'resource', content: form })
+        });
+      } catch (e) {
+        console.error("Autosave failed", e);
+      }
+    };
+    const timer = setInterval(autoSave, 60000);
+    return () => clearInterval(timer);
+  }, [form, id, isEdit]);
+
+  useEffect(() => {
     if (isEdit) {
       supabase.from("resources").select("*").eq("id", id).single().then(({ data }) => {
         if (data) setForm({

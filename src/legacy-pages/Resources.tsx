@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/dialog";
 import { createClient } from "@/lib/supabase/client";
 import { useQuery } from "@tanstack/react-query";
-import { trackDownload } from "@/hooks/useContentTracking";
+import { trackDownload, trackConversion } from "@/hooks/useContentTracking";
 
 const types = ["All", "Whitepaper", "Research", "Documentation", "Case Study"];
 
@@ -62,6 +62,7 @@ export default function ResourcesPage() {
       const { error } = await supabase.from("newsletter_subscribers").insert({ email: trimmed, source: "resources" });
       if (error && error.code !== "23505") throw error;
       setEmail("");
+      trackConversion("newsletter");
       supabase.functions.invoke("newsletter-welcome", { body: { email: trimmed } }).catch(() => {});
     } catch {
       // silent
