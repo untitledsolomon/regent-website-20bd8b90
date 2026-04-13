@@ -18,8 +18,8 @@ const DRAFT_KEY_PREFIX = "regent_post_draft_";
 export default function PostEditor() {
   const supabase = createClient();
   const params = useParams();
-  const id = Array.isArray(params.postId) ? params.postId[0] : params.postId as string | undefined;
-  const isEdit = !!id;
+  const { id } = useParams() as { id?: string };
+  const isEdit = !!id && id !== "new";
   const router = useRouter();
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
@@ -48,23 +48,36 @@ export default function PostEditor() {
   const draftKey = DRAFT_KEY_PREFIX + (id || "new");
 
   useEffect(() => {
-    if (isEdit) {
-      supabase.from("blog_posts").select("*").eq("id", id).single().then(({ data }) => {
-        if (data) {
-          const d = data as any;
-          setForm({
-            title: d.title, slug: d.slug, excerpt: d.excerpt,
-            content: d.content, author: d.author, date: d.date,
-            category: d.category, read_time: d.read_time,
-            image_url: d.image_url || null, published: d.published,
-            publish_at: d.publish_at ? new Date(d.publish_at) : null,
-            meta_title: d.meta_title || "",
-            meta_description: d.meta_description || "",
-            og_image: d.og_image || "",
-          });
-        }
-      });
-    }
+    if (!isEdit || !id) return; 
+      
+    const fetchPost = async () => {
+      const {data, error} = await supabase
+        .from("blog_posts")
+        .select("*")
+        .eq("id", id)
+        .single();
+
+      if(error) {
+        console.error("Fetch error:", error);
+        return;
+      }
+
+      if (data) {
+        const d = data as any;
+        setForm({
+          title: d.title, slug: d.slug, excerpt: d.excerpt,
+          content: d.content, author: d.author, date: d.date,
+          category: d.category, read_time: d.read_time,
+          image_url: d.image_url || null, published: d.published,
+          publish_at: d.publish_at ? new Date(d.publish_at) : null,
+          meta_title: d.meta_title || "",
+          meta_description: d.meta_description || "",
+          og_image: d.og_image || "",
+        });
+      }
+    };
+
+    fetchPost();
     // Check for draft
     const saved = localStorage.getItem(draftKey);
     if (saved) setDraftBanner(true);
