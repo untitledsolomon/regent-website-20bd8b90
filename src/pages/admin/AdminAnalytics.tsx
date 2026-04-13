@@ -377,7 +377,7 @@ export default function AdminAnalytics() {
               <RechartsTooltip contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: "8px", fontSize: "12px" }} />
               <Legend wrapperStyle={{ fontSize: "12px" }} />
               <Area type="monotone" dataKey="views" name="Page Views" stroke="hsl(243, 76%, 59%)" fill="url(#analyticsGrad)" strokeWidth={2} />
-              <Area type="monotone" dataKey="unique_sessions" name="Unique Sessions" stroke="hsl(142, 71%, 45%)" fill="url(#sessionsGrad)" strokeWidth={2} />
+              
             </AreaChart>
           </ResponsiveContainer>
         </div>
