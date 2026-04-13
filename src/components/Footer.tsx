@@ -5,6 +5,7 @@ import { motion, AnimatePresence, useScroll } from "framer-motion";
 import { useState, useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { trackConversion } from "@/hooks/useContentTracking";
 
 const cols = [
   { title: "Solutions", links: [{ label: "Overview", to: "/platform" }, { label: "Architecture", to: "/platform" }, { label: "Modules", to: "/platform" }, { label: "Security", to: "/platform" }] },
@@ -64,6 +65,7 @@ export function Footer() {
       } else {
       toast({ title: "Subscribed!", description: "You'll receive our latest insights." });
         setEmail("");
+        trackConversion("newsletter");
         // Send welcome email (fire and forget)
         supabase.functions.invoke("newsletter-welcome", { body: { email: trimmed } }).catch(() => {});
       }

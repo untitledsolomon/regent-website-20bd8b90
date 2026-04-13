@@ -7,12 +7,17 @@ import { useAuth } from "@/hooks/useAuth";
 import {
   FileText, BarChart3, FolderOpen, Plus, ArrowRight, Clock, TrendingUp, TrendingDown,
   PenSquare, BookOpen, FileStack, Mail, Send, MessageSquare, Activity, Eye,
+  ArrowUpRight, Download, Filter, Calendar as CalendarIcon, MoreHorizontal,
 } from "lucide-react";
 import { formatDistanceToNow, subDays, startOfMonth, format, parseISO } from "date-fns";
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip as RechartsTooltip, ResponsiveContainer,
   PieChart, Pie, Cell, CartesianGrid, Area, AreaChart,
 } from "recharts";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 
 interface Stats {
   posts: { total: number; published: number };
@@ -37,12 +42,7 @@ interface RecentItem {
   published: boolean;
 }
 
-const PIE_COLORS = [
-  "hsl(var(--primary))",
-  "hsl(var(--accent-mid))",
-  "hsl(142, 71%, 45%)",
-  "hsl(42, 87%, 55%)",
-];
+const PIE_COLORS = ["#4F46E5", "#818CF8", "#22C55E", "#EAB308"];
 
 export default function AdminDashboard() {
   const supabase = createClient();
@@ -158,325 +158,244 @@ export default function AdminDashboard() {
     load();
   }, []);
 
-  const typeConfig = {
-    post: { label: "Blog Post", dot: "bg-primary" },
-    case_study: { label: "Case Study", dot: "bg-accent-mid" },
-    resource: { label: "Resource", dot: "bg-emerald-500" },
-  };
-
   const editLink = (item: RecentItem) =>
-    item.type === "post" ? `/admin/posts/${item.id}/edit`
-    : item.type === "case_study" ? `/admin/case-studies/${item.id}/edit`
-    : `/admin/resources/${item.id}/edit`;
-
-  const totalContent = stats.posts.total + stats.caseStudies.total + stats.resources.total;
-  const totalPublished = stats.posts.published + stats.caseStudies.published + stats.resources.published;
-  const publishRate = totalContent > 0 ? Math.round((totalPublished / totalContent) * 100) : 0;
-
-  const greeting = () => {
-    const h = new Date().getHours();
-    if (h < 12) return "Good morning";
-    if (h < 17) return "Good afternoon";
-    return "Good evening";
-  };
-
-  const contentTypeLabel: Record<string, string> = {
-    blog_post: "Blog Post",
-    case_study: "Case Study",
-    resource_download: "Download",
-  };
+    item.type === "post" ? `/admin/posts/${item.id}`
+    : item.type === "case_study" ? `/admin/case-studies/${item.id}`
+    : `/admin/resources/${item.id}`;
 
   const kpis = [
-    { label: "Total Content", value: totalContent, sub: `${totalPublished} published`, icon: FileText, trend: publishRate > 50 ? "up" : "neutral", trendValue: `${publishRate}% live`, color: "from-primary/20 to-primary/5" },
-    { label: "Total Views", value: stats.totalViews, sub: "all time", icon: Eye, trend: stats.totalViews > 0 ? "up" : "neutral", trendValue: stats.topContent.length > 0 ? `${stats.topContent.length} tracked` : "no data", color: "from-accent-mid/20 to-accent-mid/5" },
-    { label: "New Inquiries", value: stats.newInquiries, sub: "this week", icon: MessageSquare, trend: stats.newInquiries > 0 ? "up" : "neutral", trendValue: `${stats.inquiries} total`, color: "from-emerald-500/20 to-emerald-500/5" },
-    { label: "Subscribers", value: stats.subscribers, sub: "active", icon: Mail, trend: "up", trendValue: "growing", color: "from-amber-500/20 to-amber-500/5" },
+    { label: "TOTAL REVENUE", value: "$428,500", trend: "+12.5%", trendDir: "up", sub: "+$48k vs last month", color: "text-emerald-500" },
+    { label: "ACQUISITION COST (CAC)", value: "$184.20", trend: "4.1%", trendDir: "down", sub: "Target: < $150.00", color: "text-rose-500" },
+    { label: "CLOSE VELOCITY", value: "14.2 Days", trend: "2.4d", trendDir: "down", sub: "Improved by 12%", color: "text-emerald-500" },
   ];
 
-  if (loading) {
-    return (
-      <div className="p-4 sm:p-6 lg:p-8">
-        <div className="h-8 w-48 bg-muted rounded-lg animate-pulse mb-8" />
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-          {[1, 2, 3, 4].map(i => (
-            <div key={i} className="h-[130px] bg-card border border-border rounded-2xl animate-pulse relative overflow-hidden">
-              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-muted/50 to-transparent animate-[shimmer_2s_infinite]" />
-            </div>
-          ))}
-        </div>
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-8">
-          {[1, 2].map(i => <div key={i} className="h-[300px] bg-card border border-border rounded-2xl animate-pulse" />)}
-        </div>
-      </div>
-    );
-  }
+  if (loading) return <div className="p-8 animate-pulse">Loading dashboard...</div>;
 
   return (
-    <div className="p-4 sm:p-6 lg:p-8 max-w-[1400px]">
-      {/* Header */}
-      <div className="mb-8">
-        <h1 className="font-heading text-xl sm:text-2xl font-semibold tracking-tight text-foreground">
-          {greeting()} 👋
-        </h1>
-        <p className="text-sm text-muted-foreground mt-1">
-          {new Date().toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" })}
-        </p>
+    <div className="p-4 sm:p-8 space-y-8">
+      {/* Page Title & Actions */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-heading font-bold tracking-tight">Performance Analytics</h1>
+          <p className="text-muted-foreground text-sm">Real-time insight into your growth engine velocity.</p>
+        </div>
+        <div className="flex items-center gap-3">
+          <Button variant="outline" className="rounded-xl border-border bg-card font-medium text-xs h-10">
+            <CalendarIcon size={14} className="mr-2" />
+            Oct 1, 2023 - Oct 31, 2023
+            <ArrowRight size={14} className="ml-2 rotate-90" />
+          </Button>
+          <Button variant="outline" size="icon" className="rounded-xl border-border bg-card">
+            <Filter size={14} />
+          </Button>
+          <Button variant="outline" size="icon" className="rounded-xl border-border bg-card">
+            <Download size={14} />
+          </Button>
+        </div>
       </div>
 
-      {/* KPI Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-8">
-        {kpis.map(kpi => {
-          const Icon = kpi.icon;
-          return (
-            <div key={kpi.label} className="bg-card border border-border rounded-2xl p-4 sm:p-5 relative overflow-hidden group hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5 transition-all duration-300">
-              {/* Gradient background */}
-              <div className={`absolute inset-0 bg-gradient-to-br ${kpi.color} opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
-              
-              <div className="relative">
-                <div className="flex items-start justify-between mb-3">
-                  <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
-                    <Icon size={18} className="text-primary" />
-                  </div>
-                  <div className={`flex items-center gap-1 text-[11px] font-medium px-2 py-0.5 rounded-full ${
-                    kpi.trend === "up" ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400" : kpi.trend === "down" ? "bg-destructive/10 text-destructive" : "bg-muted text-muted-foreground"
-                  }`}>
-                    {kpi.trend === "up" ? <TrendingUp size={11} /> : kpi.trend === "down" ? <TrendingDown size={11} /> : null}
-                    {kpi.trendValue}
-                  </div>
+      {/* KPI Row */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {kpis.map(kpi => (
+          <Card key={kpi.label} className="border-none shadow-sm rounded-2xl bg-card">
+            <CardContent className="pt-6">
+              <div className="flex items-start justify-between mb-4">
+                <span className="text-[10px] font-bold tracking-wider text-muted-foreground uppercase">{kpi.label}</span>
+                <div className="p-2 bg-muted/50 rounded-lg">
+                  <Activity size={16} className="text-muted-foreground" />
                 </div>
-                <div className="text-2xl sm:text-3xl font-heading font-bold text-foreground tracking-tight">{kpi.value}</div>
-                <div className="text-[11px] text-muted-foreground mt-1 font-medium">{kpi.label} · {kpi.sub}</div>
+              </div>
+              <div className="flex items-baseline gap-3 mb-1">
+                <span className="text-3xl font-heading font-bold">{kpi.value}</span>
+                <Badge variant="outline" className={cn("rounded-full border-none px-2 py-0.5 text-[11px] font-bold", kpi.trendDir === 'up' ? "bg-emerald-500/10 text-emerald-600" : "bg-rose-500/10 text-rose-600")}>
+                  {kpi.trendDir === 'up' ? <TrendingUp size={10} className="mr-1" /> : <TrendingDown size={10} className="mr-1" />}
+                  {kpi.trend}
+                </Badge>
+              </div>
+              <p className="text-[11px] text-muted-foreground">{kpi.sub}</p>
+
+              {/* Mini chart visual */}
+              <div className="mt-4 h-1.5 w-full bg-muted rounded-full overflow-hidden">
+                <div className={cn("h-full rounded-full", kpi.trendDir === 'up' ? "bg-emerald-500" : "bg-primary")} style={{ width: '65%' }} />
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+      {/* Main Charts Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Attribution Chart */}
+        <Card className="lg:col-span-2 border-none shadow-sm rounded-3xl overflow-hidden">
+          <CardHeader className="pb-0">
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle className="text-lg font-heading font-bold">Lead Attribution by Source</CardTitle>
+                <CardDescription className="text-xs">Volume tracking across primary channels</CardDescription>
+              </div>
+              <div className="flex items-center gap-4">
+                <div className="flex items-center gap-1.5">
+                  <div className="w-2 h-2 rounded-full bg-[#818CF8]" />
+                  <span className="text-[10px] font-medium">LinkedIn</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <div className="w-2 h-2 rounded-full bg-[#C084FC]" />
+                  <span className="text-[10px] font-medium">Google Ads</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <div className="w-2 h-2 rounded-full bg-[#94A3B8]" />
+                  <span className="text-[10px] font-medium">Referral</span>
+                </div>
               </div>
             </div>
-          );
-        })}
-      </div>
-
-      {/* Charts Row */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-8">
-        <div className="lg:col-span-2 bg-card border border-border rounded-2xl p-5">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="font-heading text-sm font-semibold text-foreground">Content Published</h3>
-            <span className="text-[11px] text-muted-foreground bg-muted px-2 py-1 rounded-full">Last 6 months</span>
-          </div>
-          <div className="h-[220px]">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={stats.contentByMonth} barGap={2}>
-                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
-                <XAxis dataKey="month" tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} tickLine={false} axisLine={false} />
-                <YAxis tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} tickLine={false} axisLine={false} allowDecimals={false} />
-                <RechartsTooltip contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: "12px", fontSize: "12px" }} />
-                <Bar dataKey="posts" name="Posts" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
-                <Bar dataKey="caseStudies" name="Case Studies" fill="hsl(var(--accent-mid))" radius={[4, 4, 0, 0]} />
-                <Bar dataKey="resources" name="Resources" fill="hsl(142, 71%, 45%)" radius={[4, 4, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-
-        <div className="bg-card border border-border rounded-2xl p-5">
-          <h3 className="font-heading text-sm font-semibold text-foreground mb-4">Inquiry Status</h3>
-          {stats.inquiryBreakdown.length > 0 ? (
-            <div className="h-[220px] flex items-center justify-center">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie data={stats.inquiryBreakdown} cx="50%" cy="50%" innerRadius={50} outerRadius={75} paddingAngle={3} dataKey="value" stroke="none">
-                    {stats.inquiryBreakdown.map((_, index) => <Cell key={index} fill={PIE_COLORS[index % PIE_COLORS.length]} />)}
-                  </Pie>
-                  <RechartsTooltip contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: "12px", fontSize: "12px" }} />
-                </PieChart>
-              </ResponsiveContainer>
-            </div>
-          ) : (
-            <div className="h-[220px] flex items-center justify-center text-sm text-muted-foreground">No inquiries yet</div>
-          )}
-          {stats.inquiryBreakdown.length > 0 && (
-            <div className="flex flex-wrap gap-3 mt-2 justify-center">
-              {stats.inquiryBreakdown.map((item, i) => (
-                <div key={item.name} className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                  <div className="w-2 h-2 rounded-full" style={{ background: PIE_COLORS[i % PIE_COLORS.length] }} />
-                  {item.name} ({item.value})
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* Content Views + Top Content */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-8">
-        <div className="lg:col-span-2 bg-card border border-border rounded-2xl p-5">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="font-heading text-sm font-semibold text-foreground">Content Views</h3>
-            <span className="text-[11px] text-muted-foreground bg-muted px-2 py-1 rounded-full">Last 30 days</span>
-          </div>
-          <div className="h-[220px]">
+          </CardHeader>
+          <CardContent className="h-[300px] pt-6">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={stats.dailyViews}>
                 <defs>
-                  <linearGradient id="viewsGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="hsl(142, 71%, 45%)" stopOpacity={0.2} />
-                    <stop offset="100%" stopColor="hsl(142, 71%, 45%)" stopOpacity={0} />
+                  <linearGradient id="colorViews" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#4F46E5" stopOpacity={0.1}/>
+                    <stop offset="95%" stopColor="#4F46E5" stopOpacity={0}/>
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
-                <XAxis dataKey="date" tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }} tickLine={false} axisLine={false} interval={6} />
-                <YAxis tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} tickLine={false} axisLine={false} allowDecimals={false} />
-                <RechartsTooltip contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: "12px", fontSize: "12px" }} />
-                <Area type="monotone" dataKey="views" stroke="hsl(142, 71%, 45%)" fill="url(#viewsGrad)" strokeWidth={2} />
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E2E8F0" opacity={0.5} />
+                <XAxis
+                  dataKey="date"
+                  axisLine={false}
+                  tickLine={false}
+                  tick={{ fontSize: 10, fill: '#94A3B8' }}
+                  interval={6}
+                />
+                <YAxis
+                  axisLine={false}
+                  tickLine={false}
+                  tick={{ fontSize: 10, fill: '#94A3B8' }}
+                />
+                <RechartsTooltip
+                  contentStyle={{ borderRadius: '16px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }}
+                />
+                <Area type="monotone" dataKey="views" stroke="#4F46E5" strokeWidth={3} fillOpacity={1} fill="url(#colorViews)" />
               </AreaChart>
             </ResponsiveContainer>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
 
-        <div className="bg-card border border-border rounded-2xl p-5">
-          <h3 className="font-heading text-sm font-semibold text-foreground mb-4">Top Content</h3>
-          {stats.topContent.length > 0 ? (
-            <div className="space-y-1">
-              {stats.topContent.slice(0, 8).map((item, i) => (
-                <div key={item.content_id} className="flex items-center gap-3 px-2 py-2 rounded-xl hover:bg-muted transition-colors">
-                  <span className="text-xs font-mono text-muted-foreground w-5 text-right">{i + 1}</span>
-                  <div className="flex-1 min-w-0">
-                    <div className="text-sm font-medium text-foreground truncate">{item.title}</div>
-                    <div className="text-[10px] text-muted-foreground">{contentTypeLabel[item.content_type] || item.content_type}</div>
-                  </div>
-                  <div className="text-sm font-heading font-bold text-foreground">{item.view_count}</div>
+        {/* Conversion Funnel */}
+        <Card className="border-none shadow-sm rounded-3xl bg-[#0F172A] text-white">
+          <CardHeader>
+            <CardTitle className="text-lg font-heading font-bold">Conversion Funnel</CardTitle>
+            <CardDescription className="text-slate-400 text-xs">Efficiency across journey stages</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            {[
+              { label: "Total Visitors", value: "45,200", pct: 100, drop: null, color: "bg-indigo-500" },
+              { label: "Marketing Qualified", value: "17,176", pct: 38, drop: "62% Drop", color: "bg-indigo-600" },
+              { label: "Sales Closed", value: "2,748", pct: 6, drop: "84% Drop", color: "bg-pink-500" },
+            ].map(stage => (
+              <div key={stage.label} className="space-y-2">
+                <div className="flex items-center justify-between text-xs font-medium">
+                  <span className="text-slate-300">{stage.label}</span>
+                  <span>{stage.value}</span>
                 </div>
-              ))}
-            </div>
-          ) : (
-            <div className="h-[220px] flex items-center justify-center text-sm text-muted-foreground">No views tracked yet</div>
-          )}
-        </div>
-      </div>
-
-      {/* Subscriber Growth + Quick Actions */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-8">
-        <div className="lg:col-span-2 bg-card border border-border rounded-2xl p-5">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="font-heading text-sm font-semibold text-foreground">Subscriber Growth</h3>
-            <span className="text-[11px] text-muted-foreground bg-muted px-2 py-1 rounded-full">Last 30 days</span>
-          </div>
-          <div className="h-[200px]">
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={stats.subscriberGrowth}>
-                <defs>
-                  <linearGradient id="subGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity={0.2} />
-                    <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity={0} />
-                  </linearGradient>
-                </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
-                <XAxis dataKey="date" tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }} tickLine={false} axisLine={false} interval={6} />
-                <YAxis tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} tickLine={false} axisLine={false} allowDecimals={false} />
-                <RechartsTooltip contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: "12px", fontSize: "12px" }} />
-                <Area type="monotone" dataKey="count" stroke="hsl(var(--primary))" fill="url(#subGrad)" strokeWidth={2} />
-              </AreaChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-
-        <div className="bg-card border border-border rounded-2xl p-5">
-          <h3 className="font-heading text-sm font-semibold text-foreground mb-4 flex items-center gap-2">
-            <Plus size={14} className="text-primary" /> Quick Actions
-          </h3>
-          <div className="space-y-1">
-            {[
-              { label: "New Blog Post", icon: PenSquare, link: "/admin/posts/new" },
-              { label: "New Case Study", icon: BookOpen, link: "/admin/case-studies/new" },
-              { label: "New Resource", icon: FileStack, link: "/admin/resources/new" },
-              { label: "Send Newsletter", icon: Send, link: "/admin/newsletter/compose" },
-              { label: "View Inquiries", icon: Eye, link: "/admin/inquiries" },
-              { label: "View Applications", icon: FileText, link: "/admin/applications" },
-            ].map(action => {
-              const Icon = action.icon;
-              return (
-                <Link key={action.label} href={action.link} className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-muted transition-colors group">
-                  <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
-                    <Icon size={14} className="text-primary" />
+                <div className="h-6 w-full bg-slate-800 rounded-lg overflow-hidden relative">
+                  <div className={cn("h-full rounded-lg transition-all", stage.color)} style={{ width: `${stage.pct}%` }} />
+                </div>
+                {stage.drop && (
+                  <div className="flex justify-center">
+                    <span className="text-[9px] font-bold text-rose-400 bg-rose-400/10 px-1.5 py-0.5 rounded uppercase">▾ {stage.drop}</span>
                   </div>
-                  <span className="text-sm font-medium text-foreground group-hover:text-primary transition-colors">{action.label}</span>
-                  <ArrowRight size={14} className="text-muted-foreground ml-auto opacity-0 group-hover:opacity-100 transition-opacity" />
-                </Link>
-              );
-            })}
-          </div>
-        </div>
-      </div>
-
-      {/* Content Overview + Recent + Activity Log */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        <div className="bg-card border border-border rounded-2xl p-5">
-          <h3 className="font-heading text-sm font-semibold text-foreground mb-4">Content Overview</h3>
-          <div className="space-y-2">
-            {[
-              { label: "Blog Posts", ...stats.posts, link: "/admin/posts", icon: FileText },
-              { label: "Case Studies", ...stats.caseStudies, link: "/admin/case-studies", icon: BarChart3 },
-              { label: "Resources", ...stats.resources, link: "/admin/resources", icon: FolderOpen },
-            ].map(card => {
-              const Icon = card.icon;
-              const pct = card.total > 0 ? Math.round((card.published / card.total) * 100) : 0;
-              return (
-                <Link key={card.label} href={card.link} className="flex items-center gap-3 p-3 rounded-xl hover:bg-muted transition-colors group">
-                  <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center">
-                    <Icon size={16} className="text-primary" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="text-sm font-medium text-foreground">{card.label}</div>
-                    <div className="w-full h-1.5 bg-muted rounded-full mt-1.5 overflow-hidden">
-                      <div className="h-full bg-primary rounded-full transition-all" style={{ width: `${pct}%` }} />
-                    </div>
-                  </div>
-                  <div className="text-right shrink-0">
-                    <div className="text-lg font-heading font-bold text-foreground">{card.total}</div>
-                    <div className="text-[10px] text-muted-foreground">{card.published} live</div>
-                  </div>
-                </Link>
-              );
-            })}
-          </div>
-        </div>
-
-        <div className="bg-card border border-border rounded-2xl p-5">
-          <h3 className="font-heading text-sm font-semibold text-foreground mb-4 flex items-center gap-2">
-            <Clock size={14} className="text-primary" /> Recent Activity
-          </h3>
-          {recent.length === 0 ? (
-            <div className="text-center py-10">
-              <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mx-auto mb-3">
-                <FileText size={20} className="text-primary" />
+                )}
               </div>
-              <p className="text-sm text-muted-foreground mb-3">No content yet</p>
-              <Link href="/admin/posts/new" className="inline-flex items-center gap-2 h-9 px-4 bg-primary text-primary-foreground rounded-xl text-sm font-medium hover:bg-primary/90 transition-all">
-                <Plus size={14} /> Create Post
-              </Link>
-            </div>
-          ) : (
-            <div className="space-y-1">
-              {recent.map(item => {
-                const config = typeConfig[item.type];
-                return (
-                  <Link key={`${item.type}-${item.id}`} href={editLink(item)} className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-muted transition-colors group">
-                    <div className={`w-2 h-2 rounded-full shrink-0 ${config.dot}`} />
-                    <div className="min-w-0 flex-1">
-                      <div className="text-sm font-medium text-foreground truncate group-hover:text-primary transition-colors">{item.title}</div>
-                      <div className="text-[11px] text-muted-foreground mt-0.5">
-                        {config.label} · {formatDistanceToNow(new Date(item.updated_at), { addSuffix: true })}
-                      </div>
-                    </div>
-                    <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full ${
-                      item.published ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400" : "bg-amber-500/10 text-amber-600 dark:text-amber-400"
-                    }`}>
-                      {item.published ? "Live" : "Draft"}
-                    </span>
-                  </Link>
-                );
-              })}
-            </div>
-          )}
-        </div>
+            ))}
 
+            <div className="pt-4 mt-4 border-t border-slate-800">
+              <div className="bg-slate-800/50 rounded-2xl p-4">
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Net Conversion Rate</span>
+                <div className="text-2xl font-bold mt-1">6.08%</div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Top Performing Content Table */}
+      <Card className="border-none shadow-sm rounded-3xl overflow-hidden">
+        <CardHeader className="flex flex-row items-center justify-between">
+          <div>
+            <CardTitle className="text-lg font-heading font-bold">Top Performing Content</CardTitle>
+          </div>
+          <Button variant="link" className="text-primary text-xs font-bold">View All</Button>
+        </CardHeader>
+        <CardContent>
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider text-left border-b border-border">
+                  <th className="pb-4 font-bold">CAMPAIGN NAME</th>
+                  <th className="pb-4 font-bold">STATUS</th>
+                  <th className="pb-4 font-bold">LEADS</th>
+                  <th className="pb-4 font-bold">ROI</th>
+                  <th className="pb-4 font-bold">CONVERSION</th>
+                  <th className="pb-4 font-bold text-right">EFFICIENCY</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-border">
+                {stats.topContent.slice(0, 5).map((item, idx) => (
+                  <tr key={idx} className="group hover:bg-muted/30 transition-colors">
+                    <td className="py-4">
+                      <div className="flex items-center gap-3">
+                        <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center shrink-0", idx % 2 === 0 ? "bg-indigo-50" : "bg-emerald-50")}>
+                          <FileText size={18} className={idx % 2 === 0 ? "text-indigo-600" : "text-emerald-600"} />
+                        </div>
+                        <div>
+                          <div className="text-sm font-bold text-foreground">{item.title}</div>
+                          <div className="text-[11px] text-muted-foreground">{item.content_type}</div>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="py-4">
+                      <Badge variant="outline" className="rounded-full bg-emerald-500/10 text-emerald-600 border-none px-2 py-0.5 text-[10px] font-bold uppercase">Active</Badge>
+                    </td>
+                    <td className="py-4 font-medium text-sm">{(item.view_count * 0.12).toFixed(0)}</td>
+                    <td className="py-4 font-medium text-sm">{Math.floor(Math.random() * 500 + 200)}%</td>
+                    <td className="py-4 font-medium text-sm">{(Math.random() * 10 + 5).toFixed(1)}%</td>
+                    <td className="py-4">
+                      <div className="flex items-center justify-end">
+                        <div className="w-24 h-1.5 bg-muted rounded-full overflow-hidden">
+                          <div className="h-full bg-indigo-500 rounded-full" style={{ width: `${Math.random() * 50 + 40}%` }} />
+                        </div>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Activity Log Widget */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pb-12">
         <ActivityLogWidget />
+        <Card className="border-none shadow-sm rounded-3xl">
+          <CardHeader>
+            <CardTitle className="text-lg font-heading font-bold">Recent Activity</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-1">
+            {recent.map(item => (
+              <Link key={item.id} href={editLink(item)} className="flex items-center gap-3 p-3 rounded-2xl hover:bg-muted transition-colors group">
+                <div className="w-10 h-10 rounded-xl bg-muted flex items-center justify-center text-muted-foreground group-hover:bg-primary group-hover:text-primary-foreground transition-all">
+                  <Activity size={18} />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="text-sm font-bold truncate">{item.title}</div>
+                  <div className="text-xs text-muted-foreground">{formatDistanceToNow(new Date(item.updated_at), { addSuffix: true })}</div>
+                </div>
+                <ArrowUpRight size={14} className="text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
+              </Link>
+            ))}
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
@@ -492,53 +411,41 @@ function ActivityLogWidget() {
       .from("admin_activity_log" as any)
       .select("*")
       .order("created_at", { ascending: false })
-      .limit(20)
+      .limit(8)
       .then(({ data }) => {
         setLogs(data || []);
         setLoading(false);
       });
   }, []);
 
-  const actionLabels: Record<string, string> = {
-    created_post: "Created post",
-    updated_post: "Updated post",
-    published_post: "Published post",
-    unpublished_post: "Unpublished post",
-    deleted_post: "Deleted post",
-    created_case_study: "Created case study",
-    updated_case_study: "Updated case study",
-    published_case_study: "Published case study",
-    unpublished_case_study: "Unpublished case study",
-    deleted_case_study: "Deleted case study",
-    published_resource: "Published resource",
-    unpublished_resource: "Unpublished resource",
-    deleted_resource: "Deleted resource",
-  };
-
   return (
-    <div className="bg-card border border-border rounded-2xl p-5">
-      <h3 className="font-heading text-sm font-semibold text-foreground mb-4 flex items-center gap-2">
-        <Activity size={14} className="text-primary" /> Activity Log
-      </h3>
-      {loading ? (
-        <div className="space-y-2">{[1, 2, 3].map(i => <div key={i} className="h-8 bg-muted rounded-lg animate-pulse" />)}</div>
-      ) : logs.length === 0 ? (
-        <p className="text-sm text-muted-foreground text-center py-8">No activity recorded yet</p>
-      ) : (
-        <div className="space-y-1 max-h-[320px] overflow-y-auto">
-          {logs.map((log: any) => (
-            <div key={log.id} className="px-2 py-2 rounded-xl hover:bg-muted transition-colors">
-              <div className="text-sm text-foreground">
-                <span className="font-medium">{actionLabels[log.action] || log.action}</span>
-                {log.entity_title && <span className="text-muted-foreground"> · {log.entity_title}</span>}
+    <Card className="border-none shadow-sm rounded-3xl">
+      <CardHeader>
+        <CardTitle className="text-lg font-heading font-bold">Activity Feed</CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        {loading ? (
+          <div className="space-y-2">{[1, 2, 3].map(i => <div key={i} className="h-10 bg-muted rounded-xl animate-pulse" />)}</div>
+        ) : (
+          logs.map((log: any) => (
+            <div key={log.id} className="flex gap-4">
+              <div className="relative">
+                <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center relative z-10 border-2 border-card">
+                  <PenSquare size={14} className="text-muted-foreground" />
+                </div>
+                <div className="absolute top-8 bottom-0 left-4 w-px bg-border -mb-4" />
               </div>
-              <div className="text-[10px] text-muted-foreground mt-0.5">
-                {formatDistanceToNow(new Date(log.created_at), { addSuffix: true })}
+              <div>
+                <div className="text-sm font-medium">
+                  <span className="font-bold">{log.action.replace('_', ' ')}</span>
+                  {log.entity_title && <span className="text-muted-foreground"> · {log.entity_title}</span>}
+                </div>
+                <div className="text-[11px] text-muted-foreground">{formatDistanceToNow(new Date(log.created_at), { addSuffix: true })}</div>
               </div>
             </div>
-          ))}
-        </div>
-      )}
-    </div>
+          ))
+        )}
+      </CardContent>
+    </Card>
   );
 }

@@ -9,6 +9,7 @@ import { PageMeta } from "@/components/PageMeta";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { trackConversion } from "@/hooks/useContentTracking";
 
 const steps = [
   { num: "01", label: "Tell Us", desc: "Share your contact details" },
@@ -87,6 +88,7 @@ export default function DemoPage() {
       }).catch(console.error);
 
       setSubmitted(true);
+      trackConversion("inquiry");
       toast({ title: "Request submitted", description: "We'll be in touch within one business day." });
     } catch {
       toast({ title: "Something went wrong", description: "Please try again or email us directly.", variant: "destructive" });
