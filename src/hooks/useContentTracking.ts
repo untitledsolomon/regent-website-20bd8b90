@@ -4,12 +4,23 @@ import { useEffect, useRef } from "react";
 import { createClient } from "@/lib/supabase/client";
 
 function getSessionId(): string {
+  if (typeof window === 'undefined') return '';
   let sid = sessionStorage.getItem("regent_session_id");
   if (!sid) {
     sid = crypto.randomUUID();
     sessionStorage.setItem("regent_session_id", sid);
   }
   return sid;
+}
+
+function getVisitorId(): string {
+  if (typeof window === 'undefined') return '';
+  let vid = localStorage.getItem("regent_visitor_id");
+  if (!vid) {
+    vid = crypto.randomUUID();
+    localStorage.setItem("regent_visitor_id", vid);
+  }
+  return vid;
 }
 
 function parseUserAgent(): { device_type: string; browser: string; os: string } {
@@ -40,10 +51,11 @@ function getTrackingPayload() {
   const { device_type, browser, os } = parseUserAgent();
   const referrer = document.referrer || null;
   const session_id = getSessionId();
+  const visitor_id = getVisitorId();
   const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
   const country = timezone.split("/")[0] || null;
   const city = timezone.split("/")[1]?.replace(/_/g, " ") || null;
-  return { device_type, browser, os, referrer, session_id, country, city };
+  return { device_type, browser, os, referrer, session_id, visitor_id, country, city };
 }
 
 async function checkIsReturning(session_id: string): Promise<boolean> {
@@ -121,6 +133,19 @@ export function useTrackView(contentType: string, contentId: string | undefined)
 
     insertView();
 
+    // Heartbeat to update time and scroll every 30s
+    const heartbeatInterval = setInterval(() => {
+      if (!viewIdRef.current) return;
+      const timeOnPage = Math.round((Date.now() - startTimeRef.current) / 1000);
+      const scrollDepth = stopScrollTracking();
+
+      supabase
+        .from("content_views")
+        .update({ time_on_page: timeOnPage, scroll_depth: scrollDepth })
+        .eq("id", viewIdRef.current)
+        .then(() => {});
+    }, 30000);
+
     // On page unload, update with final time_on_page and scroll_depth
     const handleUnload = () => {
       if (!viewIdRef.current) return;
@@ -143,13 +168,20 @@ export function useTrackView(contentType: string, contentId: string | undefined)
       });
     };
 
-    window.addEventListener("visibilitychange", () => {
+    const handleVisibilityChange = () => {
       if (document.visibilityState === 'hidden') {
         handleUnload();
       }
-    });
+    };
+
+    window.addEventListener("visibilitychange", handleVisibilityChange);
+    window.addEventListener("beforeunload", handleUnload);
 
     return () => {
+      clearInterval(heartbeatInterval);
+      window.removeEventListener("visibilitychange", handleVisibilityChange);
+      window.removeEventListener("beforeunload", handleUnload);
+
       // Also update on component unmount (SPA navigation)
       if (viewIdRef.current) {
         const timeOnPage = Math.round((Date.now() - startTimeRef.current) / 1000);
