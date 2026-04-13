@@ -67,7 +67,6 @@ interface TopContent {
 interface DailyView {
   date: string;
   views: number;
-  unique_sessions: number;
 }
 
 interface AudienceItem {
