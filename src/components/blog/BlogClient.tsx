@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
+import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { ArrowRight } from "lucide-react";
@@ -42,10 +43,12 @@ function BlogCard({ post, index }: { post: BlogPost; index: number }) {
           {/* Image / placeholder */}
           <div className="h-[180px] relative overflow-hidden bg-gradient-to-br from-accent-light to-primary/[0.08] shrink-0">
             {post.og_image || post.image_url ? (
-              <img
+              <Image
                 src={post.og_image ?? post.image_url!}
-                alt={post.title}
+                alt={`Cover image for ${post.title}`}
                 className="w-full h-full object-cover"
+                fill
+                sizes="(max-width: 768px) 100vw, 33vw"
               />
             ) : (
               <div className="absolute inset-0 flex items-center justify-center opacity-20 text-primary">
@@ -116,7 +119,14 @@ function FeaturedPost({ post }: { post: BlogPost }) {
           {/* Image */}
           <div className="min-h-[240px] md:min-h-[300px] relative overflow-hidden bg-gradient-to-br from-accent-light to-primary/[0.08]">
             {post.og_image || post.image_url ? (
-              <img src={post.og_image ?? post.image_url!} alt={post.title} className="w-full h-full object-cover absolute inset-0" />
+              <Image
+                src={post.og_image ?? post.image_url!}
+                alt={`Featured article: ${post.title}`}
+                className="w-full h-full object-cover absolute inset-0"
+                fill
+                priority
+                sizes="(max-width: 768px) 100vw, 50vw"
+              />
             ) : (
               <>
                 <motion.div
