@@ -1,7 +1,7 @@
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
-async function api(path, method = 'GET', body = null) {
+async function api(path: string, method: string = 'GET', body: any = null) {
   const options = {
     method,
     headers: {
