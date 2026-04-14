@@ -3,6 +3,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { motion, useScroll } from "framer-motion";
 import Link from "next/link";
+import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
 import { ArrowRight, ArrowLeft, Copy, Check, Calendar } from "lucide-react";
 
@@ -56,7 +57,13 @@ function RelatedCard({ post, index }: { post: RelatedPost; index: number }) {
         >
           <div className="h-[160px] relative overflow-hidden bg-gradient-to-br from-accent-light to-primary/[0.08] shrink-0">
             {cover ? (
-              <img src={cover} alt={post.title} className="w-full h-full object-cover" />
+              <Image
+                src={cover}
+                alt={`Cover image for ${post.title}`}
+                className="w-full h-full object-cover"
+                fill
+                sizes="(max-width: 768px) 100vw, 33vw"
+              />
             ) : (
               <div className="absolute inset-0 flex items-center justify-center opacity-20 text-primary">
                 <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
@@ -240,8 +247,15 @@ export function BlogPostClient({ post }: { post: BlogPostFull }) {
       {/* ── Cover image ── */}
       {cover && (
         <div className="section-container max-w-[800px] pt-10">
-          <div className="rounded-2xl overflow-hidden border border-border aspect-[16/7]">
-            <img src={cover} alt={post.title} className="w-full h-full object-cover" />
+          <div className="rounded-2xl overflow-hidden border border-border aspect-[16/7] relative">
+            <Image
+              src={cover}
+              alt={`Main cover image for ${post.title}`}
+              className="w-full h-full object-cover"
+              fill
+              priority
+              sizes="(max-width: 800px) 100vw, 800px"
+            />
           </div>
         </div>
       )}
@@ -272,7 +286,7 @@ export function BlogPostClient({ post }: { post: BlogPostFull }) {
                 "[&_pre]:bg-muted [&_pre]:p-5 [&_pre]:rounded-xl [&_pre]:overflow-x-auto [&_pre]:my-6 [&_pre]:border [&_pre]:border-border",
                 "[&_pre_code]:bg-transparent [&_pre_code]:p-0 [&_pre_code]:text-sm",
                 // images & hr
-                "[&_img]:rounded-xl [&_img]:max-w-full [&_img]:my-8 [&_img]:border [&_img]:border-border",
+                "[&_img]:rounded-xl [&_img]:max-w-full [&_img]:h-auto [&_img]:my-8 [&_img]:border [&_img]:border-border",
                 "[&_hr]:border-border [&_hr]:my-10",
                 // links
                 "[&_a]:text-primary [&_a]:underline [&_a]:underline-offset-2 [&_a:hover]:text-primary/80",
