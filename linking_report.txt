@@ -1,0 +1,27 @@
+# Internal Linking Report - May 15, 2026
+
+## Theme Cluster: The Infrastructure of Scale: Engineering Resilience in Financial Systems
+
+### New Content Assets:
+1. **Blog Article:** architecture-of-trust-fintech-resilience
+2. **Resource:** fintech-infrastructure-audit-checklist
+3. **Case Study:** project-meridian-core-banking-modernization
+
+### Intra-Cluster Links (New Assets):
+- **Blog -> Resource:** Linked in "Related Content" section and step 1.
+- **Blog -> Case Study:** Linked in "Related Content" section and step 1.
+- **Resource -> Blog:** Linked in description.
+- **Resource -> Case Study:** Linked in description.
+- **Case Study -> Blog:** Linked in "Sidecar Core" section and "Key Lessons".
+- **Case Study -> Resource:** Linked in "Sidecar Core" section.
+
+### Outbound Links to Existing Content:
+- **Blog -> your-competitor-isn-t-beating-you...** (Theme: Systems win)
+- **Blog -> the-scale-failure-pattern** (Theme: Scaling diagnostic)
+- **Blog -> decoupled-data-architectures-education** (Theme: Architecture patterns)
+- **Case Study -> capabilities/integrate** (Product link)
+
+### Inbound Links from Existing Content (Updated):
+- **your-competitor-isn-t-beating-you... -> Blog** (Added update section at bottom)
+- **the-scale-failure-pattern -> Case Study** (Added context link in solution section)
+- **real-estate-tokenization-infrastructure -> Blog** (Added bridge link at bottom)
