@@ -8,6 +8,7 @@ import { BlogCard } from "@/components/CardComponents";
 import { GradientText } from "@/components/GradientText";
 import { Icons } from "@/components/Icons";
 import { PageMeta } from "@/components/PageMeta";
+import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery } from "@tanstack/react-query";
@@ -88,7 +89,11 @@ export default function BlogPage() {
           <div className="section-container text-center">
             <h1 className="font-heading text-2xl font-semibold text-text-primary mb-4">Unable to load articles</h1>
             <p className="text-text-secondary mb-6">Something went wrong. Please try again.</p>
-            <button onClick={() => refetch()} className="font-heading text-sm font-medium bg-primary text-primary-foreground rounded-lg px-6 py-3 hover:bg-primary/90 transition-all">
+            <button
+              onClick={() => refetch()}
+              className="font-heading text-sm font-medium bg-primary text-primary-foreground rounded-lg px-6 py-3 hover:bg-primary/90 transition-all"
+              aria-label="Retry loading articles"
+            >
               Retry
             </button>
           </div>
@@ -132,10 +137,13 @@ export default function BlogPage() {
                   >
                     <div className="min-h-[240px] md:min-h-[300px] relative overflow-hidden bg-gradient-to-br from-accent-light to-primary/[0.08]">
                       {featured.image_url ? (
-                        <img
+                        <Image
                           src={featured.image_url}
                           alt={featured.title}
-                          className="w-full h-full object-cover absolute inset-0"
+                          fill
+                          priority
+                          className="object-cover"
+                          sizes="(max-width: 768px) 100vw, 50vw"
                         />
                       ) : (
                         <>
@@ -252,7 +260,11 @@ export default function BlogPage() {
                   placeholder="you@company.com"
                   className="flex-1 h-12 border border-border rounded-lg px-4 font-body text-sm text-text-primary bg-card outline-none focus:border-primary focus:ring-[3px] focus:ring-accent-light transition-all"
                 />
-                <button onClick={handleSubscribe} className="h-12 px-6 font-heading text-[13px] font-medium bg-primary text-primary-foreground rounded-lg inline-flex items-center justify-center gap-2 hover:bg-primary/90 transition-all whitespace-nowrap">
+                <button
+                  onClick={handleSubscribe}
+                  className="h-12 px-6 font-heading text-[13px] font-medium bg-primary text-primary-foreground rounded-lg inline-flex items-center justify-center gap-2 hover:bg-primary/90 transition-all whitespace-nowrap"
+                  aria-label="Subscribe to newsletter"
+                >
                   Subscribe <Icons.ArrowRight />
                 </button>
               </div>

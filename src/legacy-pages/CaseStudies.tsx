@@ -7,6 +7,7 @@ import { GradientText } from "@/components/GradientText";
 import { Icons } from "@/components/Icons";
 import { PageMeta } from "@/components/PageMeta";
 import { createClient } from "@/lib/supabase/client";
+import Image from "next/image";
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 
@@ -114,11 +115,13 @@ export default function CaseStudiesPage() {
                     className={`block border border-border rounded-2xl overflow-hidden bg-card hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5 transition-all duration-300 group h-full ${i === 0 ? 'md:col-span-2' : ''}`}
                   >
                     {cs.image_url && (
-                      <div className={`w-full overflow-hidden ${i === 0 ? 'h-[280px]' : 'h-[200px]'}`}>
-                        <img
+                      <div className={`w-full overflow-hidden relative ${i === 0 ? 'h-[280px]' : 'h-[200px]'}`}>
+                        <Image
                           src={cs.image_url}
                           alt={cs.title}
+                          fill
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                          sizes="(max-width: 768px) 100vw, 50vw"
                         />
                       </div>
                     )}
