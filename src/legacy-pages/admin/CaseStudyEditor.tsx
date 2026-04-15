@@ -14,6 +14,23 @@ import { cn } from "@/lib/utils";
 
 const DRAFT_KEY_PREFIX = "regent_cs_draft_";
 
+interface CaseStudyForm {
+  title: string;
+  slug: string;
+  industry: string;
+  summary: string;
+  challenge: string;
+  solution: string;
+  results: string[];
+  metrics: { value: string; label: string }[];
+  published: boolean;
+  image_url: string;
+  publish_at: Date | null;
+  meta_title: string;
+  meta_description: string;
+  og_image: string;
+}
+
 export default function CaseStudyEditor() {
   const supabase = createClient();
   const { id } = useParams() as { id?: string };
@@ -26,10 +43,10 @@ export default function CaseStudyEditor() {
   const [draftBanner, setDraftBanner] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const autoSaveRef = useRef<NodeJS.Timeout | null>(null);
-  const [form, setForm] = useState({
+  const [form, setForm] = useState<CaseStudyForm>({
     title: "", slug: "", industry: "", summary: "", challenge: "", solution: "",
     results: [""], metrics: [{ value: "", label: "" }], published: false, image_url: "",
-    publish_at: null as Date | null,
+    publish_at: null,
     meta_title: "", meta_description: "", og_image: "",
   });
 
@@ -39,15 +56,21 @@ export default function CaseStudyEditor() {
     if (isEdit) {
       supabase.from("case_studies").select("*").eq("id", id).single().then(({ data }) => {
         if (data) {
-          const d = data as any;
           setForm({
-            title: d.title, slug: d.slug, industry: d.industry,
-            summary: d.summary, challenge: d.challenge, solution: d.solution,
-            results: (d.results as string[])?.length ? d.results as string[] : [""],
-            metrics: (d.metrics as any[])?.length ? d.metrics as any[] : [{ value: "", label: "" }],
-            published: d.published, image_url: d.image_url || "",
-            publish_at: d.publish_at ? new Date(d.publish_at) : null,
-            meta_title: d.meta_title || "", meta_description: d.meta_description || "", og_image: d.og_image || "",
+            title: data.title,
+            slug: data.slug,
+            industry: data.industry,
+            summary: data.summary,
+            challenge: data.challenge || "",
+            solution: data.solution || "",
+            results: (data.results as string[])?.length ? data.results as string[] : [""],
+            metrics: (data.metrics as any[])?.length ? data.metrics as any[] : [{ value: "", label: "" }],
+            published: data.published,
+            image_url: data.image_url || "",
+            publish_at: data.publish_at ? new Date(data.publish_at) : null,
+            meta_title: data.meta_title || "",
+            meta_description: data.meta_description || "",
+            og_image: data.og_image || "",
           });
         }
       });
@@ -106,7 +129,7 @@ export default function CaseStudyEditor() {
   const handleSave = async () => {
     if (!form.title || !form.slug) { toast({ title: "Title and slug required", variant: "destructive" }); return; }
     setLoading(true);
-    const payload: any = {
+    const payload = {
       title: form.title, slug: form.slug, industry: form.industry,
       summary: form.summary, challenge: form.challenge, solution: form.solution,
       results: form.results.filter(r => r.trim()),
