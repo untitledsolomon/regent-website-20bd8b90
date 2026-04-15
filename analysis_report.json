@@ -1,0 +1,31 @@
+{
+  "total_posts": 9,
+  "title_structures": [
+    "X: Y",
+    "X: Y",
+    "X: Y",
+    "X: Y",
+    "Generic",
+    "X: Y",
+    "Generic",
+    "Why...",
+    "Why..."
+  ],
+  "avg_word_count": 813,
+  "heading_patterns": {
+    "H2s: 5, H3s: 4": 1,
+    "H2s: 8, H3s: 5": 2,
+    "H2s: 3, H3s: 0": 3,
+    "H2s: 7, H3s: 0": 1,
+    "H2s: 4, H3s: 0": 1,
+    "H2s: 0, H3s: 0": 1
+  },
+  "linking_styles": [],
+  "categories": {
+    "Engineering": 1,
+    "Architecture": 3,
+    "Infrastructure": 2,
+    "Strategy": 2,
+    "Strategy ": 1
+  }
+}
