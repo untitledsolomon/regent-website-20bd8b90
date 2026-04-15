@@ -130,7 +130,7 @@ export function BlogPostClient({ post }: { post: BlogPostFull }) {
       .neq("slug", post.slug)
       .limit(3)
       .then(({ data }) => setRelated(data ?? []));
-  }, [post.slug]); // eslint-disable-line
+  }, [post.slug, supabase]);
 
   // Build TOC from h2 tags
   const headings = useMemo(() => {

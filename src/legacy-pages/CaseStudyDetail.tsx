@@ -11,6 +11,7 @@ import { GradientText } from "@/components/GradientText";
 import { RevealOnScroll } from "@/components/RevealOnScroll";
 import { Icons } from "@/components/Icons";
 import { ArrowLeft, Calendar } from "lucide-react";
+import Image from "next/image";
 import { useTrackView } from "@/hooks/useContentTracking";
 
 interface CaseStudy {
@@ -216,8 +217,15 @@ export default function CaseStudyDetail() {
       {cs.image_url && (
         <div className="border-b border-border">
           <div className="section-container max-w-[960px]">
-            <div className="rounded-2xl overflow-hidden border border-border -mt-0 my-0">
-              <img src={cs.image_url} alt={cs.title} className="w-full h-auto object-cover max-h-[480px]" />
+            <div className="rounded-2xl overflow-hidden border border-border relative h-[300px] md:h-[480px] -mt-0 my-0">
+              <Image
+                src={cs.image_url}
+                alt={cs.title}
+                fill
+                priority
+                className="object-cover"
+                sizes="(max-width: 960px) 100vw, 960px"
+              />
             </div>
           </div>
         </div>
@@ -335,8 +343,14 @@ export default function CaseStudyDetail() {
                 <RevealOnScroll key={r.slug} delay={i * 0.1}>
                   <Link href={`/case-studies/${r.slug}`} className="group block bg-card border border-border rounded-2xl overflow-hidden hover:border-primary/30 hover:shadow-lg transition-all">
                     {r.image_url && (
-                      <div className="h-[180px] overflow-hidden">
-                        <img src={r.image_url} alt={r.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                      <div className="h-[180px] overflow-hidden relative">
+                        <Image
+                          src={r.image_url}
+                          alt={r.title}
+                          fill
+                          className="object-cover group-hover:scale-105 transition-transform duration-500"
+                          sizes="(max-width: 768px) 100vw, 33vw"
+                        />
                       </div>
                     )}
                     <div className="p-6">
