@@ -17,6 +17,23 @@ import { Badge } from "@/components/ui/badge";
 
 const DRAFT_KEY_PREFIX = "regent_post_draft_";
 
+interface PostForm {
+  title: string;
+  slug: string;
+  excerpt: string;
+  content: string;
+  author: string;
+  date: string;
+  category: string;
+  read_time: string;
+  image_url: string | null;
+  published: boolean;
+  publish_at: Date | null;
+  meta_title: string;
+  meta_description: string;
+  og_image: string;
+}
+
 export default function PostEditor() {
   const supabase = createClient();
   const { id } = useParams() as { id?: string };
@@ -30,7 +47,7 @@ export default function PostEditor() {
   const [draftBanner, setDraftBanner] = useState(false);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
 
-  const [form, setForm] = useState({
+  const [form, setForm] = useState<PostForm>({
     title: "",
     slug: "",
     excerpt: "",
@@ -39,9 +56,9 @@ export default function PostEditor() {
     date: new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" }),
     category: "",
     read_time: "",
-    image_url: "" as string | null,
+    image_url: null,
     published: false,
-    publish_at: null as Date | null,
+    publish_at: null,
     meta_title: "",
     meta_description: "",
     og_image: "",
@@ -65,16 +82,21 @@ export default function PostEditor() {
       }
 
       if (data) {
-        const d = data as any;
         setForm({
-          title: d.title, slug: d.slug, excerpt: d.excerpt,
-          content: d.content, author: d.author, date: d.date,
-          category: d.category, read_time: d.read_time,
-          image_url: d.image_url || null, published: d.published,
-          publish_at: d.publish_at ? new Date(d.publish_at) : null,
-          meta_title: d.meta_title || "",
-          meta_description: d.meta_description || "",
-          og_image: d.og_image || "",
+          title: data.title,
+          slug: data.slug,
+          excerpt: data.excerpt || "",
+          content: data.content || "",
+          author: data.author,
+          date: data.date,
+          category: data.category || "",
+          read_time: data.read_time || "",
+          image_url: data.image_url || null,
+          published: data.published,
+          publish_at: data.publish_at ? new Date(data.publish_at) : null,
+          meta_title: data.meta_title || "",
+          meta_description: data.meta_description || "",
+          og_image: data.og_image || "",
         });
       }
     };
@@ -165,7 +187,7 @@ export default function PostEditor() {
       return;
     }
     setLoading(true);
-    const payload: any = {
+    const payload = {
       title: form.title, slug: form.slug, excerpt: form.excerpt,
       content: form.content, author: form.author, date: form.date,
       category: form.category, read_time: form.read_time,
