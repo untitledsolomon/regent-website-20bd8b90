@@ -202,15 +202,18 @@ export default function ResourcesPage() {
                     <h2 className="font-heading text-[clamp(24px,3vw,36px)] font-semibold tracking-[-0.03em] text-text-primary mb-4 leading-[1.2]">
                       {featuredResource.title}
                     </h2>
-                    <p className="text-[15px] text-text-secondary leading-[1.7] max-w-[520px]">{featuredResource.description}</p>
+                    <div
+                      className="text-[15px] text-text-secondary leading-[1.7] max-w-[520px] prose-res line-clamp-3 mb-6"
+                      dangerouslySetInnerHTML={{ __html: featuredResource.description }}
+                    />
                   </div>
                   <div className="flex-shrink-0">
-                    <button
-                      onClick={() => handleDownloadClick(featuredResource)}
+                    <a
+                      href={`/resources/${featuredResource.slug}`}
                       className="font-heading text-[15px] font-medium bg-primary text-primary-foreground rounded-lg px-7 py-3.5 inline-flex items-center gap-2 hover:shadow-[0_8px_24px_rgba(79,70,229,0.25)] transition-all"
                     >
-                      Download PDF <Icons.ArrowRight />
-                    </button>
+                      Read Resource <Icons.ArrowRight />
+                    </a>
                   </div>
                 </div>
               </motion.div>
@@ -260,17 +263,11 @@ export default function ResourcesPage() {
               className="grid grid-cols-1 md:grid-cols-3 gap-6"
             >
               {filtered.map((res, i) => (
-                <div key={res.id} onClick={(e) => {
-                  e.preventDefault();
-                  handleDownloadClick(res);
-                }} className="cursor-pointer">
-                  <ResourceCard
-                    res={{ type: res.type, title: res.title, desc: res.description }}
-                    fileUrl={res.file_url}
-                    resourceId={res.id}
-                    delay={Math.min(i + 1, 5)}
-                  />
-                </div>
+                <ResourceCard
+                  key={res.id}
+                  res={{ type: res.type, title: res.title, desc: res.description, slug: res.slug }}
+                  delay={Math.min(i + 1, 5)}
+                />
               ))}
             </motion.div>
           </AnimatePresence>

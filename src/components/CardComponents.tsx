@@ -279,71 +279,40 @@ export function BlogCard({
 // ---------------------------------------------------------------------------
 export function ResourceCard({
   res,
-  fileUrl,
-  resourceId,
   delay = 0,
 }: {
-  res: Resource;
-  fileUrl?: string | null;
-  resourceId?: string;
+  res: Resource & { slug?: string };
   delay?: number;
 }) {
   const color = TYPE_COLORS[res.type] ?? DEFAULT_ACCENT;
 
-  const handleDownload = async () => {
-    if (!fileUrl) {
-      toast({
-        title: "Coming soon",
-        description: "This file will be available for download shortly.",
-      });
-      return;
-    }
-    if (resourceId) {
-      trackDownload(resourceId);
-    }
-    try {
-      const response = await fetch(fileUrl);
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = fileUrl.split("/").pop() || "download";
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      window.URL.revokeObjectURL(url);
-    } catch {
-      window.open(fileUrl, "_blank", "noopener");
-    }
-  };
-
   return (
     <RevealOnScroll delay={delay * 0.1}>
-      <motion.div
-        whileHover={{ y: -3, boxShadow: "0 4px 20px rgba(0,0,0,0.06)" }}
-        className="border border-border rounded-xl p-7 transition-colors hover:border-border-strong"
-      >
-        <div className="mb-3.5">
-          <span
-            className="font-mono text-[11px] tracking-[0.06em] uppercase"
-            style={{ color }}
-          >
-            {res.type}
-          </span>
-        </div>
-        <h3 className="font-heading text-base font-semibold tracking-[-0.02em] leading-[1.3] mb-2.5">
-          {res.title}
-        </h3>
-        <p className="text-[13px] text-text-secondary leading-[1.65] mb-5">
-          {res.desc}
-        </p>
-        <button
-          onClick={handleDownload}
-          className="flex items-center gap-1.5 text-[13px] text-primary font-medium cursor-pointer hover:gap-2.5 transition-all select-none"
+      <Link href={res.slug ? `/resources/${res.slug}` : "/resources"}>
+        <motion.div
+          whileHover={{ y: -3, boxShadow: "0 4px 20px rgba(0,0,0,0.06)" }}
+          className="border border-border rounded-xl p-7 h-full transition-colors hover:border-border-strong cursor-pointer"
         >
-          Download <Icons.ArrowRight />
-        </button>
-      </motion.div>
+          <div className="mb-3.5">
+            <span
+              className="font-mono text-[11px] tracking-[0.06em] uppercase"
+              style={{ color }}
+            >
+              {res.type}
+            </span>
+          </div>
+          <h3 className="font-heading text-base font-semibold tracking-[-0.02em] leading-[1.3] mb-2.5">
+            {res.title}
+          </h3>
+          <div
+            className="text-[13px] text-text-secondary leading-[1.65] mb-5 prose-res-card line-clamp-3"
+            dangerouslySetInnerHTML={{ __html: res.desc }}
+          />
+          <span className="flex items-center gap-1.5 text-[13px] text-primary font-medium hover:gap-2.5 transition-all select-none">
+            Read More <Icons.ArrowRight />
+          </span>
+        </motion.div>
+      </Link>
     </RevealOnScroll>
   );
 }
