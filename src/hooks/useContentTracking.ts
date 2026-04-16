@@ -214,7 +214,7 @@ export async function trackDownload(contentId: string) {
 
 // Call this after a successful newsletter signup or inquiry submission
 // Pass the session_id so we can attribute the conversion
-export async function trackConversion(conversionType: "newsletter" | "inquiry") {
+export async function trackConversion(conversionType: "newsletter" | "inquiry" | "resource_access") {
   const supabase = createClient();
   const session_id = getSessionId();
   // Update the most recent view from this session
