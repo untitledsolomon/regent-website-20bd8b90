@@ -46,7 +46,72 @@ export function CapabilityCard({
   desc: string;
   delay?: number;
 }) {
-  const IconComp = Icons[icon];
+  // Inline geometric icons for each service
+  const getInlineIcon = (iconName: IconName) => {
+    const strokeWidth = "1.5";
+    const size = "24";
+    const color = "currentColor";
+
+    switch (iconName) {
+      case "Integration":
+        return (
+          <svg width={size} height={size} viewBox="0 0 24 24" fill="none" role="img">
+            <title>Integration icon: interconnecting web nodes</title>
+            <circle cx="12" cy="12" r="3" stroke={color} strokeWidth={strokeWidth} />
+            <circle cx="5" cy="5" r="2" stroke={color} strokeWidth={strokeWidth} />
+            <circle cx="19" cy="5" r="2" stroke={color} strokeWidth={strokeWidth} />
+            <circle cx="5" cy="19" r="2" stroke={color} strokeWidth={strokeWidth} />
+            <circle cx="19" cy="19" r="2" stroke={color} strokeWidth={strokeWidth} />
+            <path d="M7 7L10 10 M14 14L17 17 M17 7L14 10 M10 14L7 17" stroke={color} strokeWidth={strokeWidth} />
+          </svg>
+        );
+      case "Database":
+        return (
+          <svg width={size} height={size} viewBox="0 0 24 24" fill="none" role="img">
+            <title>Data Infrastructure icon: stacked data layers</title>
+            <path d="M4 6L12 10L20 6L12 2L4 6Z" stroke={color} strokeWidth={strokeWidth} />
+            <path d="M4 12L12 16L20 12" stroke={color} strokeWidth={strokeWidth} />
+            <path d="M4 18L12 22L20 18" stroke={color} strokeWidth={strokeWidth} />
+            <path d="M4 6V18 M12 10V22 M20 6V18" stroke={color} strokeWidth={strokeWidth} strokeDasharray="2 2" />
+          </svg>
+        );
+      case "Workflow":
+        return (
+          <svg width={size} height={size} viewBox="0 0 24 24" fill="none" role="img">
+            <title>Workflow Automation icon: branching process paths</title>
+            <rect x="3" y="10" width="4" height="4" stroke={color} strokeWidth={strokeWidth} />
+            <rect x="17" y="4" width="4" height="4" stroke={color} strokeWidth={strokeWidth} />
+            <rect x="17" y="16" width="4" height="4" stroke={color} strokeWidth={strokeWidth} />
+            <path d="M7 12H11C13 12 14 11 14 9V6H17" stroke={color} strokeWidth={strokeWidth} />
+            <path d="M14 12V15C14 17 15 18 17 18H17" stroke={color} strokeWidth={strokeWidth} />
+          </svg>
+        );
+      case "Intelligence":
+        return (
+          <svg width={size} height={size} viewBox="0 0 24 24" fill="none" role="img">
+            <title>Intelligence Systems icon: neural network nodes</title>
+            <circle cx="12" cy="7" r="3" stroke={color} strokeWidth={strokeWidth} />
+            <circle cx="6" cy="16" r="3" stroke={color} strokeWidth={strokeWidth} />
+            <circle cx="18" cy="16" r="3" stroke={color} strokeWidth={strokeWidth} />
+            <path d="M10 9L7.5 13.5 M14 9L16.5 13.5 M9 16H15" stroke={color} strokeWidth={strokeWidth} strokeDasharray="2 2" />
+          </svg>
+        );
+      case "Monitor":
+        return (
+          <svg width={size} height={size} viewBox="0 0 24 24" fill="none" role="img">
+            <title>Operational Monitoring icon: system pulse and tracking</title>
+            <rect x="3" y="3" width="18" height="14" rx="2" stroke={color} strokeWidth={strokeWidth} />
+            <path d="M3 12H7L9 6L13 18L15 12H21" stroke={color} strokeWidth={strokeWidth} />
+            <path d="M8 21H16" stroke={color} strokeWidth={strokeWidth} />
+            <path d="M12 17V21" stroke={color} strokeWidth={strokeWidth} />
+          </svg>
+        );
+      default:
+        const IconComp = Icons[iconName];
+        return IconComp ? <IconComp /> : <Puzzle size={18} strokeWidth={1.5} />;
+    }
+  };
+
   return (
     <RevealOnScroll delay={delay * 0.1}>
       <motion.div
@@ -54,7 +119,7 @@ export function CapabilityCard({
         className="bg-card border border-border rounded-xl p-7 transition-colors hover:border-border-strong"
       >
         <div className="w-10 h-10 bg-accent-light rounded-[10px] flex items-center justify-center mb-5 text-primary">
-          {IconComp ? <IconComp /> : <Puzzle size={18} strokeWidth={1.5} />}
+          {getInlineIcon(icon)}
         </div>
         <div className="font-heading text-base font-semibold tracking-[-0.02em] mb-2 text-text-primary">
           {title}
@@ -325,6 +390,17 @@ export function CTASection() {
     <div className="py-[120px]">
       <div className="section-container">
         <div className="bg-text-primary rounded-[20px] p-10 md:p-20 text-center relative overflow-hidden">
+          {/* Subtle geometric background pattern */}
+          <div className="absolute inset-0 opacity-[0.06] pointer-events-none" aria-hidden="true">
+            <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <pattern id="dotGrid" width="24" height="24" patternUnits="userSpaceOnUse">
+                  <circle cx="2" cy="2" r="1" fill="currentColor" className="text-background" />
+                </pattern>
+              </defs>
+              <rect width="100%" height="100%" fill="url(#dotGrid)" />
+            </svg>
+          </div>
           <div className="absolute w-[600px] h-[600px] bg-[radial-gradient(circle,rgba(79,70,229,0.15)_0%,transparent_70%)] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none" />
           <div className="relative z-10">
             <div className="mb-6">
