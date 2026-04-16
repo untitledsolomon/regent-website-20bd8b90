@@ -133,49 +133,132 @@ export default function HomePage() {
       <section className="pt-[140px] pb-[100px] relative overflow-hidden bg-card">
         <AnimatedBackground />
         <div className="section-container relative z-10">
-          <div className="max-w-[800px]">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-              className="inline-flex items-center gap-2 bg-accent-light border border-primary/20 rounded-full px-3.5 py-1.5 mb-8"
-            >
-              <div className="w-1.5 h-1.5 bg-primary rounded-full animate-pulse-dot" />
-              <span className="font-mono text-[11px] tracking-[0.08em] text-primary">
-                ENTERPRISE SYSTEMS BUILDER
-              </span>
-            </motion.div>
-
-            <StaggeredHeadline />
-
-            <motion.p
-              initial={{ opacity: 0, y: 24 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.7, delay: 0.8, ease: [0.16, 1, 0.3, 1] }}
-              className="text-[clamp(16px,2vw,20px)] font-light text-text-secondary leading-[1.65] max-w-[560px] mb-10"
-            >
-              Regent architects and builds enterprise systems that connect data, workflows, and intelligence across organizations.
-            </motion.p>
-
-            <motion.div
-              initial={{ opacity: 0, y: 24 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.7, delay: 1.0, ease: [0.16, 1, 0.3, 1] }}
-              className="flex flex-col sm:flex-row gap-3"
-            >
-              <Link
-                href="/demo"
-                className="font-heading text-[15px] font-medium bg-primary text-primary-foreground rounded-lg px-7 py-3.5 inline-flex items-center justify-center gap-2 hover:shadow-[0_8px_24px_rgba(79,70,229,0.25)] hover:-translate-y-0.5 transition-all w-full sm:w-auto"
+          <div className="relative">
+            <div className="max-w-[800px]">
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+                className="inline-flex items-center gap-2 bg-accent-light border border-primary/20 rounded-full px-3.5 py-1.5 mb-8"
               >
-                Start a Project <Icons.ArrowRight />
-              </Link>
-              <Link
-                href="/platform"
-                className="font-heading text-[15px] font-medium bg-transparent text-text-primary border border-border-strong rounded-lg px-7 py-3.5 inline-flex items-center justify-center gap-2 hover:bg-surface hover:border-text-muted hover:-translate-y-px transition-all w-full sm:w-auto"
+                <div className="w-1.5 h-1.5 bg-primary rounded-full animate-pulse-dot" />
+                <span className="font-mono text-[11px] tracking-[0.08em] text-primary">
+                  ENTERPRISE SYSTEMS BUILDER
+                </span>
+              </motion.div>
+
+              <StaggeredHeadline />
+
+              <motion.p
+                initial={{ opacity: 0, y: 24 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.7, delay: 0.8, ease: [0.16, 1, 0.3, 1] }}
+                className="text-[clamp(16px,2vw,20px)] font-light text-text-secondary leading-[1.65] max-w-[560px] mb-10"
               >
-                Explore Our Capabilities
-              </Link>
-            </motion.div>
+                Regent architects and builds enterprise systems that connect data, workflows, and intelligence across organizations.
+              </motion.p>
+
+              <motion.div
+                initial={{ opacity: 0, y: 24 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.7, delay: 1.0, ease: [0.16, 1, 0.3, 1] }}
+                className="flex flex-col sm:flex-row gap-3"
+              >
+                <Link
+                  href="/demo"
+                  className="font-heading text-[15px] font-medium bg-primary text-primary-foreground rounded-lg px-7 py-3.5 inline-flex items-center justify-center gap-2 hover:shadow-[0_8px_24px_rgba(79,70,229,0.25)] hover:-translate-y-0.5 transition-all w-full sm:w-auto"
+                >
+                  Start a Project <Icons.ArrowRight />
+                </Link>
+                <Link
+                  href="/platform"
+                  className="font-heading text-[15px] font-medium bg-transparent text-text-primary border border-border-strong rounded-lg px-7 py-3.5 inline-flex items-center justify-center gap-2 hover:bg-surface hover:border-text-muted hover:-translate-y-px transition-all w-full sm:w-auto"
+                >
+                  Explore Our Capabilities
+                </Link>
+              </motion.div>
+            </div>
+
+            {/* Hero Illustration */}
+            <div className="hidden lg:block absolute right-0 top-0 w-[420px] h-[320px] pointer-events-none">
+              <svg
+                width="420"
+                height="320"
+                viewBox="0 0 420 320"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+                role="img"
+                className="w-full h-full"
+              >
+                <title>Abstract isometric systems architecture illustration representing interconnected nodes and layered infrastructure.</title>
+                {/* Plane 1 - Top */}
+                <motion.path
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 1, delay: 0.5 }}
+                  d="M210 40L350 110L210 180L70 110L210 40Z"
+                  stroke="hsl(var(--primary))"
+                  strokeWidth="1.5"
+                  fill="hsl(var(--primary) / 0.03)"
+                />
+                {/* Plane 2 - Bottom */}
+                <motion.path
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 1, delay: 0.7 }}
+                  d="M210 100L350 170L210 240L70 170L210 100Z"
+                  stroke="hsl(var(--primary))"
+                  strokeWidth="1.5"
+                  fill="hsl(var(--primary) / 0.03)"
+                />
+
+                {/* Vertical Connectors */}
+                <motion.path
+                  initial={{ pathLength: 0 }}
+                  animate={{ pathLength: 1 }}
+                  transition={{ duration: 1.5, delay: 1 }}
+                  d="M210 40V100 M350 110V170 M70 110V170 M210 180V240"
+                  stroke="hsl(var(--primary))"
+                  strokeWidth="1"
+                  strokeDasharray="4 4"
+                  opacity="0.3"
+                />
+
+                {/* Data Nodes */}
+                <motion.circle initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ delay: 1.2 }} cx="210" cy="40" r="4" fill="hsl(var(--primary))" />
+                <motion.circle initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ delay: 1.3 }} cx="350" cy="110" r="4" fill="hsl(var(--primary))" />
+                <motion.circle initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ delay: 1.4 }} cx="210" cy="180" r="4" fill="hsl(var(--primary))" />
+                <motion.circle initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ delay: 1.5 }} cx="70" cy="110" r="4" fill="hsl(var(--primary))" />
+
+                {/* Connecting Lines on Top Plane */}
+                <motion.path
+                  initial={{ pathLength: 0 }}
+                  animate={{ pathLength: 1 }}
+                  transition={{ duration: 1.2, delay: 1.6 }}
+                  d="M140 75L280 145 M140 145L280 75"
+                  stroke="hsl(var(--primary))"
+                  strokeWidth="1"
+                  opacity="0.4"
+                />
+
+                {/* Pulse effect nodes */}
+                <motion.circle
+                  cx="210"
+                  cy="110"
+                  r="3"
+                  fill="hsl(var(--primary))"
+                  animate={{
+                    scale: [1, 1.5, 1],
+                    opacity: [0.5, 1, 0.5],
+                  }}
+                  transition={{
+                    duration: 3,
+                    repeat: Infinity,
+                    ease: "easeInOut",
+                  }}
+                />
+              </svg>
+            </div>
           </div>
 
           {/* Metrics with animated counters */}
@@ -269,6 +352,60 @@ export default function HomePage() {
               subtitle="Five integrated modules we deploy as a complete system or independently — tailored to each client."
             />
           </RevealOnScroll>
+
+          {/* Flow Illustration */}
+          <div className="mb-16 hidden md:block">
+            <svg width="100%" height="120" viewBox="0 0 1000 120" fill="none" xmlns="http://www.w3.org/2000/svg" role="img">
+              <title>Horizontal flow diagram representing the 5 integrated modules: Integrate, Data, Automate, Intelligence, and Monitor.</title>
+
+              {/* Connector lines */}
+              <line x1="160" y1="60" x2="240" y2="60" stroke="hsl(var(--primary))" strokeWidth="2" strokeDasharray="4 4" opacity="0.4" />
+              <line x1="360" y1="60" x2="440" y2="60" stroke="hsl(var(--primary))" strokeWidth="2" strokeDasharray="4 4" opacity="0.4" />
+              <line x1="560" y1="60" x2="640" y2="60" stroke="hsl(var(--primary))" strokeWidth="2" strokeDasharray="4 4" opacity="0.4" />
+              <line x1="760" y1="60" x2="840" y2="60" stroke="hsl(var(--primary))" strokeWidth="2" strokeDasharray="4 4" opacity="0.4" />
+
+              {/* Steps/Nodes */}
+              {[
+                { x: 100, label: "01 INTEGRATE" },
+                { x: 300, label: "02 DATA" },
+                { x: 500, label: "03 AUTOMATE" },
+                { x: 700, label: "04 INTELLIGENCE" },
+                { x: 900, label: "05 MONITOR" }
+              ].map((step, i) => (
+                <g key={i}>
+                  <rect
+                    x={step.x - 60}
+                    y="35"
+                    width="120"
+                    height="50"
+                    rx="8"
+                    fill="hsl(var(--primary) / 0.05)"
+                    stroke="hsl(var(--primary))"
+                    strokeWidth="1.5"
+                  />
+                  <text
+                    x={step.x}
+                    y="64"
+                    textAnchor="middle"
+                    fill="hsl(var(--primary))"
+                    className="font-mono text-[10px] font-medium tracking-wider"
+                  >
+                    {step.label}
+                  </text>
+                  {i < 4 && (
+                    <path
+                      d={`M ${step.x + 80} 60 L ${step.x + 100} 60 L ${step.x + 94} 54 M ${step.x + 100} 60 L ${step.x + 94} 66`}
+                      stroke="hsl(var(--primary))"
+                      strokeWidth="1.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  )}
+                </g>
+              ))}
+            </svg>
+          </div>
+
           <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
             {modules.slice(0, 3).map((m, i) => (
               <ModuleCard key={m.name} mod={m} delay={i + 1} />
