@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Icons } from '@/components/Icons';
 import { createClient } from '@/lib/supabase/client';
-import { trackConversion } from '@/hooks/useContentTracking';
+import { trackConversion, useTrackView } from '@/hooks/useContentTracking';
 
 interface ResourceReaderProps {
   resource: {
@@ -21,6 +21,8 @@ export default function ResourceReader({ resource }: ResourceReaderProps) {
   const [email, setEmail] = useState('');
   const [subscribing, setSubscribing] = useState(false);
   const supabase = createClient();
+
+  useTrackView("resource", resource.id);
 
   useEffect(() => {
     const savedEmail = localStorage.getItem('regent_lead_email');
