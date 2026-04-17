@@ -229,7 +229,7 @@ export function BlogClient({ posts }: { posts: BlogPost[] }) {
           >
             <div className="font-mono text-[11px] tracking-[0.12em] uppercase text-primary mb-4">INSIGHTS</div>
             <h1 className="text-[clamp(36px,5vw,64px)] font-heading font-semibold tracking-[-0.04em] leading-[1.0] text-foreground mb-6">
-              Insights
+              Systems & Infrastructure Insights
             </h1>
             <p className="text-[clamp(16px,2vw,20px)] font-light text-muted-foreground leading-[1.65] max-w-[560px]">
               Ideas on systems, infrastructure, intelligence, and enterprise technology.
