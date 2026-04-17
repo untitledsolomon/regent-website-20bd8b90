@@ -218,14 +218,21 @@ export default function CaseStudyDetail() {
         <div className="border-b border-border">
           <div className="section-container max-w-[960px]">
             <div className="rounded-2xl overflow-hidden border border-border relative h-[300px] md:h-[480px] -mt-0 my-0">
-              <Image
-                src={cs.image_url}
-                alt={cs.title}
-                fill
-                priority
-                className="object-cover"
-                sizes="(max-width: 960px) 100vw, 960px"
-              />
+              {cs.image_url.trim().startsWith("<svg") ? (
+                <div
+                  className="w-full h-full [&>svg]:w-full [&>svg]:h-full [&>svg]:object-cover"
+                  dangerouslySetInnerHTML={{ __html: cs.image_url }}
+                />
+              ) : (
+                <Image
+                  src={cs.image_url}
+                  alt={cs.title}
+                  fill
+                  priority
+                  className="object-cover"
+                  sizes="(max-width: 960px) 100vw, 960px"
+                />
+              )}
             </div>
           </div>
         </div>
@@ -344,13 +351,20 @@ export default function CaseStudyDetail() {
                   <Link href={`/case-studies/${r.slug}`} className="group block bg-card border border-border rounded-2xl overflow-hidden hover:border-primary/30 hover:shadow-lg transition-all">
                     {r.image_url && (
                       <div className="h-[180px] overflow-hidden relative">
-                        <Image
-                          src={r.image_url}
-                          alt={r.title}
-                          fill
-                          className="object-cover group-hover:scale-105 transition-transform duration-500"
-                          sizes="(max-width: 768px) 100vw, 33vw"
-                        />
+                        {r.image_url.trim().startsWith("<svg") ? (
+                          <div
+                            className="w-full h-full [&>svg]:w-full [&>svg]:h-full [&>svg]:object-cover"
+                            dangerouslySetInnerHTML={{ __html: r.image_url }}
+                          />
+                        ) : (
+                          <Image
+                            src={r.image_url}
+                            alt={r.title}
+                            fill
+                            className="object-cover group-hover:scale-105 transition-transform duration-500"
+                            sizes="(max-width: 768px) 100vw, 33vw"
+                          />
+                        )}
                       </div>
                     )}
                     <div className="p-6">

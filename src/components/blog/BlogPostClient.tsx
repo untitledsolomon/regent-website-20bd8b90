@@ -42,6 +42,8 @@ interface RelatedPost {
 
 function RelatedCard({ post, index }: { post: RelatedPost; index: number }) {
   const cover = post.og_image ?? post.image_url;
+  const isInlineSvg = cover?.trim().startsWith("<svg");
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 16 }}
@@ -57,13 +59,20 @@ function RelatedCard({ post, index }: { post: RelatedPost; index: number }) {
         >
           <div className="h-[160px] relative overflow-hidden bg-gradient-to-br from-accent-light to-primary/[0.08] shrink-0">
             {cover ? (
-              <Image
-                src={cover}
-                alt={`Cover image for ${post.title}`}
-                className="w-full h-full object-cover"
-                fill
-                sizes="(max-width: 768px) 100vw, 33vw"
-              />
+              isInlineSvg ? (
+                <div
+                  className="w-full h-full [&>svg]:w-full [&>svg]:h-full [&>svg]:object-cover"
+                  dangerouslySetInnerHTML={{ __html: cover }}
+                />
+              ) : (
+                <Image
+                  src={cover}
+                  alt={`Cover image for ${post.title}`}
+                  className="w-full h-full object-cover"
+                  fill
+                  sizes="(max-width: 768px) 100vw, 33vw"
+                />
+              )
             ) : (
               <div className="absolute inset-0 flex items-center justify-center opacity-20 text-primary">
                 <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
@@ -248,14 +257,21 @@ export function BlogPostClient({ post }: { post: BlogPostFull }) {
       {cover && (
         <div className="section-container max-w-[800px] pt-10">
           <div className="rounded-2xl overflow-hidden border border-border aspect-[16/7] relative">
-            <Image
-              src={cover}
-              alt={`Main cover image for ${post.title}`}
-              className="w-full h-full object-cover"
-              fill
-              priority
-              sizes="(max-width: 800px) 100vw, 800px"
-            />
+            {cover.trim().startsWith("<svg") ? (
+              <div
+                className="w-full h-full [&>svg]:w-full [&>svg]:h-full [&>svg]:object-cover"
+                dangerouslySetInnerHTML={{ __html: cover }}
+              />
+            ) : (
+              <Image
+                src={cover}
+                alt={`Main cover image for ${post.title}`}
+                className="w-full h-full object-cover"
+                fill
+                priority
+                sizes="(max-width: 800px) 100vw, 800px"
+              />
+            )}
           </div>
         </div>
       )}
