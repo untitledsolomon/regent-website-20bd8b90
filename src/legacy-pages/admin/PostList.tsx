@@ -24,8 +24,9 @@ import {
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
+import type { BlogPost, ContentAnalytics } from "@/types/admin";
 
-interface Post {
+interface Post extends Partial<BlogPost> {
   id: string;
   title: string;
   slug: string;
@@ -54,8 +55,8 @@ export default function PostList() {
       supabase.rpc("get_content_analytics")
     ]);
 
-    const posts = (postsRes.data as any[]) || [];
-    const analytics = (analyticsRes.data as any[]) || [];
+    const posts = (postsRes.data as Post[]) || [];
+    const analytics = (analyticsRes.data as ContentAnalytics[]) || [];
 
     const enriched = posts.map(post => {
       const stats = analytics.find(a => a.content_id === post.id);

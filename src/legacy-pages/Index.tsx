@@ -288,12 +288,12 @@ export default function HomePage() {
       <LogoMarquee />
 
       {/* Capabilities */}
-      <section className="py-[100px]">
+      <section className="py-[100px]" id="capabilities">
         <div className="section-container">
           <RevealOnScroll>
             <SectionHeader
               label="CAPABILITIES"
-              title="Everything your organization needs"
+              title="Enterprise Systems Engineering Capabilities"
               subtitle="Complete capabilities in systems integration, data infrastructure, automation, and intelligence — deployed at enterprise scale."
             />
           </RevealOnScroll>
@@ -453,7 +453,7 @@ export default function HomePage() {
             <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-12 gap-4">
               <div>
                 <div className="font-mono text-[11px] tracking-[0.12em] uppercase text-primary mb-4">INSIGHTS</div>
-                <h2 className="text-[clamp(28px,4vw,48px)] font-heading font-semibold tracking-[-0.03em] leading-[1.1] text-text-primary mb-2">Insights</h2>
+                <h2 className="text-[clamp(28px,4vw,48px)] font-heading font-semibold tracking-[-0.03em] leading-[1.1] text-text-primary mb-2">Research & Perspectives</h2>
                 <p className="text-lg font-light text-text-secondary leading-relaxed max-w-[480px]">
                   Research and perspectives on systems infrastructure and enterprise technology.
                 </p>

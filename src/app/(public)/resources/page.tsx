@@ -2,10 +2,10 @@ import type { Metadata } from 'next'
 import Resources from '@/legacy-pages/Resources'
 
 export const metadata: Metadata = {
-  title: 'Resources',
+  title: 'Technical Resources & Whitepapers',
   description: 'Technical whitepapers, research, and documentation for enterprise integration and data infrastructure.',
   openGraph: {
-    title: 'Resources | Regent Analytics',
+    title: 'Technical Resources & Whitepapers | Regent Analytics',
     description: 'Technical whitepapers, research, and documentation for enterprise integration and data infrastructure.',
     type: 'website',
   },
@@ -16,7 +16,7 @@ export default function ResourcesPage() {
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'CollectionPage',
-    name: 'Resources',
+    name: 'Technical Resources & Whitepapers',
     description: 'Technical whitepapers, research, and documentation for enterprise integration and data infrastructure.',
     publisher: {
       '@type': 'Organization',
