@@ -60,7 +60,6 @@ function getTrackingPayload() {
 
 async function checkIsReturning(session_id: string): Promise<boolean> {
   const supabase = createClient();
-  // Check if this session has been seen before
   const { data } = await (supabase as any)
     .from("known_sessions")
     .select("session_id")
@@ -69,7 +68,6 @@ async function checkIsReturning(session_id: string): Promise<boolean> {
 
   if (data) return true;
 
-  // First time — record it
   await (supabase as any)
     .from("known_sessions")
     .insert({ session_id });
@@ -97,21 +95,50 @@ function trackScrollDepth(): () => number {
   };
 }
 
+/**
+ * Low-level function to track a page view.
+ * Returns the view ID so it can be updated later.
+ */
+export async function trackPageView(contentType: string = 'page', contentId?: string) {
+  const supabase = createClient();
+  const payload = getTrackingPayload();
+  const is_returning = await checkIsReturning(payload.session_id);
+
+  const finalContentId = contentId || (typeof window !== 'undefined' ? window.location.pathname : 'unknown');
+
+  const { data } = await (supabase as any)
+    .from("content_views")
+    .insert({
+      content_type: contentType,
+      content_id: finalContentId,
+      ...payload,
+      is_returning,
+      scroll_depth: 0,
+      time_on_page: 0,
+    })
+    .select("id")
+    .single();
+
+  return data?.id || null;
+}
+
 export function useTrackView(contentType: string, contentId: string | undefined) {
   const supabase = createClient();
-  const tracked = useRef(false);
   const viewIdRef = useRef<string | null>(null);
+  const lastTrackedId = useRef<string | null>(null);
   const startTimeRef = useRef<number>(Date.now());
 
   useEffect(() => {
-    if (!contentId || tracked.current) return;
-    tracked.current = true;
+    if (!contentId || lastTrackedId.current === contentId) return;
+
+    // Reset tracking state for new content
+    lastTrackedId.current = contentId;
+    viewIdRef.current = null;
     startTimeRef.current = Date.now();
 
     const payload = getTrackingPayload();
     const stopScrollTracking = trackScrollDepth();
 
-    // Insert initial view record
     const insertView = async () => {
       const is_returning = await checkIsReturning(payload.session_id);
 
@@ -133,7 +160,6 @@ export function useTrackView(contentType: string, contentId: string | undefined)
 
     insertView();
 
-    // Heartbeat to update time and scroll every 30s
     const heartbeatInterval = setInterval(() => {
       if (!viewIdRef.current) return;
       const timeOnPage = Math.round((Date.now() - startTimeRef.current) / 1000);
@@ -146,13 +172,11 @@ export function useTrackView(contentType: string, contentId: string | undefined)
         .then(() => {});
     }, 30000);
 
-    // On page unload, update with final time_on_page and scroll_depth
     const handleUnload = () => {
       if (!viewIdRef.current) return;
       const timeOnPage = Math.round((Date.now() - startTimeRef.current) / 1000);
       const scrollDepth = stopScrollTracking();
 
-      // Use fetch with keepalive for reliability on page unload
       const url = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/content_views?id=eq.${viewIdRef.current}`;
       const body = JSON.stringify({ time_on_page: timeOnPage, scroll_depth: scrollDepth });
 
@@ -182,7 +206,7 @@ export function useTrackView(contentType: string, contentId: string | undefined)
       window.removeEventListener("visibilitychange", handleVisibilityChange);
       window.removeEventListener("beforeunload", handleUnload);
 
-      // Also update on component unmount (SPA navigation)
+      // Final update on unmount
       if (viewIdRef.current) {
         const timeOnPage = Math.round((Date.now() - startTimeRef.current) / 1000);
         const scrollDepth = stopScrollTracking();
@@ -212,12 +236,9 @@ export async function trackDownload(contentId: string) {
     });
 }
 
-// Call this after a successful newsletter signup or inquiry submission
-// Pass the session_id so we can attribute the conversion
 export async function trackConversion(conversionType: "newsletter" | "inquiry" | "resource_access") {
   const supabase = createClient();
   const session_id = getSessionId();
-  // Update the most recent view from this session
   const { data } = await supabase
     .from("content_views")
     .select("id")
