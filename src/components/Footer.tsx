@@ -101,6 +101,7 @@ export function Footer() {
                   onFocus={() => setFocused(true)}
                   onBlur={() => setFocused(false)}
                   placeholder="Your email"
+                  aria-label="Email address for newsletter"
                   className="relative w-full bg-background/10 border border-background/15 rounded-lg px-3 py-2 text-sm text-background placeholder:text-background/30 outline-none transition-colors focus:bg-background/15"
                 />
               </div>

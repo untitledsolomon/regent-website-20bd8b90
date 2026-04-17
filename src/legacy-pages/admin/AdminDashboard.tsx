@@ -19,6 +19,14 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import type {
+  BlogPost,
+  CaseStudy,
+  Resource,
+  ContentAnalytics,
+  ContentInsight,
+  DailyView
+} from "@/types/admin";
 
 interface Stats {
   posts: { total: number; published: number };
@@ -32,23 +40,8 @@ interface Stats {
   contentByMonth: { month: string; posts: number; caseStudies: number; resources: number }[];
   totalViews: number;
   uniqueVisitors: number;
-  insights: {
-    content_id: string;
-    content_type: string;
-    title: string;
-    performance_category: 'stellar' | 'improving' | 'underperforming';
-    suggestion: string;
-    metric_value: number;
-  }[];
-  topContent: {
-    content_type: string;
-    content_id: string;
-    title: string;
-    view_count: number;
-    avg_time_on_page: number;
-    avg_scroll_depth: number;
-    last_viewed_at: string;
-  }[];
+  insights: ContentInsight[];
+  topContent: ContentAnalytics[];
   dailyViews: { date: string; views: number; visitors: number }[];
 }
 
@@ -93,16 +86,16 @@ export default function AdminDashboard() {
         supabase.from("newsletter_subscribers").select("id", { count: "exact", head: true }),
         supabase.from("consultation_requests").select("id, status, created_at"),
         supabase.from("newsletter_subscribers").select("id, created_at"),
-        (supabase as any).rpc("get_content_analytics"),
-        (supabase as any).rpc("get_daily_views", { days_back: 30 }),
+        supabase.rpc("get_content_analytics"),
+        supabase.rpc("get_daily_views", { days_back: 30 }),
         supabase.from("content_views").select("id", { count: "exact", head: true }),
         (supabase as any).rpc("get_unique_visitors_count"),
         (supabase as any).rpc("get_content_insights"),
       ]);
 
-      const posts = postsRes.data || [];
-      const cs = csRes.data || [];
-      const res = resRes.data || [];
+      const posts = (postsRes.data as Partial<BlogPost>[]) || [];
+      const cs = (csRes.data as Partial<CaseStudy>[]) || [];
+      const res = (resRes.data as Partial<Resource>[]) || [];
       const inqs = inqRes.data || [];
       const subsAll = subsAllRes.data || [];
 
@@ -133,12 +126,12 @@ export default function AdminDashboard() {
       const months6 = Array.from({ length: 6 }, (_, i) => format(startOfMonth(subDays(new Date(), i * 30)), "MMM yyyy")).reverse();
       const contentByMonth = months6.map(month => ({
         month,
-        posts: posts.filter(x => format(parseISO(x.created_at), "MMM yyyy") === month).length,
-        caseStudies: cs.filter(x => format(parseISO(x.created_at), "MMM yyyy") === month).length,
-        resources: res.filter(x => format(parseISO(x.created_at), "MMM yyyy") === month).length,
+        posts: posts.filter(x => x.created_at && format(parseISO(x.created_at), "MMM yyyy") === month).length,
+        caseStudies: cs.filter(x => x.created_at && format(parseISO(x.created_at), "MMM yyyy") === month).length,
+        resources: res.filter(x => x.created_at && format(parseISO(x.created_at), "MMM yyyy") === month).length,
       }));
 
-      const topContent = (analyticsRes.data || []).map((item: any) => ({
+      const topContent: ContentAnalytics[] = ((analyticsRes.data as any[]) || []).map((item) => ({
         content_type: item.content_type,
         content_id: item.content_id,
         title: item.title,
@@ -152,7 +145,7 @@ export default function AdminDashboard() {
         const d = subDays(new Date(), 29 - i);
         const dateStr = format(d, "yyyy-MM-dd");
         const displayDate = format(d, "MMM dd");
-        const found = (dailyViewsRes.data || []).find((v: any) => v.view_date === dateStr);
+        const found = (dailyViewsRes.data as DailyView[] || []).find((v) => v.view_date === dateStr);
         return {
           date: displayDate,
           views: found ? Number(found.view_count) : 0,
@@ -172,15 +165,15 @@ export default function AdminDashboard() {
         contentByMonth,
         totalViews: totalViewsRes.count || 0,
         uniqueVisitors: Number(uniqueVisitorsRes.data) || 0,
-        insights: insightsRes.data || [],
+        insights: (insightsRes.data as ContentInsight[]) || [],
         topContent,
         dailyViews,
       });
 
       const all: RecentItem[] = [
-        ...posts.map(p => ({ id: p.id, title: p.title, type: "post" as const, updated_at: p.updated_at, published: p.published })),
-        ...cs.map(c => ({ id: c.id, title: c.title, type: "case_study" as const, updated_at: c.updated_at, published: c.published })),
-        ...res.map(r => ({ id: r.id, title: r.title, type: "resource" as const, updated_at: r.updated_at, published: r.published })),
+        ...posts.map(p => ({ id: p.id!, title: p.title!, type: "post" as const, updated_at: p.updated_at!, published: !!p.published })),
+        ...cs.map(c => ({ id: c.id!, title: c.title!, type: "case_study" as const, updated_at: c.updated_at!, published: !!c.published })),
+        ...res.map(r => ({ id: r.id!, title: r.title!, type: "resource" as const, updated_at: r.updated_at!, published: !!r.published })),
       ];
       all.sort((a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime());
       setRecent(all.slice(0, 6));
@@ -482,19 +475,27 @@ export default function AdminDashboard() {
   );
 }
 
+interface ActivityLogEntry {
+  id: string;
+  action: string;
+  entity_type: string;
+  entity_title?: string;
+  created_at: string;
+}
+
 function ActivityLogWidget() {
   const supabase = createClient();
-  const [logs, setLogs] = useState<any[]>([]);
+  const [logs, setLogs] = useState<ActivityLogEntry[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     supabase
-      .from("admin_activity_log" as any)
+      .from("admin_activity_log")
       .select("*")
       .order("created_at", { ascending: false })
       .limit(8)
       .then(({ data }) => {
-        setLogs(data || []);
+        setLogs((data as ActivityLogEntry[]) || []);
         setLoading(false);
       });
   }, []);
@@ -508,7 +509,7 @@ function ActivityLogWidget() {
         {loading ? (
           <div className="space-y-2">{[1, 2, 3].map(i => <div key={i} className="h-10 bg-muted rounded-xl animate-pulse" />)}</div>
         ) : (
-          logs.map((log: any) => (
+          logs.map((log) => (
             <div key={log.id} className="flex gap-4">
               <div className="relative">
                 <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center relative z-10 border-2 border-card">
