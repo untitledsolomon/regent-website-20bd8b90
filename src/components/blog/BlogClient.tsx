@@ -43,13 +43,20 @@ function BlogCard({ post, index }: { post: BlogPost; index: number }) {
           {/* Image / placeholder */}
           <div className="h-[180px] relative overflow-hidden bg-gradient-to-br from-accent-light to-primary/[0.08] shrink-0">
             {post.og_image || post.image_url ? (
-              <Image
-                src={post.og_image ?? post.image_url!}
-                alt={`Cover image for ${post.title}`}
-                className="w-full h-full object-cover"
-                fill
-                sizes="(max-width: 768px) 100vw, 33vw"
-              />
+              (post.og_image?.startsWith("<svg") || post.image_url?.startsWith("<svg")) ? (
+                <div
+                  className="w-full h-full [&>svg]:w-full [&>svg]:h-full [&>svg]:object-cover"
+                  dangerouslySetInnerHTML={{ __html: (post.og_image ?? post.image_url!) }}
+                />
+              ) : (
+                <Image
+                  src={post.og_image ?? post.image_url!}
+                  alt={`Cover image for ${post.title}`}
+                  className="w-full h-full object-cover"
+                  fill
+                  sizes="(max-width: 768px) 100vw, 33vw"
+                />
+              )
             ) : (
               <div className="absolute inset-0 flex items-center justify-center opacity-20 text-primary">
                 <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
@@ -119,14 +126,21 @@ function FeaturedPost({ post }: { post: BlogPost }) {
           {/* Image */}
           <div className="min-h-[240px] md:min-h-[300px] relative overflow-hidden bg-gradient-to-br from-accent-light to-primary/[0.08]">
             {post.og_image || post.image_url ? (
-              <Image
-                src={post.og_image ?? post.image_url!}
-                alt={`Featured article: ${post.title}`}
-                className="w-full h-full object-cover absolute inset-0"
-                fill
-                priority
-                sizes="(max-width: 768px) 100vw, 50vw"
-              />
+              (post.og_image?.startsWith("<svg") || post.image_url?.startsWith("<svg")) ? (
+                <div
+                  className="w-full h-full [&>svg]:w-full [&>svg]:h-full [&>svg]:object-cover"
+                  dangerouslySetInnerHTML={{ __html: (post.og_image ?? post.image_url!) }}
+                />
+              ) : (
+                <Image
+                  src={post.og_image ?? post.image_url!}
+                  alt={`Featured article: ${post.title}`}
+                  className="w-full h-full object-cover absolute inset-0"
+                  fill
+                  priority
+                  sizes="(max-width: 768px) 100vw, 50vw"
+                />
+              )
             ) : (
               <>
                 <motion.div

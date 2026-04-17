@@ -115,14 +115,21 @@ export default function CaseStudiesPage() {
                     className={`block border border-border rounded-2xl overflow-hidden bg-card hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5 transition-all duration-300 group h-full ${i === 0 ? 'md:col-span-2' : ''}`}
                   >
                     {cs.image_url && (
-                      <div className={`w-full overflow-hidden relative ${i === 0 ? 'h-[280px]' : 'h-[200px]'}`}>
-                        <Image
-                          src={cs.image_url}
-                          alt={cs.title}
-                          fill
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                          sizes="(max-width: 768px) 100vw, 50vw"
-                        />
+                      <div className={`w-full overflow-hidden relative bg-surface ${i === 0 ? 'h-[280px]' : 'h-[200px]'}`}>
+                        {cs.image_url.startsWith("<svg") ? (
+                          <div
+                            className="w-full h-full [&>svg]:w-full [&>svg]:h-full [&>svg]:object-cover group-hover:scale-105 transition-transform duration-500"
+                            dangerouslySetInnerHTML={{ __html: cs.image_url }}
+                          />
+                        ) : (
+                          <Image
+                            src={cs.image_url}
+                            alt={cs.title}
+                            fill
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                            sizes="(max-width: 768px) 100vw, 50vw"
+                          />
+                        )}
                       </div>
                     )}
                     <div className="p-8">

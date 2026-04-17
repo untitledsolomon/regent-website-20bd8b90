@@ -281,13 +281,20 @@ export function BlogCard({
             }}
           >
             {post.image_url ? (
-              <Image
-                src={post.image_url}
-                alt={post.title}
-                fill
-                className="object-cover"
-                sizes="(max-width: 768px) 100vw, 50vw"
-              />
+              post.image_url.startsWith("<svg") ? (
+                <div
+                  className="w-full h-full [&>svg]:w-full [&>svg]:h-full [&>svg]:object-cover"
+                  dangerouslySetInnerHTML={{ __html: post.image_url }}
+                />
+              ) : (
+                <Image
+                  src={post.image_url}
+                  alt={post.title}
+                  fill
+                  className="object-cover"
+                  sizes="(max-width: 768px) 100vw, 50vw"
+                />
+              )
             ) : (
               <div style={{ opacity: 0.15 }}>
                 <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
