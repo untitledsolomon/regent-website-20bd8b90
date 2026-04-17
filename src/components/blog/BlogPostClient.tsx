@@ -6,6 +6,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
 import { ArrowRight, ArrowLeft, Copy, Check, Calendar } from "lucide-react";
+import { useTrackView } from "@/hooks/useContentTracking";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -110,6 +111,9 @@ export function BlogPostClient({ post }: { post: BlogPostFull }) {
   const [pageUrl, setPageUrl] = useState("");
 
   const supabase = createClient();
+
+  // Track the view
+  useTrackView("blog_post", post.id);
 
   // Set page URL client-side (avoids SSR mismatch)
   useEffect(() => {

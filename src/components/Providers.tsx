@@ -8,7 +8,8 @@ import { Toaster } from '@/components/ui/toaster'
 import { Toaster as Sonner } from '@/components/ui/sonner'
 import { CookieConsent } from '@/components/CookieConsent'
 import { AuthProvider } from '@/hooks/useAuth'
-import { useState } from 'react'
+import { NavigationTracker } from '@/components/NavigationTracker'
+import { useState, Suspense } from 'react'
 
 const AnalyticsBundle = dynamic(
   () => import('@/components/AnalyticsBundle').then(m => m.AnalyticsBundle),
@@ -30,6 +31,9 @@ export function Providers({ children }: { children: React.ReactNode }) {
       <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
         <TooltipProvider>
           <AuthProvider>
+            <Suspense fallback={null}>
+              <NavigationTracker />
+            </Suspense>
             {children}
             <Toaster />
             <Sonner />
