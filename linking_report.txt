@@ -1,27 +1,26 @@
-# Internal Linking Report - March 11, 2026
+# INTERNAL LINKING REPORT - April 19, 2026
 
-## Theme Cluster: Public Sector Systems Resilience and Modernization
+## New Content Links
+1. **Blog: The Autonomous Core**
+   - Links to:
+     - /blog/architecture-of-trust-fintech-resilience
+     - /blog/engineering-of-durability-self-healing-infrastructure
+     - /blog/why-most-businesses-fail-to-scale
+     - /case-studies/project-ironclad-energy-grid-reliability
+     - /resources/infrastructure-resilience-audit-checklist
 
-### 1. New Content Interlinking
-*   **Blog Article (`fragility-of-the-public-core`)**
-    *   Links to Resource: `government-infrastructure-audit-checklist`
-    *   Links to Case Study: `project-aegis-social-services-modernization`
-    *   Links to Existing Case Study: `gov-agency`
-    *   Links to Existing Blog: `fragmentation-problem-enterprise-systems`
-*   **Resource (`government-infrastructure-audit-checklist`)**
-    *   Links to Blog: `architecture-of-trust-fintech-resilience` (cross-theme authority)
-    *   Links to Case Study: `project-aegis-social-services-modernization`
-    *   Links to Case Study: `project-meridian-core-banking-modernization`
-*   **Case Study (`project-aegis-social-services-modernization`)**
-    *   Links to Blog: `fragility-of-the-public-core`
-    *   Links to Resource: `government-infrastructure-audit-checklist`
+2. **Resource: AI-Ready Infrastructure Audit**
+   - Links to:
+     - /blog/autonomous-core-ai-self-healing
 
-### 2. Backlinks from Existing Content
-*   **Case Study: Project Meridian (`project-meridian-core-banking-modernization`)**
-    *   *Update:* Added a link to `fragility-of-the-public-core` in the solution section to highlight cross-sector architectural resilience.
-*   **Blog: Decoupled Data Architectures in Education (`decoupled-data-architectures-education`)**
-    *   *Update:* Added a link to `government-infrastructure-audit-checklist` to provide public sector leaders with a relevant diagnostic tool.
+3. **Case Study: Project Helios**
+   - Links to:
+     - /blog/autonomous-core-ai-self-healing
+     - /resources/ai-ready-infrastructure-audit
+     - /capabilities/monitor
 
-### 3. Navigation & Authority
-*   The new assets are now part of the primary content graph, interlinked with both high-authority existing posts (Finance) and thematically relevant ones (Education/Enterprise).
-*   All new links use descriptive anchor text to enhance SEO topical authority for keywords: "Digital Sovereignty", "Public Core", "Infrastructure Resilience", and "Government Modernization".
+## Backlinks (Forward Linking)
+- **Blog: The Engineering of Durability** now links to:
+  - /blog/autonomous-core-ai-self-healing
+- **Case Study: Project Ironclad** now links to:
+  - /case-studies/project-helios-predictive-fault-tolerance
