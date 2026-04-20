@@ -9,6 +9,11 @@ export const metadata: Metadata = {
     description: 'Technical whitepapers, research, and documentation for enterprise integration and data infrastructure.',
     type: 'website',
   },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Technical Resources & Whitepapers | Regent Analytics',
+    description: 'Technical whitepapers, research, and documentation for enterprise integration and data infrastructure.',
+  },
   alternates: { canonical: '/resources' },
 }
 
