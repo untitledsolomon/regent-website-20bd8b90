@@ -9,7 +9,6 @@ import { CTASection } from "@/components/CardComponents";
 import { AnimatedCounter } from "@/components/AnimatedCounter";
 import { GradientText } from "@/components/GradientText";
 import { industriesDetailed } from "@/data/siteData";
-import { PageMeta } from "@/components/PageMeta";
 
 const industryStats = [
   { label: "Events Processed Daily", value: "1.4M+" },
@@ -44,10 +43,6 @@ const crossIndustryBenefits = [
 export default function IndustriesPage() {
   return (
     <div>
-      <PageMeta
-        title="Industries — Regent | Sector-Specific Solutions"
-        description="Regent serves industries where operational complexity demands infrastructure that works — without exception."
-      />
 
       {/* Hero */}
       <section className="pt-[140px] pb-[100px] bg-surface border-b border-border relative overflow-hidden">

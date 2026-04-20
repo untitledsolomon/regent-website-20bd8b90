@@ -5,6 +5,19 @@ import { BlogClient, type BlogPost } from '@/components/blog/BlogClient'
 export const metadata: Metadata = {
   title: 'Blog — Regent | Insights & Technical Articles',
   description: 'Ideas on systems, infrastructure, intelligence, and enterprise technology from the Regent team.',
+  openGraph: {
+    title: 'Blog — Regent | Insights & Technical Articles',
+    description: 'Ideas on systems, infrastructure, intelligence, and enterprise technology from the Regent team.',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Blog — Regent | Insights & Technical Articles',
+    description: 'Ideas on systems, infrastructure, intelligence, and enterprise technology from the Regent team.',
+  },
+  alternates: {
+    canonical: '/blog',
+  },
 }
 
 export const revalidate = 60
