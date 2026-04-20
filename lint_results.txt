@@ -1,0 +1,5 @@
+
+> vite_react_shadcn_ts@0.0.0 lint
+> next lint
+
+sh: 1: next: not found
