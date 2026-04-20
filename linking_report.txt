@@ -1,27 +1,27 @@
-# Internal Linking Report - March 11, 2026
+### INTERNAL LINKING REPORT
 
-## Theme Cluster: Public Sector Systems Resilience and Modernization
+#### New Content Interlinking:
+- **Blog Article** (`/blog/visibility-gap-dashboarding-not-intelligence`) links to:
+  - Resource: `/resources/operational-visibility-audit-infrastructure-map`
+  - Case Study: `/case-studies/project-clearsight-supply-chain-telemetry`
+- **Resource** (`/resources/operational-visibility-audit-infrastructure-map`) links to:
+  - Blog Article: `/blog/visibility-gap-dashboarding-not-intelligence`
+  - Case Study: `/case-studies/project-clearsight-supply-chain-telemetry`
+- **Case Study** (`/case-studies/project-clearsight-supply-chain-telemetry`) links to:
+  - Blog Article: `/blog/visibility-gap-dashboarding-not-intelligence`
+  - Resource: `/resources/operational-visibility-audit-infrastructure-map`
 
-### 1. New Content Interlinking
-*   **Blog Article (`fragility-of-the-public-core`)**
-    *   Links to Resource: `government-infrastructure-audit-checklist`
-    *   Links to Case Study: `project-aegis-social-services-modernization`
-    *   Links to Existing Case Study: `gov-agency`
-    *   Links to Existing Blog: `fragmentation-problem-enterprise-systems`
-*   **Resource (`government-infrastructure-audit-checklist`)**
-    *   Links to Blog: `architecture-of-trust-fintech-resilience` (cross-theme authority)
-    *   Links to Case Study: `project-aegis-social-services-modernization`
-    *   Links to Case Study: `project-meridian-core-banking-modernization`
-*   **Case Study (`project-aegis-social-services-modernization`)**
-    *   Links to Blog: `fragility-of-the-public-core`
-    *   Links to Resource: `government-infrastructure-audit-checklist`
+#### Forward Linking (Old to New):
+- **Blog Article**: `engineering-of-durability-self-healing-infrastructure` now links to `/blog/visibility-gap-dashboarding-not-intelligence`.
+- **Resource**: `infrastructure-resilience-audit-checklist` now links to `/resources/operational-visibility-audit-infrastructure-map`.
+- **Case Study**: `project-ironclad-energy-grid-reliability` now links to `/blog/visibility-gap-dashboarding-not-intelligence`.
 
-### 2. Backlinks from Existing Content
-*   **Case Study: Project Meridian (`project-meridian-core-banking-modernization`)**
-    *   *Update:* Added a link to `fragility-of-the-public-core` in the solution section to highlight cross-sector architectural resilience.
-*   **Blog: Decoupled Data Architectures in Education (`decoupled-data-architectures-education`)**
-    *   *Update:* Added a link to `government-infrastructure-audit-checklist` to provide public sector leaders with a relevant diagnostic tool.
-
-### 3. Navigation & Authority
-*   The new assets are now part of the primary content graph, interlinked with both high-authority existing posts (Finance) and thematically relevant ones (Education/Enterprise).
-*   All new links use descriptive anchor text to enhance SEO topical authority for keywords: "Digital Sovereignty", "Public Core", "Infrastructure Resilience", and "Government Modernization".
+#### Backlinking (New to Old):
+- **Blog Article** links to:
+  - `/blog/engineering-of-durability-self-healing-infrastructure`
+  - `/resources/infrastructure-resilience-audit-checklist`
+  - `/case-studies/project-ironclad-energy-grid-reliability`
+  - `/blog/architecture-of-trust-fintech-resilience`
+- **Case Study** links to:
+  - `/blog/visibility-gap-dashboarding-not-intelligence`
+  - `/resources/operational-visibility-audit-infrastructure-map`
