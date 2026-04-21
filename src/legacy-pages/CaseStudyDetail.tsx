@@ -218,14 +218,21 @@ export default function CaseStudyDetail() {
         <div className="border-b border-border">
           <div className="section-container max-w-[960px]">
             <div className="rounded-2xl overflow-hidden border border-border relative h-[300px] md:h-[480px] -mt-0 my-0">
-              <Image
-                src={cs.image_url}
-                alt={cs.title}
-                fill
-                priority
-                className="object-cover"
-                sizes="(max-width: 960px) 100vw, 960px"
-              />
+              {cs.image_url.trim().startsWith('<svg') ? (
+                <div
+                  className="w-full h-full [&>svg]:w-full [&>svg]:h-full object-cover"
+                  dangerouslySetInnerHTML={{ __html: cs.image_url }}
+                />
+              ) : (
+                <Image
+                  src={cs.image_url}
+                  alt={cs.title}
+                  fill
+                  priority
+                  className="object-cover"
+                  sizes="(max-width: 960px) 100vw, 960px"
+                />
+              )}
             </div>
           </div>
         </div>

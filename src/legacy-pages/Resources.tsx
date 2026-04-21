@@ -197,7 +197,7 @@ export default function ResourcesPage() {
               >
                 <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_20%,hsl(var(--primary)/0.08)_0%,transparent_60%)]" />
                 <div className="relative z-10 grid grid-cols-1 md:grid-cols-[1fr_auto] gap-8 items-center">
-                  <div>
+                  <div className="flex-1 min-w-0">
                     <span className="font-mono text-[11px] tracking-[0.1em] uppercase text-primary mb-3 inline-block">FEATURED RESOURCE</span>
                     <h2 className="font-heading text-[clamp(24px,3vw,36px)] font-semibold tracking-[-0.03em] text-text-primary mb-4 leading-[1.2]">
                       {featuredResource.title}

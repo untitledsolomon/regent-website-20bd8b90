@@ -42,7 +42,12 @@ function BlogCard({ post, index }: { post: BlogPost; index: number }) {
         >
           {/* Image / placeholder */}
           <div className="h-[180px] relative overflow-hidden bg-gradient-to-br from-accent-light to-primary/[0.08] shrink-0">
-            {post.og_image || post.image_url ? (
+            {post.og_image?.trim().startsWith('<svg') || post.image_url?.trim().startsWith('<svg') ? (
+              <div
+                className="w-full h-full [&>svg]:w-full [&>svg]:h-full object-cover"
+                dangerouslySetInnerHTML={{ __html: (post.og_image?.trim().startsWith('<svg') ? post.og_image : post.image_url) || '' }}
+              />
+            ) : post.og_image || post.image_url ? (
               <Image
                 src={post.og_image ?? post.image_url!}
                 alt={`Cover image for ${post.title}`}
@@ -118,7 +123,12 @@ function FeaturedPost({ post }: { post: BlogPost }) {
         >
           {/* Image */}
           <div className="min-h-[240px] md:min-h-[300px] relative overflow-hidden bg-gradient-to-br from-accent-light to-primary/[0.08]">
-            {post.og_image || post.image_url ? (
+            {post.og_image?.trim().startsWith('<svg') || post.image_url?.trim().startsWith('<svg') ? (
+              <div
+                className="w-full h-full [&>svg]:w-full [&>svg]:h-full absolute inset-0 object-cover"
+                dangerouslySetInnerHTML={{ __html: (post.og_image?.trim().startsWith('<svg') ? post.og_image : post.image_url) || '' }}
+              />
+            ) : post.og_image || post.image_url ? (
               <Image
                 src={post.og_image ?? post.image_url!}
                 alt={`Featured article: ${post.title}`}

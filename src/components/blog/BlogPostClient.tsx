@@ -252,14 +252,21 @@ export function BlogPostClient({ post }: { post: BlogPostFull }) {
       {cover && (
         <div className="section-container max-w-[800px] pt-10">
           <div className="rounded-2xl overflow-hidden border border-border aspect-[16/7] relative">
-            <Image
-              src={cover}
-              alt={`Main cover image for ${post.title}`}
-              className="w-full h-full object-cover"
-              fill
-              priority
-              sizes="(max-width: 800px) 100vw, 800px"
-            />
+            {cover.trim().startsWith('<svg') ? (
+              <div
+                className="w-full h-full [&>svg]:w-full [&>svg]:h-full object-cover"
+                dangerouslySetInnerHTML={{ __html: cover }}
+              />
+            ) : (
+              <Image
+                src={cover}
+                alt={`Main cover image for ${post.title}`}
+                className="w-full h-full object-cover"
+                fill
+                priority
+                sizes="(max-width: 800px) 100vw, 800px"
+              />
+            )}
           </div>
         </div>
       )}

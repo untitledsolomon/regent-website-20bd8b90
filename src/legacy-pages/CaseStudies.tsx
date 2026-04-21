@@ -116,13 +116,20 @@ export default function CaseStudiesPage() {
                   >
                     {cs.image_url && (
                       <div className={`w-full overflow-hidden relative ${i === 0 ? 'h-[280px]' : 'h-[200px]'}`}>
-                        <Image
-                          src={cs.image_url}
-                          alt={cs.title}
-                          fill
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                          sizes="(max-width: 768px) 100vw, 50vw"
-                        />
+                        {cs.image_url.trim().startsWith('<svg') ? (
+                          <div
+                            className="w-full h-full [&>svg]:w-full [&>svg]:h-full object-cover"
+                            dangerouslySetInnerHTML={{ __html: cs.image_url }}
+                          />
+                        ) : (
+                          <Image
+                            src={cs.image_url}
+                            alt={cs.title}
+                            fill
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                            sizes="(max-width: 768px) 100vw, 50vw"
+                          />
+                        )}
                       </div>
                     )}
                     <div className="p-8">
