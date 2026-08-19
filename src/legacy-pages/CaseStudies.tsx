@@ -137,7 +137,8 @@ export default function CaseStudiesPage() {
                         </div>
                         <div className="flex gap-6 shrink-0">
                           <div className="flex flex-wrap gap-6 w-full">
-                            {cs.metrics.map((m, j) => (
+                            
+                            {(Array.isArray(cs.metrics) ? cs.metrics : []).map((m, j) => (
                               <div
                                 key={j}
                                 className="text-center min-w-[80px] max-w-[120px] flex-1 break-words max-h-[60px] overflow-hidden"
