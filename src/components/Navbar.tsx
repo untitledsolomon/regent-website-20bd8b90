@@ -10,6 +10,7 @@ const links = [
   { label: "Solutions", to: "/platform" },
   { label: "Capabilities", to: "/capabilities" },
   { label: "Industries", to: "/industries" },
+  { label: "Pricing", to: "/pricing" },
   { label: "Case Studies", to: "/case-studies" },
   { label: "Resources", to: "/resources" },
   { label: "Blog", to: "/blog" },
