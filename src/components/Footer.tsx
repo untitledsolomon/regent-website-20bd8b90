@@ -138,6 +138,10 @@ export function Footer() {
                 Terms of Service
                 <span className="absolute bottom-0 left-0 w-full h-px bg-background/30 origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-300" />
               </Link>
+              <Link href="/refund-policy" className="group hover:text-background/60 relative">
+                Refund Policy
+                <span className="absolute bottom-0 left-0 w-full h-px bg-background/30 origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-300" />
+              </Link>
               <span className="group cursor-pointer hover:text-background/60 relative">
                 Security
                 <span className="absolute bottom-0 left-0 w-full h-px bg-background/30 origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-300" />
