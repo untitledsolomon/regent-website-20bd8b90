@@ -1,0 +1,161 @@
+import type { Metadata } from "next";
+import Link from "next/link";
+import { Icons } from "@/components/Icons";
+import { SectionHeader } from "@/components/SectionHeader";
+import { RevealOnScroll } from "@/components/RevealOnScroll";
+import { PageMeta } from "@/components/PageMeta";
+
+export const metadata: Metadata = {
+  title: "Axis — Business Operations Platform",
+  description:
+    "Axis is Regent's all-in-one business operations platform: invoicing, ledger accounting, inventory, and HR in one system built for growing businesses.",
+  openGraph: {
+    title: "Axis | Regent",
+    description:
+      "Axis is Regent's all-in-one business operations platform: invoicing, ledger accounting, inventory, and HR in one system built for growing businesses.",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Axis | Regent",
+    description:
+      "Axis is Regent's all-in-one business operations platform: invoicing, ledger accounting, inventory, and HR in one system built for growing businesses.",
+  },
+  alternates: {
+    canonical: "/axis",
+  },
+};
+
+const MODULES: { icon: keyof typeof Icons; title: string; description: string }[] = [
+  {
+    icon: "FileText",
+    title: "Invoicing & Clients",
+    description:
+      "Create, send, and track invoices against a live client record. Every invoice ties directly into your books — no separate reconciliation step.",
+  },
+  {
+    icon: "BarChart",
+    title: "Full Ledger Accounting",
+    description:
+      "A proper double-entry ledger under the hood. Expenses, daily sales, and invoices all post journal entries automatically, and voiding one cleans up the other side too.",
+  },
+  {
+    icon: "Database",
+    title: "Inventory & Custody",
+    description:
+      "Track stock on hand, item sales, and which items are out on custody with a team member — all from the same item records your invoices use.",
+  },
+  {
+    icon: "Building",
+    title: "HR & Attendance",
+    description:
+      "Employee profiles, documents, shift schedules, and attendance tracking, so operations and headcount live in the same place as the money.",
+  },
+  {
+    icon: "Shield",
+    title: "Team Roles & Access",
+    description:
+      "Invite your team into a shared organization with role-based access, so everyone sees exactly the modules relevant to their job.",
+  },
+  {
+    icon: "Zap",
+    title: "Multi-Organization",
+    description:
+      "Run more than one business from a single account on the Advanced plan — useful if you operate several ventures side by side.",
+  },
+];
+
+export default function AxisPage() {
+  return (
+    <>
+      <PageMeta
+        title="Axis"
+        description="Regent's all-in-one business operations platform."
+      />
+
+      <div className="section-container pt-32 pb-20">
+        <RevealOnScroll>
+          <div className="max-w-3xl">
+            <div className="font-mono text-[11px] tracking-[0.12em] uppercase text-primary mb-4">
+              Regent Product
+            </div>
+            <h1 className="text-[clamp(32px,5vw,56px)] font-heading font-semibold tracking-[-0.03em] leading-[1.05] text-text-primary mb-6">
+              Run invoicing, accounting, inventory, and HR from one system
+            </h1>
+            <p className="text-lg font-light text-text-secondary leading-relaxed max-w-[600px] mb-8">
+              Axis is Regent&rsquo;s business operations platform, built for teams who
+              have outgrown spreadsheets and a pile of disconnected tools. Every
+              module shares the same data, so your books stay accurate without
+              manual reconciliation.
+            </p>
+            <div className="flex flex-wrap items-center gap-3">
+              <Link
+                href="/pricing"
+                className="font-heading text-[13px] font-medium tracking-[-0.01em] bg-primary text-primary-foreground rounded-lg px-[18px] py-3 hover:shadow-lg hover:-translate-y-px transition-all"
+              >
+                See pricing
+              </Link>
+              <Link
+                href="/demo"
+                className="font-heading text-[13px] font-medium tracking-[-0.01em] bg-text-primary text-background rounded-lg px-[18px] py-3 hover:shadow-lg hover:-translate-y-px transition-all inline-flex items-center gap-1.5"
+              >
+                Start a Project <Icons.ArrowRight />
+              </Link>
+            </div>
+          </div>
+        </RevealOnScroll>
+      </div>
+
+      <div className="section-container py-20 border-t border-border">
+        <SectionHeader
+          label="What's inside"
+          title="One platform, every core operation"
+          subtitle="Axis modules aren't bolted together — they share the same clients, items, and ledger, so nothing falls out of sync."
+        />
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {MODULES.map((mod, i) => {
+            const Icon = Icons[mod.icon];
+            return (
+              <RevealOnScroll key={mod.title} delay={i * 0.05}>
+                <div className="rounded-xl border border-border bg-background p-6 h-full">
+                  <div className="w-9 h-9 rounded-lg bg-surface flex items-center justify-center text-primary mb-4">
+                    <Icon size={18} />
+                  </div>
+                  <h3 className="font-heading text-base font-semibold text-text-primary mb-2">
+                    {mod.title}
+                  </h3>
+                  <p className="text-sm text-text-secondary leading-relaxed">
+                    {mod.description}
+                  </p>
+                </div>
+              </RevealOnScroll>
+            );
+          })}
+        </div>
+      </div>
+
+      <div className="section-container py-20 border-t border-border">
+        <RevealOnScroll>
+          <div className="rounded-2xl border border-border bg-surface p-10 md:p-14 text-center max-w-3xl mx-auto">
+            <h2 className="font-heading text-2xl md:text-3xl font-semibold tracking-[-0.02em] text-text-primary mb-4">
+              Every plan starts with a 7-day free trial
+            </h2>
+            <p className="text-text-secondary mb-8 max-w-lg mx-auto">
+              No setup calls required to get started. See the plans, pick what
+              fits your team, and cancel anytime.
+            </p>
+            <div className="flex flex-wrap justify-center gap-3">
+              <Link
+                href="/pricing"
+                className="font-heading text-[13px] font-medium tracking-[-0.01em] bg-primary text-primary-foreground rounded-lg px-[18px] py-3 hover:shadow-lg hover:-translate-y-px transition-all"
+              >
+                View plans & pricing
+              </Link>
+            </div>
+          </div>
+        </RevealOnScroll>
+      </div>
+    </>
+  );
+}

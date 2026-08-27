@@ -7,6 +7,7 @@ import { Icons } from "./Icons";
 import { motion } from "framer-motion";
 
 const links = [
+  { label: "Axis", to: "/axis" },
   { label: "Solutions", to: "/platform" },
   { label: "Capabilities", to: "/capabilities" },
   { label: "Industries", to: "/industries" },
