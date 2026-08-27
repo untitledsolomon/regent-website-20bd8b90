@@ -88,19 +88,21 @@ export default function AxisPage() {
               module shares the same data, so your books stay accurate without
               manual reconciliation.
             </p>
-            <div className="flex flex-wrap items-center gap-3">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-3">
               <Link
-                href="/pricing"
+                href="/axis/pricing"
                 className="font-heading text-[13px] font-medium tracking-[-0.01em] bg-primary text-primary-foreground rounded-lg px-[18px] py-3 hover:shadow-lg hover:-translate-y-px transition-all"
               >
                 See pricing
               </Link>
-              <Link
-                href="/demo"
+              <a
+                href="https://axis.regentplatform.com/signup"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="font-heading text-[13px] font-medium tracking-[-0.01em] bg-text-primary text-background rounded-lg px-[18px] py-3 hover:shadow-lg hover:-translate-y-px transition-all inline-flex items-center gap-1.5"
               >
                 Start a Project <Icons.ArrowRight />
-              </Link>
+              </a>
             </div>
           </div>
         </RevealOnScroll>
@@ -136,6 +138,19 @@ export default function AxisPage() {
       </div>
 
       <div className="section-container py-20 border-t border-border">
+        <div className="max-w-6xl mx-auto mb-10">
+          <div className="flex flex-col lg:flex-row items-center gap-6">
+            <div className="flex-1">
+              <h3 className="font-heading text-xl font-semibold mb-3">See the product</h3>
+              <p className="text-text-secondary">Real UI screenshots show Axis in action — invoicing, ledger, and inventory views.</p>
+            </div>
+            <div className="flex gap-4">
+              <img src="https://placehold.co/420x260?text=Invoicing+View" alt="Axis invoicing view" className="rounded-lg shadow-md" />
+              <img src="https://placehold.co/420x260?text=Ledger+Reports" alt="Axis ledger reports" className="rounded-lg shadow-md hidden md:block" />
+              <img src="https://placehold.co/420x260?text=Inventory+View" alt="Axis inventory view" className="rounded-lg shadow-md hidden lg:block" />
+            </div>
+          </div>
+        </div>
         <RevealOnScroll>
           <div className="rounded-2xl border border-border bg-surface p-10 md:p-14 text-center max-w-3xl mx-auto">
             <h2 className="font-heading text-2xl md:text-3xl font-semibold tracking-[-0.02em] text-text-primary mb-4">
@@ -147,7 +162,7 @@ export default function AxisPage() {
             </p>
             <div className="flex flex-wrap justify-center gap-3">
               <Link
-                href="/pricing"
+                href="/axis/pricing"
                 className="font-heading text-[13px] font-medium tracking-[-0.01em] bg-primary text-primary-foreground rounded-lg px-[18px] py-3 hover:shadow-lg hover:-translate-y-px transition-all"
               >
                 View plans & pricing
@@ -155,6 +170,18 @@ export default function AxisPage() {
             </div>
           </div>
         </RevealOnScroll>
+      </div>
+
+      <div className="section-container py-12 border-t border-border">
+        <div className="max-w-4xl mx-auto text-center">
+          <p className="text-sm text-text-secondary mb-4">Trusted by</p>
+          <div className="flex flex-wrap items-center justify-center gap-8">
+            <span className="text-text-secondary">Trevix</span>
+            <span className="text-text-secondary">Next Level</span>
+            <span className="text-text-secondary">Excom</span>
+            <span className="text-text-secondary">Etihad</span>
+          </div>
+        </div>
       </div>
     </>
   );
