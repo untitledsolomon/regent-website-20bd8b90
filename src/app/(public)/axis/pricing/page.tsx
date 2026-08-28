@@ -5,6 +5,7 @@ import { Icons } from "@/components/Icons";
 import { SectionHeader } from "@/components/SectionHeader";
 import { RevealOnScroll } from "@/components/RevealOnScroll";
 import { PageMeta } from "@/components/PageMeta";
+import { AXIS_SIGNUP_URL } from "@/lib/axis";
 import { getAxisPricing, type AxisPlanPricing } from "@/lib/paddle-pricing";
 
 export const metadata: Metadata = {
@@ -109,7 +110,7 @@ function PlanCard({ plan, featured }: { plan: AxisPlanPricing; featured: boolean
       </ul>
 
       <a
-        href="https://axis.regentplatform.com/signup"
+        href={AXIS_SIGNUP_URL}
         target="_blank"
         rel="noopener noreferrer"
         className={`text-center font-heading text-[13px] font-medium tracking-[-0.01em] rounded-lg px-[18px] py-3 transition-all ${

@@ -1,0 +1,1 @@
+export const AXIS_SIGNUP_URL = "https://axis.regentplatform.com/signup";
