@@ -1,0 +1,412 @@
+From ce00d1bf1c0f15f6af381d064ad3307495583083 Mon Sep 17 00:00:00 2001
+From: Axis Dev <axis-dev@example.com>
+Date: Thu, 27 Aug 2026 11:17:43 +0000
+Subject: feat: add Axis pricing page with live Paddle pricing
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Adds a public /pricing page for Axis — required by Paddle as part of
+account verification, alongside the refund policy added previously.
+
+Also required: since this marketing site is Regent's agency-pitch site
+(bespoke systems engineering, no self-serve SaaS anywhere else on it),
+Axis pricing didn't have a natural home here yet. This adds it as its own
+top-level page rather than folding it into an existing section.
+
+- src/lib/paddle-pricing.ts: server-side helper that calls Paddle's
+  Pricing Preview API (POST /pricing-preview) directly via fetch for all
+  6 Axis prices (Starter/Pro/Advanced x monthly/annual). Response shape
+  verified against a live call to the API. Results are localized by the
+  visitor's IP (via x-forwarded-for) when available, so UK/Ireland/
+  Australia visitors see the GBP/EUR/AUD overrides configured in Paddle
+  automatically, with a 1-hour fetch cache since prices don't need to be
+  real-time-fresh.
+- src/app/(public)/pricing/page.tsx: the page itself. Server component,
+  three plan cards driven entirely by the Paddle response — no
+  hand-typed prices to drift out of sync. Fails soft (shows plan/feature
+  info without prices, plus a small notice) if the Paddle call errors,
+  rather than 500ing the page.
+- src/components/Navbar.tsx, Footer.tsx: added Pricing links
+- src/app/sitemap.ts: registered /pricing
+
+Requires a new PADDLE_API_KEY env var in this repo's deployment config
+(not previously used here) — same server-side API key already added to
+axis-business-hub's .env.example for the webhook route; this can reuse
+the same value. This repo has no .env.example file to extend, so this
+is called out here instead.
+
+Also uses a placeholder signup link (https://app.axis.example.com/signup)
+on each plan's CTA button — swap for the real Axis app URL before merging.
+
+Verified: tsc --noEmit and next build both pass clean. Build produces
+/pricing as a dynamic (server-rendered) route rather than static, since
+it reads request headers for IP-based localization — this is expected
+and intentional, not a regression.
+---
+ src/app/(public)/pricing/page.tsx | 183 ++++++++++++++++++++++++++++++
+ src/app/sitemap.ts                |   1 +
+ src/components/Footer.tsx         |   2 +-
+ src/components/Navbar.tsx         |   1 +
+ src/lib/paddle-pricing.ts         | 122 ++++++++++++++++++++
+ 5 files changed, 308 insertions(+), 1 deletion(-)
+ create mode 100644 src/app/(public)/pricing/page.tsx
+ create mode 100644 src/lib/paddle-pricing.ts
+
+diff --git a/src/app/(public)/pricing/page.tsx b/src/app/(public)/pricing/page.tsx
+new file mode 100644
+index 0000000..ba34ffe
+--- /dev/null
++++ b/src/app/(public)/pricing/page.tsx
+@@ -0,0 +1,183 @@
++import type { Metadata } from "next";
++import Link from "next/link";
++import { headers } from "next/headers";
++import { Icons } from "@/components/Icons";
++import { SectionHeader } from "@/components/SectionHeader";
++import { RevealOnScroll } from "@/components/RevealOnScroll";
++import { PageMeta } from "@/components/PageMeta";
++import { getAxisPricing, type AxisPlanPricing } from "@/lib/paddle-pricing";
++
++export const metadata: Metadata = {
++  title: "Axis Pricing",
++  description:
++    "Simple, transparent pricing for Axis — Regent's business operations platform. Every plan includes a 7-day free trial.",
++  openGraph: {
++    title: "Axis Pricing | Regent",
++    description:
++      "Simple, transparent pricing for Axis — Regent's business operations platform. Every plan includes a 7-day free trial.",
++    type: "website",
++  },
++  twitter: {
++    card: "summary_large_image",
++    title: "Axis Pricing | Regent",
++    description:
++      "Simple, transparent pricing for Axis — Regent's business operations platform. Every plan includes a 7-day free trial.",
++  },
++  alternates: {
++    canonical: "/pricing",
++  },
++};
++
++const PLAN_FEATURES: Record<AxisPlanPricing["planId"], string[]> = {
++  starter: [
++    "Invoicing & client management",
++    "Core financial tracking",
++    "1 organization",
++    "Email support",
++  ],
++  pro: [
++    "Everything in Starter",
++    "Full double-entry ledger & reports",
++    "Inventory & custody tracking",
++    "Employee management",
++    "Priority support",
++  ],
++  advanced: [
++    "Everything in Pro",
++    "Advanced analytics & reporting",
++    "Multiple organizations",
++    "Dedicated onboarding",
++    "Priority support with SLA",
++  ],
++};
++
++async function getClientIp(): Promise<string | undefined> {
++  const headersList = await headers();
++  const forwardedFor = headersList.get("x-forwarded-for");
++  return forwardedFor?.split(",")[0]?.trim();
++}
++
++const PLAN_ORDER: AxisPlanPricing["planId"][] = ["starter", "pro", "advanced"];
++
++const FALLBACK_PLANS: AxisPlanPricing[] = PLAN_ORDER.map((planId) => ({
++  planId,
++  name: planId.charAt(0).toUpperCase() + planId.slice(1),
++  monthly: null,
++  yearly: null,
++}));
++
++
++function PlanCard({ plan, featured }: { plan: AxisPlanPricing; featured: boolean }) {
++  const monthlyTotal = plan.monthly?.formattedTotal ?? "Contact us";
++  const yearlyTotal = plan.yearly?.formattedTotal;
++
++  return (
++    <div
++      className={`rounded-xl border p-8 flex flex-col ${
++        featured
++          ? "border-primary bg-surface shadow-lg relative"
++          : "border-border bg-background"
++      }`}
++    >
++      {featured && (
++        <span className="absolute -top-3 left-8 font-mono text-[11px] tracking-[0.08em] uppercase bg-primary text-primary-foreground px-2.5 py-1 rounded-full">
++          Most Popular
++        </span>
++      )}
++      <h3 className="font-heading text-xl font-semibold text-text-primary mb-1">{plan.name}</h3>
++
++      <div className="mt-4 mb-1">
++        <span className="font-heading text-4xl font-bold tracking-[-0.02em] text-text-primary">
++          {monthlyTotal}
++        </span>
++        {plan.monthly && <span className="text-text-secondary text-sm">/month</span>}
++      </div>
++      {yearlyTotal && (
++        <p className="text-sm text-text-muted mb-6">{yearlyTotal} billed annually</p>
++      )}
++      {!yearlyTotal && <div className="mb-6" />}
++
++      <ul className="space-y-3 mb-8 flex-1">
++        {PLAN_FEATURES[plan.planId].map((feature) => (
++          <li key={feature} className="flex items-start gap-2 text-sm text-text-secondary">
++            <span className="mt-0.5 text-primary shrink-0">
++              <Icons.Check size={16} />
++            </span>
++            {feature}
++          </li>
++        ))}
++      </ul>
++
++      <Link
++        href="https://app.axis.example.com/signup"
++        className={`text-center font-heading text-[13px] font-medium tracking-[-0.01em] rounded-lg px-[18px] py-3 transition-all ${
++          featured
++            ? "bg-primary text-primary-foreground hover:shadow-lg hover:-translate-y-px"
++            : "bg-text-primary text-background hover:shadow-lg hover:-translate-y-px"
++        }`}
++      >
++        Start 7-day free trial
++      </Link>
++    </div>
++  );
++}
++
++export default async function PricingPage() {
++  const ip = await getClientIp();
++
++  let plans: AxisPlanPricing[] = [];
++  let pricingUnavailable = false;
++  try {
++    plans = await getAxisPricing(ip);
++  } catch (err) {
++    // If Paddle is unreachable or misconfigured, fail soft rather than
++    // 500ing the whole page — show the plan/feature breakdown without
++    // live prices and point people to start a trial to see current rates.
++    console.error("Failed to fetch Axis pricing from Paddle", err);
++    pricingUnavailable = true;
++    plans = FALLBACK_PLANS;
++  }
++
++  return (
++    <>
++      <PageMeta
++        title="Axis Pricing"
++        description="Simple, transparent pricing for Axis. Every plan includes a 7-day free trial."
++      />
++      <div className="section-container py-24">
++        <SectionHeader
++          label="Pricing"
++          title="Simple pricing for every stage"
++          subtitle="Every Axis plan includes a 7-day free trial. Cancel anytime. Prices shown reflect your location and are billed in your local currency where available."
++          center
++        />
++
++        <RevealOnScroll>
++          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto mt-4">
++            {plans.map((plan) => (
++              <PlanCard key={plan.planId} plan={plan} featured={plan.planId === "pro"} />
++            ))}
++          </div>
++        </RevealOnScroll>
++
++        {pricingUnavailable && (
++          <p className="text-center text-sm text-text-muted mt-8">
++            We&rsquo;re having trouble loading live pricing right now. Start a free trial to
++            see current rates, or check back shortly.
++          </p>
++        )}
++
++        <div className="text-center mt-16 text-sm text-text-muted max-w-lg mx-auto">
++          <p>
++            All plans are billed in USD, GBP, EUR, or AUD depending on your location. Taxes
++            calculated at checkout where applicable. See our{" "}
++            <Link href="/refund-policy" className="text-primary hover:underline">
++              refund policy
++            </Link>{" "}
++            for details on trials, cancellations, and refunds.
++          </p>
++        </div>
++      </div>
++    </>
++  );
++}
+diff --git a/src/app/sitemap.ts b/src/app/sitemap.ts
+index 12c4b77..ecc5139 100644
+--- a/src/app/sitemap.ts
++++ b/src/app/sitemap.ts
+@@ -17,6 +17,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+     { url: siteUrl, changeFrequency: 'weekly', priority: 1.0 },
+     { url: `${siteUrl}/blog`, changeFrequency: 'daily', priority: 0.9 },
+     { url: `${siteUrl}/platform`, changeFrequency: 'monthly', priority: 0.8 },
++    { url: `${siteUrl}/pricing`, changeFrequency: 'weekly', priority: 0.8 },
+     { url: `${siteUrl}/capabilities`, changeFrequency: 'monthly', priority: 0.8 },
+     { url: `${siteUrl}/industries`, changeFrequency: 'monthly', priority: 0.8 },
+     { url: `${siteUrl}/case-studies`, changeFrequency: 'weekly', priority: 0.8 },
+diff --git a/src/components/Footer.tsx b/src/components/Footer.tsx
+index 6145d31..215d4c2 100644
+--- a/src/components/Footer.tsx
++++ b/src/components/Footer.tsx
+@@ -8,7 +8,7 @@ import { useToast } from "@/hooks/use-toast";
+ import { trackConversion } from "@/hooks/useContentTracking";
+ 
+ const cols = [
+-  { title: "Solutions", links: [{ label: "Overview", to: "/platform" }, { label: "Architecture", to: "/platform" }, { label: "Modules", to: "/platform" }, { label: "Security", to: "/platform" }] },
++  { title: "Solutions", links: [{ label: "Overview", to: "/platform" }, { label: "Architecture", to: "/platform" }, { label: "Modules", to: "/platform" }, { label: "Security", to: "/platform" }, { label: "Pricing", to: "/pricing" }] },
+   { title: "Capabilities", links: [{ label: "Systems Integration", to: "/capabilities" }, { label: "Data Infrastructure", to: "/capabilities" }, { label: "Workflow Automation", to: "/capabilities" }, { label: "Intelligence Systems", to: "/capabilities" }] },
+   { title: "Industries", links: [{ label: "Finance", to: "/industries" }, { label: "Government", to: "/industries" }, { label: "Education", to: "/industries" }, { label: "Real Estate", to: "/industries" }] },
+   { title: "Resources", links: [{ label: "Whitepapers", to: "/resources" }, { label: "Case Studies", to: "/case-studies" }, { label: "Documentation", to: "/resources" }, { label: "Blog", to: "/blog" }] },
+diff --git a/src/components/Navbar.tsx b/src/components/Navbar.tsx
+index b75b444..5a8d452 100644
+--- a/src/components/Navbar.tsx
++++ b/src/components/Navbar.tsx
+@@ -10,6 +10,7 @@ const links = [
+   { label: "Solutions", to: "/platform" },
+   { label: "Capabilities", to: "/capabilities" },
+   { label: "Industries", to: "/industries" },
++  { label: "Pricing", to: "/pricing" },
+   { label: "Case Studies", to: "/case-studies" },
+   { label: "Resources", to: "/resources" },
+   { label: "Blog", to: "/blog" },
+diff --git a/src/lib/paddle-pricing.ts b/src/lib/paddle-pricing.ts
+new file mode 100644
+index 0000000..2889258
+--- /dev/null
++++ b/src/lib/paddle-pricing.ts
+@@ -0,0 +1,122 @@
++// src/lib/paddle-pricing.ts
++//
++// Server-side helper for fetching live Axis pricing from Paddle's Pricing
++// Preview API. Used by the /pricing page so displayed prices (including
++// country overrides for GB/IE/AU) always match what's actually configured
++// in Paddle, instead of being hand-typed and drifting out of sync.
++//
++// This calls Paddle's REST API directly with fetch rather than pulling in
++// the full @paddle/paddle-node-sdk dependency, since this is the only
++// Paddle call this repo needs (a single read-only preview).
++
++const PADDLE_API_BASE =
++  process.env.PADDLE_ENV === "sandbox"
++    ? "https://sandbox-api.paddle.com"
++    : "https://api.paddle.com";
++
++export interface AxisPriceInfo {
++  priceId: string;
++  billingInterval: "month" | "year";
++  formattedTotal: string;
++  currencyCode: string;
++}
++
++export interface AxisPlanPricing {
++  planId: "starter" | "pro" | "advanced";
++  name: string;
++  monthly: AxisPriceInfo | null;
++  yearly: AxisPriceInfo | null;
++}
++
++const PLAN_PRICE_IDS: Record<AxisPlanPricing["planId"], { month: string; year: string }> = {
++  starter: {
++    month: "pri_01m11ca5ge1y4wheshg1r4ygxn",
++    year: "pri_01m11ca5m7m3sx1ef2fw4bm0ew",
++  },
++  pro: {
++    month: "pri_01m11ca5vqy919vh6xkee3bgzr",
++    year: "pri_01m11ca5ymyba7qrky6xty1etq",
++  },
++  advanced: {
++    month: "pri_01m11ca6609gfab3mmhrsdnwap",
++    year: "pri_01m11ca6964kgtpj8h1m4twtkr",
++  },
++};
++
++const PLAN_NAMES: Record<AxisPlanPricing["planId"], string> = {
++  starter: "Starter",
++  pro: "Pro",
++  advanced: "Advanced",
++};
++
++interface PricingPreviewLineItem {
++  price: { id: string; billing_cycle: { interval: string } | null };
++  formatted_totals: { total: string };
++  totals: { total: string; currency_code?: string };
++}
++
++interface PricingPreviewResponse {
++  data: {
++    currency_code: string;
++    details: { line_items: PricingPreviewLineItem[] };
++  };
++}
++
++/**
++ * Fetches live pricing for all Axis plans, localized by IP address when
++ * available (falls back to Paddle's default USD pricing otherwise, e.g.
++ * during static generation with no request context).
++ */
++export async function getAxisPricing(customerIpAddress?: string): Promise<AxisPlanPricing[]> {
++  const apiKey = process.env.PADDLE_API_KEY;
++  if (!apiKey) {
++    throw new Error("PADDLE_API_KEY is not set");
++  }
++
++  const allPriceIds = Object.values(PLAN_PRICE_IDS).flatMap((p) => [p.month, p.year]);
++
++  const body: Record<string, unknown> = {
++    items: allPriceIds.map((price_id) => ({ price_id, quantity: 1 })),
++  };
++  if (customerIpAddress) {
++    body.customer_ip_address = customerIpAddress;
++  }
++
++  const res = await fetch(`${PADDLE_API_BASE}/pricing-preview`, {
++    method: "POST",
++    headers: {
++      Authorization: `Bearer ${apiKey}`,
++      "Content-Type": "application/json",
++    },
++    body: JSON.stringify(body),
++    // Live pricing shouldn't be cached indefinitely — Paddle prices can
++    // change from the dashboard at any time. Revalidate hourly rather than
++    // hitting the API on every request.
++    next: { revalidate: 3600 },
++  });
++
++  if (!res.ok) {
++    throw new Error(`Paddle pricing preview failed: ${res.status} ${await res.text()}`);
++  }
++
++  const json: PricingPreviewResponse = await res.json();
++  const lineItems = json.data.details.line_items;
++
++  const findPrice = (priceId: string): AxisPriceInfo | null => {
++    const item = lineItems.find((li) => li.price.id === priceId);
++    if (!item) return null;
++    return {
++      priceId,
++      billingInterval: (item.price.billing_cycle?.interval as "month" | "year") ?? "month",
++      formattedTotal: item.formatted_totals.total,
++      currencyCode: json.data.currency_code,
++    };
++  };
++
++  return (Object.keys(PLAN_PRICE_IDS) as AxisPlanPricing["planId"][]).map((planId) => ({
++    planId,
++    name: PLAN_NAMES[planId],
++    monthly: findPrice(PLAN_PRICE_IDS[planId].month),
++    yearly: findPrice(PLAN_PRICE_IDS[planId].year),
++  }));
++}
+-- 
+2.43.0
+
