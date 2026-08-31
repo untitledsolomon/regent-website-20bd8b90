@@ -1,4 +1,4 @@
-export type Json =
+﻿export type Json =
   | string
   | number
   | boolean
@@ -44,6 +44,38 @@ export type Database = {
         }
         Relationships: []
       }
+      application_replies: {
+        Row: {
+          application_id: string
+          author_email: string | null
+          created_at: string
+          id: string
+          message: string
+        }
+        Insert: {
+          application_id: string
+          author_email?: string | null
+          created_at?: string
+          id?: string
+          message: string
+        }
+        Update: {
+          application_id?: string
+          author_email?: string | null
+          created_at?: string
+          id?: string
+          message?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "application_replies_application_id_fkey"
+            columns: ["application_id"]
+            isOneToOne: false
+            referencedRelation: "job_applications"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       blog_posts: {
         Row: {
           author: string
@@ -65,12 +97,12 @@ export type Database = {
           updated_at: string
         }
         Insert: {
-          author?: string
-          category?: string
-          content?: string
+          author: string
+          category: string
+          content: string
           created_at?: string
-          date?: string
-          excerpt?: string
+          date: string
+          excerpt: string
           id?: string
           image_url?: string | null
           meta_description?: string | null
@@ -78,7 +110,7 @@ export type Database = {
           og_image?: string | null
           publish_at?: string | null
           published?: boolean
-          read_time?: string
+          read_time: string
           slug: string
           title: string
           updated_at?: string
@@ -118,13 +150,13 @@ export type Database = {
         }
         Insert: {
           created_at?: string
-          department?: string
-          description?: string
+          department: string
+          description: string
           id?: string
-          location?: string
+          location: string
           published?: boolean
           title: string
-          type?: string
+          type: string
           updated_at?: string
         }
         Update: {
@@ -161,21 +193,21 @@ export type Database = {
           updated_at: string
         }
         Insert: {
-          challenge?: string
+          challenge: string
           created_at?: string
           id?: string
           image_url?: string | null
-          industry?: string
+          industry: string
           meta_description?: string | null
           meta_title?: string | null
-          metrics?: Json
+          metrics: Json
           og_image?: string | null
           publish_at?: string | null
           published?: boolean
-          results?: string[]
+          results: string[]
           slug: string
-          solution?: string
-          summary?: string
+          solution: string
+          summary: string
           title: string
           updated_at?: string
         }
@@ -215,7 +247,7 @@ export type Database = {
           replied_at: string | null
           replied_by: string | null
           size: string | null
-          status: Database["public"]["Enums"]["consultation_request_status"]
+          status: string
         }
         Insert: {
           admin_notes?: string | null
@@ -231,7 +263,7 @@ export type Database = {
           replied_at?: string | null
           replied_by?: string | null
           size?: string | null
-          status?: Database["public"]["Enums"]["consultation_request_status"]
+          status?: string
         }
         Update: {
           admin_notes?: string | null
@@ -247,7 +279,7 @@ export type Database = {
           replied_at?: string | null
           replied_by?: string | null
           size?: string | null
-          status?: Database["public"]["Enums"]["consultation_request_status"]
+          status?: string
         }
         Relationships: []
       }
@@ -257,41 +289,85 @@ export type Database = {
           city: string | null
           content_id: string
           content_type: string
+          converted_to: string | null
           country: string | null
           created_at: string
           device_type: string | null
           id: string
+          is_returning: boolean | null
           os: string | null
           referrer: string | null
+          scroll_depth: number | null
           session_id: string | null
+          time_on_page: number | null
         }
         Insert: {
           browser?: string | null
           city?: string | null
           content_id: string
           content_type: string
+          converted_to?: string | null
           country?: string | null
           created_at?: string
           device_type?: string | null
           id?: string
+          is_returning?: boolean | null
           os?: string | null
           referrer?: string | null
+          scroll_depth?: number | null
           session_id?: string | null
+          time_on_page?: number | null
         }
         Update: {
           browser?: string | null
           city?: string | null
           content_id?: string
           content_type?: string
+          converted_to?: string | null
           country?: string | null
           created_at?: string
           device_type?: string | null
           id?: string
+          is_returning?: boolean | null
           os?: string | null
           referrer?: string | null
+          scroll_depth?: number | null
           session_id?: string | null
+          time_on_page?: number | null
         }
         Relationships: []
+      }
+      inquiry_notes: {
+        Row: {
+          author_email: string | null
+          created_at: string
+          id: string
+          inquiry_id: string
+          message: string
+        }
+        Insert: {
+          author_email?: string | null
+          created_at?: string
+          id?: string
+          inquiry_id: string
+          message: string
+        }
+        Update: {
+          author_email?: string | null
+          created_at?: string
+          id?: string
+          inquiry_id?: string
+          message?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "inquiry_notes_inquiry_id_fkey"
+            columns: ["inquiry_id"]
+            isOneToOne: false
+            referencedRelation: "consultation_requests"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       job_applications: {
         Row: {
@@ -303,6 +379,7 @@ export type Database = {
           name: string
           phone: string | null
           resume_url: string | null
+          status: string
         }
         Insert: {
           career_id?: string | null
@@ -313,6 +390,7 @@ export type Database = {
           name: string
           phone?: string | null
           resume_url?: string | null
+          status?: string
         }
         Update: {
           career_id?: string | null
@@ -323,6 +401,7 @@ export type Database = {
           name?: string
           phone?: string | null
           resume_url?: string | null
+          status?: string
         }
         Relationships: [
           {
@@ -333,6 +412,21 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      known_sessions: {
+        Row: {
+          first_seen: string | null
+          session_id: string
+        }
+        Insert: {
+          first_seen?: string | null
+          session_id: string
+        }
+        Update: {
+          first_seen?: string | null
+          session_id?: string
+        }
+        Relationships: []
       }
       newsletter_sends: {
         Row: {
@@ -345,7 +439,7 @@ export type Database = {
         }
         Insert: {
           failed_count?: number
-          html_preview?: string
+          html_preview: string
           id?: string
           sent_at?: string
           sent_count?: number
@@ -392,20 +486,22 @@ export type Database = {
           published: boolean
           slug: string
           title: string
-          type: Database["public"]["Enums"]["resource_type"]
+          type: string
           updated_at: string
+          user_id: string | null
         }
         Insert: {
           created_at?: string
-          description?: string
+          description: string
           featured?: boolean
           file_url?: string | null
           id?: string
           published?: boolean
           slug: string
           title: string
-          type?: Database["public"]["Enums"]["resource_type"]
+          type: string
           updated_at?: string
+          user_id?: string | null
         }
         Update: {
           created_at?: string
@@ -416,25 +512,23 @@ export type Database = {
           published?: boolean
           slug?: string
           title?: string
-          type?: Database["public"]["Enums"]["resource_type"]
+          type?: string
           updated_at?: string
+          user_id?: string | null
         }
         Relationships: []
       }
       user_roles: {
         Row: {
-          id: string
-          role: Database["public"]["Enums"]["app_role"]
+          role: string
           user_id: string
         }
         Insert: {
-          id?: string
-          role: Database["public"]["Enums"]["app_role"]
+          role: string
           user_id: string
         }
         Update: {
-          id?: string
-          role?: Database["public"]["Enums"]["app_role"]
+          role?: string
           user_id?: string
         }
         Relationships: []
@@ -451,13 +545,17 @@ export type Database = {
           city: string
           content_id: string
           content_type: string
+          converted_to: string
           country: string
           created_at: string
           device_type: string
           id: string
+          is_returning: boolean
           os: string
           referrer: string
+          scroll_depth: number
           session_id: string
+          time_on_page: number
           title: string
         }[]
       }
@@ -472,31 +570,39 @@ export type Database = {
       get_content_analytics: {
         Args: never
         Returns: {
+          avg_scroll_depth: number
+          avg_time_on_page: number
           content_id: string
           content_type: string
           title: string
           view_count: number
         }[]
       }
+      get_conversion_stats: {
+        Args: never
+        Returns: {
+          conversion_rate: number
+          converted_to: string
+          count: number
+        }[]
+      }
       get_daily_views: {
         Args: { days_back?: number }
         Returns: {
+          unique_sessions: number
           view_count: number
           view_date: string
         }[]
       }
-      has_role: {
-        Args: {
-          _role: Database["public"]["Enums"]["app_role"]
-          _user_id: string
-        }
-        Returns: boolean
-      }
+      has_role:
+        | { Args: { app_role: string; uid: string }; Returns: boolean }
+        | {
+            Args: { role: Database["public"]["Enums"]["app_role"]; uid: string }
+            Returns: boolean
+          }
     }
     Enums: {
-      app_role: "admin" | "moderator" | "user"
-      consultation_request_status: "new" | "viewed" | "replied" | "closed"
-      resource_type: "Whitepaper" | "Research" | "Documentation" | "Case Study"
+      app_role: "admin" | "user"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -624,9 +730,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["admin", "moderator", "user"],
-      consultation_request_status: ["new", "viewed", "replied", "closed"],
-      resource_type: ["Whitepaper", "Research", "Documentation", "Case Study"],
+      app_role: ["admin", "user"],
     },
   },
 } as const

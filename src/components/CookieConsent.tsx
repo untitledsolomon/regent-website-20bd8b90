@@ -1,6 +1,8 @@
+"use client";
+
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 
 export function CookieConsent() {
   const [visible, setVisible] = useState(false);
@@ -35,7 +37,7 @@ export function CookieConsent() {
         >
           <p className="text-sm text-foreground/80 leading-relaxed mb-4">
             We use cookies to improve your experience. By continuing to use this site, you agree to our{" "}
-            <Link to="/privacy" className="text-primary underline hover:text-primary/80">
+            <Link href="/privacy" className="text-primary underline hover:text-primary/80">
               Privacy Policy
             </Link>
             .

@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import { useId, useMemo } from "react";
 
 const blobs = [
   { cx: "20%", cy: "30%", r: 300, color: "hsl(var(--primary) / 0.07)", duration: 18, dx: 40, dy: 30 },
@@ -7,16 +8,49 @@ const blobs = [
   { cx: "80%", cy: "40%", r: 180, color: "hsl(var(--accent-mid) / 0.05)", duration: 20, dx: -45, dy: -35 },
 ];
 
-const dots = Array.from({ length: 24 }, (_, i) => ({
-  x: `${5 + Math.random() * 90}%`,
-  y: `${5 + Math.random() * 90}%`,
-  size: 2 + Math.random() * 2,
-  duration: 4 + Math.random() * 6,
-  delay: Math.random() * 4,
-  dy: 12 + Math.random() * 20,
-}));
+type Dot = {
+  x: string;
+  y: string;
+  size: number;
+  duration: number;
+  delay: number;
+  dy: number;
+};
+
+function hashStringToSeed(input: string) {
+  // FNV-1a 32-bit
+  let h = 2166136261;
+  for (let i = 0; i < input.length; i++) {
+    h ^= input.charCodeAt(i);
+    h = Math.imul(h, 16777619);
+  }
+  return h >>> 0;
+}
+
+function mulberry32(seed: number) {
+  return function () {
+    let t = (seed += 0x6d2b79f5);
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
 
 export function AnimatedBackground() {
+  // useId is stable between server/client for the same tree, so we can seed RNG deterministically.
+  const id = useId();
+  const dots: Dot[] = useMemo(() => {
+    const rand = mulberry32(hashStringToSeed(id));
+    return Array.from({ length: 24 }, () => ({
+      x: `${5 + rand() * 90}%`,
+      y: `${5 + rand() * 90}%`,
+      size: 2 + rand() * 2,
+      duration: 4 + rand() * 6,
+      delay: rand() * 4,
+      dy: 12 + rand() * 20,
+    }));
+  }, [id]);
+
   return (
     <div className="absolute inset-0 overflow-hidden pointer-events-none">
       {/* Grid pattern */}

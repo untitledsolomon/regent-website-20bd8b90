@@ -1,0 +1,27 @@
+# Internal Linking Report - March 11, 2026
+
+## Theme Cluster: Public Sector Systems Resilience and Modernization
+
+### 1. New Content Interlinking
+*   **Blog Article (`fragility-of-the-public-core`)**
+    *   Links to Resource: `government-infrastructure-audit-checklist`
+    *   Links to Case Study: `project-aegis-social-services-modernization`
+    *   Links to Existing Case Study: `gov-agency`
+    *   Links to Existing Blog: `fragmentation-problem-enterprise-systems`
+*   **Resource (`government-infrastructure-audit-checklist`)**
+    *   Links to Blog: `architecture-of-trust-fintech-resilience` (cross-theme authority)
+    *   Links to Case Study: `project-aegis-social-services-modernization`
+    *   Links to Case Study: `project-meridian-core-banking-modernization`
+*   **Case Study (`project-aegis-social-services-modernization`)**
+    *   Links to Blog: `fragility-of-the-public-core`
+    *   Links to Resource: `government-infrastructure-audit-checklist`
+
+### 2. Backlinks from Existing Content
+*   **Case Study: Project Meridian (`project-meridian-core-banking-modernization`)**
+    *   *Update:* Added a link to `fragility-of-the-public-core` in the solution section to highlight cross-sector architectural resilience.
+*   **Blog: Decoupled Data Architectures in Education (`decoupled-data-architectures-education`)**
+    *   *Update:* Added a link to `government-infrastructure-audit-checklist` to provide public sector leaders with a relevant diagnostic tool.
+
+### 3. Navigation & Authority
+*   The new assets are now part of the primary content graph, interlinked with both high-authority existing posts (Finance) and thematically relevant ones (Education/Enterprise).
+*   All new links use descriptive anchor text to enhance SEO topical authority for keywords: "Digital Sovereignty", "Public Core", "Infrastructure Resilience", and "Government Modernization".

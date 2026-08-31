@@ -1,12 +1,17 @@
+"use client";
+
 import { useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { Icons } from "./Icons";
 import { motion } from "framer-motion";
 
 const links = [
+  { label: "Products", to: "/products" },
   { label: "Solutions", to: "/platform" },
   { label: "Capabilities", to: "/capabilities" },
   { label: "Industries", to: "/industries" },
+  { label: "Pricing", to: "/pricing" },
   { label: "Case Studies", to: "/case-studies" },
   { label: "Resources", to: "/resources" },
   { label: "Blog", to: "/blog" },
@@ -16,29 +21,30 @@ const links = [
 
 export function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
-  const location = useLocation();
+  const pathname = usePathname();
 
   return (
     <>
       <nav className="fixed top-0 left-0 right-0 z-[100] h-16 bg-background/92 backdrop-blur-[20px] border-b border-border">
         <div className="section-container w-full h-full flex items-center justify-between">
-          <Link to="/" className="font-heading font-semibold text-lg tracking-[-0.03em] text-text-primary shrink-0">
+          <Link href="/" className="font-heading font-semibold text-lg tracking-[-0.03em] text-text-primary shrink-0" aria-label="Regent Home">
             Regent<span className="text-primary">.</span>
           </Link>
 
-          <ul className="hidden lg:flex items-center gap-1">
+          <ul className="hidden lg:flex items-center gap-1" role="menubar">
             {links.map((l) => (
-              <li key={l.to}>
+              <li key={l.to} role="none">
                 <Link
-                  to={l.to}
+                  href={l.to}
+                  role="menuitem"
                   className={`relative text-sm px-3 py-1.5 rounded-md transition-colors ${
-                    location.pathname === l.to
+                    pathname === l.to
                       ? "text-text-primary"
                       : "text-text-secondary hover:text-text-primary hover:bg-surface"
                   }`}
                 >
                   {l.label}
-                  {location.pathname === l.to && (
+                  {pathname === l.to && (
                     <motion.span
                       layoutId="nav-active"
                       className="absolute bottom-0 left-3 right-3 h-[2px] bg-primary rounded-full"
@@ -52,7 +58,7 @@ export function Navbar() {
 
           <div className="flex items-center gap-3">
             <Link
-              to="/demo"
+              href="/demo"
               className="hidden sm:inline-flex font-heading text-[13px] font-medium tracking-[-0.01em] bg-text-primary text-background border-none rounded-lg px-[18px] py-[9px] items-center gap-1.5 hover:shadow-lg hover:-translate-y-px transition-all"
             >
               Start a Project <Icons.ArrowRight />
@@ -74,10 +80,10 @@ export function Navbar() {
             {links.map((l) => (
               <Link
                 key={l.to}
-                to={l.to}
+                href={l.to}
                 onClick={() => setMenuOpen(false)}
                 className={`block py-3.5 border-b border-border text-lg font-heading font-medium ${
-                  location.pathname === l.to ? "text-primary" : "text-text-primary"
+                  pathname === l.to ? "text-primary" : "text-text-primary"
                 }`}
               >
                 {l.label}
@@ -85,7 +91,7 @@ export function Navbar() {
             ))}
             <div className="mt-6">
               <Link
-                to="/demo"
+                href="/demo"
                 onClick={() => setMenuOpen(false)}
                 className="block w-full text-center font-heading text-[15px] font-medium bg-primary text-primary-foreground rounded-lg py-3.5"
               >

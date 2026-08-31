@@ -1,13 +1,16 @@
-import { Link } from "react-router-dom";
+"use client";
+
+import Link from "next/link";
 import { motion, AnimatePresence, useScroll } from "framer-motion";
 import { useState, useEffect } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { createClient } from "@/lib/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { trackConversion } from "@/hooks/useContentTracking";
 
 const cols = [
-  { title: "Solutions", links: [{ label: "Overview", to: "/platform" }, { label: "Architecture", to: "/platform" }, { label: "Modules", to: "/platform" }, { label: "Security", to: "/platform" }] },
+  { title: "Solutions", links: [{ label: "Overview", to: "/platform" }, { label: "Architecture", to: "/platform" }, { label: "Modules", to: "/platform" }, { label: "Security", to: "/platform" }, { label: "Pricing", to: "/axis/pricing" }] },
   { title: "Capabilities", links: [{ label: "Systems Integration", to: "/capabilities" }, { label: "Data Infrastructure", to: "/capabilities" }, { label: "Workflow Automation", to: "/capabilities" }, { label: "Intelligence Systems", to: "/capabilities" }] },
-  { title: "Industries", links: [{ label: "Finance", to: "/industries" }, { label: "Government", to: "/industries" }, { label: "Infrastructure", to: "/industries" }, { label: "Enterprise", to: "/industries" }] },
+  { title: "Industries", links: [{ label: "Finance", to: "/industries" }, { label: "Government", to: "/industries" }, { label: "Education", to: "/industries" }, { label: "Real Estate", to: "/industries" }] },
   { title: "Resources", links: [{ label: "Whitepapers", to: "/resources" }, { label: "Case Studies", to: "/case-studies" }, { label: "Documentation", to: "/resources" }, { label: "Blog", to: "/blog" }] },
   { title: "Company", links: [{ label: "About", to: "/about" }, { label: "Careers", to: "/careers" }, { label: "News", to: "/about" }, { label: "Contact", to: "/demo" }] },
 ];
@@ -42,6 +45,7 @@ function BackToTop() {
 }
 
 export function Footer() {
+  const supabase = createClient();
   const [email, setEmail] = useState("");
   const [focused, setFocused] = useState(false);
   const { toast } = useToast();
@@ -61,6 +65,7 @@ export function Footer() {
       } else {
       toast({ title: "Subscribed!", description: "You'll receive our latest insights." });
         setEmail("");
+        trackConversion("newsletter");
         // Send welcome email (fire and forget)
         supabase.functions.invoke("newsletter-welcome", { body: { email: trimmed } }).catch(() => {});
       }
@@ -96,6 +101,7 @@ export function Footer() {
                   onFocus={() => setFocused(true)}
                   onBlur={() => setFocused(false)}
                   placeholder="Your email"
+                  aria-label="Email address for newsletter"
                   className="relative w-full bg-background/10 border border-background/15 rounded-lg px-3 py-2 text-sm text-background placeholder:text-background/30 outline-none transition-colors focus:bg-background/15"
                 />
               </div>
@@ -111,7 +117,7 @@ export function Footer() {
                 {col.links.map((l) => (
                   <Link
                     key={l.label}
-                    to={l.to}
+                    href={l.to}
                     className="group block text-sm text-background/65 mb-3 hover:text-background transition-colors relative w-fit"
                   >
                     {l.label}
@@ -124,12 +130,16 @@ export function Footer() {
           <div className="border-t border-background/10 pt-8 mt-16 flex flex-col md:flex-row justify-between items-center text-[13px] text-background/35 gap-4">
             <span>© {new Date().getFullYear()} Regent Systems, Inc. All rights reserved.</span>
             <span className="flex gap-6">
-              <Link to="/privacy" className="group hover:text-background/60 relative">
+              <Link href="/privacy" className="group hover:text-background/60 relative">
                 Privacy Policy
                 <span className="absolute bottom-0 left-0 w-full h-px bg-background/30 origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-300" />
               </Link>
-              <Link to="/terms" className="group hover:text-background/60 relative">
+              <Link href="/terms" className="group hover:text-background/60 relative">
                 Terms of Service
+                <span className="absolute bottom-0 left-0 w-full h-px bg-background/30 origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-300" />
+              </Link>
+              <Link href="/refund-policy" className="group hover:text-background/60 relative">
+                Refund Policy
                 <span className="absolute bottom-0 left-0 w-full h-px bg-background/30 origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-300" />
               </Link>
               <span className="group cursor-pointer hover:text-background/60 relative">

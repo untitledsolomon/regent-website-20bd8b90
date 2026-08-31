@@ -1,4 +1,18 @@
 import type { IconName } from "@/components/Icons";
+import {
+  Cog,
+  Microscope,
+  Handshake,
+  DraftingCompass,
+  Rocket,
+  Globe,
+  DollarSign,
+  HeartPulse,
+  Home,
+  BookOpen,
+  Palmtree,
+  Baby,
+} from "lucide-react";
 
 export interface Capability {
   icon: IconName;
@@ -37,6 +51,8 @@ export interface Industry {
   icon: IconName;
   name: string;
   desc: string;
+  detail: string;
+  useCases: string[];
 }
 
 export interface BlogPost {
@@ -49,11 +65,13 @@ export interface BlogPost {
   readTime: string;
   content: string;
   image_url?: string | null;
+  published?: boolean;
 }
 
 export interface Resource {
   type: string;
   title: string;
+  slug?: string;
   desc: string;
 }
 
@@ -225,11 +243,62 @@ export const modules: Module[] = [
 ];
 
 export const industries: Industry[] = [
-  { icon: 'BarChart', name: 'Finance', desc: 'We integrate trading systems, risk platforms, and regulatory reporting infrastructure — enabling real-time data flows across the most complex financial architectures.' },
-  { icon: 'Building', name: 'Government', desc: 'We deliver mission-critical integration engineering for government agencies, connecting legacy systems with modern services while maintaining security and compliance.' },
-  { icon: 'Globe', name: 'Infrastructure', desc: 'We build operational technology integration for critical infrastructure operators — connecting OT systems with enterprise platforms and monitoring infrastructure.' },
-  { icon: 'Zap', name: 'Enterprise', desc: 'We deliver end-to-end enterprise integration across ERP, CRM, HRMS, and custom systems — eliminating data silos and enabling unified operational intelligence.' },
-  { icon: 'Monitor', name: 'Energy', desc: 'We integrate SCADA systems, asset management platforms, and market data feeds into unified operational architectures for energy companies.' },
+  {
+    icon: 'BarChart',
+    name: 'Finance',
+    desc: 'We integrate trading systems, risk platforms, and regulatory reporting infrastructure — enabling real-time data flows across the most complex financial architectures.',
+    detail: 'Financial institutions operate some of the most complex system landscapes in the world. Our engineers integrate trading platforms, risk systems, regulatory reporting infrastructure, and client management systems into real-time operational architectures — with zero tolerance for data inconsistency.',
+    useCases: ['Real-time trading system integration', 'Regulatory reporting automation', 'Risk data aggregation', 'Client data platform unification']
+  },
+  {
+    icon: 'Building',
+    name: 'Government',
+    desc: 'We deliver mission-critical integration engineering for government agencies, connecting legacy systems with modern services while maintaining security and compliance.',
+    detail: 'Government agencies manage vast amounts of sensitive data across systems ranging from modern cloud applications to decades-old mainframe infrastructure. Regent delivers the integration engineering to connect these systems securely and reliably — without disrupting mission-critical services.',
+    useCases: ['Legacy system modernization', 'Cross-agency data sharing', 'Citizen service platform integration', 'Compliance reporting automation']
+  },
+  {
+    icon: 'Globe',
+    name: 'Infrastructure',
+    desc: 'We build operational technology integration for critical infrastructure operators — connecting OT systems with enterprise platforms and monitoring infrastructure.',
+    detail: 'Critical infrastructure operators need integration architectures that connect operational technology with enterprise systems — while maintaining the reliability and security standards that critical operations demand. Our team builds exactly that.',
+    useCases: ['SCADA system integration', 'Asset management platform connectivity', 'Maintenance workflow automation', 'Operations center data consolidation']
+  },
+  {
+    icon: 'Zap',
+    name: 'Enterprise',
+    desc: 'We deliver end-to-end enterprise integration across ERP, CRM, HRMS, and custom systems — eliminating data silos and enabling unified operational intelligence.',
+    detail: "Large enterprises typically manage dozens of business applications from different vendors and technology generations. Regent's consulting teams eliminate data silos and deliver a unified operational view across the entire enterprise application landscape.",
+    useCases: ['ERP and CRM unification', 'Supply chain data integration', 'HR system connectivity', 'Business intelligence data consolidation']
+  },
+  {
+    icon: 'Monitor',
+    name: 'Energy',
+    desc: 'We integrate SCADA systems, asset management platforms, and market data feeds into unified operational architectures for energy companies.',
+    detail: 'Energy companies operate at the intersection of operational technology and enterprise systems. Our engineers integrate SCADA systems, energy management platforms, and market data feeds into unified operational architectures designed for resilience.',
+    useCases: ['SCADA and EMS integration', 'Market data feed management', 'Asset performance monitoring', 'Trading and scheduling system connectivity']
+  },
+  {
+    icon: 'BookOpen',
+    name: 'Education',
+    desc: 'We unify Student Information Systems (SIS) and Learning Management Systems (LMS) into resilient, event-driven architectures for large-scale educational institutions.',
+    detail: 'Educational institutions face the challenge of fragmented data across Student Information Systems, Learning Management Systems, and administrative portals. Regent builds unified, event-driven architectures that ensure data consistency and enable real-time student performance insights.',
+    useCases: ['SIS and LMS real-time synchronization', 'Unified student performance dashboards', 'Automated course enrollment workflows', 'Educational data warehouse population']
+  },
+  {
+    icon: 'Home',
+    name: 'Real Estate',
+    desc: 'We bridge the gap between physical property data and digital investment platforms, enabling real-time portfolio analytics and asset tokenization.',
+    detail: 'Real estate firms and investment platforms require a seamless bridge between physical asset data and digital portfolio management. We integrate property management ERPs with analytical platforms and blockchain ledgers to enable real-time reporting and asset tokenization.',
+    useCases: ['Property management ERP integration', 'Real-time portfolio performance analytics', 'Real estate asset tokenization oracles', 'Automated rent-roll reconciliation']
+  },
+  {
+    icon: 'Zap',
+    name: 'Media',
+    desc: 'We engineer high-throughput streaming data fabrics and edge-computing microservices for global broadcasters and content distributors.',
+    detail: 'Media and entertainment organizations must manage massive data flows and deliver low-latency content globally. We engineer streaming analytics fabrics and edge-computing microservices that optimize content distribution and audience engagement.',
+    useCases: ['Multi-CDN streaming analytics', 'Edge-based content personalization', 'Real-time audience engagement telemetry', 'Automated ad-insertion orchestration']
+  },
 ];
 
 export const blogPosts: BlogPost[] = [
@@ -263,6 +332,39 @@ export const blogPosts: BlogPost[] = [
     readTime: '10 min',
     content: `<p>There is a persistent misconception in technology that good engineering is scale-invariant—that a well-designed system at small scale will perform equally well at large scale. This is false.</p><p>Institutional scale introduces failure modes that simply do not exist at startup scale. At small scale, a system that fails can be restarted. At institutional scale, a system that fails may disrupt thousands of users.</p><h2>Reliability Engineering at Institutional Scale</h2><p>Reliable large-scale systems are not simply larger versions of reliable small-scale systems. They require explicit architectural decisions around failure isolation, graceful degradation, and recovery procedures.</p><h2>The Case for Infrastructure Investment</h2><p>Organizations that invest in institutional-grade infrastructure before scaling have substantially better outcomes than those that scale first and retrofit infrastructure later.</p>`,
   },
+  {
+    slug: 'decoupled-data-architectures-education',
+    title: 'Decoupled Data Architectures in Educational Ecosystems: Bridging LMS and SIS Silos',
+    excerpt: 'Why point-to-point integrations fail in modern education and how a decoupled data layer enables real-time student insights.',
+    author: 'Regent Engineering',
+    date: 'March 10, 2026',
+    category: 'Architecture',
+    readTime: '7 min',
+    content: `<h2>The Silo Problem</h2><p>In large-scale educational institutions, student data is often trapped between Student Information Systems (SIS) and Learning Management Systems (LMS). These systems were designed for administrative efficiency, not data liquidity.</p><h2>The Decoupled Approach</h2><p>By implementing an event-driven data layer between these systems, institutions can move away from brittle nightly batch jobs toward real-time synchronization. This ensures that a student's progress in their LMS is immediately reflected in their academic record, enabling proactive intervention.</p><h2>Institutional Benefits</h2><p>Decoupling allows for the introduction of specialized analytical tools without requiring direct integration with legacy SIS mainframes, reducing risk and accelerating innovation.</p>`,
+    published: true
+  },
+  {
+    slug: 'real-estate-tokenization-infrastructure',
+    title: 'Real Estate Tokenization and the Infrastructure of Trust',
+    excerpt: 'Moving beyond the hype: The technical requirements for bridging physical property assets with digital ledgers.',
+    author: 'Regent Editorial',
+    date: 'March 10, 2026',
+    category: 'Finance',
+    readTime: '6 min',
+    content: `<h2>The Asset Gap</h2><p>The primary hurdle for real estate tokenization is not the blockchain itself, but the "oracle problem": ensuring the digital token accurately reflects the physical and legal state of the property.</p><h2>Integration as the Solution</h2><p>Successful tokenization requires a deep integration between property management ERPs, legal registries, and the smart contract layer. This data pipeline must be immutable and highly available.</p><h2>The Future of Liquidity</h2><p>When property data is integrated into a unified platform, institutional investors can gain real-time transparency into portfolio performance, drastically reducing the friction of secondary market trading.</p>`,
+    published: true
+  },
+  {
+    slug: 'media-distribution-edge-microservices',
+    title: 'The Future of Media Distribution: Microservices at the Edge',
+    excerpt: 'How global broadcasters are using edge computing to deliver personalized, low-latency content at scale.',
+    author: 'Regent Engineering',
+    date: 'March 14, 2026',
+    category: 'Media',
+    readTime: '5 min',
+    content: `<h2>The Bandwidth Challenge</h2><p>As content resolution increases, traditional centralized distribution models are reaching their physical limits. The cost of backhauling telemetry data is becoming prohibitive.</p><h2>Edge Intelligence</h2><p>By moving processing logic—such as ad-insertion and personalization oracles—to edge microservices, media companies can reduce latency and improve the viewer experience while lowering infrastructure costs.</p><h2>Regent's Role</h2><p>We build the orchestration layer that manages these distributed services, ensuring consistent state across a global network of edge nodes.</p>`,
+    published: true
+  }
 ];
 
 export const resources: Resource[] = [
@@ -272,6 +374,18 @@ export const resources: Resource[] = [
   { type: 'Case Study', title: 'Global Bank Reduces Data Latency by 94%', desc: 'How a tier-1 financial institution used Regent to unify 23 disparate systems into a real-time operational platform.' },
   { type: 'Whitepaper', title: 'Security Architecture for Integration Platforms', desc: 'Design principles and implementation patterns for securing enterprise integration infrastructure.' },
   { type: 'Case Study', title: 'Government Agency Modernizes Legacy Infrastructure', desc: 'Deploying Regent to connect 40-year-old COBOL systems with modern cloud services without disruption.' },
+  {
+    type: 'Whitepaper',
+    title: 'Engineering Reliable Data Pipelines for Multi-Tenant Educational Platforms',
+    slug: 'educational-data-pipelines',
+    desc: 'Architectural patterns for high-availability data synchronization in large-scale academic ecosystems.'
+  },
+  {
+    type: 'Technical Guide',
+    title: 'API-First Integration for Real Estate Management Systems',
+    slug: 'api-first-real-estate',
+    desc: 'A framework for connecting property ERPs with modern digital investment platforms and tokenization layers.'
+  }
 ];
 
 export const team: TeamMember[] = [
@@ -350,23 +464,7 @@ export const detailedCapabilities = [
   }
 ];
 
-export const industriesDetailed = industries.map((ind, i) => ({
-  ...ind,
-  detail: [
-    'Financial institutions operate some of the most complex system landscapes in the world. Our engineers integrate trading platforms, risk systems, regulatory reporting infrastructure, and client management systems into real-time operational architectures — with zero tolerance for data inconsistency.',
-    'Government agencies manage vast amounts of sensitive data across systems ranging from modern cloud applications to decades-old mainframe infrastructure. Regent delivers the integration engineering to connect these systems securely and reliably — without disrupting mission-critical services.',
-    'Critical infrastructure operators need integration architectures that connect operational technology with enterprise systems — while maintaining the reliability and security standards that critical operations demand. Our team builds exactly that.',
-    "Large enterprises typically manage dozens of business applications from different vendors and technology generations. Regent's consulting teams eliminate data silos and deliver a unified operational view across the entire enterprise application landscape.",
-    'Energy companies operate at the intersection of operational technology and enterprise systems. Our engineers integrate SCADA systems, energy management platforms, and market data feeds into unified operational architectures designed for resilience.',
-  ][i],
-  useCases: [
-    ['Real-time trading system integration', 'Regulatory reporting automation', 'Risk data aggregation', 'Client data platform unification'],
-    ['Legacy system modernization', 'Cross-agency data sharing', 'Citizen service platform integration', 'Compliance reporting automation'],
-    ['SCADA system integration', 'Asset management platform connectivity', 'Maintenance workflow automation', 'Operations center data consolidation'],
-    ['ERP and CRM unification', 'Supply chain data integration', 'HR system connectivity', 'Business intelligence data consolidation'],
-    ['SCADA and EMS integration', 'Market data feed management', 'Asset performance monitoring', 'Trading and scheduling system connectivity'],
-  ][i],
-}));
+export const industriesDetailed = industries;
 
 // Case Studies
 export const caseStudies: CaseStudy[] = [
@@ -430,6 +528,51 @@ export const caseStudies: CaseStudy[] = [
     ],
     metrics: [{ value: "12", label: "Countries unified" }, { value: "87%", label: "Faster reporting" }, { value: "$22M", label: "Cost savings" }],
   },
+  {
+    id: "metro-schools",
+    title: "Metropolitan School District: Unifying 120 Schools via Regent Integrate",
+    industry: "Education",
+    summary: "How a major urban school district eliminated data silos between 120 schools, improving real-time student performance tracking and resource allocation.",
+    challenge: "The district's 120 schools each managed their own student data silos, leading to severe delays in reporting and identifying at-risk students. Moving a student between schools often resulted in weeks of data reconciliation.",
+    solution: "Regent implemented a centralized event-driven integration layer using Regent Integrate. This allowed for real-time synchronization between individual school systems and the central district database.",
+    results: [
+      "Real-time student data synchronization across 120 schools",
+      "80% faster identification of at-risk students",
+      "90% reduction in manual data entry for student transfers",
+      "Improved resource allocation based on live enrollment data",
+    ],
+    metrics: [{ value: "120", label: "Schools unified" }, { value: "80%", label: "Faster ID of risk" }, { value: "90%", label: "Less manual entry" }],
+  },
+  {
+    id: "global-realty",
+    title: "Global Realty Group: Real-time Portfolio Analytics via Integrated ERP",
+    industry: "Real Estate",
+    summary: "Unifying property management, financial accounting, and market data for a global real estate investment trust.",
+    challenge: "Global Realty Group managed over $40B in assets but lacked a unified view of portfolio performance. Data was fragmented across regional ERPs and external market feeds.",
+    solution: "We built a unified analytics platform on Regent Data, integrating all regional ERP systems and market data sources. This provided the executive team with a real-time 'command center' for the entire portfolio.",
+    results: [
+      "Unified view of $40B asset portfolio",
+      "Real-time IRR and occupancy tracking",
+      "Automated consolidation of regional financial reports",
+      "Enabled rapid due diligence for new acquisitions",
+    ],
+    metrics: [{ value: "$40B", label: "Assets tracked" }, { value: "Real-time", label: "Analytics" }, { value: "100%", label: "Regional coverage" }],
+  },
+  {
+    id: "global-media-network",
+    title: "Streaming Analytics for Global Media Network",
+    industry: "Media",
+    summary: "Implementing a high-throughput data fabric for real-time audience engagement telemetry and personalized content distribution.",
+    challenge: "The network struggled to process telemetry data from 50M+ concurrent viewers globally, leading to delays in ad-insertion and content recommendations.",
+    solution: "Regent engineered a distributed streaming analytics fabric using edge computing nodes to process engagement data locally before aggregating to the central platform.",
+    results: [
+      "Processed 50M+ concurrent viewer streams",
+      "Sub-second latency for ad-insertion oracles",
+      "15% increase in viewer retention through personalization",
+      "30% reduction in cloud egress costs",
+    ],
+    metrics: [{ value: "50M+", label: "Concurrent viewers" }, { value: "Sub-sec", label: "Latency" }, { value: "15%", label: "Retention gain" }],
+  },
 ];
 
 // Careers
@@ -445,20 +588,68 @@ export const careers: CareerPosition[] = [
   { id: "mk-1", title: "Content Marketing Manager", department: "Marketing", location: "Remote", type: "Full-time" },
 ];
 
-export const companyValues: CompanyValue[] = [
-  { emoji: "⚙️", title: "Engineering Excellence", desc: "We build systems that work at institutional scale. Every architectural decision is deliberate, tested, and designed for reliability." },
-  { emoji: "🔬", title: "First Principles Thinking", desc: "We start from fundamentals, not trends. Complex problems deserve rigorous analysis and creative solutions." },
-  { emoji: "🤝", title: "Radical Collaboration", desc: "The best infrastructure is built by diverse teams working in concert. We value every perspective and expertise." },
-  { emoji: "📐", title: "Precision in Craft", desc: "Details matter at scale. We hold ourselves to the highest standards in code quality, documentation, and communication." },
-  { emoji: "🚀", title: "Bias for Impact", desc: "We measure success by outcomes, not activity. Every project ships with a clear understanding of the problem it solves." },
-  { emoji: "🌍", title: "Long-term Thinking", desc: "We build for decades, not quarters. Our infrastructure decisions consider the organizations that will depend on them for years." },
+export const companyValues = [
+  {
+    icon: Cog,
+    title: "Engineering Excellence",
+    desc: "We build systems that work at institutional scale. Every architectural decision is deliberate, tested, and designed for reliability.",
+  },
+  {
+    icon: Microscope,
+    title: "First Principles Thinking",
+    desc: "We start from fundamentals, not trends. Complex problems deserve rigorous analysis and creative solutions.",
+  },
+  {
+    icon: Handshake,
+    title: "Collective Intelligence",
+    desc: "The best infrastructure is built by diverse teams working in concert. We value every perspective and expertise.",
+  },
+  {
+    icon: DraftingCompass,
+    title: "Precision in Craft",
+    desc: "Details matter at scale. We hold ourselves to the highest standards in code quality, documentation, and communication.",
+  },
+  {
+    icon: Rocket,
+    title: "Outcome Orientation",
+    desc: "We measure success by outcomes, not activity. Every project ships with a clear understanding of the problem it solves.",
+  },
+  {
+    icon: Globe,
+    title: "Long-term Thinking",
+    desc: "We build for decades, not quarters. Our infrastructure decisions consider the organizations that will depend on them for years.",
+  },
 ];
 
-export const benefits: Benefit[] = [
-  { emoji: "💰", title: "Competitive Compensation", desc: "Top-of-market salary, equity, and annual performance bonuses." },
-  { emoji: "🏥", title: "Premium Healthcare", desc: "Full medical, dental, and vision coverage for you and your family." },
-  { emoji: "🏠", title: "Flexible Work", desc: "Remote-first culture with optional offices in SF and NYC." },
-  { emoji: "📚", title: "Learning Budget", desc: "$5,000 annual budget for conferences, courses, and books." },
-  { emoji: "🏖️", title: "Unlimited PTO", desc: "Take the time you need. We trust you to manage your schedule." },
-  { emoji: "🍼", title: "Parental Leave", desc: "16 weeks paid leave for all new parents, regardless of gender." },
+export const benefits = [
+  {
+    icon: DollarSign,
+    title: "Competitive Compensation",
+    desc: "Top-of-market salary, equity, and annual performance bonuses.",
+  },
+  {
+    icon: HeartPulse,
+    title: "Premium Healthcare",
+    desc: "Full medical, dental, and vision coverage for you and your family.",
+  },
+  {
+    icon: Home,
+    title: "Flexible Work",
+    desc: "Remote-first culture with optional offices in SF and NYC.",
+  },
+  {
+    icon: BookOpen,
+    title: "Learning Budget",
+    desc: "$5,000 annual budget for conferences, courses, and books.",
+  },
+  {
+    icon: Palmtree,
+    title: "Unlimited PTO",
+    desc: "Take the time you need. We trust you to manage your schedule.",
+  },
+  {
+    icon: Baby,
+    title: "Parental Leave",
+    desc: "16 weeks paid leave for all new parents, regardless of gender.",
+  },
 ];

@@ -1,0 +1,202 @@
+"use client";
+
+import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import Link from "next/link";
+import { RevealOnScroll } from "@/components/RevealOnScroll";
+import { GradientText } from "@/components/GradientText";
+import { Icons } from "@/components/Icons";
+import { companyValues, benefits } from "@/data/siteData";
+import { PageMeta } from "@/components/PageMeta";
+import { createClient } from "@/lib/supabase/client";
+import { useQuery } from "@tanstack/react-query";
+
+interface Career {
+  id: string;
+  title: string;
+  department: string;
+  location: string;
+  type: string;
+  description: string;
+}
+
+export default function CareersPage() {
+  const supabase = createClient();
+  const [activeDept, setActiveDept] = useState("All");
+  const { data: careers = [], isLoading: loading, isError, refetch } = useQuery({
+    queryKey: ["careers"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("careers")
+        .select("id, title, department, location, type, description")
+        .eq("published", true)
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      return (data || []) as Career[];
+    },
+  });
+
+  const departments = ["All", ...Array.from(new Set(careers.map(c => c.department).filter(Boolean)))];
+  const filtered = activeDept === "All" ? careers : careers.filter(c => c.department === activeDept);
+
+  return (
+    <div>
+      <PageMeta title="Careers — Regent | Join Our Team" description="Join the team engineering infrastructure for the next generation of organizations." />
+      <section className="pt-[140px] pb-[100px] bg-surface border-b border-border">
+        <div className="section-container">
+          <motion.div
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+            className="max-w-[640px]"
+          >
+            <div className="font-mono text-[11px] tracking-[0.12em] uppercase text-primary mb-4">CAREERS</div>
+            <h1 className="text-[clamp(36px,5vw,64px)] font-heading font-semibold tracking-[-0.04em] leading-[1.0] text-text-primary mb-6">
+              Build the <GradientText shimmer>Future</GradientText>
+            </h1>
+            <p className="text-[clamp(16px,2vw,20px)] font-light text-text-secondary leading-[1.65] max-w-[560px]">
+              Join the team engineering infrastructure for the next generation of organizations.
+            </p>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Values */}
+      <section className="py-[100px]">
+        <div className="section-container">
+          <RevealOnScroll>
+            <div className="font-mono text-[11px] tracking-[0.12em] uppercase text-primary mb-4">OUR VALUES</div>
+            <h2 className="font-heading text-[clamp(24px,3vw,40px)] font-semibold tracking-[-0.03em] leading-[1.1] text-text-primary mb-10">
+              What Drives Us
+            </h2>
+          </RevealOnScroll>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+            {companyValues.map((v, i) => (
+              <RevealOnScroll key={v.title} delay={i * 0.1}>
+                <motion.div
+                  whileHover={{ y: -4 }}
+                  className="border border-border rounded-xl p-7 bg-card hover:border-border-strong transition-colors"
+                >
+                  <div className="w-10 h-10 bg-accent-light rounded-[10px] flex items-center justify-center mb-5 text-primary text-lg">
+                    {v.icon && <v.icon className="w-5 h-5 text-primary" />}
+                  </div>
+                  <div className="font-heading text-base font-semibold tracking-[-0.02em] mb-2 text-text-primary">{v.title}</div>
+                  <p className="text-sm text-text-secondary leading-[1.65]">{v.desc}</p>
+                </motion.div>
+              </RevealOnScroll>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <hr className="border-t border-border" />
+
+      {/* Open Positions */}
+      <section className="py-[100px] bg-surface">
+        <div className="section-container">
+          <RevealOnScroll>
+            <div className="font-mono text-[11px] tracking-[0.12em] uppercase text-primary mb-4">OPEN POSITIONS</div>
+            <h2 className="font-heading text-[clamp(24px,3vw,40px)] font-semibold tracking-[-0.03em] leading-[1.1] text-text-primary mb-8">
+              Join the Team
+            </h2>
+          </RevealOnScroll>
+
+          {loading ? (
+            <div className="space-y-3">{[1, 2, 3].map(i => <div key={i} className="h-20 bg-card border border-border rounded-xl animate-pulse" />)}</div>
+          ) : isError ? (
+            <div className="text-center py-16">
+              <h2 className="font-heading text-xl font-semibold text-text-primary mb-4">Unable to load positions</h2>
+              <p className="text-text-secondary mb-6">Something went wrong. Please try again.</p>
+              <button onClick={() => refetch()} className="font-heading text-sm font-medium bg-primary text-primary-foreground rounded-lg px-6 py-3 hover:bg-primary/90 transition-all">Retry</button>
+            </div>
+          ) : (
+            <>
+              <div className="flex flex-wrap gap-2 mb-8">
+                {departments.map(dept => (
+                  <button
+                    key={dept}
+                    onClick={() => setActiveDept(dept)}
+                    className={`font-mono text-[11px] tracking-[0.06em] px-4 py-2 rounded-full border transition-all ${
+                      activeDept === dept
+                        ? "bg-primary text-primary-foreground border-primary"
+                        : "bg-card text-text-secondary border-border hover:border-border-strong hover:text-text-primary"
+                    }`}
+                  >
+                    {dept}
+                  </button>
+                ))}
+              </div>
+
+              <div className="space-y-3">
+                <AnimatePresence mode="popLayout">
+                  {filtered.map((job) => (
+                    <motion.div
+                      key={job.id}
+                      layout
+                      initial={{ opacity: 0, y: 8 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -8 }}
+                      transition={{ duration: 0.25 }}
+                    >
+                      <Link href={`/careers/apply/${job.id}`}>
+                        <motion.div
+                          whileHover={{ x: 4 }}
+                          className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border border-border rounded-xl p-6 bg-card hover:border-border-strong transition-colors cursor-pointer"
+                        >
+                          <div>
+                            <div className="font-heading text-[16px] font-semibold text-text-primary mb-1">{job.title}</div>
+                            <div className="flex flex-wrap items-center gap-3 text-[13px] text-text-muted">
+                              <span>{job.department}</span>
+                              <span className="w-1 h-1 rounded-full bg-border-strong" />
+                              <span>{job.location}</span>
+                              <span className="w-1 h-1 rounded-full bg-border-strong" />
+                              <span>{job.type}</span>
+                            </div>
+                            {job.description && (  // ← add this block
+                              <p className="text-[13px] text-text-secondary leading-[1.65] mt-2 line-clamp-2">{job.description}</p>
+                            )}
+                          </div>
+                          <div className="text-primary shrink-0">
+                            <Icons.ArrowRight />
+                          </div>
+                        </motion.div>
+                      </Link>
+                    </motion.div>
+                  ))}
+                </AnimatePresence>
+              </div>
+
+              {careers.length === 0 && (
+                <div className="text-center py-16">
+                  <div className="w-16 h-16 mx-auto mb-6 rounded-2xl bg-accent-light flex items-center justify-center text-primary">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect width="20" height="14" x="2" y="7" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+                  </div>
+                  <h3 className="font-heading text-lg font-semibold text-text-primary mb-2">No open positions right now</h3>
+                  <p className="text-sm text-text-muted">Check back soon — we're always growing.</p>
+                </div>
+              )}
+
+              {careers.length > 0 && filtered.length === 0 && (
+                <div className="text-center py-16 text-text-muted">No open positions in this department.</div>
+              )}
+            </>
+          )}
+        </div>
+
+        <RevealOnScroll delay={0.3}>
+            <div className="mt-16 text-center">
+              <p className="text-text-secondary mb-6">Don't see a role that fits? We're always looking for exceptional people.</p>
+              <Link
+                href="/careers/apply/general"
+                className="font-heading text-[15px] font-medium bg-primary text-primary-foreground rounded-lg px-7 py-3.5 inline-flex items-center gap-2 hover:bg-primary/90 transition-all"
+              >
+                Send Us Your Resume <Icons.ArrowRight />
+              </Link>
+            </div>
+        </RevealOnScroll>
+      </section>
+
+      <hr className="border-t border-border" />
+    </div>
+  );
+}
