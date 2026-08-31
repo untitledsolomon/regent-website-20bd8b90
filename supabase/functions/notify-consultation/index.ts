@@ -3,6 +3,66 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version',
 };
 
+/**
+ * Sync a consultation lead to the Regent Growth Engine.
+ * Non-blocking — failures are logged but do not fail the consultation submission.
+ *
+ * Required env vars (set in Supabase Edge Function Secrets):
+ *   GROWTH_ENGINE_URL          – e.g. https://<ref>.supabase.co/functions/v1
+ *   GROWTH_ENGINE_AGENT_API_KEY – agent API key set in Growth Engine Supabase secrets
+ *   GROWTH_ENGINE_ORG_ID        – UUID of the Regent org in the Growth Engine
+ */
+async function syncLeadToGrowthEngine(payload: {
+  name: string;
+  company: string;
+  email: string;
+  industry?: string;
+  budget?: string;
+  source?: string;
+}): Promise<void> {
+  const url = Deno.env.get('GROWTH_ENGINE_URL');
+  const apiKey = Deno.env.get('GROWTH_ENGINE_AGENT_API_KEY');
+  const orgId = Deno.env.get('GROWTH_ENGINE_ORG_ID');
+
+  if (!url || !apiKey || !orgId) {
+    console.warn('Growth Engine env vars not configured — skipping lead sync');
+    return;
+  }
+
+  // Demo requests get highest priority score (90), regular consultations get 80.
+  const score = payload.source === 'demo-request' ? 90 : 80;
+  const tags = ['inbound', 'consultation'];
+  if (payload.industry) tags.push(payload.industry.toLowerCase().replace(/\s+/g, '-'));
+
+  const body = {
+    org_id: orgId,
+    name: payload.name,
+    business: payload.company,
+    email: payload.email,
+    source: 'website',
+    score,
+    tags,
+    status: 'new',
+  };
+
+  const res = await fetch(`${url}/leads`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-agent-api-key': apiKey,
+    },
+    body: JSON.stringify(body),
+  });
+
+  if (!res.ok) {
+    const errText = await res.text();
+    console.error('Growth Engine lead sync failed:', res.status, errText);
+  } else {
+    const data = await res.json();
+    console.log('Growth Engine lead synced:', data?.id);
+  }
+}
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -20,7 +80,7 @@ Deno.serve(async (req) => {
       });
     }
 
-    const { name, company, email, industry, size, budget, message } = await req.json();
+    const { name, company, email, industry, size, budget, message, source } = await req.json();
 
     const htmlBody = `
       <h2>New Consultation Request</h2>
@@ -35,6 +95,7 @@ Deno.serve(async (req) => {
       </table>
     `;
 
+    // Send email notification (primary action — must succeed)
     const res = await fetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: {
@@ -42,7 +103,7 @@ Deno.serve(async (req) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        from: 'Regent <onboarding@resend.dev>',
+        from: 'Regent <updates@regent.systems>',
         to: [NOTIFICATION_EMAIL],
         subject: `New Consultation: ${name} from ${company}`,
         html: htmlBody,
@@ -58,6 +119,11 @@ Deno.serve(async (req) => {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
+
+    // Sync to Growth Engine — fire-and-forget, non-blocking
+    syncLeadToGrowthEngine({ name, company, email, industry, budget, source }).catch(
+      (e) => console.error('Growth Engine sync error (uncaught):', e),
+    );
 
     return new Response(JSON.stringify({ success: true }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
