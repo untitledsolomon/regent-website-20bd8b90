@@ -32,22 +32,22 @@ export const metadata: Metadata = {
 const PLAN_FEATURES: Record<AxisPlanPricing["planId"], string[]> = {
   starter: [
     "Invoicing & client management",
-    "Core financial tracking",
+    "Core financial tracking & ledger",
+    "Basic reports",
     "1 organization",
     "Email support",
   ],
   pro: [
     "Everything in Starter",
-    "Full double-entry ledger & reports",
-    "Inventory & custody tracking",
-    "Employee management",
+    "Advanced reports & analytics",
+    "Inventory tracking",
     "Priority support",
   ],
   advanced: [
     "Everything in Pro",
-    "Advanced analytics & reporting",
-    "Multiple organizations",
-    "Dedicated onboarding",
+    "Employee management",
+    "Custom email domain",
+    "Third-party connections",
     "Priority support with SLA",
   ],
 };
