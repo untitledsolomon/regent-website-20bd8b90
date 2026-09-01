@@ -28,12 +28,23 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${siteUrl}/privacy`, changeFrequency: 'yearly', priority: 0.3 },
     { url: `${siteUrl}/terms`, changeFrequency: 'yearly', priority: 0.3 },
     { url: `${siteUrl}/refund-policy`, changeFrequency: 'yearly', priority: 0.3 },
-    ...(posts ?? []).map(post => ({
-      url: `${siteUrl}/blog/${post.slug}`,
-      lastModified: post.date,
-      changeFrequency: 'monthly' as const,
-      priority: 0.8,
-    })),
+    ...(posts ?? []).map(post => {
+      // post.date is a free-text column (e.g. "March 19, 2026") rather than
+      // a real date type, so it must be parsed before being handed to the
+      // sitemap serializer, or Next.js writes it into <lastmod> verbatim and
+      // produces an invalid, non-ISO-8601 date that Google Search Console
+      // rejects. Fall back to omitting lastMod entirely if it can't be parsed.
+      const parsedDate = post.date ? new Date(post.date) : null
+      const lastModified =
+        parsedDate && !isNaN(parsedDate.getTime()) ? parsedDate : undefined
+
+      return {
+        url: `${siteUrl}/blog/${post.slug}`,
+        ...(lastModified ? { lastModified } : {}),
+        changeFrequency: 'monthly' as const,
+        priority: 0.8,
+      }
+    }),
     ...(caseStudies ?? []).map(cs => ({
       url: `${siteUrl}/case-studies/${cs.slug}`,
       lastModified: cs.updated_at,
