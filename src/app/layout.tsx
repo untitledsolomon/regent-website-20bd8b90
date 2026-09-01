@@ -9,7 +9,7 @@ export const metadata: Metadata = {
   },
   description: 'Enterprise analytics platform.',
   metadataBase: new URL(
-    process.env.NEXT_PUBLIC_SITE_URL || 'https://regentplatform.com'
+    process.env.NEXT_PUBLIC_SITE_URL || 'https://www.regentplatform.com'
   ),
 }
 
