@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { notFound } from "next/navigation";
 import { Icons } from "@/components/Icons";
 import { RevealOnScroll } from "@/components/RevealOnScroll";
 import { PageMeta } from "@/components/PageMeta";
@@ -67,8 +68,11 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
   const { slug } = await params;
   const product = PRODUCTS[slug];
 
+  // Previously returned a "Product not found" page with a 200 status for
+  // any unknown slug -- a soft 404. notFound() makes Next.js serve a real
+  // 404 status instead.
   if (!product) {
-    return <div className="section-container py-32"><h1 className="font-heading text-3xl font-semibold">Product not found</h1><Link href="/products" className="mt-5 inline-flex text-primary">Back to products</Link></div>;
+    notFound();
   }
 
   const ProductIcon = Icons[product.icon];
