@@ -1,12 +1,15 @@
-﻿import { createServiceClient } from "@/lib/supabase/service";
+import { createClient } from "@/lib/supabase/server";
+import { createServiceClient } from "@/lib/supabase/service";
 import { NextResponse } from "next/server";
 
 /**
  * Server-side admin guard for MCP admin API routes.
- * Uses createServiceClient() the same way src/app/api/admin/users/route.ts does.
+ * Uses the cookie-aware createClient() to read the request session from cookies,
+ * then verifies the user has the 'admin' role. Returns NextResponse on failure.
  */
-export async function requireAdmin(request: Request) {
-  const supabase = createServiceClient();
+export async function requireAdmin() {
+  // cookie-aware supabase client (reads session from next/headers)
+  const supabase = await createClient();
 
   const { data: { user }, error: authError } = await supabase.auth.getUser();
   if (authError || !user) {
@@ -24,5 +27,5 @@ export async function requireAdmin(request: Request) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
-  return { ok: true, uid: user.id, supabase };
+  return { ok: true, uid: user.id };
 }
