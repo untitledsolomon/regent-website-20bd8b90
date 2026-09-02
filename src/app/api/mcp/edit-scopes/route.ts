@@ -3,7 +3,7 @@ import { createServiceClient } from "@/lib/supabase/service";
 import { requireAdmin } from "../_require-admin";
 
 export async function POST(request: Request) {
-  const guard = await requireAdmin(request);
+  const guard = await requireAdmin();
   if (guard instanceof NextResponse) return guard;
   const supabase = createServiceClient();
 
