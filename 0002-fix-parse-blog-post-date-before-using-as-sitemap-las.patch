@@ -1,0 +1,53 @@
+From aa685d195cf69cc73bd782cbb03acf804f2292f5 Mon Sep 17 00:00:00 2001
+From: Claude <assistant@example.com>
+Date: Tue, 1 Sep 2026 10:43:26 +0000
+Subject: [PATCH 2/2] fix: parse blog post date before using as sitemap
+ lastModified
+
+blog_posts.date is a free-text column (e.g. 'March 19, 2026'), not a real
+date type. sitemap.ts was passing it straight through as lastModified,
+so Next.js wrote it into <lastmod> verbatim -- an invalid, non-ISO-8601
+date that GSC flagged ('Invalid date... 9 instances'). Now parsed into a
+real Date (or omitted if unparseable) before being handed to the sitemap
+serializer, which converts it to a proper ISO 8601 timestamp.
+---
+ src/app/sitemap.ts | 23 +++++++++++++++++------
+ 1 file changed, 17 insertions(+), 6 deletions(-)
+
+diff --git a/src/app/sitemap.ts b/src/app/sitemap.ts
+index eef5672..763dd40 100644
+--- a/src/app/sitemap.ts
++++ b/src/app/sitemap.ts
+@@ -28,12 +28,23 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+     { url: `${siteUrl}/privacy`, changeFrequency: 'yearly', priority: 0.3 },
+     { url: `${siteUrl}/terms`, changeFrequency: 'yearly', priority: 0.3 },
+     { url: `${siteUrl}/refund-policy`, changeFrequency: 'yearly', priority: 0.3 },
+-    ...(posts ?? []).map(post => ({
+-      url: `${siteUrl}/blog/${post.slug}`,
+-      lastModified: post.date,
+-      changeFrequency: 'monthly' as const,
+-      priority: 0.8,
+-    })),
++    ...(posts ?? []).map(post => {
++      // post.date is a free-text column (e.g. "March 19, 2026") rather than
++      // a real date type, so it must be parsed before being handed to the
++      // sitemap serializer, or Next.js writes it into <lastmod> verbatim and
++      // produces an invalid, non-ISO-8601 date that Google Search Console
++      // rejects. Fall back to omitting lastMod entirely if it can't be parsed.
++      const parsedDate = post.date ? new Date(post.date) : null
++      const lastModified =
++        parsedDate && !isNaN(parsedDate.getTime()) ? parsedDate : undefined
++
++      return {
++        url: `${siteUrl}/blog/${post.slug}`,
++        ...(lastModified ? { lastModified } : {}),
++        changeFrequency: 'monthly' as const,
++        priority: 0.8,
++      }
++    }),
+     ...(caseStudies ?? []).map(cs => ({
+       url: `${siteUrl}/case-studies/${cs.slug}`,
+       lastModified: cs.updated_at,
+-- 
+2.43.0
+

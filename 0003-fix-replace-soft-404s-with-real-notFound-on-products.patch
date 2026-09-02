@@ -1,0 +1,76 @@
+From debd4c888be2fccf47ce4fdf5134015842c0af99 Mon Sep 17 00:00:00 2001
+From: Claude <assistant@example.com>
+Date: Tue, 1 Sep 2026 10:51:36 +0000
+Subject: [PATCH 3/3] fix: replace soft 404s with real notFound() on products
+ and platform module pages
+
+Both /products/[slug] and /platform/[moduleSlug] served a 200 status with
+'not found'-style content (or, for platform modules, a blank page that
+only redirected client-side via useEffect) for unknown slugs. Google
+flagged these as Soft 404 in Search Console. Both routes now call
+next/navigation's notFound() for unknown slugs, which returns a real
+404 status.
+---
+ .../(public)/platform/[moduleSlug]/page.tsx   | 23 ++++++++++++++++++-
+ src/app/(public)/products/[slug]/page.tsx     |  6 ++++-
+ 2 files changed, 27 insertions(+), 2 deletions(-)
+
+diff --git a/src/app/(public)/platform/[moduleSlug]/page.tsx b/src/app/(public)/platform/[moduleSlug]/page.tsx
+index eff1cd2..98c179e 100644
+--- a/src/app/(public)/platform/[moduleSlug]/page.tsx
++++ b/src/app/(public)/platform/[moduleSlug]/page.tsx
+@@ -1,5 +1,26 @@
++import { notFound } from 'next/navigation'
++import { modules } from '@/data/siteData'
+ import ModuleDetail from '@/legacy-pages/ModuleDetail'
+ 
+-export default function ModuleDetailPage() {
++export function generateStaticParams() {
++  return modules.map((m) => ({ moduleSlug: m.slug }))
++}
++
++export default async function ModuleDetailPage({
++  params,
++}: {
++  params: Promise<{ moduleSlug: string }>
++}) {
++  const { moduleSlug } = await params
++
++  // ModuleDetail is a client component that previously handled an unknown
++  // slug by rendering nothing and redirecting client-side in a useEffect.
++  // That serves a 200 with blank/incomplete HTML to crawlers before the JS
++  // redirect runs -- a soft 404. Guarding here on the server means an
++  // invalid slug gets a real 404 status immediately.
++  if (!modules.some((m) => m.slug === moduleSlug)) {
++    notFound()
++  }
++
+   return <ModuleDetail />
+ }
+diff --git a/src/app/(public)/products/[slug]/page.tsx b/src/app/(public)/products/[slug]/page.tsx
+index d2ff635..addcc5f 100644
+--- a/src/app/(public)/products/[slug]/page.tsx
++++ b/src/app/(public)/products/[slug]/page.tsx
+@@ -1,5 +1,6 @@
+ import type { Metadata } from "next";
+ import Link from "next/link";
++import { notFound } from "next/navigation";
+ import { Icons } from "@/components/Icons";
+ import { RevealOnScroll } from "@/components/RevealOnScroll";
+ import { PageMeta } from "@/components/PageMeta";
+@@ -67,8 +68,11 @@ export default async function ProductPage({ params }: { params: Promise<{ slug:
+   const { slug } = await params;
+   const product = PRODUCTS[slug];
+ 
++  // Previously returned a "Product not found" page with a 200 status for
++  // any unknown slug -- a soft 404. notFound() makes Next.js serve a real
++  // 404 status instead.
+   if (!product) {
+-    return <div className="section-container py-32"><h1 className="font-heading text-3xl font-semibold">Product not found</h1><Link href="/products" className="mt-5 inline-flex text-primary">Back to products</Link></div>;
++    notFound();
+   }
+ 
+   const ProductIcon = Icons[product.icon];
+-- 
+2.43.0
+

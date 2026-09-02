@@ -1,0 +1,87 @@
+From d563a5e1417e2b0f8f488abcdc8167e409396f0a Mon Sep 17 00:00:00 2001
+From: Claude <assistant@example.com>
+Date: Tue, 1 Sep 2026 10:28:15 +0000
+Subject: [PATCH] fix: align canonical domain with www redirect target, remove
+ stale static sitemap
+
+- NEXT_PUBLIC_SITE_URL and fallbacks now point to https://www.regentplatform.com
+  to match the actual redirect target (bare domain -> www), fixing the
+  canonical/redirect mismatch causing GSC 'Page with redirect' and
+  'Alternate page with proper canonical tag' issues.
+- Removed stale public/sitemap.xml (referenced old regent.systems domain and
+  was missing current pages). It was silently shadowing the dynamic
+  src/app/sitemap.ts route since Next.js serves static /public files over
+  app-router routes at the same path.
+---
+ .env               |  2 +-
+ public/sitemap.xml | 16 ----------------
+ src/app/layout.tsx |  2 +-
+ src/app/robots.ts  |  2 +-
+ 4 files changed, 3 insertions(+), 19 deletions(-)
+ delete mode 100644 public/sitemap.xml
+
+diff --git a/.env b/.env
+index 08b0175..9654176 100644
+--- a/.env
++++ b/.env
+@@ -1,7 +1,7 @@
+ NEXT_PUBLIC_SUPABASE_URL="https://kifqmhikiahxnnzxhxum.supabase.co"
+ NEXT_PUBLIC_SUPABASE_ANON_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtpZnFtaGlraWFoeG5uenhoeHVtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMwMTA5ODIsImV4cCI6MjA4ODU4Njk4Mn0.D-9i4I0NYKy0zOQESxBoaY4xsCUOoq-42KcDsK_nbrU"
+ SUPABASE_SERVICE_ROLE_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtpZnFtaGlraWFoeG5uenhoeHVtIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3MzAxMDk4MiwiZXhwIjoyMDg4NTg2OTgyfQ.zWyA2j9qdB9fWESREfEQfwMm29QTPeF3pCq2SsBhfRI"
+-NEXT_PUBLIC_SITE_URL="https://regentplatform.com"
++NEXT_PUBLIC_SITE_URL="https://www.regentplatform.com"
+ REVALIDATE_SECRET="regentplatform818"
+ NEXT_PUBLIC_POSTHOG_KEY="phc_UZIHHYmo8DKsmcPmUzLICsImhTEyBPDqRTQ4Y4uxpkP"
+ NEXT_PUBLIC_POSTHOG_HOST="https://us.i.posthog.com"
+\ No newline at end of file
+diff --git a/public/sitemap.xml b/public/sitemap.xml
+deleted file mode 100644
+index 0be7dc7..0000000
+--- a/public/sitemap.xml
++++ /dev/null
+@@ -1,16 +0,0 @@
+-<?xml version="1.0" encoding="UTF-8"?>
+-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+-  <url><loc>https://regent.systems/</loc><changefreq>weekly</changefreq><priority>1.0</priority></url>
+-  <url><loc>https://regent.systems/platform</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+-  <url><loc>https://regent.systems/capabilities</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+-  <url><loc>https://regent.systems/industries</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+-  <url><loc>https://regent.systems/case-studies</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+-  <url><loc>https://regent.systems/resources</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+-  <url><loc>https://regent.systems/blog</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
+-  <url><loc>https://regent.systems/about</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+-  <url><loc>https://regent.systems/careers</loc><changefreq>weekly</changefreq><priority>0.5</priority></url>
+-  <url><loc>https://regent.systems/demo</loc><changefreq>monthly</changefreq><priority>0.9</priority></url>
+-  <url><loc>https://regent.systems/blog/architecture-of-modern-system-platforms</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+-  <url><loc>https://regent.systems/blog/fragmentation-problem-enterprise-systems</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+-  <url><loc>https://regent.systems/blog/designing-infrastructure-institutional-scale</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+-</urlset>
+diff --git a/src/app/layout.tsx b/src/app/layout.tsx
+index 13599dc..b3dd66a 100644
+--- a/src/app/layout.tsx
++++ b/src/app/layout.tsx
+@@ -9,7 +9,7 @@ export const metadata: Metadata = {
+   },
+   description: 'Enterprise analytics platform.',
+   metadataBase: new URL(
+-    process.env.NEXT_PUBLIC_SITE_URL || 'https://regentplatform.com'
++    process.env.NEXT_PUBLIC_SITE_URL || 'https://www.regentplatform.com'
+   ),
+ }
+ 
+diff --git a/src/app/robots.ts b/src/app/robots.ts
+index 899e1b8..3946340 100644
+--- a/src/app/robots.ts
++++ b/src/app/robots.ts
+@@ -1,7 +1,7 @@
+ import { MetadataRoute } from 'next'
+ 
+ export default function robots(): MetadataRoute.Robots {
+-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://regentplatform.com'
++  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.regentplatform.com'
+ 
+   return {
+     rules: {
+-- 
+2.43.0
+
