@@ -1,0 +1,138 @@
+﻿diff --git a/src/app/api/mcp/_require-admin.ts b/src/app/api/mcp/_require-admin.ts
+new file mode 100644
+index 0000000..613b285
+--- /dev/null
++++ b/src/app/api/mcp/_require-admin.ts
+@@ -0,0 +1,31 @@
++import { createClient } from "@/lib/supabase/server";
++import { createServiceClient } from "@/lib/supabase/service";
++import { NextResponse } from "next/server";
++
++/**
++ * Server-side admin guard for MCP admin API routes.
++ * Uses the cookie-aware createClient() to read the request session from cookies,
++ * then verifies the user has the 'admin' role. Returns NextResponse on failure.
++ */
++export async function requireAdmin() {
++  // cookie-aware supabase client (reads session from next/headers)
++  const supabase = await createClient();
++
++  const { data: { user }, error: authError } = await supabase.auth.getUser();
++  if (authError || !user) {
++    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
++  }
++
++  const { data: roleRow, error: roleError } = await supabase
++    .from("user_roles")
++    .select("role")
++    .eq("user_id", user.id)
++    .eq("role", "admin")
++    .maybeSingle();
++
++  if (roleError || !roleRow) {
++    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
++  }
++
++  return { ok: true, uid: user.id };
++}
+diff --git a/src/app/api/mcp/agents/route.ts b/src/app/api/mcp/agents/route.ts
+new file mode 100644
+index 0000000..7574684
+--- /dev/null
++++ b/src/app/api/mcp/agents/route.ts
+@@ -0,0 +1,13 @@
++﻿import { NextResponse } from "next/server";
++import { createServiceClient } from "@/lib/supabase/service";
++import { requireAdmin } from "../_require-admin";
++
++export async function GET(request: Request) {
++  const guard = await requireAdmin(request);
++  if (guard instanceof NextResponse) return guard;
++  const supabase = createServiceClient();
++
++  const { data, error } = await supabase.from("mcp_agents").select("id, name, scopes, created_at, last_used_at, revoked, revoked_at").order("created_at", { ascending: false });
++  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
++  return NextResponse.json(data);
++}
+diff --git a/src/app/api/mcp/create/route.ts b/src/app/api/mcp/create/route.ts
+new file mode 100644
+index 0000000..02a8b05
+--- /dev/null
++++ b/src/app/api/mcp/create/route.ts
+@@ -0,0 +1,31 @@
++﻿import { NextResponse } from "next/server";
++import crypto from "crypto";
++import { createServiceClient } from "@/lib/supabase/service";
++import { requireAdmin } from "../_require-admin";
++
++export async function POST(request: Request) {
++  const guard = await requireAdmin(request);
++  if (guard instanceof NextResponse) return guard;
++  const supabase = createServiceClient();
++
++  const body = await request.json();
++  const name = body.name;
++  const scopes = body.scopes || ["content:read"];
++  if (!name) return NextResponse.json({ error: "name required" }, { status: 400 });
++
++  const rawKey = `regent_mcp_sk_${crypto.randomBytes(48).toString("hex")}`;
++  const hash = crypto.createHash("sha256").update(rawKey).digest("hex");
++
++  const { data, error } = await supabase.from("mcp_agents").insert({
++    name,
++    api_key_hash: hash,
++    scopes,
++    created_at: new Date().toISOString(),
++    revoked: false,
++  }).select().maybeSingle();
++
++  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
++
++  // Return raw key ONCE
++  return NextResponse.json({ id: data.id, raw_key: rawKey });
++}
+diff --git a/src/app/api/mcp/edit-scopes/route.ts b/src/app/api/mcp/edit-scopes/route.ts
+new file mode 100644
+index 0000000..41095db
+--- /dev/null
++++ b/src/app/api/mcp/edit-scopes/route.ts
+@@ -0,0 +1,17 @@
++﻿import { NextResponse } from "next/server";
++import { createServiceClient } from "@/lib/supabase/service";
++import { requireAdmin } from "../_require-admin";
++
++export async function POST(request: Request) {
++  const guard = await requireAdmin(request);
++  if (guard instanceof NextResponse) return guard;
++  const supabase = createServiceClient();
++
++  const body = await request.json();
++  const id = body.id;
++  const scopes = body.scopes;
++  if (!id || !Array.isArray(scopes)) return NextResponse.json({ error: "id and scopes required" }, { status: 400 });
++  const { error } = await supabase.from("mcp_agents").update({ scopes }).eq("id", id);
++  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
++  return NextResponse.json({ ok: true });
++}
+diff --git a/src/app/api/mcp/revoke/route.ts b/src/app/api/mcp/revoke/route.ts
+new file mode 100644
+index 0000000..6b98522
+--- /dev/null
++++ b/src/app/api/mcp/revoke/route.ts
+@@ -0,0 +1,16 @@
++﻿import { NextResponse } from "next/server";
++import { createServiceClient } from "@/lib/supabase/service";
++import { requireAdmin } from "../_require-admin";
++
++export async function POST(request: Request) {
++  const guard = await requireAdmin(request);
++  if (guard instanceof NextResponse) return guard;
++  const supabase = createServiceClient();
++
++  const body = await request.json();
++  const id = body.id;
++  if (!id) return NextResponse.json({ error: "id required" }, { status: 400 });
++  const { error } = await supabase.from("mcp_agents").update({ revoked: true, revoked_at: new Date().toISOString() }).eq("id", id);
++  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
++  return NextResponse.json({ ok: true });
++}
