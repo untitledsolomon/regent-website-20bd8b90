@@ -4,6 +4,7 @@ import { useEffect } from 'react'
 import posthog from 'posthog-js'
 import { Analytics } from '@vercel/analytics/react'
 import { SpeedInsights } from '@vercel/speed-insights/next'
+import { getAnalytics } from '@/lib/analytics'
 
 export function AnalyticsBundle() {
   useEffect(() => {
@@ -14,6 +15,10 @@ export function AnalyticsBundle() {
       capture_pageview: true,
       persistence: 'localStorage',
       autocapture: true,
+    })
+
+    getAnalytics().catch(() => {
+      // DataFast initialization failure should not break the page.
     })
   }, [])
 
