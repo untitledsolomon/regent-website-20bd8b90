@@ -1,7 +1,16 @@
 import { createServerClient } from '@supabase/ssr'
-import { NextResponse, type NextRequest } from 'next/server'
+import { NextResponse, type NextRequest, type NextFetchEvent } from 'next/server'
+import { trackAICrawlerRequest } from '@datafast/ai-crawl'
 
-export async function middleware(request: NextRequest) {
+export async function middleware(request: NextRequest, event: NextFetchEvent) {
+  // DataFast bot traffic tracking. Non-blocking — schedules the request via
+  // event.waitUntil and returns immediately; do not await it.
+  trackAICrawlerRequest(request, event, {
+    websiteId:
+      process.env.NEXT_PUBLIC_DATAFAST_WEBSITE_ID ||
+      'dfid_Lym9BMuVNUZ0SQVuGjQun',
+  })
+
   let supabaseResponse = NextResponse.next({ request })
 
   // Only protect the admin area. Avoid doing auth network calls for public pages.
