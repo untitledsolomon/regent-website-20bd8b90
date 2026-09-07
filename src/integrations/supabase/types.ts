@@ -287,7 +287,7 @@ export type Database = {
         Row: {
           browser: string | null
           city: string | null
-          content_id: string
+          content_id: string | null
           content_type: string
           converted_to: string | null
           country: string | null
@@ -296,15 +296,17 @@ export type Database = {
           id: string
           is_returning: boolean | null
           os: string | null
+          page_path: string | null
           referrer: string | null
           scroll_depth: number | null
           session_id: string | null
           time_on_page: number | null
+          visitor_id: string | null
         }
         Insert: {
           browser?: string | null
           city?: string | null
-          content_id: string
+          content_id?: string | null
           content_type: string
           converted_to?: string | null
           country?: string | null
@@ -313,15 +315,17 @@ export type Database = {
           id?: string
           is_returning?: boolean | null
           os?: string | null
+          page_path?: string | null
           referrer?: string | null
           scroll_depth?: number | null
           session_id?: string | null
           time_on_page?: number | null
+          visitor_id?: string | null
         }
         Update: {
           browser?: string | null
           city?: string | null
-          content_id?: string
+          content_id?: string | null
           content_type?: string
           converted_to?: string | null
           country?: string | null
@@ -330,10 +334,12 @@ export type Database = {
           id?: string
           is_returning?: boolean | null
           os?: string | null
+          page_path?: string | null
           referrer?: string | null
           scroll_depth?: number | null
           session_id?: string | null
           time_on_page?: number | null
+          visitor_id?: string | null
         }
         Relationships: []
       }

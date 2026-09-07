@@ -47,6 +47,17 @@ function parseUserAgent(): { device_type: string; browser: string; os: string } 
   return { device_type, browser, os };
 }
 
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+/**
+ * Splits an id that may be either a real content UUID or a page path
+ * into the two columns content_views actually has for them.
+ */
+function splitContentRef(id: string | undefined): { content_id: string | null; page_path: string | null } {
+  if (id && UUID_RE.test(id)) return { content_id: id, page_path: null };
+  return { content_id: null, page_path: id ?? null };
+}
+
 function getTrackingPayload() {
   const { device_type, browser, os } = parseUserAgent();
   const referrer = document.referrer || null;
@@ -104,13 +115,15 @@ export async function trackPageView(contentType: string = 'page', contentId?: st
   const payload = getTrackingPayload();
   const is_returning = await checkIsReturning(payload.session_id);
 
-  const finalContentId = contentId || (typeof window !== 'undefined' ? window.location.pathname : 'unknown');
+  const fallbackId = contentId || (typeof window !== 'undefined' ? window.location.pathname : 'unknown');
+  const { content_id, page_path } = splitContentRef(fallbackId);
 
   const { data } = await (supabase as any)
     .from("content_views")
     .insert({
       content_type: contentType,
-      content_id: finalContentId,
+      content_id,
+      page_path,
       ...payload,
       is_returning,
       scroll_depth: 0,
@@ -141,12 +154,14 @@ export function useTrackView(contentType: string, contentId: string | undefined)
 
     const insertView = async () => {
       const is_returning = await checkIsReturning(payload.session_id);
+      const { content_id, page_path } = splitContentRef(contentId);
 
       const { data } = await (supabase as any)
         .from("content_views")
         .insert({
           content_type: contentType,
-          content_id: contentId,
+          content_id,
+          page_path,
           ...payload,
           is_returning,
           scroll_depth: 0,
