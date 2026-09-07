@@ -86,7 +86,7 @@ async function checkIsReturning(session_id: string): Promise<boolean> {
   return false;
 }
 
-function trackScrollDepth(): () => number {
+function trackScrollDepth(): { sample: () => number; stop: () => number } {
   let maxDepth = 0;
 
   const handleScroll = () => {
@@ -100,9 +100,14 @@ function trackScrollDepth(): () => number {
 
   window.addEventListener("scroll", handleScroll, { passive: true });
 
-  return () => {
-    window.removeEventListener("scroll", handleScroll);
-    return maxDepth;
+  return {
+    // Read the current max depth without stopping tracking (safe to call repeatedly, e.g. on heartbeats)
+    sample: () => maxDepth,
+    // Read the max depth and stop tracking (call once, when the view is actually ending)
+    stop: () => {
+      window.removeEventListener("scroll", handleScroll);
+      return maxDepth;
+    },
   };
 }
 
@@ -150,7 +155,7 @@ export function useTrackView(contentType: string, contentId: string | undefined)
     startTimeRef.current = Date.now();
 
     const payload = getTrackingPayload();
-    const stopScrollTracking = trackScrollDepth();
+    const scrollTracker = trackScrollDepth();
 
     const insertView = async () => {
       const is_returning = await checkIsReturning(payload.session_id);
@@ -178,7 +183,7 @@ export function useTrackView(contentType: string, contentId: string | undefined)
     const heartbeatInterval = setInterval(() => {
       if (!viewIdRef.current) return;
       const timeOnPage = Math.round((Date.now() - startTimeRef.current) / 1000);
-      const scrollDepth = stopScrollTracking();
+      const scrollDepth = scrollTracker.sample();
 
       supabase
         .from("content_views")
@@ -190,7 +195,7 @@ export function useTrackView(contentType: string, contentId: string | undefined)
     const handleUnload = () => {
       if (!viewIdRef.current) return;
       const timeOnPage = Math.round((Date.now() - startTimeRef.current) / 1000);
-      const scrollDepth = stopScrollTracking();
+      const scrollDepth = scrollTracker.sample();
 
       const url = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/content_views?id=eq.${viewIdRef.current}`;
       const body = JSON.stringify({ time_on_page: timeOnPage, scroll_depth: scrollDepth });
@@ -221,15 +226,17 @@ export function useTrackView(contentType: string, contentId: string | undefined)
       window.removeEventListener("visibilitychange", handleVisibilityChange);
       window.removeEventListener("beforeunload", handleUnload);
 
-      // Final update on unmount
+      // Final update on unmount â€” this is the real end of tracking for this view, so stop the listener
       if (viewIdRef.current) {
         const timeOnPage = Math.round((Date.now() - startTimeRef.current) / 1000);
-        const scrollDepth = stopScrollTracking();
+        const scrollDepth = scrollTracker.stop();
         supabase
           .from("content_views")
           .update({ time_on_page: timeOnPage, scroll_depth: scrollDepth })
           .eq("id", viewIdRef.current)
           .then(() => {});
+      } else {
+        scrollTracker.stop();
       }
     };
   }, [contentType, contentId]);
