@@ -3,16 +3,19 @@ import About from '@/legacy-pages/About'
 
 export const metadata: Metadata = {
   title: 'About Regent',
-  description: 'Regent architects and builds enterprise systems that connect data, workflows, and intelligence across complex organizations.',
+  description:
+    'Regent builds Axis and other custom software for growing businesses that have outgrown spreadsheets and disconnected tools.',
   openGraph: {
-    title: 'About Regent | Regent Analytics',
-    description: 'Regent architects and builds enterprise systems that connect data, workflows, and intelligence across complex organizations.',
+    title: 'About Regent',
+    description:
+      'Regent builds Axis and other custom software for growing businesses that have outgrown spreadsheets and disconnected tools.',
     type: 'website',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'About Regent | Regent Analytics',
-    description: 'Regent architects and builds enterprise systems that connect data, workflows, and intelligence across complex organizations.',
+    title: 'About Regent',
+    description:
+      'Regent builds Axis and other custom software for growing businesses that have outgrown spreadsheets and disconnected tools.',
   },
   alternates: {
     canonical: '/about',
@@ -20,5 +23,22 @@ export const metadata: Metadata = {
 }
 
 export default function AboutPage() {
-  return <About />
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Organization',
+    name: 'Regent',
+    url: process.env.NEXT_PUBLIC_SITE_URL || 'https://www.regentplatform.com',
+    description:
+      'Regent builds Axis and other custom software for growing businesses.',
+  }
+
+  return (
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <About />
+    </>
+  )
 }

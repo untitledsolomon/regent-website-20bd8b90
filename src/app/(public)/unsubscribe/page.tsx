@@ -1,6 +1,12 @@
+import type { Metadata } from 'next'
 import { Suspense } from 'react'
 import Unsubscribe from '@/legacy-pages/Unsubscribe'
 import { Loader2 } from 'lucide-react'
+
+export const metadata: Metadata = {
+  title: 'Unsubscribe',
+  robots: { index: false, follow: false },
+}
 
 export default function UnsubscribePage() {
   return (

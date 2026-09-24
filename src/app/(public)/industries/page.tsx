@@ -5,13 +5,13 @@ export const metadata: Metadata = {
   title: 'Industry Solutions',
   description: 'Specialized systems integration and data infrastructure for Finance, Government, Energy, and Infrastructure sectors.',
   openGraph: {
-    title: 'Industry Solutions | Regent Analytics',
+    title: 'Industry Solutions | Regent',
     description: 'Specialized systems integration and data infrastructure for Finance, Government, Energy, and Infrastructure sectors.',
     type: 'website',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Industry Solutions | Regent Analytics',
+    title: 'Industry Solutions | Regent',
     description: 'Specialized systems integration and data infrastructure for Finance, Government, Energy, and Infrastructure sectors.',
   },
   alternates: {

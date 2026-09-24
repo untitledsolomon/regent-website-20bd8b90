@@ -6,6 +6,19 @@ import { Icons } from "@/components/Icons";
 export const metadata = {
   title: "Products — Regent",
   description: "Regent product suite: Axis, Regent CRM, Forge, Dominion Finance, and Mabruk Atelier.",
+  openGraph: {
+    title: "Products — Regent",
+    description: "Regent product suite: Axis, Regent CRM, Forge, Dominion Finance, and Mabruk Atelier.",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Products — Regent",
+    description: "Regent product suite: Axis, Regent CRM, Forge, Dominion Finance, and Mabruk Atelier.",
+  },
+  alternates: {
+    canonical: "/products",
+  },
 };
 
 export default function ProductsPage() {

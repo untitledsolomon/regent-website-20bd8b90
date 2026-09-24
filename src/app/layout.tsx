@@ -4,10 +4,11 @@ import { Providers } from '@/components/Providers'
 
 export const metadata: Metadata = {
   title: {
-    default: 'Regent Analytics',
-    template: '%s | Regent Analytics',
+    default: 'Regent — Custom Software for Growing Businesses',
+    template: '%s | Regent',
   },
-  description: 'Enterprise analytics platform.',
+  description:
+    'Regent builds Axis and other business systems that give growing businesses a single source of truth for sales, inventory, finance, and operations.',
   metadataBase: new URL(
     process.env.NEXT_PUBLIC_SITE_URL || 'https://www.regentplatform.com'
   ),

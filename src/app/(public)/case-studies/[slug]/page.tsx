@@ -57,6 +57,13 @@ export default async function CaseStudyDetailPage({
 
   if (!cs) notFound()
 
+  const { data: related } = await supabase
+    .from('case_studies')
+    .select('slug, title, industry, summary, image_url')
+    .eq('published', true)
+    .neq('slug', slug)
+    .limit(3)
+
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'TechArticle',
@@ -65,11 +72,11 @@ export default async function CaseStudyDetailPage({
     image: cs.image_url || '',
     author: {
       '@type': 'Organization',
-      name: 'Regent Analytics',
+      name: 'Regent',
     },
     publisher: {
       '@type': 'Organization',
-      name: 'Regent Analytics',
+      name: 'Regent',
       url: process.env.NEXT_PUBLIC_SITE_URL,
     },
     mainEntityOfPage: {
@@ -84,7 +91,21 @@ export default async function CaseStudyDetailPage({
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <CaseStudyDetail />
+      <CaseStudyDetail
+        initialCaseStudy={{
+          id: cs.id,
+          slug: cs.slug,
+          title: cs.title,
+          industry: cs.industry,
+          summary: cs.summary,
+          challenge: cs.challenge,
+          solution: cs.solution,
+          results: cs.results as string[],
+          metrics: cs.metrics as { value: string; label: string }[],
+          image_url: (cs as any).image_url ?? null,
+        }}
+        initialRelated={related ?? []}
+      />
     </>
   )
 }

@@ -29,8 +29,32 @@ export const metadata: Metadata = {
 };
 
 export default function AxisPage() {
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    name: "Axis",
+    applicationCategory: "BusinessApplication",
+    operatingSystem: "Web",
+    description:
+      "Axis is Regent's all-in-one business operations platform: invoicing, ledger accounting, inventory, and HR in one system built for growing businesses.",
+    offers: {
+      "@type": "Offer",
+      url:
+        (process.env.NEXT_PUBLIC_SITE_URL || "https://www.regentplatform.com") +
+        "/axis/pricing",
+    },
+    brand: {
+      "@type": "Organization",
+      name: "Regent",
+    },
+  };
+
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <PageMeta
         title="Axis"
         description="Regent's all-in-one business operations platform."

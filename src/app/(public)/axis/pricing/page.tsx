@@ -138,13 +138,33 @@ export default async function PricingPage() {
     plans = FALLBACK_PLANS;
   }
 
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    name: "Axis",
+    applicationCategory: "BusinessApplication",
+    operatingSystem: "Web",
+    description:
+      "Axis is Regent's all-in-one business operations platform. Every plan includes a 7-day free trial.",
+    offers: PLAN_ORDER.map((planId) => ({
+      "@type": "Offer",
+      name: planId.charAt(0).toUpperCase() + planId.slice(1),
+      category: "SaaS Subscription",
+    })),
+  };
+
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <PageMeta
         title="Axis Pricing"
         description="Simple, transparent pricing for Axis. Every plan includes a 7-day free trial."
       />
       <div className="section-container py-24">
+        <h1 className="sr-only">Axis Pricing</h1>
         <SectionHeader
           label="Pricing"
           title="Simple pricing for every stage"

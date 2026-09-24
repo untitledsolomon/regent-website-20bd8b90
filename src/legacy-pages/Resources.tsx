@@ -30,7 +30,7 @@ interface DbResource {
   featured: boolean;
 }
 
-export default function ResourcesPage() {
+export default function ResourcesPage({ initialResources }: { initialResources?: DbResource[] } = {}) {
   const supabase = createClient();
   const [filter, setFilter] = useState("All");
   const [email, setEmail] = useState("");
@@ -52,6 +52,7 @@ export default function ResourcesPage() {
   const { data: resources = [], isLoading, isError, refetch } = useQuery({
     queryKey: ["resources"],
     queryFn: fetchResources,
+    initialData: initialResources ?? undefined,
   });
 
   const handleSubscribe = async () => {

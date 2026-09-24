@@ -74,11 +74,11 @@ export default async function BlogPostPage({
     datePublished: post.date,
     author: {
       '@type': 'Person',
-      name: post.author || 'Regent Analytics',
+      name: post.author || 'Regent',
     },
     publisher: {
       '@type': 'Organization',
-      name: 'Regent Analytics',
+      name: 'Regent',
       url: process.env.NEXT_PUBLIC_SITE_URL,
     },
     mainEntityOfPage: {

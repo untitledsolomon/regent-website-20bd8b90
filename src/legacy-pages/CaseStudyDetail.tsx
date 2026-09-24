@@ -27,7 +27,12 @@ interface CaseStudy {
   image_url?: string | null;
 }
 
-export default function CaseStudyDetail() {
+interface CaseStudyDetailProps {
+  initialCaseStudy?: CaseStudy | null;
+  initialRelated?: { slug: string; title: string; industry: string; summary: string; image_url?: string | null }[];
+}
+
+export default function CaseStudyDetail({ initialCaseStudy, initialRelated }: CaseStudyDetailProps = {}) {
   const supabase = createClient();
   const { slug } = useParams() as { slug?: string };
   const { scrollYProgress } = useScroll();
@@ -65,12 +70,14 @@ export default function CaseStudyDetail() {
           }
         : null;
     },
+    initialData: initialCaseStudy ?? undefined,
     enabled: !!slug,
   });
 
   const { data: related = [] } = useQuery({
     queryKey: ["case_study_related", slug],
     queryFn: () => fetchRelatedStudies(slug!),
+    initialData: initialRelated ?? undefined,
     enabled: !!slug,
   });
 

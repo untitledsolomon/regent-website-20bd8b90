@@ -1,0 +1,682 @@
+diff --git a/src/app/(public)/about/page.tsx b/src/app/(public)/about/page.tsx
+index 3b9eed5..0989e3a 100644
+--- a/src/app/(public)/about/page.tsx
++++ b/src/app/(public)/about/page.tsx
+@@ -3,16 +3,19 @@ import About from '@/legacy-pages/About'
+ 
+ export const metadata: Metadata = {
+   title: 'About Regent',
+-  description: 'Regent architects and builds enterprise systems that connect data, workflows, and intelligence across complex organizations.',
++  description:
++    'Regent builds Axis and other custom software for growing businesses that have outgrown spreadsheets and disconnected tools.',
+   openGraph: {
+-    title: 'About Regent | Regent Analytics',
+-    description: 'Regent architects and builds enterprise systems that connect data, workflows, and intelligence across complex organizations.',
++    title: 'About Regent',
++    description:
++      'Regent builds Axis and other custom software for growing businesses that have outgrown spreadsheets and disconnected tools.',
+     type: 'website',
+   },
+   twitter: {
+     card: 'summary_large_image',
+-    title: 'About Regent | Regent Analytics',
+-    description: 'Regent architects and builds enterprise systems that connect data, workflows, and intelligence across complex organizations.',
++    title: 'About Regent',
++    description:
++      'Regent builds Axis and other custom software for growing businesses that have outgrown spreadsheets and disconnected tools.',
+   },
+   alternates: {
+     canonical: '/about',
+@@ -20,5 +23,22 @@ export const metadata: Metadata = {
+ }
+ 
+ export default function AboutPage() {
+-  return <About />
++  const jsonLd = {
++    '@context': 'https://schema.org',
++    '@type': 'Organization',
++    name: 'Regent',
++    url: process.env.NEXT_PUBLIC_SITE_URL || 'https://www.regentplatform.com',
++    description:
++      'Regent builds Axis and other custom software for growing businesses.',
++  }
++
++  return (
++    <>
++      <script
++        type="application/ld+json"
++        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
++      />
++      <About />
++    </>
++  )
+ }
+diff --git a/src/app/(public)/axis/page.tsx b/src/app/(public)/axis/page.tsx
+index be31b76..26f8da4 100644
+--- a/src/app/(public)/axis/page.tsx
++++ b/src/app/(public)/axis/page.tsx
+@@ -29,8 +29,32 @@ export const metadata: Metadata = {
+ };
+ 
+ export default function AxisPage() {
++  const jsonLd = {
++    "@context": "https://schema.org",
++    "@type": "SoftwareApplication",
++    name: "Axis",
++    applicationCategory: "BusinessApplication",
++    operatingSystem: "Web",
++    description:
++      "Axis is Regent's all-in-one business operations platform: invoicing, ledger accounting, inventory, and HR in one system built for growing businesses.",
++    offers: {
++      "@type": "Offer",
++      url:
++        (process.env.NEXT_PUBLIC_SITE_URL || "https://www.regentplatform.com") +
++        "/axis/pricing",
++    },
++    brand: {
++      "@type": "Organization",
++      name: "Regent",
++    },
++  };
++
+   return (
+     <>
++      <script
++        type="application/ld+json"
++        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
++      />
+       <PageMeta
+         title="Axis"
+         description="Regent's all-in-one business operations platform."
+diff --git a/src/app/(public)/axis/pricing/page.tsx b/src/app/(public)/axis/pricing/page.tsx
+index b2c3773..7c173b5 100644
+--- a/src/app/(public)/axis/pricing/page.tsx
++++ b/src/app/(public)/axis/pricing/page.tsx
+@@ -138,13 +138,33 @@ export default async function PricingPage() {
+     plans = FALLBACK_PLANS;
+   }
+ 
++  const jsonLd = {
++    "@context": "https://schema.org",
++    "@type": "SoftwareApplication",
++    name: "Axis",
++    applicationCategory: "BusinessApplication",
++    operatingSystem: "Web",
++    description:
++      "Axis is Regent's all-in-one business operations platform. Every plan includes a 7-day free trial.",
++    offers: PLAN_ORDER.map((planId) => ({
++      "@type": "Offer",
++      name: planId.charAt(0).toUpperCase() + planId.slice(1),
++      category: "SaaS Subscription",
++    })),
++  };
++
+   return (
+     <>
++      <script
++        type="application/ld+json"
++        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
++      />
+       <PageMeta
+         title="Axis Pricing"
+         description="Simple, transparent pricing for Axis. Every plan includes a 7-day free trial."
+       />
+       <div className="section-container py-24">
++        <h1 className="sr-only">Axis Pricing</h1>
+         <SectionHeader
+           label="Pricing"
+           title="Simple pricing for every stage"
+diff --git a/src/app/(public)/blog/[slug]/page.tsx b/src/app/(public)/blog/[slug]/page.tsx
+index 61d9618..4b64aea 100644
+--- a/src/app/(public)/blog/[slug]/page.tsx
++++ b/src/app/(public)/blog/[slug]/page.tsx
+@@ -74,11 +74,11 @@ export default async function BlogPostPage({
+     datePublished: post.date,
+     author: {
+       '@type': 'Person',
+-      name: post.author || 'Regent Analytics',
++      name: post.author || 'Regent',
+     },
+     publisher: {
+       '@type': 'Organization',
+-      name: 'Regent Analytics',
++      name: 'Regent',
+       url: process.env.NEXT_PUBLIC_SITE_URL,
+     },
+     mainEntityOfPage: {
+diff --git a/src/app/(public)/capabilities/page.tsx b/src/app/(public)/capabilities/page.tsx
+index a2604ba..fec8799 100644
+--- a/src/app/(public)/capabilities/page.tsx
++++ b/src/app/(public)/capabilities/page.tsx
+@@ -5,13 +5,13 @@ export const metadata: Metadata = {
+   title: 'Capabilities & Solutions',
+   description: 'Enterprise capabilities in systems integration, data infrastructure, workflow automation, and intelligence.',
+   openGraph: {
+-    title: 'Capabilities & Solutions | Regent Analytics',
++    title: 'Capabilities & Solutions | Regent',
+     description: 'Enterprise capabilities in systems integration, data infrastructure, workflow automation, and intelligence.',
+     type: 'website',
+   },
+   twitter: {
+     card: 'summary_large_image',
+-    title: 'Capabilities & Solutions | Regent Analytics',
++    title: 'Capabilities & Solutions | Regent',
+     description: 'Enterprise capabilities in systems integration, data infrastructure, workflow automation, and intelligence.',
+   },
+   alternates: {
+diff --git a/src/app/(public)/careers/page.tsx b/src/app/(public)/careers/page.tsx
+index 331a109..044a76b 100644
+--- a/src/app/(public)/careers/page.tsx
++++ b/src/app/(public)/careers/page.tsx
+@@ -1,5 +1,24 @@
++import type { Metadata } from 'next'
+ import Careers from '@/legacy-pages/Careers'
+ 
++export const metadata: Metadata = {
++  title: 'Careers',
++  description: 'Join Regent and help build Axis and other systems for growing businesses.',
++  openGraph: {
++    title: 'Careers | Regent',
++    description: 'Join Regent and help build Axis and other systems for growing businesses.',
++    type: 'website',
++  },
++  twitter: {
++    card: 'summary_large_image',
++    title: 'Careers | Regent',
++    description: 'Join Regent and help build Axis and other systems for growing businesses.',
++  },
++  alternates: {
++    canonical: '/careers',
++  },
++}
++
+ export default function CareersPage() {
+   return <Careers />
+ }
+diff --git a/src/app/(public)/case-studies/[slug]/page.tsx b/src/app/(public)/case-studies/[slug]/page.tsx
+index 5da4046..7e4916d 100644
+--- a/src/app/(public)/case-studies/[slug]/page.tsx
++++ b/src/app/(public)/case-studies/[slug]/page.tsx
+@@ -57,6 +57,13 @@ export default async function CaseStudyDetailPage({
+ 
+   if (!cs) notFound()
+ 
++  const { data: related } = await supabase
++    .from('case_studies')
++    .select('slug, title, industry, summary, image_url')
++    .eq('published', true)
++    .neq('slug', slug)
++    .limit(3)
++
+   const jsonLd = {
+     '@context': 'https://schema.org',
+     '@type': 'TechArticle',
+@@ -65,11 +72,11 @@ export default async function CaseStudyDetailPage({
+     image: cs.image_url || '',
+     author: {
+       '@type': 'Organization',
+-      name: 'Regent Analytics',
++      name: 'Regent',
+     },
+     publisher: {
+       '@type': 'Organization',
+-      name: 'Regent Analytics',
++      name: 'Regent',
+       url: process.env.NEXT_PUBLIC_SITE_URL,
+     },
+     mainEntityOfPage: {
+@@ -84,7 +91,21 @@ export default async function CaseStudyDetailPage({
+         type="application/ld+json"
+         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+       />
+-      <CaseStudyDetail />
++      <CaseStudyDetail
++        initialCaseStudy={{
++          id: cs.id,
++          slug: cs.slug,
++          title: cs.title,
++          industry: cs.industry,
++          summary: cs.summary,
++          challenge: cs.challenge,
++          solution: cs.solution,
++          results: cs.results as string[],
++          metrics: cs.metrics as { value: string; label: string }[],
++          image_url: (cs as any).image_url ?? null,
++        }}
++        initialRelated={related ?? []}
++      />
+     </>
+   )
+ }
+diff --git a/src/app/(public)/case-studies/page.tsx b/src/app/(public)/case-studies/page.tsx
+index a6d5276..aa794d4 100644
+--- a/src/app/(public)/case-studies/page.tsx
++++ b/src/app/(public)/case-studies/page.tsx
+@@ -5,13 +5,13 @@ export const metadata: Metadata = {
+   title: 'Client Success Stories',
+   description: 'Real-world examples of how Regent transforms enterprise infrastructure across finance, government, and infrastructure sectors.',
+   openGraph: {
+-    title: 'Client Success Stories | Regent Analytics',
++    title: 'Client Success Stories | Regent',
+     description: 'Real-world examples of how Regent transforms enterprise infrastructure across finance, government, and infrastructure sectors.',
+     type: 'website',
+   },
+   twitter: {
+     card: 'summary_large_image',
+-    title: 'Client Success Stories | Regent Analytics',
++    title: 'Client Success Stories | Regent',
+     description: 'Real-world examples of how Regent transforms enterprise infrastructure across finance, government, and infrastructure sectors.',
+   },
+   alternates: {
+diff --git a/src/app/(public)/demo/page.tsx b/src/app/(public)/demo/page.tsx
+index 3085416..23d4605 100644
+--- a/src/app/(public)/demo/page.tsx
++++ b/src/app/(public)/demo/page.tsx
+@@ -1,5 +1,24 @@
++import type { Metadata } from 'next'
+ import Demo from '@/legacy-pages/Demo'
+ 
++export const metadata: Metadata = {
++  title: 'Book a Demo',
++  description: 'Talk to Regent about building Axis or a custom system for your business.',
++  openGraph: {
++    title: 'Book a Demo | Regent',
++    description: 'Talk to Regent about building Axis or a custom system for your business.',
++    type: 'website',
++  },
++  twitter: {
++    card: 'summary_large_image',
++    title: 'Book a Demo | Regent',
++    description: 'Talk to Regent about building Axis or a custom system for your business.',
++  },
++  alternates: {
++    canonical: '/demo',
++  },
++}
++
+ export default function DemoPage() {
+   return <Demo />
+ }
+diff --git a/src/app/(public)/industries/page.tsx b/src/app/(public)/industries/page.tsx
+index 83e97ab..01deb9f 100644
+--- a/src/app/(public)/industries/page.tsx
++++ b/src/app/(public)/industries/page.tsx
+@@ -5,13 +5,13 @@ export const metadata: Metadata = {
+   title: 'Industry Solutions',
+   description: 'Specialized systems integration and data infrastructure for Finance, Government, Energy, and Infrastructure sectors.',
+   openGraph: {
+-    title: 'Industry Solutions | Regent Analytics',
++    title: 'Industry Solutions | Regent',
+     description: 'Specialized systems integration and data infrastructure for Finance, Government, Energy, and Infrastructure sectors.',
+     type: 'website',
+   },
+   twitter: {
+     card: 'summary_large_image',
+-    title: 'Industry Solutions | Regent Analytics',
++    title: 'Industry Solutions | Regent',
+     description: 'Specialized systems integration and data infrastructure for Finance, Government, Energy, and Infrastructure sectors.',
+   },
+   alternates: {
+diff --git a/src/app/(public)/page.tsx b/src/app/(public)/page.tsx
+index 54937ba..41044d3 100644
+--- a/src/app/(public)/page.tsx
++++ b/src/app/(public)/page.tsx
+@@ -1,5 +1,54 @@
++import type { Metadata } from 'next'
+ import Index from '@/legacy-pages/Index'
+ 
++export const metadata: Metadata = {
++  title: 'Regent — Custom Software for Growing Businesses',
++  description:
++    'Regent builds Axis and other business systems that give growing businesses a single source of truth for sales, inventory, finance, and operations.',
++  openGraph: {
++    title: 'Regent — Custom Software for Growing Businesses',
++    description:
++      'Regent builds Axis and other business systems that give growing businesses a single source of truth for sales, inventory, finance, and operations.',
++    type: 'website',
++  },
++  twitter: {
++    card: 'summary_large_image',
++    title: 'Regent — Custom Software for Growing Businesses',
++    description:
++      'Regent builds Axis and other business systems that give growing businesses a single source of truth for sales, inventory, finance, and operations.',
++  },
++  alternates: {
++    canonical: '/',
++  },
++}
++
+ export default function HomePage() {
+-  return <Index />
++  const jsonLd = {
++    '@context': 'https://schema.org',
++    '@type': 'Organization',
++    name: 'Regent',
++    url: process.env.NEXT_PUBLIC_SITE_URL || 'https://www.regentplatform.com',
++    description:
++      'Regent builds Axis and other business systems for growing businesses.',
++    makesOffer: {
++      '@type': 'Offer',
++      itemOffered: {
++        '@type': 'SoftwareApplication',
++        name: 'Axis',
++        applicationCategory: 'BusinessApplication',
++        description:
++          "Axis is Regent's all-in-one business operations platform: invoicing, ledger accounting, inventory, and HR in one system.",
++      },
++    },
++  }
++
++  return (
++    <>
++      <script
++        type="application/ld+json"
++        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
++      />
++      <Index />
++    </>
++  )
+ }
+diff --git a/src/app/(public)/platform/page.tsx b/src/app/(public)/platform/page.tsx
+index f3b1d22..a1a6bbd 100644
+--- a/src/app/(public)/platform/page.tsx
++++ b/src/app/(public)/platform/page.tsx
+@@ -1,5 +1,27 @@
++import type { Metadata } from 'next'
+ import Platform from '@/legacy-pages/Platform'
+ 
++export const metadata: Metadata = {
++  title: 'Platform Overview',
++  description:
++    "See how Regent's platform connects data, workflows, and operations into one system for growing businesses.",
++  openGraph: {
++    title: 'Platform Overview | Regent',
++    description:
++      "See how Regent's platform connects data, workflows, and operations into one system for growing businesses.",
++    type: 'website',
++  },
++  twitter: {
++    card: 'summary_large_image',
++    title: 'Platform Overview | Regent',
++    description:
++      "See how Regent's platform connects data, workflows, and operations into one system for growing businesses.",
++  },
++  alternates: {
++    canonical: '/platform',
++  },
++}
++
+ export default function PlatformPage() {
+   return <Platform />
+ }
+diff --git a/src/app/(public)/privacy/page.tsx b/src/app/(public)/privacy/page.tsx
+index dac307b..e67903f 100644
+--- a/src/app/(public)/privacy/page.tsx
++++ b/src/app/(public)/privacy/page.tsx
+@@ -1,5 +1,24 @@
++import type { Metadata } from 'next'
+ import PrivacyPolicy from '@/legacy-pages/PrivacyPolicy'
+ 
++export const metadata: Metadata = {
++  title: 'Privacy Policy',
++  description: 'Read how Regent collects, uses, and protects your data across Regent and Axis.',
++  openGraph: {
++    title: 'Privacy Policy | Regent',
++    description: 'Read how Regent collects, uses, and protects your data across Regent and Axis.',
++    type: 'website',
++  },
++  twitter: {
++    card: 'summary_large_image',
++    title: 'Privacy Policy | Regent',
++    description: 'Read how Regent collects, uses, and protects your data across Regent and Axis.',
++  },
++  alternates: {
++    canonical: '/privacy',
++  },
++}
++
+ export default function PrivacyPage() {
+   return <PrivacyPolicy />
+ }
+diff --git a/src/app/(public)/products/page.tsx b/src/app/(public)/products/page.tsx
+index fc92d6b..0e3c76a 100644
+--- a/src/app/(public)/products/page.tsx
++++ b/src/app/(public)/products/page.tsx
+@@ -6,6 +6,19 @@ import { Icons } from "@/components/Icons";
+ export const metadata = {
+   title: "Products — Regent",
+   description: "Regent product suite: Axis, Regent CRM, Forge, Dominion Finance, and Mabruk Atelier.",
++  openGraph: {
++    title: "Products — Regent",
++    description: "Regent product suite: Axis, Regent CRM, Forge, Dominion Finance, and Mabruk Atelier.",
++    type: "website",
++  },
++  twitter: {
++    card: "summary_large_image",
++    title: "Products — Regent",
++    description: "Regent product suite: Axis, Regent CRM, Forge, Dominion Finance, and Mabruk Atelier.",
++  },
++  alternates: {
++    canonical: "/products",
++  },
+ };
+ 
+ export default function ProductsPage() {
+diff --git a/src/app/(public)/refund-policy/page.tsx b/src/app/(public)/refund-policy/page.tsx
+index 5039fd4..6c7b87f 100644
+--- a/src/app/(public)/refund-policy/page.tsx
++++ b/src/app/(public)/refund-policy/page.tsx
+@@ -1,5 +1,27 @@
++import type { Metadata } from 'next'
+ import RefundPolicy from '@/legacy-pages/RefundPolicy'
+ 
++export const metadata: Metadata = {
++  title: 'Refund Policy',
++  description:
++    'Read Regent\'s refund policy covering Axis trials, cancellations, and billing.',
++  openGraph: {
++    title: 'Refund Policy | Regent',
++    description:
++      'Read Regent\'s refund policy covering Axis trials, cancellations, and billing.',
++    type: 'website',
++  },
++  twitter: {
++    card: 'summary_large_image',
++    title: 'Refund Policy | Regent',
++    description:
++      'Read Regent\'s refund policy covering Axis trials, cancellations, and billing.',
++  },
++  alternates: {
++    canonical: '/refund-policy',
++  },
++}
++
+ export default function RefundPolicyPage() {
+   return <RefundPolicy />
+ }
+diff --git a/src/app/(public)/resources/page.tsx b/src/app/(public)/resources/page.tsx
+index 1dc3c66..103293c 100644
+--- a/src/app/(public)/resources/page.tsx
++++ b/src/app/(public)/resources/page.tsx
+@@ -1,23 +1,33 @@
+ import type { Metadata } from 'next'
++import { createClient } from '@/lib/supabase/server'
+ import Resources from '@/legacy-pages/Resources'
+ 
++export const revalidate = 60
++
+ export const metadata: Metadata = {
+   title: 'Technical Resources & Whitepapers',
+   description: 'Technical whitepapers, research, and documentation for enterprise integration and data infrastructure.',
+   openGraph: {
+-    title: 'Technical Resources & Whitepapers | Regent Analytics',
++    title: 'Technical Resources & Whitepapers | Regent',
+     description: 'Technical whitepapers, research, and documentation for enterprise integration and data infrastructure.',
+     type: 'website',
+   },
+   twitter: {
+     card: 'summary_large_image',
+-    title: 'Technical Resources & Whitepapers | Regent Analytics',
++    title: 'Technical Resources & Whitepapers | Regent',
+     description: 'Technical whitepapers, research, and documentation for enterprise integration and data infrastructure.',
+   },
+   alternates: { canonical: '/resources' },
+ }
+ 
+-export default function ResourcesPage() {
++export default async function ResourcesPage() {
++  const supabase = await createClient()
++  const { data: resources } = await supabase
++    .from('resources')
++    .select('*')
++    .eq('published', true)
++    .order('created_at', { ascending: false })
++
+   const jsonLd = {
+     '@context': 'https://schema.org',
+     '@type': 'CollectionPage',
+@@ -25,7 +35,7 @@ export default function ResourcesPage() {
+     description: 'Technical whitepapers, research, and documentation for enterprise integration and data infrastructure.',
+     publisher: {
+       '@type': 'Organization',
+-      name: 'Regent Analytics',
++      name: 'Regent',
+     },
+   }
+ 
+@@ -35,7 +45,7 @@ export default function ResourcesPage() {
+         type="application/ld+json"
+         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+       />
+-      <Resources />
++      <Resources initialResources={resources ?? []} />
+     </>
+   )
+ }
+diff --git a/src/app/(public)/terms/page.tsx b/src/app/(public)/terms/page.tsx
+index 0108d06..367bb6c 100644
+--- a/src/app/(public)/terms/page.tsx
++++ b/src/app/(public)/terms/page.tsx
+@@ -1,5 +1,24 @@
++import type { Metadata } from 'next'
+ import TermsOfService from '@/legacy-pages/TermsOfService'
+ 
++export const metadata: Metadata = {
++  title: 'Terms of Service',
++  description: 'Read the terms of service governing use of Regent and Axis.',
++  openGraph: {
++    title: 'Terms of Service | Regent',
++    description: 'Read the terms of service governing use of Regent and Axis.',
++    type: 'website',
++  },
++  twitter: {
++    card: 'summary_large_image',
++    title: 'Terms of Service | Regent',
++    description: 'Read the terms of service governing use of Regent and Axis.',
++  },
++  alternates: {
++    canonical: '/terms',
++  },
++}
++
+ export default function TermsPage() {
+   return <TermsOfService />
+ }
+diff --git a/src/app/(public)/unsubscribe/page.tsx b/src/app/(public)/unsubscribe/page.tsx
+index 480b067..bd73eba 100644
+--- a/src/app/(public)/unsubscribe/page.tsx
++++ b/src/app/(public)/unsubscribe/page.tsx
+@@ -1,7 +1,13 @@
++import type { Metadata } from 'next'
+ import { Suspense } from 'react'
+ import Unsubscribe from '@/legacy-pages/Unsubscribe'
+ import { Loader2 } from 'lucide-react'
+ 
++export const metadata: Metadata = {
++  title: 'Unsubscribe',
++  robots: { index: false, follow: false },
++}
++
+ export default function UnsubscribePage() {
+   return (
+     <Suspense fallback={
+@@ -12,4 +18,4 @@ export default function UnsubscribePage() {
+       <Unsubscribe />
+     </Suspense>
+   )
+-}
+\ No newline at end of file
++}
+diff --git a/src/app/layout.tsx b/src/app/layout.tsx
+index b3dd66a..7441ba1 100644
+--- a/src/app/layout.tsx
++++ b/src/app/layout.tsx
+@@ -4,10 +4,11 @@ import { Providers } from '@/components/Providers'
+ 
+ export const metadata: Metadata = {
+   title: {
+-    default: 'Regent Analytics',
+-    template: '%s | Regent Analytics',
++    default: 'Regent — Custom Software for Growing Businesses',
++    template: '%s | Regent',
+   },
+-  description: 'Enterprise analytics platform.',
++  description:
++    'Regent builds Axis and other business systems that give growing businesses a single source of truth for sales, inventory, finance, and operations.',
+   metadataBase: new URL(
+     process.env.NEXT_PUBLIC_SITE_URL || 'https://www.regentplatform.com'
+   ),
+diff --git a/src/legacy-pages/CaseStudyDetail.tsx b/src/legacy-pages/CaseStudyDetail.tsx
+index 2435974..bb22060 100644
+--- a/src/legacy-pages/CaseStudyDetail.tsx
++++ b/src/legacy-pages/CaseStudyDetail.tsx
+@@ -27,7 +27,12 @@ interface CaseStudy {
+   image_url?: string | null;
+ }
+ 
+-export default function CaseStudyDetail() {
++interface CaseStudyDetailProps {
++  initialCaseStudy?: CaseStudy | null;
++  initialRelated?: { slug: string; title: string; industry: string; summary: string; image_url?: string | null }[];
++}
++
++export default function CaseStudyDetail({ initialCaseStudy, initialRelated }: CaseStudyDetailProps = {}) {
+   const supabase = createClient();
+   const { slug } = useParams() as { slug?: string };
+   const { scrollYProgress } = useScroll();
+@@ -65,12 +70,14 @@ export default function CaseStudyDetail() {
+           }
+         : null;
+     },
++    initialData: initialCaseStudy ?? undefined,
+     enabled: !!slug,
+   });
+ 
+   const { data: related = [] } = useQuery({
+     queryKey: ["case_study_related", slug],
+     queryFn: () => fetchRelatedStudies(slug!),
++    initialData: initialRelated ?? undefined,
+     enabled: !!slug,
+   });
+ 
+diff --git a/src/legacy-pages/Resources.tsx b/src/legacy-pages/Resources.tsx
+index 9673077..5d24fbf 100644
+--- a/src/legacy-pages/Resources.tsx
++++ b/src/legacy-pages/Resources.tsx
+@@ -30,7 +30,7 @@ interface DbResource {
+   featured: boolean;
+ }
+ 
+-export default function ResourcesPage() {
++export default function ResourcesPage({ initialResources }: { initialResources?: DbResource[] } = {}) {
+   const supabase = createClient();
+   const [filter, setFilter] = useState("All");
+   const [email, setEmail] = useState("");
+@@ -52,6 +52,7 @@ export default function ResourcesPage() {
+   const { data: resources = [], isLoading, isError, refetch } = useQuery({
+     queryKey: ["resources"],
+     queryFn: fetchResources,
++    initialData: initialResources ?? undefined,
+   });
+ 
+   const handleSubscribe = async () => {
