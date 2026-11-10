@@ -9,6 +9,15 @@ export const metadata: Metadata = {
   },
   description:
     'Regent builds Axis and other business systems that give growing businesses a single source of truth for sales, inventory, finance, and operations.',
+  icons: {
+    icon: [
+      { url: '/favicon.ico', sizes: 'any' },
+      { url: '/icon-48.png', sizes: '48x48', type: 'image/png' },
+      { url: '/icon-96.png', sizes: '96x96', type: 'image/png' },
+      { url: '/icon-192.png', sizes: '192x192', type: 'image/png' },
+    ],
+    apple: [{ url: '/apple-touch-icon.png', sizes: '180x180' }],
+  },
   metadataBase: new URL(
     process.env.NEXT_PUBLIC_SITE_URL || 'https://www.regentplatform.com'
   ),
