@@ -115,6 +115,35 @@ CREATE POLICY "Admins can manage mcp agents" ON public.mcp_agents
   FOR ALL TO authenticated USING (public.is_admin()) WITH CHECK (public.is_admin());
 
 -- -----------------------------------------------------------------------------
+-- mcp_call_log is live-drift only: no baseline migration ever created it and
+-- its columns are unknown here, so it is reconciled (not reconstructed). 0001's
+-- has_role CASCADE drops the drifted mcp_call_log_admins policy that was bound
+-- to the removed (uuid, text) overload; if the table exists on this database,
+-- give it the same is_admin() gating as mcp_agents instead of leaving it RLS
+-- enabled with no policies. Fresh databases (no such table) hit the guard and
+-- do nothing.
+-- -----------------------------------------------------------------------------
+DO $$
+DECLARE
+  pol record;
+  tbl_oid oid;
+BEGIN
+  SELECT c.oid INTO tbl_oid
+    FROM pg_class c JOIN pg_namespace n ON n.oid = c.relnamespace
+    WHERE n.nspname = 'public' AND c.relname = 'mcp_call_log' AND c.relkind = 'r';
+
+  IF tbl_oid IS NOT NULL THEN
+    EXECUTE 'ALTER TABLE public.mcp_call_log ENABLE ROW LEVEL SECURITY';
+    FOR pol IN SELECT policyname FROM pg_policies
+               WHERE schemaname = 'public' AND tablename = 'mcp_call_log' LOOP
+      EXECUTE format('DROP POLICY IF EXISTS %I ON public.mcp_call_log', pol.policyname);
+    END LOOP;
+    EXECUTE 'CREATE POLICY "Admins can manage mcp call log" ON public.mcp_call_log
+               FOR ALL TO authenticated USING (public.is_admin()) WITH CHECK (public.is_admin())';
+  END IF;
+END $$;
+
+-- -----------------------------------------------------------------------------
 -- get_conversion_stats(): drift function the dashboard already calls.
 -- Re-homed into the repo, admin-guarded like the other analytics functions.
 -- -----------------------------------------------------------------------------
