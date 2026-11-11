@@ -4,7 +4,10 @@
 // list + message history load via fetch, runs stream against /api/admin/ai/chat
 // (SSE), renders streaming tokens and tool-call cards as they arrive.
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { memo, useCallback, useEffect, useRef, useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,7 +15,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Badge } from "@/components/ui/badge";
-import { Sparkles, Loader2, Bot, User, Send, Plus, Trash2, Wrench, ChevronDown, ChevronUp } from "lucide-react";
+import { Sparkles, Loader2, Bot, User, Send, Plus, Trash2, Wrench, Square, ChevronDown, ChevronUp } from "lucide-react";
 
 interface Conversation {
   id: string;
@@ -46,8 +49,14 @@ function fmt(iso: string) {
   }
 }
 
+const SUGGESTED_PROMPTS = [
+  "What were our top posts this month?",
+  "Show the conversion funnel, last 30 days.",
+  "Any new consultation requests or subscribers?",
+];
+
 export default function Assistant() {
-  const [conversations, setConversations] = useState<Conversation[]>([]);
+  const queryClient = useQueryClient();
   const [currentId, setCurrentId] = useState<string | null>(null);
   const [messages, setMessages] = useState<MessageUi[]>([]);
   const [historyLoaded, setHistoryLoaded] = useState(false);
@@ -55,22 +64,27 @@ export default function Assistant() {
   const [streaming, setStreaming] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [modelName, setModelName] = useState<string | null>(null);
   const abortRef = useRef<AbortController | null>(null);
   const bottomRef = useRef<HTMLDivElement | null>(null);
   const loadedConversationsRef = useRef<string | null>(null);
 
-  const loadConversations = useCallback(async () => {
-    try {
+  // Conversation list is cached — returning to this tab does not refetch;
+  // sending a message or deleting invalidates the key.
+  const conversationsQuery = useQuery({
+    queryKey: ["admin", "ai", "conversations"],
+    staleTime: 60_000,
+    queryFn: async (): Promise<Conversation[]> => {
       const res = await fetch("/api/admin/ai/conversations");
-      if (!res.ok) return;
+      if (!res.ok) return [];
       const data = await res.json();
-      setConversations(data.conversations ?? []);
-    } catch {
-      /* ignore */
-    }
-  }, []);
-
-  useEffect(() => { loadConversations(); }, [loadConversations]);
+      return data.conversations ?? [];
+    },
+  });
+  const conversations = conversationsQuery.data ?? [];
+  const loadConversations = useCallback(() => {
+    queryClient.invalidateQueries({ queryKey: ["admin", "ai", "conversations"] });
+  }, [queryClient]);
 
   useEffect(() => {
     if (!currentId) return;
@@ -101,7 +115,16 @@ export default function Assistant() {
     })();
   }, [currentId]);
 
-  useEffect(() => { bottomRef.current?.scrollIntoView({ behavior: "smooth" }); }, [messages]);
+  // Auto-scroll (instant) only while the reader is near the bottom; never yank
+  // the viewport mid-stream if they scrolled up to read.
+  useEffect(() => {
+    const sentinel = bottomRef.current;
+    if (!sentinel) return;
+    const container = sentinel.closest("[data-radix-scroll-area-viewport]");
+    if (!container) return;
+    const gap = container.getBoundingClientRect().bottom - sentinel.getBoundingClientRect().bottom;
+    if (gap < 120) sentinel.scrollIntoView({ block: "end" });
+  }, [messages]);
 
   useEffect(() => () => abortRef.current?.abort(), []);
 
@@ -120,8 +143,8 @@ export default function Assistant() {
     setCurrentId(id);
   };
 
-  const send = async () => {
-    const text = input.trim();
+  const send = async (textOverride?: string) => {
+    const text = (textOverride ?? input).trim();
     if (!text || streaming) return;
     setInput("");
     setError(null);
@@ -149,7 +172,6 @@ export default function Assistant() {
       }
       if (!res.body) throw new Error("No response stream");
 
-      let pendingTool: { tool: string; ok: boolean; preview: string } | null = null;
       const reader = res.body.getReader();
       const decoder = new TextDecoder();
       let buffer = "";
@@ -174,17 +196,16 @@ export default function Assistant() {
           if (data.text !== undefined) {
             update((p) => ({ ...p, content: p.content + data.text }));
           } else if (data.tool !== undefined) {
-            pendingTool = { tool: data.tool, ok: data.ok, preview: data.preview ?? "" };
+            // Append live so every tool card in a round is kept (not just the last).
+            update((p) => ({
+              ...p,
+              toolCalls: [...(p.toolCalls ?? []), { tool: data.tool, ok: data.ok, preview: data.preview ?? "", expanded: false }],
+            }));
           } else if (data.conversation_id) {
             setCurrentId(data.conversation_id);
-          } else if (data.message) {
-            update((p) => ({ ...p, toolCalls: [...(p.toolCalls ?? [])] }));
+            if (data.model) setModelName(data.model);
           }
         }
-      }
-      // Attach the trailing tool card if one was streamed without a final message event.
-      if (pendingTool) {
-        update((p) => ({ ...p, toolCalls: [...(p.toolCalls ?? []), { ...pendingTool!, expanded: false }] }));
       }
       update((p) => {
         const isDone = p.content.trim().length > 0 || (p.toolCalls?.length ?? 0) > 0;
@@ -205,8 +226,13 @@ export default function Assistant() {
     }
   };
 
-  const deleteConversation = async (id: string) => {
-    try {
+  const stop = () => {
+    abortRef.current?.abort();
+    // Freeze the streaming bubble so it stops rendering the caret.
+    setMessages((ms) => ms.map((m) => (m.stream ? { ...m, stream: false } : m)));
+  };
+
+  const deleteConversation = async (id: string) => {    try {
       await fetch(`/api/admin/ai/conversations/${id}`, { method: "DELETE" });
       if (currentId === id) startNew();
       loadConversations();
@@ -264,7 +290,7 @@ export default function Assistant() {
           <div className="flex items-center gap-2">
             <Sparkles size={18} className="text-primary" />
             <span className="font-medium">Analytics Assistant</span>
-            <Badge variant="secondary" className="text-[10px]">DeepSeek</Badge>
+            {modelName && <Badge variant="secondary" className="text-[10px]">{modelName}</Badge>}
           </div>
           <Button size="icon" variant="ghost" onClick={() => setSidebarOpen((v) => !v)} aria-label="Toggle conversations">
             <ChevronUp size={16} className={cn(sidebarOpen && "rotate-180 transition")} />
@@ -277,9 +303,18 @@ export default function Assistant() {
               <div className="text-center py-16 space-y-2">
                 <Bot size={40} className="mx-auto text-muted-foreground/40" />
                 <p className="font-medium">Ask about your Regent traffic</p>
-                <p className="text-sm text-muted-foreground max-w-md mx-auto">
-                  e.g. “What were our top posts this month?” or “Show the conversion funnel broken down by country, last 30 days.”
-                </p>
+                <div className="flex flex-wrap justify-center gap-2 pt-2">
+                  {SUGGESTED_PROMPTS.map((p) => (
+                    <button
+                      key={p}
+                      type="button"
+                      onClick={() => send(p)}
+                      className="text-xs rounded-full border bg-muted/40 px-3 py-1.5 text-muted-foreground hover:bg-muted hover:text-foreground transition"
+                    >
+                      {p}
+                    </button>
+                  ))}
+                </div>
               </div>
             )}
 
@@ -309,14 +344,20 @@ export default function Assistant() {
                 }
               }}
               placeholder="Ask about traffic, engagement, conversions…"
-              rows={2}
+              rows={Math.min(8, Math.max(1, input.split("\n").length))}
               className="resize-none"
               disabled={streaming}
               maxLength={8000}
             />
-            <Button type="submit" size="icon" disabled={streaming || !input.trim()}>
-              {streaming ? <Loader2 size={16} className="animate-spin" /> : <Send size={16} />}
-            </Button>
+            {streaming ? (
+              <Button type="button" size="icon" variant="outline" onClick={stop} aria-label="Stop generating">
+                <Square size={16} />
+              </Button>
+            ) : (
+              <Button type="submit" size="icon" disabled={!input.trim()}>
+                <Send size={16} />
+              </Button>
+            )}
           </form>
           <p className="text-[11px] text-muted-foreground mt-1.5">
             The assistant answers from live Supabase analytics — same data as the MCP tools and dashboard.
@@ -327,10 +368,12 @@ export default function Assistant() {
   );
 }
 
-function ToolCard({ tool, ok, preview, expanded, onToggle }: { tool: string; ok: boolean; preview: string; expanded: boolean; onToggle: () => void }) {
+function ToolCard({ tool, ok, preview }: { tool: string; ok: boolean; preview: string }) {
+  // Each card owns its expanded state so toggling one never opens the rest.
+  const [expanded, setExpanded] = useState(false);
   return (
     <div className="rounded-lg border bg-muted/30 p-2.5 mt-2">
-      <button type="button" onClick={onToggle} className="flex items-center gap-2 text-xs w-full text-left">
+      <button type="button" onClick={() => setExpanded((v) => !v)} className="flex items-center gap-2 text-xs w-full text-left">
         <Wrench size={12} className={ok ? "text-primary" : "text-destructive"} />
         <span className="font-mono font-medium">{tool}</span>
         {ok ? <Badge variant="outline" className="text-[10px]">ok</Badge> : <Badge variant="destructive" className="text-[10px]">error</Badge>}
@@ -341,10 +384,9 @@ function ToolCard({ tool, ok, preview, expanded, onToggle }: { tool: string; ok:
   );
 }
 
-function MessageBubble({ msg }: { msg: MessageUi }) {
-  const [expanded, setExpanded] = useState(false);
-  const toggle = () => setExpanded((v) => !v);
-
+// Memoized: during streaming only the in-flight bubble changes identity, so the
+// rest of the thread keeps rendering for free on each token.
+const MessageBubble = memo(function MessageBubble({ msg }: { msg: MessageUi }) {
   if (msg.role === "user") {
     return (
       <div className="flex justify-end">
@@ -363,13 +405,24 @@ function MessageBubble({ msg }: { msg: MessageUi }) {
       </div>
       <div className="max-w-[85%] space-y-2 min-w-0">
         {cards.map((c, i) => (
-          <ToolCard key={`${i}`} tool={c.tool} ok={c.ok} preview={c.preview} expanded={expanded} onToggle={toggle} />
+          <ToolCard key={`${i}`} tool={c.tool} ok={c.ok} preview={c.preview} />
         ))}
         {msg.content ? (
-          <div className="rounded-2xl rounded-tl-sm bg-muted/60 px-4 py-2 text-sm whitespace-pre-wrap break-words">
-            {msg.content}
-            {msg.stream && <span className="inline-block w-2 h-4 ml-1 bg-primary/60 animate-pulse align-middle" />}
-          </div>
+          // Streaming keeps the cheap plain-text render; markdown parses once,
+          // after the reply finishes, so partial tables never jank mid-stream.
+          msg.stream ? (
+            <div className="rounded-2xl rounded-tl-sm bg-muted/60 px-4 py-2 text-sm whitespace-pre-wrap break-words">
+              {msg.content}
+              <span className="inline-block w-2 h-4 ml-1 bg-primary/60 animate-pulse align-middle" />
+            </div>
+          ) : (
+            <div className="rounded-2xl rounded-tl-sm bg-muted/60 px-4 py-2 text-sm">
+              <div className="prose prose-sm dark:prose-invert prose-p:my-1.5 prose-pre:bg-muted prose-pre:my-2 prose-table:text-sm prose-a:text-primary break-words">
+                <ReactMarkdown remarkPlugins={[remarkGfm]}>{msg.content}</ReactMarkdown>
+              </div>
+              {msg.stream && <span className="inline-block w-2 h-4 ml-1 bg-primary/60 animate-pulse align-middle" />}
+            </div>
+          )
         ) : msg.stream ? (
           <div className="flex items-center gap-2 text-muted-foreground text-sm">
             <Loader2 size={14} className="animate-spin" /> Thinking…
@@ -378,4 +431,4 @@ function MessageBubble({ msg }: { msg: MessageUi }) {
       </div>
     </div>
   );
-}
+});

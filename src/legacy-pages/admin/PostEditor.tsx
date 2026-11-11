@@ -5,7 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import RichTextEditor from "@/components/admin/RichTextEditor";
-import { ArrowLeft, Upload, X, Image as ImageIcon, Save, Eye, CalendarIcon, ChevronDown, Sparkles } from "lucide-react";
+import { ArrowLeft, Upload, X, Image as ImageIcon, Save, Eye, CalendarIcon, ChevronDown, Sparkles, Loader2, Copy, Check } from "lucide-react";
 import Link from "next/link";
 import { logActivity } from "@/hooks/useActivityLog";
 import { format } from "date-fns";
@@ -46,6 +46,9 @@ export default function PostEditor() {
   const [showSeo, setShowSeo] = useState(false);
   const [draftBanner, setDraftBanner] = useState(false);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
+  const [editGenerating, setEditGenerating] = useState(false);
+  const [aiSocial, setAiSocial] = useState("");
+  const [aiCopied, setAiCopied] = useState(false);
 
   const [form, setForm] = useState<PostForm>({
     title: "",
@@ -65,6 +68,41 @@ export default function PostEditor() {
   });
 
   const draftKey = DRAFT_KEY_PREFIX + (id || "new");
+
+  const generateEditorial = async () => {
+    if (!form.title.trim() || !form.content.trim()) {
+      toast({ title: "Add a title and body first", variant: "destructive" });
+      return;
+    }
+    setEditGenerating(true);
+    try {
+      const res = await fetch("/api/admin/ai/editor", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ content_type: "post", title: form.title, body: form.content }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error ?? "Generation failed");
+      setForm(f => ({ ...f, excerpt: data.excerpt || f.excerpt, meta_description: data.meta_description || f.meta_description }));
+      setAiSocial(data.social_copy || "");
+      toast({ title: "AI copy ready", description: "Excerpt and meta description filled." });
+    } catch (e) {
+      toast({ title: "AI copy failed", description: e instanceof Error ? e.message : "Try again", variant: "destructive" });
+    } finally {
+      setEditGenerating(false);
+    }
+  };
+
+  const copyText = async (text: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setAiCopied(true);
+      setTimeout(() => setAiCopied(false), 1500);
+    } catch {
+      /* ignore */
+    }
+  };
+
 
   useEffect(() => {
     if (!isEdit || !id) return; 
@@ -317,7 +355,18 @@ export default function PostEditor() {
 
             {/* Excerpt */}
             <div className="bg-card border border-border rounded-3xl p-8 shadow-sm">
-              <h3 className="text-sm font-bold uppercase tracking-widest text-muted-foreground mb-4">Summary / Excerpt</h3>
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-sm font-bold uppercase tracking-widest text-muted-foreground">Summary / Excerpt</h3>
+                <button
+                  type="button"
+                  onClick={generateEditorial}
+                  disabled={editGenerating}
+                  className="flex items-center gap-1.5 h-8 px-3 text-xs font-medium text-primary border border-primary/20 rounded-lg hover:bg-primary/10 transition-colors disabled:opacity-50"
+                >
+                  {editGenerating ? <Loader2 size={13} className="animate-spin" /> : <Sparkles size={13} />}
+                  {editGenerating ? "Generating…" : "Generate with AI"}
+                </button>
+              </div>
               <textarea
                 value={form.excerpt}
                 onChange={e => setForm(f => ({ ...f, excerpt: e.target.value }))}
@@ -325,6 +374,17 @@ export default function PostEditor() {
                 placeholder="Briefly describe what this article is about for SEO and cards..."
                 className="w-full border border-border rounded-2xl p-4 text-sm bg-muted/30 text-foreground focus:border-primary outline-none transition-all resize-none"
               />
+              {aiSocial && (
+                <div className="mt-4">
+                  <label className="text-[11px] font-bold text-muted-foreground uppercase block mb-1.5 ml-1">Social copy</label>
+                  <div className="flex items-start gap-2 rounded-2xl border border-border p-3 text-sm text-foreground bg-muted/30">
+                    <p className="flex-1 whitespace-pre-wrap break-words">{aiSocial}</p>
+                    <button type="button" onClick={() => copyText(aiSocial)} className="text-muted-foreground hover:text-primary shrink-0" aria-label="Copy social copy">
+                      {aiCopied ? <Check size={15} className="text-emerald-500" /> : <Copy size={15} />}
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 

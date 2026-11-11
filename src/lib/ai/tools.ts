@@ -23,7 +23,7 @@ export type AnalyticsToolName = (typeof ANALYTICS_TOOL_NAMES)[number];
 const analyticsArgsShape = z.object({
   p_from: z.string().datetime().optional().describe("ISO start date (inclusive)"),
   p_to: z.string().datetime().optional().describe("ISO end date (exclusive)"),
-  p_content_type: z.enum(["page", "blog_post", "case_study", "resource_download"]).optional(),
+  p_content_type: z.enum(["page", "blog_post", "case_study", "resource", "resource_download"]).optional(),
   p_slug: z.string().optional().describe("Filter to a single content slug"),
   p_source: z.string().optional().describe("Referrer channel: paid, email, social, organic_search, internal, referral, direct"),
   p_country: z.string().optional().describe("ISO-2 country code"),
@@ -70,13 +70,15 @@ export function openAiToolsList(): Array<Record<string, unknown>> {
     type: "function",
     function: {
       name,
-      description: toolDescriptions[name],
+      description:
+        toolDescriptions[name] +
+        " If p_from/p_to are omitted, use the last 30 days. Internal traffic is excluded unless p_include_internal is true.",
       parameters: {
         type: "object",
         properties: {
           p_from: { type: "string", format: "date-time", description: "ISO start (inclusive)" },
           p_to: { type: "string", format: "date-time", description: "ISO end (exclusive)" },
-          p_content_type: { type: "string", enum: ["page", "blog_post", "case_study", "resource_download"] },
+          p_content_type: { type: "string", enum: ["page", "blog_post", "case_study", "resource", "resource_download"] },
           p_slug: { type: "string", description: "Single slug filter" },
           p_source: { type: "string", enum: ["paid", "email", "social", "organic_search", "internal", "referral", "direct"] },
           p_country: { type: "string", description: "ISO-2 country code" },

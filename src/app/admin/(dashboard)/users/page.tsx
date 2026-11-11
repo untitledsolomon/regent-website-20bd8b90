@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useEffect, useState } from 'react'
+import { useQuery } from '@tanstack/react-query'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
@@ -8,32 +8,26 @@ import { Button } from '@/components/ui/button'
 import { AlertTriangle, Calendar, RefreshCw, Shield, User as UserIcon, Loader2 } from 'lucide-react'
 
 export default function UsersPage() {
-  const [users, setUsers] = useState<any[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-
-  const fetchUsers = useCallback(async () => {
-    setLoading(true)
-    setError(null)
-    try {
+  // Cached so returning to this tab does not refetch on every mount.
+  const query = useQuery({
+    queryKey: ['admin', 'users'],
+    staleTime: 60_000,
+    queryFn: async (): Promise<any[]> => {
       const response = await fetch('/api/admin/users')
       if (!response.ok) {
         const body = await response.json().catch(() => null)
         throw new Error(body?.error || `Request failed (${response.status})`)
       }
       const data = await response.json()
-      setUsers(data.users || [])
-    } catch (err) {
-      console.error('Error fetching users:', err)
-      setError(err instanceof Error ? err.message : 'Failed to load system users')
-    } finally {
-      setLoading(false)
-    }
-  }, [])
-
-  useEffect(() => {
-    fetchUsers()
-  }, [fetchUsers])
+      return data.users || []
+    },
+  })
+  const users = query.data ?? []
+  const loading = query.isLoading
+  const error = query.isError
+    ? query.error instanceof Error ? query.error.message : 'Failed to load system users'
+    : null
+  const fetchUsers = query.refetch
 
   if (loading) {
     return (
@@ -63,7 +57,7 @@ export default function UsersPage() {
             <p className="text-xl font-bold text-foreground">Couldn&apos;t load users</p>
             <p className="text-muted-foreground max-w-md mx-auto">{error}</p>
           </div>
-          <Button onClick={fetchUsers} variant="outline">
+          <Button onClick={() => fetchUsers()} variant="outline">
             <RefreshCw className="h-4 w-4 mr-2" /> Retry
           </Button>
         </div>

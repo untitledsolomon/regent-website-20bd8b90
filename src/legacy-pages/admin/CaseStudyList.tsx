@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useState, useMemo } from "react";
+import { useState, useMemo } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { logActivity } from "@/hooks/useActivityLog";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -40,37 +41,39 @@ interface CaseStudy {
 
 export default function CaseStudyList() {
   const supabase = createClient();
-  const [items, setItems] = useState<CaseStudy[]>([]);
-  const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<"all" | "published" | "draft">("all");
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [viewMode, setViewMode] = useState<"list" | "grid">("list");
 
-  const fetchData = async () => {
-    const [csRes, analyticsRes] = await Promise.all([
-      supabase.from("case_studies").select("id, slug, title, industry, published, publish_at, updated_at").order("created_at", { ascending: false }),
-      supabase.rpc("get_content_analytics")
-    ]);
+  // Cached — returning to this tab does not refetch the query + analytics RPC.
+  const query = useQuery({
+    queryKey: ["admin", "case-studies"],
+    staleTime: 60_000,
+    queryFn: async (): Promise<any[]> => {
+      const [csRes, analyticsRes] = await Promise.all([
+        supabase.from("case_studies").select("id, slug, title, industry, published, publish_at, updated_at").order("created_at", { ascending: false }),
+        supabase.rpc("get_content_analytics")
+      ]);
 
-    const studies = (csRes.data as any[]) || [];
-    const analytics = (analyticsRes.data as any[]) || [];
+      const studies = (csRes.data as any[]) || [];
+      const analytics = (analyticsRes.data as any[]) || [];
 
-    const enriched = studies.map(study => {
-      const stats = analytics.find(a => a.content_id === study.id);
-      return {
-        ...study,
-        view_count: stats?.view_count || 0,
-        avg_time_on_page: stats?.avg_time_on_page || 0,
-        avg_scroll_depth: stats?.avg_scroll_depth || 0
-      };
-    });
-
-    setItems(enriched);
-    setLoading(false);
-  };
-
-  useEffect(() => { fetchData(); }, []);
+      return studies.map(study => {
+        const stats = analytics.find(a => a.content_id === study.id);
+        return {
+          ...study,
+          view_count: stats?.view_count || 0,
+          avg_time_on_page: stats?.avg_time_on_page || 0,
+          avg_scroll_depth: stats?.avg_scroll_depth || 0
+        };
+      });
+    },
+  });
+  const items = query.data ?? [];
+  const loading = query.isLoading;
+  const fetchData = () => queryClient.invalidateQueries({ queryKey: ["admin", "case-studies"] });
 
   const toggle = async (id: string, published: boolean) => {
     await supabase.from("case_studies").update({ published: !published }).eq("id", id);

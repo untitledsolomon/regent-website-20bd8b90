@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useState, useMemo } from "react";
+import { useState, useMemo } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   MessageSquare, Trash2, Download, Search, Building2, Mail, Phone,
   ChevronDown, ChevronUp, X, Send, Pencil, Check, User, DollarSign,
@@ -48,22 +49,27 @@ const STATUSES = Object.keys(STATUS_CONFIG) as ConsultationStatus[];
 
 export default function ConsultationList() {
   const supabase = createClient();
-  const [items, setItems] = useState<Consultation[]>([]);
-  const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
   const [search, setSearch] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
   const [expanded, setExpanded] = useState<string | null>(null);
 
-  useEffect(() => {
-    supabase
-      .from("consultation_requests")
-      .select("*")
-      .order("created_at", { ascending: false })
-      .then(({ data, error }) => {
-        if (!error && data) setItems(data as Consultation[]);
-        setLoading(false);
-      });
-  }, []);
+  // Cached so returning to this tab does not refetch on every mount.
+  const query = useQuery({
+    queryKey: ["admin", "consultations"],
+    staleTime: 60_000,
+    queryFn: async (): Promise<Consultation[]> => {
+      const { data, error } = await supabase
+        .from("consultation_requests")
+        .select("*")
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      return (data as Consultation[]) || [];
+    },
+  });
+  const items = query.data ?? [];
+  const loading = query.isLoading;
+  const refresh = () => queryClient.invalidateQueries({ queryKey: ["admin", "consultations"] });
 
   const filtered = useMemo(() => {
     return items.filter(i => {
@@ -78,7 +84,7 @@ export default function ConsultationList() {
 
   const handleStatusChange = async (id: string, status: ConsultationStatus) => {
     await supabase.from("consultation_requests").update({ status }).eq("id", id);
-    setItems(prev => prev.map(i => i.id === id ? { ...i, status } : i));
+    refresh();
     toast({ title: "Status updated", description: `Inquiry marked as ${status}` });
   };
 
@@ -88,7 +94,7 @@ export default function ConsultationList() {
     if (error) {
       toast({ title: "Error", description: "Failed to delete", variant: "destructive" });
     } else {
-      setItems(prev => prev.filter(i => i.id !== id));
+      refresh();
       toast({ title: "Deleted" });
     }
   };

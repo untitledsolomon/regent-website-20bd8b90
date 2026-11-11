@@ -6,6 +6,7 @@
 // route boundary (settings only exposes last-4 / has_key).
 
 import { useEffect, useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Sparkles, Loader2, TestTube2, KeyRound, RefreshCw } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
@@ -40,6 +41,7 @@ function Label({ children }: { children: React.ReactNode }) {
 
 export default function AISettingsSection() {
   const { toast } = useToast();
+  const queryClient = useQueryClient();
   const [s, setS] = useState<AiSettings | null>(null);
   const [saving, setSaving] = useState(false);
   const [testing, setTesting] = useState(false);
@@ -48,22 +50,33 @@ export default function AISettingsSection() {
   const [usage, setUsage] = useState<UsageResponse | null>(null);
   const [testResult, setTestResult] = useState<string | null>(null);
 
-  const load = async () => {
-    try {
+  // Settings change rarely — cache them so returning to this tab does not
+  // refetch on every mount. Invalidated after a successful save.
+  const settingsQuery = useQuery({
+    queryKey: ["admin", "ai", "settings-page"],
+    staleTime: 5 * 60_000,
+    queryFn: async () => {
       const [settingsRes, usageRes] = await Promise.all([
         fetch("/api/admin/ai/settings"),
         fetch("/api/admin/ai/usage"),
       ]);
-      if (settingsRes.ok) setS(await settingsRes.json());
-      if (usageRes.ok) setUsage(await usageRes.json());
-    } catch {
-      /* ignore */
-    } finally {
-      setLoading(false);
-    }
-  };
+      const [settingsBody, usageBody] = await Promise.all([
+        settingsRes.ok ? settingsRes.json() : null,
+        usageRes.ok ? usageRes.json() : null,
+      ]);
+      return { settings: settingsBody as AiSettings | null, usage: usageBody as UsageResponse | null };
+    },
+  });
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => {
+    if (settingsQuery.isLoading) return;
+    if (loading) setLoading(false);
+    if (settingsQuery.data) {
+      // Never clobber edits in progress; usage is read-only so always sync it.
+      if (!s) setS(settingsQuery.data.settings);
+      setUsage(settingsQuery.data.usage);
+    }
+  }, [settingsQuery.isLoading, settingsQuery.data, loading, s]);
 
   const set = (patch: Partial<AiSettings>) => setS((prev) => (prev ? { ...prev, ...patch } : prev));
 
@@ -92,6 +105,7 @@ export default function AISettingsSection() {
       if (!res.ok) throw new Error(data.error ?? "Failed to save");
       setApiKey("");
       setS((prev) => (prev ? { ...prev, ...data } : prev));
+      queryClient.invalidateQueries({ queryKey: ["admin", "ai", "settings-page"] });
       toast({ title: "AI settings saved", description: "New provider/model config takes effect immediately." });
     } catch (e) {
       toast({ title: "Save failed", description: e instanceof Error ? e.message : "Unknown error", variant: "destructive" });

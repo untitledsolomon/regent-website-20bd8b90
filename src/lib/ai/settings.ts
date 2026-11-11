@@ -1,5 +1,3 @@
-"use server";
-
 // WS5: AI provider settings + cost model. The single-row ai_settings table is
 // the source of truth for provider configuration; the API key lives in Vault
 // (settings only keep its last-4). Cost is computed at write time from the
@@ -32,29 +30,48 @@ function num(v: unknown): number {
   return Number.isFinite(n) ? n : 0;
 }
 
+// ai_settings is a singleton row that changes rarely; cache it in memory for a
+// short TTL so per-chat-request reads do not each cost a DB round-trip. Server
+// module state is per-instance, which is fine for a 60s freshening backstop.
+const SETTINGS_CACHE_TTL_MS = 60_000;
+let settingsCache: { data: AiSettings | null; fetched_at: number } | null = null;
+
+/** Drop the in-memory settings cache (call after any save or key rotation). */
+export function invalidateAiSettingsCache(): void {
+  settingsCache = null;
+}
+
 export async function loadAiSettings(): Promise<AiSettings | null> {
+  const now = Date.now();
+  if (settingsCache && now - settingsCache.fetched_at < SETTINGS_CACHE_TTL_MS) {
+    return settingsCache.data;
+  }
   const supabase = createServiceClient();
   const { data, error } = await (supabase as any)
     .from("ai_settings")
     .select("*")
     .eq("id", 1)
     .maybeSingle();
-  if (error || !data) return null;
-  return {
-    provider: data.provider,
-    base_url: data.base_url,
-    model: data.model,
-    temperature: num(data.temperature),
-    max_tokens: data.max_tokens,
-    enabled: !!data.enabled,
-    price_input_per_mtok: num(data.price_input_per_mtok),
-    price_output_per_mtok: num(data.price_output_per_mtok),
-    price_input_cached_per_mtok: num(data.price_input_cached_per_mtok),
-    currency: data.currency,
-    api_key_last4: data.api_key_last4,
-    vault_key_name: data.vault_key_name,
-    updated_at: data.updated_at,
-  };
+  const result: AiSettings | null =
+    error || !data
+      ? null
+      : {
+          provider: data.provider,
+          base_url: data.base_url,
+          model: data.model,
+          temperature: num(data.temperature),
+          max_tokens: data.max_tokens,
+          enabled: !!data.enabled,
+          price_input_per_mtok: num(data.price_input_per_mtok),
+          price_output_per_mtok: num(data.price_output_per_mtok),
+          price_input_cached_per_mtok: num(data.price_input_cached_per_mtok),
+          currency: data.currency,
+          api_key_last4: data.api_key_last4,
+          vault_key_name: data.vault_key_name,
+          updated_at: data.updated_at,
+        };
+  settingsCache = { data: result, fetched_at: now };
+  return result;
 }
 
 /** Resolve the live provider key: Vault secret named by vault_key_name, else the DEEPSEEK_API_KEY env var. */
