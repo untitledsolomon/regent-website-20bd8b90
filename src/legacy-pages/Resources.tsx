@@ -59,15 +59,16 @@ export default function ResourcesPage({ initialResources }: { initialResources?:
     if (!trimmed || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed)) return;
     setSubscribing(true);
     try {
-      const { data: subscriber, error } = await supabase
-        .from("newsletter_subscribers")
-        .insert({ email: trimmed, source: "resources" })
-        .select("id")
-        .single();
-      if (error && error.code !== "23505") throw error;
+      const { data: subscriberId, error } = await (supabase as any).rpc("record_newsletter_subscriber", {
+        p_email: trimmed,
+        p_source: "resources",
+      });
+      if (error) throw error;
       setEmail("");
-      trackConversion("newsletter", subscriber?.id);
-      supabase.functions.invoke("newsletter-welcome", { body: { email: trimmed } }).catch(() => {});
+      if (subscriberId) {
+        trackConversion("newsletter", subscriberId);
+        supabase.functions.invoke("newsletter-welcome", { body: { email: trimmed } }).catch(() => {});
+      }
     } catch {
       // silent
     } finally {
@@ -94,17 +95,13 @@ export default function ResourcesPage({ initialResources }: { initialResources?:
 
     setSubscribing(true);
     try {
-      const { data: subscriber } = await supabase
-        .from("newsletter_subscribers")
-        .insert({
-          email: gateEmail,
-          source: `resource_gate_${pendingResource?.slug || 'unknown'}`
-        })
-        .select("id")
-        .single();
+      const { data: subscriberId } = await (supabase as any).rpc("record_newsletter_subscriber", {
+        p_email: gateEmail,
+        p_source: `resource_gate_${pendingResource?.slug || 'unknown'}`,
+      });
       localStorage.setItem("regent_lead_email", gateEmail);
       if (pendingResource) executeDownload(pendingResource);
-      trackConversion("resource_access", subscriber?.id, pendingResource?.id);
+      trackConversion("resource_access", subscriberId ?? undefined, pendingResource?.id);
       setGateOpen(false);
     } catch (err) {
       console.error(err);

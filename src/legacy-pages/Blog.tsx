@@ -42,16 +42,18 @@ export default function BlogPage() {
       return;
     }
     try {
-      const { error } = await supabase.from("newsletter_subscribers").insert({ email: trimmed, source: "blog" });
-      if (error) {
-        if (error.code === "23505") {
-          toast({ title: "Already subscribed", description: "This email is already on our list." });
-        } else throw error;
-      } else {
-      toast({ title: "Subscribed!", description: "You'll receive our latest insights." });
+      const { data: subscriberId, error } = await (supabase as any).rpc("record_newsletter_subscriber", {
+        p_email: trimmed,
+        p_source: "blog",
+      });
+      if (error) throw error;
+      if (subscriberId) {
+        toast({ title: "Subscribed!", description: "You'll receive our latest insights." });
         setEmail("");
         supabase.functions.invoke("newsletter-welcome", { body: { email: trimmed } }).catch(() => {});
         supabase.functions.invoke("sync-resend-contact", { body: { email: trimmed } }).catch(() => {});
+      } else {
+        toast({ title: "Already subscribed", description: "This email is already on our list." });
       }
     } catch {
       toast({ title: "Something went wrong", description: "Please try again.", variant: "destructive" });

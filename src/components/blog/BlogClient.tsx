@@ -199,21 +199,19 @@ export function BlogClient({ posts }: { posts: BlogPost[] }) {
       return;
     }
     try {
-      const { data: subscriber, error } = await supabase
-        .from("newsletter_subscribers")
-        .insert({ email: trimmed, source: "blog" })
-        .select("id")
-        .single();
-      if (error) {
-        if (error.code === "23505") {
-          toast({ title: "Already subscribed", description: "This email is already on our list." });
-        } else throw error;
-      } else {
+      const { data: subscriberId, error } = await (supabase as any).rpc("record_newsletter_subscriber", {
+        p_email: trimmed,
+        p_source: "blog",
+      });
+      if (error) throw error;
+      if (subscriberId) {
         toast({ title: "Subscribed!", description: "You'll receive our latest insights." });
         setEmail("");
-        trackConversion("newsletter", subscriber?.id);
+        trackConversion("newsletter", subscriberId);
         supabase.functions.invoke("newsletter-welcome", { body: { email: trimmed } }).catch(() => {});
         supabase.functions.invoke("sync-resend-contact", { body: { email: trimmed } }).catch(() => {});
+      } else {
+        toast({ title: "Already subscribed", description: "This email is already on our list." });
       }
     } catch {
       toast({ title: "Something went wrong", description: "Please try again.", variant: "destructive" });

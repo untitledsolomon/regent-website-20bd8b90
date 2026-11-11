@@ -181,6 +181,7 @@ export default function AdminDashboard() {
   const insightsError = insightsQuery.isError ? "Insights unavailable" : null;
   const [generating, setGenerating] = useState(false);
   const [genError, setGenError] = useState<string | null>(null);
+  const [expandedInsights, setExpandedInsights] = useState<Set<string>>(new Set());
   const autoFiredRef = useRef(false);
 
   const refreshInsights = async () => {
@@ -206,6 +207,27 @@ export default function AdminDashboard() {
     } catch {
       /* ignore */
     }
+  };
+
+  // Insights stop at being messages: every card routes somewhere useful. The
+  // generator stamps target_url on content rows; the fallbacks cover categories
+  // the model produced without one.
+  const insightAction = (ins: InsightUi): string | null => {
+    if (ins.target_url) return ins.target_url;
+    switch (ins.category) {
+      case "content": return "/admin/posts";
+      case "consultation": return "/admin/inquiries";
+      case "anomaly": return "/admin/analytics";
+      default: return null;
+    }
+  };
+
+  const toggleInsight = (id: string) => {
+    setExpandedInsights((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      return next;
+    });
   };
 
   // Fire the first generation once when there are no rows (async, never
@@ -633,30 +655,45 @@ export default function AdminDashboard() {
                   </div>
                 ) : (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    {insightRows.slice(0, 8).map((ins) => (
-                      <div key={ins.id} className="bg-muted/50 p-4 rounded-2xl border border-border/60 hover:bg-muted transition-colors group">
-                        <div className="flex items-start justify-between mb-2 gap-2">
-                          <Badge className={cn(
-                            "rounded-full px-2 py-0.5 text-[10px] font-bold uppercase",
-                            ins.severity === "high" ? "bg-red-500/10 text-red-600 dark:text-red-400" :
-                            ins.severity === "medium" ? "bg-amber-500/10 text-amber-600 dark:text-amber-400" :
-                            "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
-                          )}>{ins.category}</Badge>
-                          <div className="flex items-center gap-1.5">
-                            {ins.target_url && (
-                              <a href={ins.target_url} target="_blank" rel="noreferrer" className="text-muted-foreground hover:text-foreground" aria-label={`Open ${ins.target_url}`}>
-                                <ArrowUpRight size={14} />
-                              </a>
-                            )}
+                    {insightRows.slice(0, 8).map((ins) => {
+                      const isOpen = expandedInsights.has(ins.id);
+                      const longBody = (ins.body?.length ?? 0) > 180;
+                      const actionHref = insightAction(ins);
+                      return (
+                        <div key={ins.id} className="bg-muted/50 p-4 rounded-2xl border border-border/60 hover:bg-muted transition-colors group">
+                          <div className="flex items-start justify-between mb-2 gap-2">
+                            <Badge className={cn(
+                              "rounded-full px-2 py-0.5 text-[10px] font-bold uppercase",
+                              ins.severity === "high" ? "bg-red-500/10 text-red-600 dark:text-red-400" :
+                              ins.severity === "medium" ? "bg-amber-500/10 text-amber-600 dark:text-amber-400" :
+                              "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
+                            )}>{ins.category}</Badge>
                             <button type="button" onClick={() => dismissInsight(ins.id)} className="text-muted-foreground/70 hover:text-foreground" aria-label="Dismiss insight">
                               <X size={14} />
                             </button>
                           </div>
+                          <div className="font-bold text-sm mb-1 text-foreground">{ins.title}</div>
+                          {ins.body && (
+                            <>
+                              <p className={cn("text-[11px] text-muted-foreground leading-relaxed", !isOpen && longBody && "line-clamp-3")}>{ins.body}</p>
+                              {longBody && (
+                                <button type="button" onClick={() => toggleInsight(ins.id)} className="text-[11px] font-semibold text-primary hover:underline mt-0.5">
+                                  {isOpen ? "Show less" : "Read more"}
+                                </button>
+                              )}
+                            </>
+                          )}
+                          <div className="flex items-center justify-between gap-3 mt-2.5 pt-2.5 border-t border-border/50">
+                            <span className="text-[10px] text-muted-foreground/70">{formatDistanceToNow(new Date(ins.generated_at), { addSuffix: true })}</span>
+                            {actionHref && (
+                              <Link href={actionHref} className="inline-flex items-center gap-1 text-[11px] font-bold text-primary hover:underline shrink-0">
+                                {ins.category === "consultation" ? "Open lead" : ins.category === "anomaly" ? "View analytics" : "View topic"} <ArrowUpRight size={12} />
+                              </Link>
+                            )}
+                          </div>
                         </div>
-                        <div className="font-bold text-sm mb-1 line-clamp-2 text-foreground transition-colors">{ins.title}</div>
-                        {ins.body && <p className="text-[11px] text-muted-foreground leading-relaxed">{ins.body}</p>}
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 )}
                 {(genError || insightsQuery.data?.stale) && (

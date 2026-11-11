@@ -1,11 +1,11 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { format, parseISO } from "date-fns";
 import {
   Eye, Users, Monitor, Smartphone, Tablet, Clock,
   BarChart3, MousePointerClick, Download,
-  Filter, Calendar as CalendarIcon,
+  Filter, Calendar as CalendarIcon, ChevronLeft, ChevronRight, Globe,
 } from "lucide-react";
 import {
   AreaChart, Area, PieChart, Pie, Cell,
@@ -57,6 +57,8 @@ export default function AdminAnalytics() {
   const [country, setCountry] = useState("");
   const [device, setDevice] = useState("");
   const [includeInternal, setIncludeInternal] = useState(false);
+  const [pageIdx, setPageIdx] = useState(0);
+  const PAGE_SIZE = 8;
 
   const filters = useMemo(() => ({
     p_include_internal: includeInternal,
@@ -73,6 +75,9 @@ export default function AdminAnalytics() {
     };
     return { ...base, ...filters };
   }, [preset, customFrom, customTo, filters]);
+
+  // Changing the date range or filters restarts pagination at page one.
+  useEffect(() => { setPageIdx(0); }, [params]);
 
   const a = useAnalytics(params);
   const o = a.overview;
@@ -95,6 +100,16 @@ export default function AdminAnalytics() {
 
   const dailyData = a.daily.map((d) => ({ ...d, date: format(parseISO(d.day), "MMM dd") }));
   const totalViews = a.sources.reduce((s, r) => s + r.views, 0);
+  // Top referrers: domain rows only (direct traffic has no referrer domain).
+  const referrers = a.sources
+    .filter((r) => r.source && r.source.trim().length > 0)
+    .sort((x, y) => y.views - x.views)
+    .slice(0, 12);
+  const refMax = referrers[0]?.views ?? 0;
+  // Pagination for the Top Content table.
+  const pageCount = Math.max(1, Math.ceil(a.topContent.length / PAGE_SIZE));
+  const safePage = Math.min(pageIdx, pageCount - 1);
+  const topRows = a.topContent.slice(safePage * PAGE_SIZE, safePage * PAGE_SIZE + PAGE_SIZE);
 
   return (
     <div className="p-4 sm:p-8 space-y-8 max-w-[1400px]">
@@ -269,7 +284,7 @@ export default function AdminAnalytics() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border">
-                  {a.topContent.map((item, idx) => (
+                  {topRows.map((item, idx) => (
                     <tr key={idx} className="group hover:bg-muted/30 transition-colors">
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-3">
@@ -298,6 +313,32 @@ export default function AdminAnalytics() {
                   ))}
                 </tbody>
               </table>
+              )}
+              {a.topContent.length > PAGE_SIZE && (
+                <div className="flex items-center justify-between px-6 py-3 border-t border-border">
+                  <p className="text-xs text-muted-foreground">
+                    {safePage * PAGE_SIZE + 1}–{Math.min(a.topContent.length, (safePage + 1) * PAGE_SIZE)} of {a.topContent.length}
+                  </p>
+                  <div className="flex items-center gap-1">
+                    <button
+                      onClick={() => setPageIdx((p) => Math.max(0, p - 1))}
+                      disabled={safePage === 0}
+                      className="p-1.5 rounded-lg text-muted-foreground hover:bg-muted disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                      aria-label="Previous page"
+                    >
+                      <ChevronLeft size={16} />
+                    </button>
+                    <span className="text-xs font-medium text-muted-foreground px-2">Page {safePage + 1} of {pageCount}</span>
+                    <button
+                      onClick={() => setPageIdx((p) => Math.min(pageCount - 1, p + 1))}
+                      disabled={safePage >= pageCount - 1}
+                      className="p-1.5 rounded-lg text-muted-foreground hover:bg-muted disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                      aria-label="Next page"
+                    >
+                      <ChevronRight size={16} />
+                    </button>
+                  </div>
+                </div>
               )}
             </CardContent>
           </Card>
@@ -364,6 +405,39 @@ export default function AdminAnalytics() {
               </CardContent>
             </Card>
           </div>
+
+          <Card className="border-none shadow-sm rounded-3xl bg-card">
+            <CardHeader>
+              <div className="flex items-center gap-2">
+                <Globe size={15} className="text-primary" />
+                <CardTitle className="text-sm font-bold uppercase tracking-wider text-muted-foreground">Top Referrers</CardTitle>
+              </div>
+              <CardDescription className="text-xs">Sites sending visitors your way, by referrer domain</CardDescription>
+            </CardHeader>
+            <CardContent>
+              {referrers.length === 0 ? (
+                <div className="py-8 text-center text-muted-foreground text-sm">No referral traffic in this range.</div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
+                  {referrers.map((r, i) => (
+                    <div key={r.source} className="space-y-1">
+                      <div className="flex items-center justify-between text-xs">
+                        <div className="flex items-center gap-2 min-w-0">
+                          <span className="w-5 h-5 rounded-md bg-muted flex items-center justify-center text-[10px] font-bold text-muted-foreground shrink-0">{i + 1}</span>
+                          <span className="font-semibold text-foreground truncate">{r.source}</span>
+                          <span className="text-[10px] font-medium text-muted-foreground capitalize shrink-0">{r.channel.replace("_", " ")}</span>
+                        </div>
+                        <span className="font-bold shrink-0">{r.views.toLocaleString()} <span className="font-normal text-muted-foreground">views</span></span>
+                      </div>
+                      <div className="h-1.5 w-full bg-muted rounded-full overflow-hidden">
+                        <div className="h-full bg-gradient-to-r from-indigo-500 to-violet-500 rounded-full" style={{ width: refMax > 0 ? `${Math.max(2, Math.round((r.views / refMax) * 100))}%` : "0%" }} />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
         </TabsContent>
 
         <TabsContent value="conversions">
