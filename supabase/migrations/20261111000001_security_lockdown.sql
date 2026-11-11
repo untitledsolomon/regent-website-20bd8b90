@@ -36,37 +36,111 @@ $$;
 
 -- -----------------------------------------------------------------------------
 -- 2. has_role canonicalization.
---    The repo migration defines ONE overload  has_role(_user_id uuid, _role app_role)
---    The live DB drifted to TWO overloads, one of which was broken
---    (role = role, always true for anyone holding any role).
---    Drop the drifted (uuid, text) overload if it exists; CREATE OR REPLACE the
---    canonical (uuid, app_role) overload with the correct EXISTS body.
---
---    Drift tables may carry policies bound to the (uuid, text) overload
---    (e.g. mcp_agents_admins, mcp_call_log_admins on the live DB); a plain
---    DROP FUNCTION then fails with 2BP01 (objects in the catalogs depend on
---    it). CASCADE removes exactly those dependents — the broken always-true
---    overload should not stay referenced by any policy. Policies bound to the
---    canonical (uuid, app_role) overload are untouched, since they depend on a
---    different function object. 0002 re-creates the admin policies for the
---    drift tables it reconciles (mcp_agents, mcp_call_log).
+--    The repo baseline defines ONE overload  has_role(_user_id uuid, _role app_role).
+--    The live DB drifted, and both drift conditions block a plain rewrite:
+--      * a second overload has_role(uuid, text) with a broken body (role = role,
+--        always true for anyone holding any role), referenced by drift policies
+--        such as mcp_agents_admins / mcp_call_log_admins. Dropping it without
+--        CASCADE fails with 2BP01 (catalog objects depend on it).
+--      * the (uuid, app_role) overload whose first parameter is named 'uid'
+--        rather than '_user_id'. CREATE OR REPLACE cannot rename a parameter, so
+--        plain CREATE OR REPLACE fails with 42P13; the overload must be dropped
+--        first.
+--    Normalize in the right order: snapshot every public-schema policy that
+--    references has_role, drop BOTH overloads with CASCADE (they are the only
+--    things keeping those policies), recreate the canonical overload, then
+--    re-home every snapshot'd policy onto public.is_admin() — the overhaul's
+--    single admin gate — so no admin access is lost and nothing references the
+--    dropped overloads. Policies 0001 takes over elsewhere (user_roles §3,
+--    content_views §4) or 0002 recreates (application_replies, inquiry_notes,
+--    mcp_agents, mcp_call_log) may get created here and again there; both paths
+--    are guarded and idempotent.
 -- -----------------------------------------------------------------------------
-DROP FUNCTION IF EXISTS public.has_role(uuid, text) CASCADE;
+DO $$
+DECLARE
+  pol_policy record;
+  new_using  text;
+  new_check  text;
+BEGIN
+  CREATE TEMP TABLE _has_role_policies ON COMMIT DROP AS
+    SELECT
+      pol.polname,
+      c.relname                                              AS tbl,
+      CASE pol.polcmd
+        WHEN '*' THEN 'ALL'
+        WHEN 'r' THEN 'SELECT'
+        WHEN 'a' THEN 'INSERT'
+        WHEN 'w' THEN 'UPDATE'
+        WHEN 'd' THEN 'DELETE'
+      END                                                    AS cmd,
+      pg_get_expr(pol.polqual, c.oid)                        AS using_expr,
+      pg_get_expr(pol.polwithcheck, c.oid)                   AS check_expr,
+      COALESCE((SELECT string_agg(r::regrole::text, ', ')
+                 FROM unnest(pol.polroles) r), 'PUBLIC')     AS roles_arg
+    FROM pg_policy pol
+    JOIN pg_class c     ON c.oid = pol.polrelid
+    JOIN pg_namespace n ON n.oid = c.relnamespace
+    WHERE n.nspname = 'public'
+      AND (pg_get_expr(pol.polqual, c.oid) LIKE '%has_role(%'
+        OR pg_get_expr(pol.polwithcheck, c.oid) LIKE '%has_role(%');
 
-CREATE OR REPLACE FUNCTION public.has_role(_user_id uuid, _role app_role)
-RETURNS boolean
-LANGUAGE sql
-STABLE
-SECURITY DEFINER
-SET search_path = public
-AS $$
-  SELECT EXISTS (
-    SELECT 1
-    FROM public.user_roles
-    WHERE user_id = _user_id
-      AND role = _role
-  )
-$$;
+  DROP FUNCTION IF EXISTS public.has_role(uuid, text) CASCADE;
+  DROP FUNCTION IF EXISTS public.has_role(uuid, app_role) CASCADE;
+
+  CREATE OR REPLACE FUNCTION public.has_role(_user_id uuid, _role app_role)
+  RETURNS boolean
+  LANGUAGE sql
+  STABLE
+  SECURITY DEFINER
+  SET search_path = public
+  AS $has_role_body$
+    SELECT EXISTS (
+      SELECT 1
+      FROM public.user_roles
+      WHERE user_id = _user_id
+        AND role = _role
+    )
+  $has_role_body$;
+
+  -- Re-home each snapshot'd policy. The stored expressions reference has_role
+  -- in one of the arg shapes below; raise if anything else remains, so a policy
+  -- is never silently dropped.
+  FOR pol_policy IN SELECT * FROM _has_role_policies LOOP
+    new_using := pol_policy.using_expr;
+    new_check := COALESCE(pol_policy.check_expr, pol_policy.using_expr);
+    new_using := regexp_replace(
+      new_using, '(public\.)?has_role\(auth\.uid\(\), ''admin''(::app_role|::text)?\)',
+      'public.is_admin()', 'g');
+    new_check := regexp_replace(
+      new_check, '(public\.)?has_role\(auth\.uid\(\), ''admin''(::app_role|::text)?\)',
+      'public.is_admin()', 'g');
+    IF new_using LIKE '%has_role(%' OR new_check LIKE '%has_role(%' THEN
+      RAISE EXCEPTION
+        'Unexpected has_role expression on policy %.% — refusing to guess',
+        pol_policy.tbl, pol_policy.polname;
+    END IF;
+
+    IF pol_policy.cmd = 'INSERT' THEN
+      -- INSERT policies carry only WITH CHECK.
+      EXECUTE format(
+        'CREATE POLICY %I ON public.%I FOR %s TO %s WITH CHECK (%s)',
+        pol_policy.polname, pol_policy.tbl, pol_policy.cmd,
+        pol_policy.roles_arg, new_check);
+    ELSIF pol_policy.cmd IN ('SELECT', 'DELETE') THEN
+      -- SELECT / DELETE policies carry only USING.
+      EXECUTE format(
+        'CREATE POLICY %I ON public.%I FOR %s TO %s USING (%s)',
+        pol_policy.polname, pol_policy.tbl, pol_policy.cmd,
+        pol_policy.roles_arg, new_using);
+    ELSE
+      -- ALL / UPDATE: USING and WITH CHECK.
+      EXECUTE format(
+        'CREATE POLICY %I ON public.%I FOR %s TO %s USING (%s) WITH CHECK (%s)',
+        pol_policy.polname, pol_policy.tbl, pol_policy.cmd,
+        pol_policy.roles_arg, new_using, new_check);
+    END IF;
+  END LOOP;
+END $$;
 
 -- -----------------------------------------------------------------------------
 -- 3. user_roles policies: admins only for writes, users may read their own roles.
