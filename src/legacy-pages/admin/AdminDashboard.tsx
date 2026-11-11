@@ -601,25 +601,25 @@ export default function AdminDashboard() {
 
           {/* Insights & Recent */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 pb-12">
-            <Card className="lg:col-span-2 border-none shadow-sm rounded-3xl bg-indigo-600 text-white overflow-hidden">
+            <Card className="lg:col-span-2 border-none shadow-sm rounded-3xl overflow-hidden">
               <CardHeader>
                 <div className="flex items-center gap-2">
-                  <Sparkles className="text-indigo-200" size={20} />
+                  <Sparkles className="text-primary" size={20} />
                   <CardTitle className="text-lg font-heading font-bold">Intelligence Insights</CardTitle>
                   {insightRows.length > 0 && !insightsQuery.data?.stale && (
-                    <Badge className="rounded-full bg-emerald-400/20 text-emerald-100 border-none text-[10px] font-bold uppercase">fresh</Badge>
+                    <Badge className="rounded-full bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border-none text-[10px] font-bold uppercase">fresh</Badge>
                   )}
                 </div>
-                <CardDescription className="text-indigo-100 text-xs">AI performance analysis, lead signals and anomaly alerts — last 30 days</CardDescription>
+                <CardDescription className="text-muted-foreground text-xs">AI performance analysis, lead signals and anomaly alerts — last 30 days</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 {insightsQuery.isLoading ? (
-                  <div className="py-8 text-center text-indigo-200">
+                  <div className="py-8 text-center text-muted-foreground">
                     <Loader2 size={32} className="mx-auto mb-2 animate-spin opacity-70" />
                     <p className="text-sm">Loading insights…</p>
                   </div>
                 ) : insightsError ? (
-                  <div className="py-6 text-center text-indigo-100">
+                  <div className="py-6 text-center text-muted-foreground">
                     <AlertCircle size={28} className="mx-auto mb-2 opacity-70" />
                     <p className="text-sm mb-3">{insightsError}</p>
                     <Button size="sm" variant="secondary" onClick={refreshInsights} disabled={generating}>
@@ -627,40 +627,40 @@ export default function AdminDashboard() {
                     </Button>
                   </div>
                 ) : insightRows.length === 0 ? (
-                  <div className="py-8 text-center text-indigo-200">
+                  <div className="py-8 text-center text-muted-foreground">
                     <Lightbulb size={32} className="mx-auto mb-2 opacity-50" />
                     <p className="text-sm">No insights yet — generating the first analysis.</p>
                   </div>
                 ) : (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     {insightRows.slice(0, 8).map((ins) => (
-                      <div key={ins.id} className="bg-white/10 backdrop-blur-sm p-4 rounded-2xl border border-white/10 hover:bg-white/15 transition-colors group">
+                      <div key={ins.id} className="bg-muted/50 p-4 rounded-2xl border border-border/60 hover:bg-muted transition-colors group">
                         <div className="flex items-start justify-between mb-2 gap-2">
                           <Badge className={cn(
-                            "rounded-full border-none px-2 py-0.5 text-[10px] font-bold uppercase",
-                            ins.severity === "high" ? "bg-red-400 text-red-950" :
-                            ins.severity === "medium" ? "bg-amber-400 text-amber-950" :
-                            "bg-emerald-400 text-emerald-950"
+                            "rounded-full px-2 py-0.5 text-[10px] font-bold uppercase",
+                            ins.severity === "high" ? "bg-red-500/10 text-red-600 dark:text-red-400" :
+                            ins.severity === "medium" ? "bg-amber-500/10 text-amber-600 dark:text-amber-400" :
+                            "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
                           )}>{ins.category}</Badge>
                           <div className="flex items-center gap-1.5">
                             {ins.target_url && (
-                              <a href={ins.target_url} target="_blank" rel="noreferrer" className="text-indigo-200 hover:text-white" aria-label={`Open ${ins.target_url}`}>
+                              <a href={ins.target_url} target="_blank" rel="noreferrer" className="text-muted-foreground hover:text-foreground" aria-label={`Open ${ins.target_url}`}>
                                 <ArrowUpRight size={14} />
                               </a>
                             )}
-                            <button type="button" onClick={() => dismissInsight(ins.id)} className="text-indigo-200/70 hover:text-white" aria-label="Dismiss insight">
+                            <button type="button" onClick={() => dismissInsight(ins.id)} className="text-muted-foreground/70 hover:text-foreground" aria-label="Dismiss insight">
                               <X size={14} />
                             </button>
                           </div>
                         </div>
-                        <div className="font-bold text-sm mb-1 line-clamp-2 group-hover:text-indigo-100 transition-colors">{ins.title}</div>
-                        {ins.body && <p className="text-[11px] text-indigo-100 leading-relaxed">{ins.body}</p>}
+                        <div className="font-bold text-sm mb-1 line-clamp-2 text-foreground transition-colors">{ins.title}</div>
+                        {ins.body && <p className="text-[11px] text-muted-foreground leading-relaxed">{ins.body}</p>}
                       </div>
                     ))}
                   </div>
                 )}
                 {(genError || insightsQuery.data?.stale) && (
-                  <p className="text-[11px] text-indigo-200/70">{genError ?? "Insights are over 12h old — refresh for a fresh analysis."}</p>
+                  <p className="text-[11px] text-muted-foreground/70">{genError ?? "Insights are over 12h old — refresh for a fresh analysis."}</p>
                 )}
                 <div className="pt-1 flex items-center justify-end">
                   <Button size="sm" variant="secondary" onClick={refreshInsights} disabled={generating}>

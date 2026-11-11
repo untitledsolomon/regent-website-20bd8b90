@@ -27,6 +27,10 @@ interface ChatMsg {
 const MAX_TOOL_ROUNDS = 6;
 const MAX_HISTORY_ROWS = 30;
 const TOOL_RESULT_LIMIT = 3000;
+// The provider fetch has no timeout of its own; an overdue model call would
+// otherwise dead-end the stream after `meta` with no error event. Cap the whole
+// request so the catch below can surface a real error and record a failure.
+const UPSTREAM_TIMEOUT_MS = 90_000;
 
 function SYSTEM_PROMPT(today: string): string {
   return [
@@ -108,7 +112,19 @@ export async function POST(req: Request) {
     .eq("conversation_id", convId)
     .order("created_at", { ascending: true });
   const historyRows = (history ?? []).slice(-MAX_HISTORY_ROWS);
-  while (historyRows.length && historyRows[0].role === "tool") historyRows.shift();
+  // A trimmed window must never start on an orphan: step past a leading tool
+  // row, or an assistant row whose tool_calls would arrive without their tool
+  // results (the round was cut by the slice). Sending either upstream throws
+  // the model off — it repeats the same calls, one of the failure loops seen.
+  while (
+    historyRows.length &&
+    (historyRows[0].role === "tool" ||
+      (historyRows[0].role === "assistant" &&
+        Array.isArray(historyRows[0].tool_calls) &&
+        historyRows[0].tool_calls.length > 0))
+  ) {
+    historyRows.shift();
+  }
   const msgs: ChatMsg[] = [];
   for (const row of historyRows) {
     if (row.role === "tool") {
@@ -138,6 +154,38 @@ export async function POST(req: Request) {
 
       let toolEvents: Array<{ tool: string; args: unknown; ok: boolean; preview: string }> = [];
 
+      // Hard cap on the whole request so a hung provider cannot dead-end the
+      // stream (see UPSTREAM_TIMEOUT_MS). Declared outside the try/catch so the
+      // catch can read its aborted state to give a clear timeout message.
+      const timeoutController = new AbortController();
+      const timeoutId = setTimeout(
+        () => timeoutController.abort(new Error("AI provider timed out")),
+        UPSTREAM_TIMEOUT_MS
+      );
+      const runToolCall = async (call: { function: { name: string; arguments: string } }) => {
+        const name = call.function.name;
+        const args = normalizeArgs(parseToolArgs(call.function.arguments));
+        let ok = false;
+        let preview = "";
+        if (!(ANALYTICS_TOOL_NAMES as readonly string[]).includes(name)) {
+          preview = `Unknown tool: ${name}`;
+        } else {
+          try {
+            const { data: result, error: rpcError } = await (cookie as any).rpc(name, args);
+            if (rpcError) {
+              preview = `RPC error: ${rpcError.message}`;
+            } else {
+              ok = true;
+              const text = JSON.stringify(result);
+              preview = text.length > TOOL_RESULT_LIMIT ? `${text.slice(0, TOOL_RESULT_LIMIT)}… (truncated)` : text;
+            }
+          } catch (e) {
+            preview = `Tool error: ${e instanceof Error ? e.message : String(e)}`;
+          }
+        }
+        return { name, args, ok, preview };
+      };
+
       send("meta", { conversation_id: convId, model: settings.model, feature });
 
       try {
@@ -156,7 +204,7 @@ export async function POST(req: Request) {
             method: "POST",
             headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
             body: JSON.stringify(payload),
-            signal: req.signal,
+            signal: AbortSignal.any([req.signal, timeoutController.signal]),
           });
           if (!upstream.ok) {
             const errText = await upstream.text().catch(() => "");
@@ -225,39 +273,24 @@ export async function POST(req: Request) {
             msgs.push({ role: "assistant", content: content || null, tool_calls: finalCalls });
             const roundToolMsgs = finalCalls.map((call) => ({ role: "tool" as const, content: "", tool_call_id: call.id }));
 
-            // Run the round's RPCs concurrently; results are emitted and stored in call order.
-            const results = await Promise.all(
-              finalCalls.map(async (call) => {
-                const name = call.function.name;
-                const valid = ANALYTICS_TOOL_NAMES.includes(name as (typeof ANALYTICS_TOOL_NAMES)[number]);
-                const args = normalizeArgs(parseToolArgs(call.function.arguments));
-                let ok = false;
-                let preview = "";
-                if (!valid) {
-                  preview = `Unknown tool: ${name}`;
-                } else {
-                  try {
-                    const { data: result, error: rpcError } = await (cookie as any).rpc(name, args);
-                    if (rpcError) {
-                      preview = `RPC error: ${rpcError.message}`;
-                    } else {
-                      ok = true;
-                      const text = JSON.stringify(result);
-                      preview = text.length > TOOL_RESULT_LIMIT ? `${text.slice(0, TOOL_RESULT_LIMIT)}… (truncated)` : text;
-                    }
-                  } catch (e) {
-                    preview = `Tool error: ${e instanceof Error ? e.message : String(e)}`;
-                  }
-                }
-                return { name, args, ok, preview };
-              })
-            );
-
-            for (let i = 0; i < results.length; i++) {
-              const res = results[i];
-              roundToolMsgs[i].content = res.preview;
-              send("tool_result", { tool: res.name, ok: res.ok, preview: res.preview.slice(0, 500) });
-              toolEvents.push({ tool: res.name, args: res.args, ok: res.ok, preview: res.preview.slice(0, 200) });
+            // Run the round's RPCs in call order, deduping identical (tool,
+            // normalized args) pairs: the model sometimes re-issues the same
+            // analytics call two or three times (a hung transcript shows
+            // analytics_daily ×3 in one round). One RPC, shared result — each
+            // call id still gets a tool message so the round stays valid.
+            type ToolResult = { name: string; args: Record<string, unknown>; ok: boolean; preview: string };
+            const seen: Map<string, ToolResult> = new Map();
+            for (let i = 0; i < finalCalls.length; i++) {
+              const call = finalCalls[i];
+              const key = `${call.function.name}|${JSON.stringify(normalizeArgs(parseToolArgs(call.function.arguments)))}`;
+              let result = seen.get(key);
+              if (!result) {
+                result = await runToolCall(call);
+                seen.set(key, result);
+              }
+              roundToolMsgs[i].content = result.preview;
+              send("tool_result", { tool: result.name, ok: result.ok, preview: result.preview.slice(0, 500) });
+              toolEvents.push({ tool: result.name, args: result.args, ok: result.ok, preview: result.preview.slice(0, 200) });
             }
             // Persist assistant(tool_calls) + tool messages, then relay to model.
             await (supabase as any).from("ai_messages").insert(
@@ -303,6 +336,7 @@ export async function POST(req: Request) {
             tool_events: toolEvents.length ? toolEvents : null,
           });
           await (supabase as any).from("ai_conversations").update({ updated_at: new Date().toISOString() }).eq("id", convId);
+          clearTimeout(timeoutId);
           send("done", {});
           controller.close();
           return;
@@ -311,7 +345,12 @@ export async function POST(req: Request) {
         // Exhausted tool rounds without a final answer.
         throw new Error("Assistant exceeded the maximum tool-call rounds.");
       } catch (err) {
-        const message = err instanceof Error ? err.message : "AI request failed";
+        clearTimeout(timeoutId);
+        const message = timeoutController.signal.aborted
+          ? "AI provider timed out after 90s — the model did not respond in time. Try again."
+          : err instanceof Error
+            ? err.message
+            : "AI request failed";
         if (message !== "Assistant exceeded the maximum tool-call rounds.") {
           // Log failures to the usage ledger too.
           await (supabase as any).from("ai_usage").insert({
