@@ -7,13 +7,13 @@
 //
 // Required env vars (set in Supabase Edge Function Secrets):
 //   RESEND_API_KEY
-//   NOTIFICATION_EMAIL     (used when `to` is not supplied by the caller)
+//   NOTIFICATION_EMAIL     (optional; used only when `to` is not supplied)
 
 import { corsHeaders } from "../_shared/cors.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
-const NOTIFICATION_EMAIL = Deno.env.get("NOTIFICATION_EMAIL")!;
+const NOTIFICATION_EMAIL = Deno.env.get("NOTIFICATION_EMAIL");
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 
 Deno.serve(async (req) => {
@@ -77,8 +77,8 @@ Deno.serve(async (req) => {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
-    if (!RESEND_API_KEY || !NOTIFICATION_EMAIL) {
-      console.error("Missing RESEND_API_KEY or NOTIFICATION_EMAIL secret");
+    if (!RESEND_API_KEY) {
+      console.error("send-ai-report missing RESEND_API_KEY secret");
       return new Response(JSON.stringify({ error: "Server configuration error" }), {
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -90,6 +90,17 @@ Deno.serve(async (req) => {
       : typeof to === "string" && to.trim()
         ? [to]
         : [];
+    const mailTo = recipients.length
+      ? recipients
+      : NOTIFICATION_EMAIL
+        ? [NOTIFICATION_EMAIL]
+        : [];
+    if (!mailTo.length) {
+      return new Response(JSON.stringify({ error: "No recipients and NOTIFICATION_EMAIL not set" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
 
     const res = await fetch("https://api.resend.com/emails", {
       method: "POST",
@@ -99,7 +110,7 @@ Deno.serve(async (req) => {
       },
       body: JSON.stringify({
         from: "Regent <updates@regent.systems>",
-        to: recipients.length ? recipients : [NOTIFICATION_EMAIL],
+        to: mailTo,
         subject,
         html,
       }),
