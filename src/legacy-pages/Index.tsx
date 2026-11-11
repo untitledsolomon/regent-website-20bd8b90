@@ -11,16 +11,13 @@ import { CapabilityCard, ArchitectureLayer, ModuleCard, IndustryCard, BlogCard, 
 import { GradientText } from "@/components/GradientText";
 import { capabilities, archLayers, modules, industries } from "@/data/siteData";
 import { createClient } from "@/lib/supabase/client";
+import { CapabilityRibbon } from "@/components/CapabilityRibbon";
 
 const AnimatedBackground = dynamic(
   () => import("@/components/AnimatedBackground").then((m) => m.AnimatedBackground),
   { ssr: false }
 );
 
-const AnimatedCounter = dynamic(
-  () => import("@/components/AnimatedCounter").then((m) => m.AnimatedCounter),
-  { ssr: false }
-);
 
 const LogoMarquee = dynamic(
   () => import("@/components/LogoMarquee").then((m) => m.LogoMarquee),
@@ -31,13 +28,6 @@ const TestimonialCarousel = dynamic(
   () => import("@/components/TestimonialCarousel").then((m) => m.TestimonialCarousel),
   { ssr: false }
 );
-
-const metrics = [
-  { n: "5", l: "Core Capabilities" },
-  { n: "6", l: "Architecture Layers" },
-  { n: "1", l: "Platform in Production" },
-  { n: "2", l: "Products in Development" },
-];
 
 // Staggered word reveal for the headline
 function StaggeredHeadline() {
@@ -248,26 +238,7 @@ export default function HomePage() {
             </div>
           </div>
 
-          {/* Metrics with animated counters */}
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 1.2, ease: [0.16, 1, 0.3, 1] }}
-            className="mt-20 grid grid-cols-2 md:grid-cols-4 border border-border rounded-xl overflow-hidden"
-          >
-            {metrics.map((s, i) => (
-              <div
-                key={i}
-                className={`px-6 md:px-8 py-5 md:py-7 ${i % 2 === 0 ? "bg-card" : "bg-surface"} ${i < 2 ? "border-b md:border-b-0 border-border" : ""} ${i % 2 !== 0 && i < 3 ? "border-l border-border" : ""} ${i % 2 === 0 && i > 0 ? "max-md:border-l-0" : ""} ${i < 3 ? "md:border-r md:border-r-border" : ""}`}
-              >
-                <AnimatedCounter
-                  value={s.n}
-                  className="font-heading text-[32px] font-semibold tracking-[-0.04em] text-text-primary block"
-                />
-                <div className="text-[13px] text-text-muted mt-1">{s.l}</div>
-              </div>
-            ))}
-          </motion.div>
+          <CapabilityRibbon items={modules.map((m) => m.name)} delay={1.2} className="mt-20" />
         </div>
       </section>
 

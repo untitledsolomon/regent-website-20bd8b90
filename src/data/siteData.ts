@@ -49,6 +49,7 @@ export interface Module {
 
 export interface Industry {
   icon: IconName;
+  primary?: boolean;
   name: string;
   desc: string;
   detail: string;
@@ -210,59 +211,67 @@ export const modules: Module[] = [
 export const industries: Industry[] = [
   {
     icon: 'BarChart',
+    primary: true,
     name: 'Finance',
-    desc: 'We integrate trading systems, risk platforms, and regulatory reporting infrastructure — enabling real-time data flows across the most complex financial architectures.',
-    detail: 'Financial institutions operate some of the most complex system landscapes in the world. Our engineers integrate trading platforms, risk systems, regulatory reporting infrastructure, and client management systems into real-time operational architectures — with zero tolerance for data inconsistency.',
-    useCases: ['Real-time trading system integration', 'Regulatory reporting automation', 'Risk data aggregation', 'Client data platform unification']
+    desc: 'Trading platforms, risk systems, and regulatory reporting, connected into one consistent operational picture.',
+    detail: 'Financial institutions run on some of the most layered system landscapes in existence. The work is making the layers agree: one record of exposure, one record of the client, and reporting drawn from the same data the desks use.',
+    useCases: ['Trading and risk systems that hold different versions of the same position', 'Regulatory reporting assembled by hand from separate sources', 'Risk data scattered across platforms', 'Client records split between departments']
   },
   {
     icon: 'Building',
+    primary: true,
     name: 'Government',
-    desc: 'We deliver mission-critical integration engineering for government agencies, connecting legacy systems with modern services while maintaining security and compliance.',
-    detail: 'Government agencies manage vast amounts of sensitive data across systems ranging from modern cloud applications to decades-old mainframe infrastructure. Regent delivers the integration engineering to connect these systems securely and reliably — without disrupting mission-critical services.',
-    useCases: ['Legacy system modernization', 'Cross-agency data sharing', 'Citizen service platform integration', 'Compliance reporting automation']
+    desc: 'Legacy systems and modern services connected without disrupting the services that depend on them.',
+    detail: 'Public institutions hold sensitive data across systems ranging from current cloud applications to decades-old mainframes. The work is connecting them securely and in stages, so services continue while the architecture changes.',
+    useCases: ['Legacy systems that cannot be replaced in one step', 'Data that cannot be shared across agencies', 'Citizen services built on disconnected platforms', 'Compliance reporting compiled manually']
   },
   {
     icon: 'Globe',
+    primary: true,
     name: 'Infrastructure',
-    desc: 'We build operational technology integration for critical infrastructure operators — connecting OT systems with enterprise platforms and monitoring infrastructure.',
-    detail: 'Critical infrastructure operators need integration architectures that connect operational technology with enterprise systems — while maintaining the reliability and security standards that critical operations demand. Our team builds exactly that.',
-    useCases: ['SCADA system integration', 'Asset management platform connectivity', 'Maintenance workflow automation', 'Operations center data consolidation']
+    desc: 'Operational technology connected to enterprise systems, under the reliability standards critical operations require.',
+    detail: 'Operators of critical infrastructure need operational technology and enterprise systems to share a coherent picture without compromising the reliability and security of either side.',
+    useCases: ['Control systems isolated from enterprise platforms', 'Asset records that disagree with field reality', 'Maintenance work coordinated across separate tools', 'Operations centers without a consolidated view']
   },
   {
     icon: 'Zap',
+    primary: true,
     name: 'Enterprise',
-    desc: 'We deliver end-to-end enterprise integration across ERP, CRM, HRMS, and custom systems — eliminating data silos and enabling unified operational intelligence.',
-    detail: "Large enterprises typically manage dozens of business applications from different vendors and technology generations. Regent's consulting teams eliminate data silos and deliver a unified operational view across the entire enterprise application landscape.",
-    useCases: ['ERP and CRM unification', 'Supply chain data integration', 'HR system connectivity', 'Business intelligence data consolidation']
+    desc: 'ERP, CRM, HR, and custom systems unified into one operational view.',
+    detail: 'Large organizations accumulate dozens of applications from different vendors and eras. Each is sound on its own. The cost sits in the gaps between them, in data that has to be re-entered, reconciled, and explained.',
+    useCases: ['ERP and CRM records that never fully reconcile', 'Supply chain data spread across systems', 'HR systems disconnected from operations', 'Reporting that depends on manual consolidation']
   },
   {
     icon: 'Monitor',
+    primary: true,
     name: 'Energy',
-    desc: 'We integrate SCADA systems, asset management platforms, and market data feeds into unified operational architectures for energy companies.',
-    detail: 'Energy companies operate at the intersection of operational technology and enterprise systems. Our engineers integrate SCADA systems, energy management platforms, and market data feeds into unified operational architectures designed for resilience.',
-    useCases: ['SCADA and EMS integration', 'Market data feed management', 'Asset performance monitoring', 'Trading and scheduling system connectivity']
+    desc: 'SCADA systems, asset platforms, and market data brought into unified operational architectures designed for resilience.',
+    detail: 'Energy companies operate where operational technology meets enterprise systems and live market data. The work is keeping those worlds consistent and available, because the cost of a gap is paid in real time.',
+    useCases: ['SCADA and energy management systems working apart', 'Market data feeds handled separately from operations', 'Asset performance tracked in disconnected tools', 'Scheduling and trading systems out of step']
   },
   {
     icon: 'BookOpen',
+    primary: false,
     name: 'Education',
-    desc: 'We unify Student Information Systems (SIS) and Learning Management Systems (LMS) into resilient, event-driven architectures for large-scale educational institutions.',
-    detail: 'Educational institutions face the challenge of fragmented data across Student Information Systems, Learning Management Systems, and administrative portals. Regent builds unified, event-driven architectures that ensure data consistency and enable real-time student performance insights.',
-    useCases: ['SIS and LMS real-time synchronization', 'Unified student performance dashboards', 'Automated course enrollment workflows', 'Educational data warehouse population']
+    desc: 'Student information and learning systems connected into one consistent record.',
+    detail: '',
+    useCases: []
   },
   {
     icon: 'Home',
+    primary: false,
     name: 'Real Estate',
-    desc: 'We bridge the gap between physical property data and digital investment platforms, enabling real-time portfolio analytics and asset tokenization.',
-    detail: 'Real estate firms and investment platforms require a seamless bridge between physical asset data and digital portfolio management. We integrate property management ERPs with analytical platforms and blockchain ledgers to enable real-time reporting and asset tokenization.',
-    useCases: ['Property management ERP integration', 'Real-time portfolio performance analytics', 'Real estate asset tokenization oracles', 'Automated rent-roll reconciliation']
+    desc: 'Property management data connected to portfolio analytics and investment platforms.',
+    detail: '',
+    useCases: []
   },
   {
     icon: 'Zap',
+    primary: false,
     name: 'Media',
-    desc: 'We engineer high-throughput streaming data fabrics and edge-computing microservices for global broadcasters and content distributors.',
-    detail: 'Media and entertainment organizations must manage massive data flows and deliver low-latency content globally. We engineer streaming analytics fabrics and edge-computing microservices that optimize content distribution and audience engagement.',
-    useCases: ['Multi-CDN streaming analytics', 'Edge-based content personalization', 'Real-time audience engagement telemetry', 'Automated ad-insertion orchestration']
+    desc: 'High-volume streaming and distribution data unified across platforms.',
+    detail: '',
+    useCases: []
   },
 ];
 

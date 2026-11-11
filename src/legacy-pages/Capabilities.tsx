@@ -1,28 +1,16 @@
 "use client";
 
+import { modules } from "@/data/siteData";
 import { motion } from "framer-motion";
+import { CapabilityRibbon } from "@/components/CapabilityRibbon";
 import Link from "next/link";
 import { Icons } from "@/components/Icons";
 import { RevealOnScroll } from "@/components/RevealOnScroll";
 import { CTASection } from "@/components/CardComponents";
-import { AnimatedCounter } from "@/components/AnimatedCounter";
 import { GradientText } from "@/components/GradientText";
 import { InteractiveDemo, type DemoStep } from "@/components/InteractiveDemo";
 import { detailedCapabilities } from "@/data/siteData";
 import { ChartArea, Cog, Puzzle, Ruler, Search } from "lucide-react";
-
-const capabilityStats = [
-  { label: "Capability Areas", value: "5" },
-  { label: "Architecture Layers", value: "6" },
-  { label: "Platform in Production", value: "1" },
-  { label: "Products in Development", value: "2" },
-];
-
-const approachComparison = [
-  { approach: "In-House Teams", timeline: "12–18 months", risk: "High", scalability: "Limited", expertise: "Single domain" },
-  { approach: "Traditional Consultancies", timeline: "6–12 months", risk: "Medium", scalability: "Project-bound", expertise: "General" },
-  { approach: "Regent", timeline: "8–16 weeks", risk: "Low", scalability: "Ongoing partnership", expertise: "Deep integration", highlighted: true },
-];
 
 const workflowSteps: DemoStep[] = [
   {
@@ -152,101 +140,7 @@ export default function CapabilitiesPage() {
             </p>
           </motion.div>
 
-          {/* Stats */}
-          <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.3 }}
-            className="grid grid-cols-2 md:grid-cols-4 gap-6 mt-10"
-          >
-            {capabilityStats.map((stat, i) => (
-              <motion.div
-                key={stat.label}
-                initial={{ opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.4 + i * 0.1 }}
-                className="bg-card border border-border rounded-xl p-5"
-              >
-                <div className="font-heading text-[clamp(28px,3vw,36px)] font-semibold tracking-[-0.03em] text-text-primary">
-                  <AnimatedCounter value={stat.value} />
-                </div>
-                <div className="font-mono text-[11px] tracking-[0.06em] uppercase text-text-muted mt-1">
-                  {stat.label}
-                </div>
-              </motion.div>
-            ))}
-          </motion.div>
-        </div>
-      </section>
-
-      {/* Comparison table */}
-      <section className="py-[100px] bg-surface">
-        <div className="section-container">
-          <RevealOnScroll>
-            <div className="text-center mb-12">
-              <div className="font-mono text-[11px] tracking-[0.12em] uppercase text-primary mb-4">
-                COMPARISON
-              </div>
-              <h2 className="text-[clamp(28px,4vw,48px)] font-heading font-semibold tracking-[-0.03em] text-text-primary mb-4">
-                Why Regent Is Different
-              </h2>
-              <p className="text-[17px] text-text-secondary max-w-[560px] mx-auto leading-[1.65]">
-                Not all approaches to systems integration are equal. See how Regent's consulting model compares.
-              </p>
-            </div>
-          </RevealOnScroll>
-          <RevealOnScroll delay={0.15}>
-            <div className="overflow-x-auto">
-              <table className="w-full border-collapse">
-                <thead>
-                  <tr>
-                    {["Approach", "Timeline", "Risk", "Scalability", "Expertise"].map((h) => (
-                      <th
-                        key={h}
-                        className="font-mono text-[11px] tracking-[0.1em] uppercase text-text-muted text-left p-4 border-b border-border"
-                      >
-                        {h}
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {approachComparison.map((row) => {
-                    // All cells use the same color treatment on the highlighted row
-                    const cellCls = row.highlighted
-                      ? "text-primary"
-                      : "text-text-secondary";
-                    return (
-                      <tr
-                        key={row.approach}
-                        className={row.highlighted ? "bg-accent-light" : ""}
-                      >
-                        <td
-                          className={`p-4 border-b border-border font-heading text-[15px] font-semibold ${
-                            row.highlighted ? "text-primary" : "text-text-primary"
-                          }`}
-                        >
-                          {row.approach}
-                        </td>
-                        <td className={`p-4 border-b border-border text-sm font-medium ${cellCls}`}>
-                          {row.timeline}
-                        </td>
-                        <td className={`p-4 border-b border-border text-sm ${cellCls}`}>
-                          {row.risk}
-                        </td>
-                        <td className={`p-4 border-b border-border text-sm ${cellCls}`}>
-                          {row.scalability}
-                        </td>
-                        <td className={`p-4 border-b border-border text-sm ${cellCls}`}>
-                          {row.expertise}
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-          </RevealOnScroll>
+          <CapabilityRibbon items={modules.map((m) => m.name)} delay={0.3} className="mt-10" />
         </div>
       </section>
 

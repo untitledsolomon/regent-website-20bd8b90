@@ -4,7 +4,6 @@ import { motion } from "framer-motion";
 import { RevealOnScroll } from "@/components/RevealOnScroll";
 import { CTASection } from "@/components/CardComponents";
 import { Icons } from "@/components/Icons";
-import { AnimatedCounter } from "@/components/AnimatedCounter";
 
 const values = [
   {
@@ -21,15 +20,8 @@ const values = [
   },
   {
     title: "Security by Design",
-    desc: "Security is architectural, not cosmetic. Every system we build follows zero-trust principles, end-to-end encryption, and compliance-ready audit infrastructure.",
+    desc: "Security is architectural, not cosmetic. Access control, encryption, and audit trails are designed into each system from the start.",
   },
-];
-
-const stats = [
-  { n: "2026", l: "Year Founded" },
-  { n: "6+", l: "Projects Delivered" },
-  { n: "5+", l: "Team" },
-  { n: "1", l: "Core Mission" },
 ];
 
 const milestones = [
@@ -90,26 +82,6 @@ export default function AboutPage() {
               We are early by design — focused on building the core infrastructure layer before scaling outward. Regent is being built to operate where complexity is highest and failure is not an option.
             </p>
           </motion.div>
-        </div>
-      </section>
-
-      {/* Stats */}
-      <section className="py-0 border-b border-border">
-        <div className="section-container">
-          <div className="grid grid-cols-2 md:grid-cols-4">
-            {stats.map((s, i) => (
-              <div
-                key={s.l}
-                className={`py-10 px-8 ${i < 3 ? "border-r border-border" : ""} ${i % 2 === 0 ? "bg-card" : "bg-surface"}`}
-              >
-                <AnimatedCounter
-                  value={s.n}
-                  className="font-heading text-[36px] font-semibold tracking-[-0.04em] text-text-primary block"
-                />
-                <div className="text-[13px] text-text-muted mt-1.5">{s.l}</div>
-              </div>
-            ))}
-          </div>
         </div>
       </section>
 

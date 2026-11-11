@@ -1,41 +1,37 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { CapabilityRibbon } from "@/components/CapabilityRibbon";
 import Link from "next/link";
 import { Shield, Database, Zap, BrainCircuit } from "lucide-react";
 import { Icons } from "@/components/Icons";
 import { RevealOnScroll } from "@/components/RevealOnScroll";
 import { CTASection } from "@/components/CardComponents";
-import { AnimatedCounter } from "@/components/AnimatedCounter";
 import { GradientText } from "@/components/GradientText";
 import { industriesDetailed } from "@/data/siteData";
 
-const industryStats = [
-  { label: "Industry Sectors", value: "8" },
-  { label: "Capability Areas", value: "5" },
-  { label: "Architecture Layers", value: "6" },
-  { label: "Platform in Production", value: "1" },
-];
+const mainIndustries = industriesDetailed.filter((i) => i.primary);
+const otherIndustries = industriesDetailed.filter((i) => !i.primary);
 
 const crossIndustryBenefits = [
   {
-    title: "Regulatory Compliance",
-    desc: "We design and implement compliance-ready integration architectures for GDPR, SOX, HIPAA, PCI-DSS, and industry-specific regulations.",
+    title: "Regulatory Alignment",
+    desc: "Integration architectures designed to operate within the regulatory requirements of each sector, with audit trails built in.",
     Icon: Shield,
   },
   {
     title: "Legacy Modernization",
-    desc: "Our engineers connect decades-old systems to modern platforms — without migration risk or operational disruption.",
+    desc: "Decades-old systems connected to modern platforms in stages, so operations continue while the architecture changes.",
     Icon: Database,
   },
   {
-    title: "Real-Time Operations",
-    desc: "We build sub-second data synchronization across all connected systems for time-critical operational decisions.",
+    title: "Timely Data",
+    desc: "Information kept current across connected systems, so time-critical decisions rest on the same facts.",
     Icon: Zap,
   },
   {
     title: "Operational Intelligence",
-    desc: "Our teams embed AI-powered insights that span system boundaries, revealing patterns invisible to siloed analytics.",
+    desc: "Analysis embedded across system boundaries, surfacing patterns that isolated reporting cannot show.",
     Icon: BrainCircuit,
   },
 ];
@@ -58,40 +54,16 @@ export default function IndustriesPage() {
               INDUSTRIES
             </div>
             <h1 className="text-[clamp(36px,5vw,64px)] font-heading font-semibold tracking-[-0.04em] leading-[1.0] text-text-primary mb-6">
-              Deep expertise in sectors that{" "}
-              <GradientText>cannot afford failure</GradientText>
+              Built for environments where{" "}
+              <GradientText>failure is expensive</GradientText>
             </h1>
             <p className="text-[clamp(16px,2vw,20px)] font-light text-text-secondary leading-[1.65] max-w-[560px]">
-              Regent delivers integration consulting and engineering for
-              industries where operational complexity demands expertise—not just
-              technology.
+              Systems for sectors where operational complexity is high and
+              the tolerance for inconsistency is low.
             </p>
           </motion.div>
 
-          {/* Stats */}
-          <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.3 }}
-            className="grid grid-cols-2 md:grid-cols-4 gap-6 mt-10"
-          >
-            {industryStats.map((stat, i) => (
-              <motion.div
-                key={stat.label}
-                initial={{ opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.4 + i * 0.1 }}
-                className="bg-card border border-border rounded-xl p-5"
-              >
-                <div className="font-heading text-[clamp(28px,3vw,36px)] font-semibold tracking-[-0.03em] text-text-primary">
-                  <AnimatedCounter value={stat.value} />
-                </div>
-                <div className="font-mono text-[11px] tracking-[0.06em] uppercase text-text-muted mt-1">
-                  {stat.label}
-                </div>
-              </motion.div>
-            ))}
-          </motion.div>
+          <CapabilityRibbon items={mainIndustries.map((i) => i.name)} delay={0.3} className="mt-10" />
 
           {/* Jump-link navigation */}
           <motion.div
@@ -103,7 +75,7 @@ export default function IndustriesPage() {
             <span className="font-mono text-[11px] tracking-[0.12em] uppercase text-text-muted self-center mr-2">
               JUMP TO:
             </span>
-            {industriesDetailed.map((ind) => (
+            {mainIndustries.map((ind) => (
               <a
                 key={ind.name}
                 href={`#${ind.name.toLowerCase().replace(/\s+/g, "-")}`}
@@ -117,7 +89,7 @@ export default function IndustriesPage() {
       </section>
 
       {/* Industry Details */}
-      {industriesDetailed.map((ind, idx) => {
+      {mainIndustries.map((ind, idx) => {
         const IconComp = Icons[ind.icon] || Icons.Globe;
         const anchorId = ind.name.toLowerCase().replace(/\s+/g, "-");
         return (
@@ -143,7 +115,7 @@ export default function IndustriesPage() {
                   <RevealOnScroll delay={0.2}>
                     <div className="bg-surface border border-border rounded-xl p-8">
                       <div className="font-mono text-[11px] tracking-[0.12em] uppercase text-primary mb-5">
-                        EXAMPLE USE CASES
+                        TYPICAL PROBLEMS
                       </div>
                       {ind.useCases.map((uc, ucIdx) => (
                         <motion.div
@@ -167,12 +139,33 @@ export default function IndustriesPage() {
                 </div>
               </div>
             </section>
-            {idx < industriesDetailed.length - 1 && (
+            {idx < mainIndustries.length - 1 && (
               <hr className="border-t border-border" />
             )}
           </div>
         );
       })}
+
+      {/* Other sectors, quick list */}
+      <section className="py-16 bg-surface border-t border-border">
+        <div className="section-container">
+          <RevealOnScroll>
+            <div className="font-mono text-[11px] tracking-[0.12em] uppercase text-primary mb-6">
+              ALSO ACROSS
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-px bg-border border border-border rounded-xl overflow-hidden">
+              {otherIndustries.map((ind) => (
+                <div key={ind.name} className="bg-card p-6">
+                  <h3 className="font-heading text-base font-semibold tracking-[-0.02em] text-text-primary mb-2">
+                    {ind.name}
+                  </h3>
+                  <p className="text-sm text-text-secondary leading-[1.65]">{ind.desc}</p>
+                </div>
+              ))}
+            </div>
+          </RevealOnScroll>
+        </div>
+      </section>
 
       {/* Single consolidated CTA after all industries */}
       <section className="py-16 bg-card border-t border-border">
@@ -184,8 +177,8 @@ export default function IndustriesPage() {
                   Ready to discuss your use case?
                 </h3>
                 <p className="text-[15px] text-text-secondary max-w-[480px] leading-[1.65]">
-                  Our engineers have deep domain expertise across every industry
-                  above. Tell us where you're stuck.
+                  Describe the environment and the problem. The first
+                  conversation is about the system, not the sales process.
                 </p>
               </div>
               <Link
@@ -213,8 +206,7 @@ export default function IndustriesPage() {
                 Universal Capabilities
               </h2>
               <p className="text-[17px] text-text-secondary max-w-[560px] mx-auto leading-[1.65]">
-                Core capabilities that deliver value regardless of industry
-                vertical.
+                Capabilities that apply in every sector.
               </p>
             </div>
           </RevealOnScroll>

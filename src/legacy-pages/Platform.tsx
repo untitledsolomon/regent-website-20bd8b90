@@ -1,23 +1,16 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { CapabilityRibbon } from "@/components/CapabilityRibbon";
 import Link from "next/link";
 import { Icons } from "@/components/Icons";
 import { SectionHeader } from "@/components/SectionHeader";
 import { RevealOnScroll } from "@/components/RevealOnScroll";
 import { CapabilityCard, ArchitectureLayer, ModuleCard, CTASection } from "@/components/CardComponents";
-import { AnimatedCounter } from "@/components/AnimatedCounter";
 import { GradientText } from "@/components/GradientText";
 import { InteractiveDemo, type DemoStep } from "@/components/InteractiveDemo";
 import { archLayers, modules } from "@/data/siteData";
 import { ChartArea, Cog, Ruler, Search } from "lucide-react";
-
-const platformStats = [
-  { label: "Capability Areas", value: "5" },
-  { label: "Architecture Layers", value: "6" },
-  { label: "Platform in Production", value: "1" },
-  { label: "Products in Development", value: "2" },
-];
 
 const deploymentOptions = [
   { title: "Cloud-Native", desc: "Fully managed deployments on AWS, Azure, or GCP with auto-scaling, zero-downtime releases, and global edge distribution.", icon: "Globe" as const },
@@ -199,28 +192,7 @@ export default function PlatformPage() {
             </p>
           </motion.div>
 
-          {/* Stats bar */}
-          <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
-            className="grid grid-cols-2 md:grid-cols-4 gap-6 mt-4"
-          >
-            {platformStats.map((stat, i) => (
-              <motion.div
-                key={stat.label}
-                initial={{ opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.4 + i * 0.1 }}
-                className="bg-card border border-border rounded-xl p-5"
-              >
-                <div className="font-heading text-[clamp(28px,3vw,36px)] font-semibold tracking-[-0.03em] text-text-primary">
-                  <AnimatedCounter value={stat.value} />
-                </div>
-                <div className="font-mono text-[11px] tracking-[0.06em] uppercase text-text-muted mt-1">{stat.label}</div>
-              </motion.div>
-            ))}
-          </motion.div>
+          <CapabilityRibbon items={modules.map((m) => m.name)} delay={0.3} className="mt-4" />
         </div>
       </section>
 
@@ -237,7 +209,7 @@ export default function PlatformPage() {
                 Unlike point-to-point integration tools or single-purpose middleware, we provide a complete approach to the entire integration and automation lifecycle — from assessment through ongoing optimization.
               </p>
               <div className="flex flex-col gap-3">
-                {['Enterprise-grade security and compliance', 'Deploy on-premises, cloud, or hybrid', 'Service levels and support defined per engagement', 'Designed to grow with the organization'].map(item => (
+                {['Security and audit built into the architecture', 'Deploy on-premises, cloud, or hybrid', 'Service levels and support defined per engagement', 'Designed to grow with the organization'].map(item => (
                   <div key={item} className="flex items-center gap-2.5">
                     <div className="text-primary flex-shrink-0"><Icons.Check /></div>
                     <span className="text-[15px] text-text-primary">{item}</span>
@@ -384,9 +356,9 @@ export default function PlatformPage() {
           </RevealOnScroll>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {[
-              { icon: 'Shield' as const, title: 'Zero-Trust Architecture', desc: 'Every component operates on zero-trust principles. All traffic is authenticated, encrypted, and logged.' },
-              { icon: 'Monitor' as const, title: 'Compliance-Ready', desc: 'We build systems that meet SOC 2, ISO 27001, and industry-specific compliance requirements from day one.' },
-              { icon: 'Database' as const, title: 'Data Residency Controls', desc: 'Configure data residency at the field level. Comply with GDPR, CCPA, and regional data sovereignty requirements.' },
+              { icon: 'Shield' as const, title: 'Access Control by Design', desc: 'Components are designed to authenticate, encrypt, and log traffic rather than trust it by default.' },
+              { icon: 'Monitor' as const, title: 'Regulatory Alignment', desc: 'Systems are designed to operate within the regulatory requirements of the sector they serve.' },
+              { icon: 'Database' as const, title: 'Data Residency', desc: 'Where data lives is decided by design, so information stays inside the boundaries the organization defines.' },
               { icon: 'Zap' as const, title: 'Reliability by Design', desc: 'Redundancy, automated recovery, and continuous monitoring are built into the architecture rather than added afterward.' },
               { icon: 'Globe' as const, title: 'Environment-Specific Deployment', desc: 'Systems are deployed to fit the environment they run in, with data kept inside the boundaries the organization defines.' },
               { icon: 'FileText' as const, title: 'Audit & Compliance', desc: 'Complete audit trails for all system activity. Configurable retention policies for regulatory compliance.' },

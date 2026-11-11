@@ -2,20 +2,12 @@
 
 import { motion } from "framer-motion";
 import { RevealOnScroll } from "@/components/RevealOnScroll";
-import { AnimatedCounter } from "@/components/AnimatedCounter";
 import { GradientText } from "@/components/GradientText";
 import { Icons } from "@/components/Icons";
 import { createClient } from "@/lib/supabase/client";
 import Image from "next/image";
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
-
-const heroStats = [
-  { value: "5", label: "Core Capabilities" },
-  { value: "6", label: "Architecture Layers" },
-  { value: "1", label: "Platform in Production" },
-  { value: "2", label: "Products in Development" },
-];
 
 interface CaseStudy {
   id: string;
@@ -68,19 +60,6 @@ export default function CaseStudiesPage() {
             </p>
           </motion.div>
 
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3, duration: 0.6 }}
-            className="grid grid-cols-2 md:grid-cols-4 gap-4"
-          >
-            {heroStats.map((s, i) => (
-              <div key={i} className="bg-card border border-border rounded-xl p-6 text-center">
-                <AnimatedCounter value={s.value} className="font-heading text-[28px] font-semibold tracking-[-0.04em] text-text-primary block" />
-                <div className="text-[13px] text-text-muted mt-1">{s.label}</div>
-              </div>
-            ))}
-          </motion.div>
         </div>
       </section>
 
