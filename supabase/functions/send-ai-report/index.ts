@@ -109,7 +109,7 @@ Deno.serve(async (req) => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        from: "Regent <updates@regent.systems>",
+        from: "Regent <updates@regentplatform.com>",
         to: mailTo,
         subject,
         html,
