@@ -36,7 +36,7 @@ export default function PrivacyPolicy() {
 
           <section>
             <h2 className="font-heading text-xl font-semibold text-foreground mb-3">5. Your Rights</h2>
-            <p>Depending on your location, you may have the right to access, correct, delete, or restrict the processing of your personal data. To exercise these rights, contact us at <a href="mailto:privacy@regent.systems" className="text-primary hover:underline">privacy@regent.systems</a>.</p>
+            <p>Depending on your location, you may have the right to access, correct, delete, or restrict the processing of your personal data. To exercise these rights, contact us at <a href="mailto:contact@regentplatform.com" className="text-primary hover:underline">contact@regentplatform.com</a>.</p>
           </section>
 
           <section>
@@ -51,7 +51,7 @@ export default function PrivacyPolicy() {
 
           <section>
             <h2 className="font-heading text-xl font-semibold text-foreground mb-3">8. Contact</h2>
-            <p>If you have questions about this privacy policy, please contact us at <a href="mailto:privacy@regent.systems" className="text-primary hover:underline">privacy@regent.systems</a>.</p>
+            <p>If you have questions about this privacy policy, please contact us at <a href="mailto:contact@regentplatform.com" className="text-primary hover:underline">contact@regentplatform.com</a>.</p>
           </section>
         </div>
       </div>

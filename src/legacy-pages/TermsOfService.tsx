@@ -50,7 +50,7 @@ export default function TermsOfService() {
 
           <section>
             <h2 className="font-heading text-xl font-semibold text-foreground mb-3">9. Contact</h2>
-            <p>For questions about these terms, please contact us at <a href="mailto:legal@regent.systems" className="text-primary hover:underline">legal@regent.systems</a>.</p>
+            <p>For questions about these terms, please contact us at <a href="mailto:contact@regentplatform.com" className="text-primary hover:underline">contact@regentplatform.com</a>.</p>
           </section>
         </div>
       </div>

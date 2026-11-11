@@ -66,8 +66,8 @@ export default function RefundPolicy() {
             <h2 className="font-heading text-xl font-semibold text-foreground mb-3">6. How to Request a Refund</h2>
             <p>
               To request a refund, email us at{" "}
-              <a href="mailto:billing@regent.systems" className="text-primary hover:underline">
-                billing@regent.systems
+              <a href="mailto:contact@regentplatform.com" className="text-primary hover:underline">
+                contact@regentplatform.com
               </a>{" "}
               with your account email and the reason for your request. We aim to respond
               within 2 business days. Approved refunds are issued to your original payment
@@ -98,8 +98,8 @@ export default function RefundPolicy() {
             <h2 className="font-heading text-xl font-semibold text-foreground mb-3">9. Contact</h2>
             <p>
               Questions about this policy can be sent to{" "}
-              <a href="mailto:billing@regent.systems" className="text-primary hover:underline">
-                billing@regent.systems
+              <a href="mailto:contact@regentplatform.com" className="text-primary hover:underline">
+                contact@regentplatform.com
               </a>
               .
             </p>

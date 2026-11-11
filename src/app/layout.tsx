@@ -36,8 +36,11 @@ const organizationJsonLd = {
   logo: `${SITE_URL}/icon-512.png`,
   description:
     'Regent builds Axis and other business systems for growing businesses that have outgrown spreadsheets and disconnected tools.',
-  // TODO: add the real profile URLs (LinkedIn, X, Instagram, TikTok, YouTube) so Google can link them to one entity.
-  sameAs: [] as string[],
+  sameAs: [
+    'https://www.facebook.com/profile.php?id=61579513311384',
+    'https://www.linkedin.com/company/regent-technologies',
+    'https://www.instagram.com/regent.technologies_/',
+  ],
 }
 
 export default function RootLayout({
