@@ -23,32 +23,6 @@ export const metadata: Metadata = {
 }
 
 export default function HomePage() {
-  const jsonLd = {
-    '@context': 'https://schema.org',
-    '@type': 'Organization',
-    name: 'Regent',
-    url: process.env.NEXT_PUBLIC_SITE_URL || 'https://www.regentplatform.com',
-    description:
-      'Regent builds Axis and other business systems for growing businesses.',
-    makesOffer: {
-      '@type': 'Offer',
-      itemOffered: {
-        '@type': 'SoftwareApplication',
-        name: 'Axis',
-        applicationCategory: 'BusinessApplication',
-        description:
-          "Axis is Regent's all-in-one business operations platform: invoicing, ledger accounting, inventory, and HR in one system.",
-      },
-    },
-  }
-
-  return (
-    <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-      />
-      <Index />
-    </>
-  )
+  // Organization JSON-LD is rendered once, server-side, in the root layout.
+  return <Index />
 }
