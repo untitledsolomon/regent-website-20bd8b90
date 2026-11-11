@@ -1,13 +1,14 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/useAuth";
 import {
   FileText, TrendingUp, TrendingDown, Activity, Eye,
   ArrowUpRight, Download, Filter, Calendar as CalendarIcon,
-  Sparkles, AlertCircle, TrendingUp as TrendingUpIcon, Lightbulb,
+  Sparkles, AlertCircle, Lightbulb, Loader2, X, RefreshCw,
   Users, Globe, Monitor,
 } from "lucide-react";
 import { formatDistanceToNow, format, parseISO } from "date-fns";
@@ -26,7 +27,6 @@ import type {
   BlogPost,
   CaseStudy,
   Resource,
-  ContentInsight,
 } from "@/types/admin";
 import {
   useAnalytics, downloadCsv, defaultParams, CONTENT_TYPES, CHANNELS, DEVICES,
@@ -37,7 +37,16 @@ interface Stats {
   posts: { total: number; published: number };
   caseStudies: { total: number; published: number };
   resources: { total: number; published: number };
-  insights: ContentInsight[];
+}
+
+interface InsightUi {
+  id: string;
+  category: string;
+  severity: "low" | "medium" | "high";
+  title: string;
+  body: string | null;
+  target_url: string | null;
+  generated_at: string;
 }
 
 interface RecentItem {
@@ -46,6 +55,12 @@ interface RecentItem {
   type: "post" | "case_study" | "resource";
   updated_at: string;
 }
+
+const EMPTY_STATS: Stats = {
+  posts: { total: 0, published: 0 },
+  caseStudies: { total: 0, published: 0 },
+  resources: { total: 0, published: 0 },
+};
 
 const CHANNEL_COLORS: Record<string, string> = {
   paid: "#4F46E5", email: "#0EA5E9", social: "#C084FC", organic_search: "#22C55E",
@@ -72,15 +87,6 @@ function formatClock(s: number | null): string {
 export default function AdminDashboard() {
   const supabase = createClient();
   const { user } = useAuth();
-  const [stats, setStats] = useState<Stats>({
-    posts: { total: 0, published: 0 },
-    caseStudies: { total: 0, published: 0 },
-    resources: { total: 0, published: 0 },
-    insights: [],
-  });
-  const [newContent, setNewContent] = useState(0);
-  const [recent, setRecent] = useState<RecentItem[]>([]);
-  const [loadingContent, setLoadingContent] = useState(true);
 
   // Date range + filters
   const [preset, setPreset] = useState<number | null>(30);
@@ -111,24 +117,26 @@ export default function AdminDashboard() {
   const analytics = useAnalytics(params);
   const o = analytics.overview;
 
-  useEffect(() => {
-    const load = async () => {
-      const [postsRes, csRes, resRes, insightsRes] = await Promise.all([
+  // Cached content stats + recent activity; refetches only when the date
+  // filter (p_from) changes, not on every return to the dashboard.
+  const contentQuery = useQuery({
+    queryKey: ["admin", "dashboard-content", params.p_from],
+    staleTime: 60_000,
+    queryFn: async (): Promise<{ stats: Stats; recent: RecentItem[]; newContent: number }> => {
+      const [postsRes, csRes, resRes] = await Promise.all([
         supabase.from("blog_posts").select("id, title, published, updated_at, created_at"),
         supabase.from("case_studies").select("id, title, published, updated_at, created_at"),
         supabase.from("resources").select("id, title, published, updated_at, created_at"),
-        (supabase as any).rpc("get_content_insights"),
       ]);
       const posts = (postsRes.data as Partial<BlogPost>[]) || [];
       const cs = (csRes.data as Partial<CaseStudy>[]) || [];
       const res = (resRes.data as Partial<Resource>[]) || [];
 
-      setStats({
+      const stats = {
         posts: { total: posts.length, published: posts.filter((p) => p.published).length },
         caseStudies: { total: cs.length, published: cs.filter((c) => c.published).length },
         resources: { total: res.length, published: res.filter((r) => r.published).length },
-        insights: (insightsRes.data as ContentInsight[]) || [],
-      });
+      };
 
       const all: RecentItem[] = [
         ...posts.map((p) => ({ id: p.id!, title: p.title!, type: "post" as const, updated_at: p.updated_at! })),
@@ -136,7 +144,6 @@ export default function AdminDashboard() {
         ...res.map((r) => ({ id: r.id!, title: r.title!, type: "resource" as const, updated_at: r.updated_at! })),
       ];
       all.sort((a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime());
-      setRecent(all.slice(0, 6));
 
       // "N new" content created inside the selected window (created_at, not view data)
       const from = params.p_from;
@@ -145,11 +152,72 @@ export default function AdminDashboard() {
         supabase.from("case_studies").select("id", { count: "exact", head: true }).gte("created_at", from),
         supabase.from("resources").select("id", { count: "exact", head: true }).gte("created_at", from),
       ]);
-      setNewContent((bp.count || 0) + (bcs.count || 0) + (br.count || 0));
-      setLoadingContent(false);
-    };
-    load();
-  }, [supabase, params.p_from]);
+
+      return {
+        stats,
+        recent: all.slice(0, 6),
+        newContent: (bp.count || 0) + (bcs.count || 0) + (br.count || 0),
+      };
+    },
+  });
+  const stats = contentQuery.data?.stats ?? EMPTY_STATS;
+  const recent = contentQuery.data?.recent ?? [];
+  const newContent = contentQuery.data?.newContent ?? 0;
+
+  // Intelligence Insights: model-generated rows + rule-based anomaly alerts.
+  // Cached like the rest of the dashboard; refreshed on demand or auto-fired
+  // once when the dashboard has none.
+  const queryClient = useQueryClient();
+  const insightsQuery = useQuery({
+    queryKey: ["admin", "ai", "insights"],
+    staleTime: 60_000,
+    queryFn: async () => {
+      const res = await fetch("/api/admin/ai/insights");
+      if (!res.ok) throw new Error("Failed to load insights");
+      return res.json();
+    },
+  });
+  const insightRows = (insightsQuery.data?.insights ?? []) as InsightUi[];
+  const insightsError = insightsQuery.isError ? "Insights unavailable" : null;
+  const [generating, setGenerating] = useState(false);
+  const [genError, setGenError] = useState<string | null>(null);
+  const autoFiredRef = useRef(false);
+
+  const refreshInsights = async () => {
+    setGenerating(true);
+    setGenError(null);
+    try {
+      const res = await fetch("/api/admin/ai/insights", { method: "POST" });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error ?? "Generation failed");
+      if (data.model_error) setGenError("Model step failed — anomaly alerts still generated");
+      queryClient.invalidateQueries({ queryKey: ["admin", "ai", "insights"] });
+    } catch (e) {
+      setGenError(e instanceof Error ? e.message : "Generation failed");
+    } finally {
+      setGenerating(false);
+    }
+  };
+
+  const dismissInsight = async (id: string) => {
+    try {
+      await fetch(`/api/admin/ai/insights/${id}`, { method: "PATCH" });
+      queryClient.invalidateQueries({ queryKey: ["admin", "ai", "insights"] });
+    } catch {
+      /* ignore */
+    }
+  };
+
+  // Fire the first generation once when there are no rows (async, never
+  // blocks rendering the dashboard).
+  useEffect(() => {
+    if (autoFiredRef.current) return;
+    if (insightsQuery.isSuccess && (insightsQuery.data?.insights?.length ?? 0) === 0) {
+      autoFiredRef.current = true;
+      refreshInsights();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [insightsQuery.isSuccess]);
 
   const editLink = (item: RecentItem) =>
     item.type === "post" ? `/admin/posts/${item.id}`
@@ -538,36 +606,68 @@ export default function AdminDashboard() {
                 <div className="flex items-center gap-2">
                   <Sparkles className="text-indigo-200" size={20} />
                   <CardTitle className="text-lg font-heading font-bold">Intelligence Insights</CardTitle>
+                  {insightRows.length > 0 && !insightsQuery.data?.stale && (
+                    <Badge className="rounded-full bg-emerald-400/20 text-emerald-100 border-none text-[10px] font-bold uppercase">fresh</Badge>
+                  )}
                 </div>
-                <CardDescription className="text-indigo-100 text-xs">Automated performance analysis and actionable recommendations</CardDescription>
+                <CardDescription className="text-indigo-100 text-xs">AI performance analysis, lead signals and anomaly alerts — last 30 days</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                {loadingContent || stats.insights.length === 0 ? (
+                {insightsQuery.isLoading ? (
+                  <div className="py-8 text-center text-indigo-200">
+                    <Loader2 size={32} className="mx-auto mb-2 animate-spin opacity-70" />
+                    <p className="text-sm">Loading insights…</p>
+                  </div>
+                ) : insightsError ? (
+                  <div className="py-6 text-center text-indigo-100">
+                    <AlertCircle size={28} className="mx-auto mb-2 opacity-70" />
+                    <p className="text-sm mb-3">{insightsError}</p>
+                    <Button size="sm" variant="secondary" onClick={refreshInsights} disabled={generating}>
+                      <RefreshCw size={12} className={generating ? "animate-spin mr-1.5" : "mr-1.5"} /> Retry
+                    </Button>
+                  </div>
+                ) : insightRows.length === 0 ? (
                   <div className="py-8 text-center text-indigo-200">
                     <Lightbulb size={32} className="mx-auto mb-2 opacity-50" />
-                    <p className="text-sm">Collecting more data to generate insights...</p>
+                    <p className="text-sm">No insights yet — generating the first analysis.</p>
                   </div>
                 ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {stats.insights.slice(0, 4).map((insight, idx) => (
-                      <div key={idx} className="bg-white/10 backdrop-blur-sm p-4 rounded-2xl border border-white/10 hover:bg-white/15 transition-colors group">
-                        <div className="flex items-start justify-between mb-2">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    {insightRows.slice(0, 8).map((ins) => (
+                      <div key={ins.id} className="bg-white/10 backdrop-blur-sm p-4 rounded-2xl border border-white/10 hover:bg-white/15 transition-colors group">
+                        <div className="flex items-start justify-between mb-2 gap-2">
                           <Badge className={cn(
                             "rounded-full border-none px-2 py-0.5 text-[10px] font-bold uppercase",
-                            insight.performance_category === 'stellar' ? "bg-emerald-400 text-emerald-950" :
-                            insight.performance_category === 'improving' ? "bg-blue-400 text-blue-950" :
-                            "bg-amber-400 text-amber-950"
-                          )}>{insight.performance_category}</Badge>
-                          {insight.performance_category === 'stellar' ? <TrendingUpIcon size={14} className="text-emerald-300" /> :
-                           insight.performance_category === 'improving' ? <Activity size={14} className="text-blue-300" /> :
-                           <AlertCircle size={14} className="text-amber-300" />}
+                            ins.severity === "high" ? "bg-red-400 text-red-950" :
+                            ins.severity === "medium" ? "bg-amber-400 text-amber-950" :
+                            "bg-emerald-400 text-emerald-950"
+                          )}>{ins.category}</Badge>
+                          <div className="flex items-center gap-1.5">
+                            {ins.target_url && (
+                              <a href={ins.target_url} target="_blank" rel="noreferrer" className="text-indigo-200 hover:text-white" aria-label={`Open ${ins.target_url}`}>
+                                <ArrowUpRight size={14} />
+                              </a>
+                            )}
+                            <button type="button" onClick={() => dismissInsight(ins.id)} className="text-indigo-200/70 hover:text-white" aria-label="Dismiss insight">
+                              <X size={14} />
+                            </button>
+                          </div>
                         </div>
-                        <div className="font-bold text-sm mb-1 line-clamp-1 group-hover:text-indigo-100 transition-colors">{insight.title}</div>
-                        <p className="text-[11px] text-indigo-100 leading-relaxed italic">"{insight.suggestion}"</p>
+                        <div className="font-bold text-sm mb-1 line-clamp-2 group-hover:text-indigo-100 transition-colors">{ins.title}</div>
+                        {ins.body && <p className="text-[11px] text-indigo-100 leading-relaxed">{ins.body}</p>}
                       </div>
                     ))}
                   </div>
                 )}
+                {(genError || insightsQuery.data?.stale) && (
+                  <p className="text-[11px] text-indigo-200/70">{genError ?? "Insights are over 12h old — refresh for a fresh analysis."}</p>
+                )}
+                <div className="pt-1 flex items-center justify-end">
+                  <Button size="sm" variant="secondary" onClick={refreshInsights} disabled={generating}>
+                    <RefreshCw size={12} className={generating ? "animate-spin mr-1.5" : "mr-1.5"} />
+                    {generating ? "Analyzing…" : "Refresh insights"}
+                  </Button>
+                </div>
               </CardContent>
             </Card>
 

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { Mail, Download, Trash2, Users } from "lucide-react";
 import { format } from "date-fns";
@@ -15,24 +16,27 @@ interface Subscriber {
 
 export default function SubscriberList() {
   const supabase = createClient();
-  const [subscribers, setSubscribers] = useState<Subscriber[]>([]);
-  const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
   const { toast } = useToast();
 
-  const load = async () => {
-    const { data, error } = await supabase
-      .from("newsletter_subscribers")
-      .select("*")
-      .order("created_at", { ascending: false });
-    if (error) {
-      toast({ title: "Error loading subscribers", variant: "destructive" });
-    } else {
-      setSubscribers(data || []);
-    }
-    setLoading(false);
-  };
-
-  useEffect(() => { load(); }, []);
+  const query = useQuery({
+    queryKey: ["admin", "subscribers"],
+    staleTime: 60_000,
+    queryFn: async (): Promise<Subscriber[]> => {
+      const { data, error } = await supabase
+        .from("newsletter_subscribers")
+        .select("*")
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      return data || [];
+    },
+  });
+  useEffect(() => {
+    if (query.isError) toast({ title: "Error loading subscribers", variant: "destructive" });
+  }, [query.isError, toast]);
+  const subscribers = query.data ?? [];
+  const loading = query.isLoading;
+  const refresh = () => queryClient.invalidateQueries({ queryKey: ["admin", "subscribers"] });
 
   const handleDelete = async (id: string) => {
     if (!confirm("Remove this subscriber?")) return;
@@ -40,7 +44,7 @@ export default function SubscriberList() {
     if (error) {
       toast({ title: "Error removing subscriber", variant: "destructive" });
     } else {
-      setSubscribers(prev => prev.filter(s => s.id !== id));
+      refresh();
       toast({ title: "Subscriber removed" });
     }
   };

@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useState, useMemo } from "react";
+import { useState, useMemo } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { logActivity } from "@/hooks/useActivityLog";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -36,35 +37,37 @@ interface Resource {
 
 export default function ResourceList() {
   const supabase = createClient();
-  const [items, setItems] = useState<Resource[]>([]);
-  const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<"all" | "published" | "draft">("all");
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [viewMode, setViewMode] = useState<"list" | "grid">("list");
 
-  const fetchData = async () => {
-    const [resRes, analyticsRes] = await Promise.all([
-      supabase.from("resources").select("id, title, type, published, featured, slug").order("created_at", { ascending: false }),
-      supabase.rpc("get_content_analytics")
-    ]);
+  // Cached — returning to this tab does not refetch the query + analytics RPC.
+  const query = useQuery({
+    queryKey: ["admin", "resources"],
+    staleTime: 60_000,
+    queryFn: async (): Promise<any[]> => {
+      const [resRes, analyticsRes] = await Promise.all([
+        supabase.from("resources").select("id, title, type, published, featured, slug").order("created_at", { ascending: false }),
+        supabase.rpc("get_content_analytics")
+      ]);
 
-    const resources = (resRes.data as any[]) || [];
-    const analytics = (analyticsRes.data as any[]) || [];
+      const resources = (resRes.data as any[]) || [];
+      const analytics = (analyticsRes.data as any[]) || [];
 
-    const enriched = resources.map(res => {
-      const stats = analytics.find(a => a.content_id === res.id);
-      return {
-        ...res,
-        view_count: stats?.view_count || 0
-      };
-    });
-
-    setItems(enriched);
-    setLoading(false);
-  };
-
-  useEffect(() => { fetchData(); }, []);
+      return resources.map(res => {
+        const stats = analytics.find(a => a.content_id === res.id);
+        return {
+          ...res,
+          view_count: stats?.view_count || 0
+        };
+      });
+    },
+  });
+  const items = query.data ?? [];
+  const loading = query.isLoading;
+  const fetchData = () => queryClient.invalidateQueries({ queryKey: ["admin", "resources"] });
 
   const toggle = async (id: string, published: boolean) => {
     await supabase.from("resources").update({ published: !published }).eq("id", id);

@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { toast } from "@/hooks/use-toast";
-import { ArrowLeft, Mail, Building2, Send, Save, Clock, User, DollarSign, Users } from "lucide-react";
+import { ArrowLeft, Mail, Building2, Send, Save, Clock, User, DollarSign, Users, Sparkles, Loader2, Copy, Check } from "lucide-react";
 import { formatDistanceToNow, format } from "date-fns";
 
 type ConsultationStatus = "new" | "viewed" | "replied" | "closed";
@@ -25,6 +25,10 @@ interface Consultation {
   replied_at: string | null;
   replied_by: string | null;
   created_at: string;
+  ai_summary: string | null;
+  ai_category: string | null;
+  suggested_reply: string | null;
+  processed_at: string | null;
 }
 
 const statusColors: Record<ConsultationStatus, string> = {
@@ -47,6 +51,8 @@ export default function ConsultationDetail() {
   const [replySubject, setReplySubject] = useState("");
   const [replyBody, setReplyBody] = useState("");
   const [sending, setSending] = useState(false);
+  const [triaging, setTriaging] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     const load = async () => {
@@ -118,6 +124,43 @@ export default function ConsultationDetail() {
     } finally {
       setSending(false);
     }
+  };
+
+  const handleTriage = async () => {
+    if (!id) return;
+    setTriaging(true);
+    try {
+      const res = await fetch("/api/admin/ai/triage", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ consultation_id: id }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error ?? "Triage failed");
+      setItem(prev => prev ? { ...prev, ai_summary: data.summary, ai_category: data.category, suggested_reply: data.suggested_reply, processed_at: new Date().toISOString() } : prev);
+      toast({ title: "Triage ready", description: "Summary and suggested reply generated." });
+    } catch (e) {
+      toast({ title: "Triage failed", description: e instanceof Error ? e.message : "Try again", variant: "destructive" });
+    } finally {
+      setTriaging(false);
+    }
+  };
+
+  const copyText = async (text: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    } catch {
+      /* ignore */
+    }
+  };
+
+  const useSuggestedReply = () => {
+    if (!item?.suggested_reply) return;
+    setReplySubject("Re: Your consultation request — Regent");
+    setReplyBody(item.suggested_reply);
+    setReplyOpen(true);
   };
 
   if (loading) {
@@ -209,6 +252,59 @@ export default function ConsultationDetail() {
           <Send size={14} /> Replied on {format(new Date(item.replied_at), "MMM d, yyyy 'at' h:mm a")}
         </div>
       )}
+
+      {/* AI Triage */}
+      <div className="bg-card border border-border rounded-xl p-4 sm:p-6 mb-4 sm:mb-6">
+        <h3 className="text-sm font-semibold text-text-primary mb-2 sm:mb-3 flex items-center gap-2">
+          <Sparkles size={15} className="text-primary" /> AI Triage
+        </h3>
+        {!item.ai_summary ? (
+          <div className="space-y-2">
+            <p className="text-sm text-text-muted">Generate a summary, intent category and a draft reply for this lead.</p>
+            <button
+              onClick={handleTriage}
+              disabled={triaging}
+              className="flex items-center gap-2 h-9 px-4 bg-primary/10 text-primary text-sm font-medium rounded-lg hover:bg-primary/20 transition-colors disabled:opacity-50"
+            >
+              {triaging ? <Loader2 size={14} className="animate-spin" /> : <Sparkles size={14} />}
+              {triaging ? "Analyzing lead…" : "Generate summary & suggested reply"}
+            </button>
+          </div>
+        ) : (
+          <div className="space-y-3 sm:space-y-4">
+            {item.ai_category && (
+              <span className="inline-block text-[11px] font-semibold text-primary bg-primary/10 rounded-full px-2.5 py-0.5 uppercase tracking-wide">{item.ai_category}</span>
+            )}
+            <div>
+              <label className="text-xs font-medium text-text-muted mb-1 block">Summary</label>
+              <p className="text-sm text-text-secondary leading-relaxed">{item.ai_summary}</p>
+            </div>
+            {item.suggested_reply && (
+              <div>
+                <label className="text-xs font-medium text-text-muted mb-1 block">Suggested reply</label>
+                <div className="bg-surface border border-border rounded-lg p-3 text-sm text-text-secondary whitespace-pre-wrap">{item.suggested_reply}</div>
+                <div className="flex flex-wrap gap-2 mt-2">
+                  <button
+                    onClick={() => copyText(item.suggested_reply!)}
+                    className="flex items-center gap-1.5 h-8 px-3 text-xs font-medium text-text-muted hover:text-text-primary border border-border rounded-lg hover:bg-surface transition-colors"
+                  >
+                    {copied ? <Check size={13} className="text-emerald-500" /> : <Copy size={13} />} {copied ? "Copied" : "Copy"}
+                  </button>
+                  <button
+                    onClick={useSuggestedReply}
+                    className="flex items-center gap-1.5 h-8 px-3 text-xs font-medium text-primary border border-primary/20 rounded-lg hover:bg-primary/10 transition-colors"
+                  >
+                    <Send size={13} /> Use in reply
+                  </button>
+                </div>
+              </div>
+            )}
+            {item.processed_at && (
+              <p className="text-[11px] text-text-muted">Triaged {format(new Date(item.processed_at), "MMM d, yyyy 'at' h:mm a")}</p>
+            )}
+          </div>
+        )}
+      </div>
 
       {/* Admin Notes */}
       <div className="bg-card border border-border rounded-xl p-4 sm:p-6 mb-4 sm:mb-6">

@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useState, useMemo } from "react";
+import { useState, useMemo } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { formatDistanceToNow, format } from "date-fns";
 import { logActivity } from "@/hooks/useActivityLog";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -42,37 +43,40 @@ interface Post extends Partial<BlogPost> {
 
 export default function PostList() {
   const supabase = createClient();
-  const [items, setItems] = useState<Post[]>([]);
-  const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<"all" | "published" | "draft">("all");
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [viewMode, setViewMode] = useState<"list" | "grid">("list");
 
-  const fetchData = async () => {
-    const [postsRes, analyticsRes] = await Promise.all([
-      supabase.from("blog_posts").select("id, title, slug, category, published, updated_at, publish_at, author").order("created_at", { ascending: false }),
-      supabase.rpc("get_content_analytics")
-    ]);
+  // Content lists rarely change — cache so returning to this tab does not
+  // refetch the query + analytics RPC on every mount. Edits invalidate the key.
+  const query = useQuery({
+    queryKey: ["admin", "posts"],
+    staleTime: 60_000,
+    queryFn: async (): Promise<Post[]> => {
+      const [postsRes, analyticsRes] = await Promise.all([
+        supabase.from("blog_posts").select("id, title, slug, category, published, updated_at, publish_at, author").order("created_at", { ascending: false }),
+        supabase.rpc("get_content_analytics")
+      ]);
 
-    const posts = (postsRes.data as Post[]) || [];
-    const analytics = (analyticsRes.data as ContentAnalytics[]) || [];
+      const posts = (postsRes.data as Post[]) || [];
+      const analytics = (analyticsRes.data as ContentAnalytics[]) || [];
 
-    const enriched = posts.map(post => {
-      const stats = analytics.find(a => a.content_id === post.id);
-      return {
-        ...post,
-        view_count: stats?.view_count || 0,
-        avg_time_on_page: stats?.avg_time_on_page || 0,
-        avg_scroll_depth: stats?.avg_scroll_depth || 0
-      };
-    });
-
-    setItems(enriched);
-    setLoading(false);
-  };
-
-  useEffect(() => { fetchData(); }, []);
+      return posts.map(post => {
+        const stats = analytics.find(a => a.content_id === post.id);
+        return {
+          ...post,
+          view_count: stats?.view_count || 0,
+          avg_time_on_page: stats?.avg_time_on_page || 0,
+          avg_scroll_depth: stats?.avg_scroll_depth || 0
+        };
+      });
+    },
+  });
+  const items = query.data ?? [];
+  const loading = query.isLoading;
+  const fetchData = () => queryClient.invalidateQueries({ queryKey: ["admin", "posts"] });
 
   const toggle = async (id: string, published: boolean) => {
     await supabase.from("blog_posts").update({ published: !published }).eq("id", id);

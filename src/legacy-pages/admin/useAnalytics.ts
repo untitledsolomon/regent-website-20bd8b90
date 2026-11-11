@@ -3,8 +3,10 @@
 // WS4: single shared data layer for both admin analytics pages. Every number
 // comes from an analytics_* RPC (same functions the MCP tools call), so the
 // dashboard, the MCP server and raw SQL always agree for the same filters.
+// Cached via React Query so navigating between admin sections does not refetch
+// the seven RPCs on every remount.
 
-import { useCallback, useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { createClient } from "@/lib/supabase/client";
 
 export interface AnalyticsParams {
@@ -85,30 +87,25 @@ function num(v: unknown): number {
 
 export function useAnalytics(params: AnalyticsParams) {
   const supabase = createClient();
-  const [data, setData] = useState<AnalyticsData>({
-    overview: null, daily: [], topContent: [], sources: [], geo: [], devices: [], funnel: null,
-  });
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
-  const load = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    const p = stripNulls({ ...params });
-    // The typed client only knows the legacy get_* functions; the analytics_*
-    // family is added to types.ts but the union of return shapes still needs an
-    // explicit cast at this boundary — the mapping below fixes the shape.
-    const run = async (fn: string) => {
-      const { data: d, error: e } = await (supabase.rpc as any)(fn, p);
-      if (e) throw new Error(`${fn}: ${e.message}`);
-      return d as any[];
-    };
-    try {
+  const query = useQuery({
+    queryKey: ["admin", "analytics", params],
+    staleTime: 60_000,
+    queryFn: async (): Promise<AnalyticsData> => {
+      const p = stripNulls({ ...params });
+      // The typed client only knows the legacy get_* functions; the analytics_*
+      // family is added to types.ts but the union of return shapes still needs an
+      // explicit cast at this boundary — the mapping below fixes the shape.
+      const run = async (fn: string) => {
+        const { data: d, error: e } = await (supabase.rpc as any)(fn, p);
+        if (e) throw new Error(`${fn}: ${e.message}`);
+        return d as any[];
+      };
       const [overview, daily, topContent, sources, geo, devices, funnel] = await Promise.all([
         run("analytics_overview"), run("analytics_daily"), run("analytics_top_content"),
         run("analytics_sources"), run("analytics_geo"), run("analytics_devices"), run("analytics_funnel"),
       ]);
-      setData({
+      return {
         overview: overview?.[0] ?? null,
         daily: (daily || []).map((d: any) => ({
           day: d.day, views: num(d.views), visitors: num(d.visitors),
@@ -141,17 +138,22 @@ export function useAnalytics(params: AnalyticsParams) {
           converted_drop: funnel[0].converted_drop != null ? num(funnel[0].converted_drop) : null,
           inquiry_statuses: funnel[0].inquiry_statuses ?? {},
         } : null,
-      });
-    } catch (e) {
-      setError(e instanceof Error ? e.message : "Analytics failed to load");
-    } finally {
-      setLoading(false);
-    }
-  }, [supabase, params]);
+      };
+    },
+  });
 
-  useEffect(() => { load(); }, [load]);
-
-  return { ...data, loading, error, refetch: load };
+  return {
+    overview: query.data?.overview ?? null,
+    daily: query.data?.daily ?? [],
+    topContent: query.data?.topContent ?? [],
+    sources: query.data?.sources ?? [],
+    geo: query.data?.geo ?? [],
+    devices: query.data?.devices ?? [],
+    funnel: query.data?.funnel ?? null,
+    loading: query.isLoading,
+    error: query.error instanceof Error ? query.error.message : query.isError ? "Analytics failed to load" : null,
+    refetch: query.refetch,
+  };
 }
 
 /** Client-side CSV export of the current filtered result. */

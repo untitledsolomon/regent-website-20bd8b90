@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useMemo } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { formatDistanceToNow, format } from "date-fns";
 import {
   User, Mail, Phone, FileText, Briefcase, ChevronDown, ChevronUp,
@@ -42,8 +43,7 @@ const STATUSES = Object.keys(STATUS_CONFIG);
 
 export default function Applications() {
   const supabase = createClient();
-  const [applications, setApplications] = useState<Application[]>([]);
-  const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
   const [expanded, setExpanded] = useState<string | null>(null);
   const [replies, setReplies] = useState<Record<string, Reply[]>>({});
   const [replyText, setReplyText] = useState<Record<string, string>>({});
@@ -61,15 +61,23 @@ export default function Applications() {
     supabase.auth.getUser().then(({ data }) => {
       setCurrentUserEmail(data.user?.email || "Admin");
     });
-    supabase
-      .from("job_applications")
-      .select("*, career:careers(title, department, location)")
-      .order("created_at", { ascending: false })
-      .then(({ data }) => {
-        setApplications((data as any[]) || []);
-        setLoading(false);
-      });
   }, []);
+
+  // Cached so returning to this tab does not refetch on every mount.
+  const query = useQuery({
+    queryKey: ["admin", "applications"],
+    staleTime: 60_000,
+    queryFn: async (): Promise<Application[]> => {
+      const { data } = await supabase
+        .from("job_applications")
+        .select("*, career:careers(title, department, location)")
+        .order("created_at", { ascending: false });
+      return (data as any[]) || [];
+    },
+  });
+  const applications = query.data ?? [];
+  const loading = query.isLoading;
+  const refresh = () => queryClient.invalidateQueries({ queryKey: ["admin", "applications"] });
 
   const kpis = useMemo(() => {
     const total = applications.length;
@@ -128,9 +136,7 @@ export default function Applications() {
       .from("job_applications")
       .update({ status: newStatus })
       .eq("id", appId);
-    setApplications(apps =>
-      apps.map(a => a.id === appId ? { ...a, status: newStatus } : a)
-    );
+    refresh();
     setUpdatingStatus(null);
   };
 

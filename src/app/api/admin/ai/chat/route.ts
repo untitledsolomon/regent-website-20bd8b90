@@ -25,17 +25,32 @@ interface ChatMsg {
 }
 
 const MAX_TOOL_ROUNDS = 6;
+const MAX_HISTORY_ROWS = 30;
 const TOOL_RESULT_LIMIT = 3000;
+
+function SYSTEM_PROMPT(today: string): string {
+  return [
+    "You are the Regent analytics assistant for the Regent website admin dashboard.",
+    `Today's date is ${today} (UTC).`,
+    "You answer questions about the site's content analytics, traffic, and conversions by calling the analytics_* tools, which query live Supabase data.",
+    "Rules:",
+    "- Always answer in Markdown. Use a table when returning more than one row of data, short bullets otherwise.",
+    "- The analytics tools default to the last 30 days and exclude internal traffic unless the user asks for a different window.",
+    "- Never invent numbers: report exactly what the tools return. If a tool errors, say so plainly.",
+    "- Call the fewest tools needed to answer, and prefer one combined query over several.",
+    "- Keep answers concise and actionable; lead with the key finding.",
+  ].join("\n");
+}
 
 export async function POST(req: Request) {
   if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
     return NextResponse.json({ error: "AI unavailable: Supabase credentials not configured" }, { status: 503 });
   }
-  const guard = await requireAdmin();
+  // Auth and settings reads are independent — resolve in parallel.
+  const [guard, settings] = await Promise.all([requireAdmin(), loadAiSettings()]);
   if (guard instanceof NextResponse) return guard;
   const uid = guard.uid;
 
-  const settings = await loadAiSettings();
   if (!settings) return NextResponse.json({ error: "AI settings not initialized" }, { status: 404 });
   if (!settings.enabled) return NextResponse.json({ error: "AI is disabled in settings" }, { status: 423 });
   const apiKey = await resolveApiKey(settings);
@@ -83,14 +98,19 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: userErr.message }, { status: 500 });
   }
 
-  // Load history as OpenAI chat messages (tool outputs flattened to text).
+  // Load recent history as OpenAI chat messages (tool outputs flattened to
+  // text). Cap the payload so long chats stay fast and cheap; step past a
+  // leading tool row so a half-finished tool round is never sent (the
+  // assistant tool_calls row that owns it was trimmed away).
   const { data: history } = await (supabase as any)
     .from("ai_messages")
     .select("role, content, tool_calls, tool_name, tool_call_id")
     .eq("conversation_id", convId)
     .order("created_at", { ascending: true });
+  const historyRows = (history ?? []).slice(-MAX_HISTORY_ROWS);
+  while (historyRows.length && historyRows[0].role === "tool") historyRows.shift();
   const msgs: ChatMsg[] = [];
-  for (const row of history ?? []) {
+  for (const row of historyRows) {
     if (row.role === "tool") {
       msgs.push({ role: "tool", content: row.content ?? "", name: row.tool_name, tool_call_id: row.tool_call_id ?? `tc_${msgs.length}` });
     } else if (row.role === "assistant") {
@@ -99,6 +119,7 @@ export async function POST(req: Request) {
       msgs.push({ role: "user", content: row.content });
     }
   }
+  msgs.unshift({ role: "system", content: SYSTEM_PROMPT(new Date().toISOString().slice(0, 10)) });
 
   const started = Date.now();
   const encoder = new TextEncoder();
@@ -203,34 +224,40 @@ export async function POST(req: Request) {
           if (finishReason === "tool_calls" && finalCalls.length) {
             msgs.push({ role: "assistant", content: content || null, tool_calls: finalCalls });
             const roundToolMsgs = finalCalls.map((call) => ({ role: "tool" as const, content: "", tool_call_id: call.id }));
-            for (let i = 0; i < finalCalls.length; i++) {
-              const call = finalCalls[i];
-              const name = call.function.name;
-              const valid = ANALYTICS_TOOL_NAMES.includes(name as (typeof ANALYTICS_TOOL_NAMES)[number]);
 
-              let ok = false;
-              let preview = "";
-              if (!valid) {
-                preview = `Unknown tool: ${name}`;
-              } else {
-                try {
-                  const args = normalizeArgs(parseToolArgs(call.function.arguments));
-                  const rpc = (cookie as any).rpc(name, args);
-                  const { data: result, error: rpcError } = await rpc;
-                  if (rpcError) {
-                    preview = `RPC error: ${rpcError.message}`;
-                  } else {
-                    ok = true;
-                    const text = JSON.stringify(result);
-                    preview = text.length > TOOL_RESULT_LIMIT ? `${text.slice(0, TOOL_RESULT_LIMIT)}… (truncated)` : text;
+            // Run the round's RPCs concurrently; results are emitted and stored in call order.
+            const results = await Promise.all(
+              finalCalls.map(async (call) => {
+                const name = call.function.name;
+                const valid = ANALYTICS_TOOL_NAMES.includes(name as (typeof ANALYTICS_TOOL_NAMES)[number]);
+                const args = normalizeArgs(parseToolArgs(call.function.arguments));
+                let ok = false;
+                let preview = "";
+                if (!valid) {
+                  preview = `Unknown tool: ${name}`;
+                } else {
+                  try {
+                    const { data: result, error: rpcError } = await (cookie as any).rpc(name, args);
+                    if (rpcError) {
+                      preview = `RPC error: ${rpcError.message}`;
+                    } else {
+                      ok = true;
+                      const text = JSON.stringify(result);
+                      preview = text.length > TOOL_RESULT_LIMIT ? `${text.slice(0, TOOL_RESULT_LIMIT)}… (truncated)` : text;
+                    }
+                  } catch (e) {
+                    preview = `Tool error: ${e instanceof Error ? e.message : String(e)}`;
                   }
-                } catch (e) {
-                  preview = `Tool error: ${e instanceof Error ? e.message : String(e)}`;
                 }
-              }
-              roundToolMsgs[i].content = preview;
-              send("tool_result", { tool: name, ok, preview: preview.slice(0, 500) });
-              toolEvents.push({ tool: name, args: normalizeArgs(parseToolArgs(call.function.arguments)), ok, preview: preview.slice(0, 200) });
+                return { name, args, ok, preview };
+              })
+            );
+
+            for (let i = 0; i < results.length; i++) {
+              const res = results[i];
+              roundToolMsgs[i].content = res.preview;
+              send("tool_result", { tool: res.name, ok: res.ok, preview: res.preview.slice(0, 500) });
+              toolEvents.push({ tool: res.name, args: res.args, ok: res.ok, preview: res.preview.slice(0, 200) });
             }
             // Persist assistant(tool_calls) + tool messages, then relay to model.
             await (supabase as any).from("ai_messages").insert(

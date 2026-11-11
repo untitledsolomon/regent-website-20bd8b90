@@ -5,7 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import RichTextEditor from "@/components/admin/RichTextEditor";
-import { Upload, X, Loader2, CalendarIcon, ChevronDown } from "lucide-react";
+import { Upload, X, Loader2, CalendarIcon, ChevronDown, Sparkles, Copy, Check } from "lucide-react";
 import { logActivity } from "@/hooks/useActivityLog";
 import { format } from "date-fns";
 import { Calendar } from "@/components/ui/calendar";
@@ -41,6 +41,44 @@ export default function CaseStudyEditor() {
   const [imageUploading, setImageUploading] = useState(false);
   const [showSeo, setShowSeo] = useState(false);
   const [draftBanner, setDraftBanner] = useState(false);
+  const [editGenerating, setEditGenerating] = useState(false);
+  const [aiSocial, setAiSocial] = useState("");
+  const [aiCopied, setAiCopied] = useState(false);
+
+  const generateEditorial = async () => {
+    const contentBody = [form.summary, form.challenge, form.solution, ...form.results].filter(Boolean).join("\n\n");
+    if (!form.title.trim() || !contentBody.trim()) {
+      toast({ title: "Add a title and body first", variant: "destructive" });
+      return;
+    }
+    setEditGenerating(true);
+    try {
+      const res = await fetch("/api/admin/ai/editor", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ content_type: "case_study", title: form.title, body: contentBody }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error ?? "Generation failed");
+      setForm(f => ({ ...f, meta_description: data.meta_description || f.meta_description }));
+      setAiSocial(data.social_copy || "");
+      toast({ title: "AI copy ready", description: "Meta description filled." });
+    } catch (e) {
+      toast({ title: "AI copy failed", description: e instanceof Error ? e.message : "Try again", variant: "destructive" });
+    } finally {
+      setEditGenerating(false);
+    }
+  };
+
+  const copyText = async (text: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setAiCopied(true);
+      setTimeout(() => setAiCopied(false), 1500);
+    } catch {
+      /* ignore */
+    }
+  };
   const fileInputRef = useRef<HTMLInputElement>(null);
   const autoSaveRef = useRef<NodeJS.Timeout | null>(null);
   const [form, setForm] = useState<CaseStudyForm>({
@@ -309,9 +347,28 @@ export default function CaseStudyEditor() {
                 <p className="text-xs text-text-muted mt-1">{form.meta_title.length}/60 characters</p>
               </div>
               <div>
-                <label className="block text-sm font-medium text-text-primary mb-1.5">Meta Description</label>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="block text-sm font-medium text-text-primary">Meta Description</label>
+                  <button
+                    type="button"
+                    onClick={generateEditorial}
+                    disabled={editGenerating}
+                    className="flex items-center gap-1 h-7 px-2.5 text-[11px] font-medium text-primary border border-primary/20 rounded-lg hover:bg-primary/10 transition-colors disabled:opacity-50"
+                  >
+                    {editGenerating ? <Loader2 size={12} className="animate-spin" /> : <Sparkles size={12} />}
+                    {editGenerating ? "Generating…" : "Generate with AI"}
+                  </button>
+                </div>
                 <textarea value={form.meta_description} onChange={e => setForm(f => ({ ...f, meta_description: e.target.value }))} rows={2} className={`${inputClass} h-auto py-2.5 resize-y`} placeholder="Custom description for search engines" />
                 <p className="text-xs text-text-muted mt-1">{form.meta_description.length}/160 characters</p>
+                {aiSocial && (
+                  <div className="flex items-start gap-2 rounded-lg border border-border p-3 text-sm text-text-secondary mt-3">
+                    <p className="flex-1 whitespace-pre-wrap break-words">{aiSocial}</p>
+                    <button type="button" onClick={() => copyText(aiSocial)} className="text-text-muted hover:text-text-primary shrink-0" aria-label="Copy social copy">
+                      {aiCopied ? <Check size={14} className="text-emerald-500" /> : <Copy size={14} />}
+                    </button>
+                  </div>
+                )}
               </div>
               <div>
                 <label className="block text-sm font-medium text-text-primary mb-1.5">OG Image URL</label>

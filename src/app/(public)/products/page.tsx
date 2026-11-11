@@ -23,7 +23,6 @@ export const metadata = {
 export default function ProductsPage() {
   return (
     <div className="section-container py-28">
-      
 
       <div className="mb-14 max-w-3xl">
         <div className="mb-5 flex items-center gap-3 font-mono text-[11px] uppercase tracking-[0.12em] text-primary">
@@ -75,8 +74,6 @@ export default function ProductsPage() {
           ctaLabel="Learn more"
           status="In development"
         />
-
-
       </div>
 
       <div className="mt-20 grid gap-8 border-t border-border pt-10 lg:grid-cols-[0.7fr_1.3fr]">

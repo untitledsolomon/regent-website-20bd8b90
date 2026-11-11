@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Icons } from "@/components/Icons";
 import { formatDistanceToNow } from "date-fns";
 
@@ -18,21 +19,24 @@ interface Career {
 
 export default function CareerList() {
   const supabase = createClient();
-  const [items, setItems] = useState<Career[]>([]);
-  const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<"all" | "published" | "draft">("all");
 
-  const fetchData = async () => {
-    const { data } = await supabase
-      .from("careers")
-      .select("id, title, department, location, type, published, updated_at")
-      .order("created_at", { ascending: false });
-    setItems(data || []);
-    setLoading(false);
-  };
-
-  useEffect(() => { fetchData(); }, []);
+  const query = useQuery({
+    queryKey: ["admin", "careers"],
+    staleTime: 60_000,
+    queryFn: async (): Promise<Career[]> => {
+      const { data } = await supabase
+        .from("careers")
+        .select("id, title, department, location, type, published, updated_at")
+        .order("created_at", { ascending: false });
+      return data || [];
+    },
+  });
+  const items = query.data ?? [];
+  const loading = query.isLoading;
+  const fetchData = () => queryClient.invalidateQueries({ queryKey: ["admin", "careers"] });
 
   const toggle = async (id: string, published: boolean) => {
     await supabase.from("careers").update({ published: !published }).eq("id", id);

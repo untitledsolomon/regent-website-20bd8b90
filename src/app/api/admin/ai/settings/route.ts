@@ -3,7 +3,7 @@ import { z } from "zod";
 import { createServiceClient } from "@/lib/supabase/service";
 import { requireAdmin } from "@/app/api/mcp/_require-admin";
 import { upsertVaultSecret } from "@/lib/ai/vault";
-import { loadAiSettings } from "@/lib/ai/settings";
+import { loadAiSettings, invalidateAiSettingsCache } from "@/lib/ai/settings";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -102,6 +102,9 @@ export async function POST(req: Request) {
     console.error("Error updating ai_settings:", error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
+
+  // The update is committed — make the next reader see it immediately.
+  invalidateAiSettingsCache();
 
   const fresh = await loadAiSettings();
   return NextResponse.json({
