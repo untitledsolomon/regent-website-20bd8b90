@@ -442,25 +442,25 @@ export default function AdminAnalytics() {
 
         <TabsContent value="conversions">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <Card className="border-none shadow-sm rounded-3xl bg-[#0F172A] text-white">
+            <Card className="border-none shadow-sm rounded-3xl bg-card">
               <CardHeader>
                 <CardTitle className="text-lg font-heading font-bold">Conversions</CardTitle>
-                <CardDescription className="text-slate-400 text-xs">Tracked conversion events ({o?.conversions ?? 0} in range)</CardDescription>
+                <CardDescription className="text-muted-foreground text-xs">Tracked conversion events ({o?.conversions ?? 0} in range)</CardDescription>
               </CardHeader>
               <CardContent>
                 {a.sources.reduce((s, r) => s + r.conversions, 0) === 0 ? (
-                  <div className="py-10 text-center text-slate-400 text-sm">No conversions tracked yet.</div>
+                  <div className="py-10 text-center text-muted-foreground text-sm">No conversions tracked yet.</div>
                 ) : (
                   <div className="space-y-4">
                     {a.sources.filter((s) => s.conversions > 0).slice(0, 6).map((s) => (
-                      <div key={s.channel} className="flex items-center justify-between p-3 bg-slate-800/50 rounded-xl">
-                        <span className="text-sm font-medium capitalize text-slate-300">{s.channel.replace("_", " ")}</span>
-                        <span className="text-sm font-bold">{s.conversions} conversion{s.conversions === 1 ? "" : "s"}</span>
+                      <div key={s.channel} className="flex items-center justify-between p-3 bg-muted/40 rounded-xl">
+                        <span className="text-sm font-medium capitalize text-foreground">{s.channel.replace("_", " ")}</span>
+                        <span className="text-sm font-bold text-foreground">{s.conversions} conversion{s.conversions === 1 ? "" : "s"}</span>
                       </div>
                     ))}
-                    <div className="pt-4 mt-2 border-t border-slate-800">
-                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Conversion rate</span>
-                      <div className="text-2xl font-bold mt-1">{a.funnel?.conversion_rate != null ? `${a.funnel.conversion_rate}%` : "—"}</div>
+                    <div className="pt-4 mt-2 border-t border-border">
+                      <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Conversion rate</span>
+                      <div className="text-2xl font-bold mt-1 text-foreground">{a.funnel?.conversion_rate != null ? `${a.funnel.conversion_rate}%` : "—"}</div>
                     </div>
                   </div>
                 )}

@@ -92,7 +92,9 @@ export default function NotificationsBell() {
       out.push({
         id: `insight-${i.id}`,
         title: i.title,
-        href: i.target_url || "/admin",
+        // Only validated /admin/ targets are trusted; otherwise the insight
+        // lands on the Insights page filtered to its category.
+        href: i.target_url?.startsWith("/admin/") ? i.target_url : `/admin/insights?category=${i.category}`,
         tone: "insight",
       });
     }

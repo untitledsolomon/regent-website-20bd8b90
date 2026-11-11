@@ -278,7 +278,7 @@ export function detectAnomalies(facts: InsightFactSet): InsightRow[] {
   consider("views", "Views", a.views, a.views_change, null);
   consider("visitors", "Visitors", a.visitors, a.visitors_change, null);
   consider("sessions", "Sessions", a.sessions, a.sessions_change, null);
-  consider("conversions", "Conversions", a.conversions, a.conversions_change, "/contact");
+  consider("conversions", "Conversions", a.conversions, a.conversions_change, null);
   return out;
 }
 

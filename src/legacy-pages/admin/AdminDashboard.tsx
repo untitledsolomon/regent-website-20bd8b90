@@ -209,16 +209,17 @@ export default function AdminDashboard() {
     }
   };
 
-  // Insights stop at being messages: every card routes somewhere useful. The
-  // generator stamps target_url on content rows; the fallbacks cover categories
-  // the model produced without one.
-  const insightAction = (ins: InsightUi): string | null => {
-    if (ins.target_url) return ins.target_url;
+  // Insights never link to guessed URLs: the generator stamps only validated
+  // /admin/ targets (real edit pages). Anything else falls back to the
+  // category's admin section so a link never 404s.
+  const insightAction = (ins: InsightUi): string => {
+    if (ins.target_url && ins.target_url.startsWith("/admin/")) return ins.target_url;
     switch (ins.category) {
       case "content": return "/admin/posts";
       case "consultation": return "/admin/inquiries";
       case "anomaly": return "/admin/analytics";
-      default: return null;
+      case "weekly_report": return "/admin/insights";
+      default: return "/admin/insights";
     }
   };
 
@@ -424,53 +425,53 @@ export default function AdminDashboard() {
             </Card>
 
             {/* Conversion Funnel */}
-            <Card className="border-none shadow-sm rounded-3xl bg-[#0F172A] text-white">
+            <Card className="border-none shadow-sm rounded-3xl bg-card">
               <CardHeader>
                 <CardTitle className="text-lg font-heading font-bold">Conversion Funnel</CardTitle>
-                <CardDescription className="text-slate-400 text-xs">Visitors → engaged → converted</CardDescription>
+                <CardDescription className="text-muted-foreground text-xs">Visitors → engaged → converted</CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
                 {empty ? (
-                  <div className="py-8 text-center text-slate-400 text-sm">No data yet for this range.</div>
+                  <div className="py-8 text-center text-muted-foreground text-sm">No data yet for this range.</div>
                 ) : funnel ? (
                   <>
                     {funnelStages.map((stage) => (
                       <div key={stage.label} className="space-y-2">
                         <div className="flex items-center justify-between text-xs font-medium">
-                          <span className="text-slate-300">{stage.label}</span>
-                          <span>{stage.value.toLocaleString()}</span>
+                          <span className="text-muted-foreground">{stage.label}</span>
+                          <span className="font-bold text-foreground">{stage.value.toLocaleString()}</span>
                         </div>
-                        <div className="h-6 w-full bg-slate-800 rounded-lg overflow-hidden relative">
+                        <div className="h-6 w-full bg-muted rounded-lg overflow-hidden relative">
                           <div className={cn("h-full rounded-lg transition-all", stage.color)} style={{ width: `${stage.pct}%` }} />
                         </div>
                         {stage.label === "Engaged" && funnel.engaged_drop != null && (
                           <div className="flex justify-center">
-                            <span className="text-[9px] font-bold text-rose-400 bg-rose-400/10 px-1.5 py-0.5 rounded uppercase">▾ {funnel.engaged_drop}% drop</span>
+                            <span className="text-[9px] font-bold text-rose-600 bg-rose-500/10 px-1.5 py-0.5 rounded uppercase">▾ {funnel.engaged_drop}% drop</span>
                           </div>
                         )}
                         {stage.label === "Converted" && funnel.converted_drop != null && (
                           <div className="flex justify-center">
-                            <span className="text-[9px] font-bold text-rose-400 bg-rose-400/10 px-1.5 py-0.5 rounded uppercase">▾ {funnel.converted_drop}% of engaged</span>
+                            <span className="text-[9px] font-bold text-rose-600 bg-rose-500/10 px-1.5 py-0.5 rounded uppercase">▾ {funnel.converted_drop}% of engaged</span>
                           </div>
                         )}
                       </div>
                     ))}
-                    <div className="pt-4 mt-4 border-t border-slate-800">
-                      <div className="bg-slate-800/50 rounded-2xl p-4">
-                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Conversion Rate</span>
-                        <div className="text-2xl font-bold mt-1">{funnel.conversion_rate != null ? `${funnel.conversion_rate}%` : "—"}</div>
+                    <div className="pt-4 mt-4 border-t border-border">
+                      <div className="bg-muted/50 rounded-2xl p-4">
+                        <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Conversion Rate</span>
+                        <div className="text-2xl font-bold mt-1 text-foreground">{funnel.conversion_rate != null ? `${funnel.conversion_rate}%` : "—"}</div>
                       </div>
                       {Object.keys(funnel.inquiry_statuses).length > 0 && (
                         <div className="flex flex-wrap gap-1.5 mt-3">
                           {Object.entries(funnel.inquiry_statuses).map(([k, v]) => (
-                            <span key={k} className="text-[10px] font-bold bg-slate-800 rounded-full px-2 py-0.5 text-slate-300 capitalize">{k}: {v}</span>
+                            <span key={k} className="text-[10px] font-bold bg-muted rounded-full px-2 py-0.5 text-foreground capitalize">{k}: {v}</span>
                           ))}
                         </div>
                       )}
                     </div>
                   </>
                 ) : (
-                  <div className="py-8 text-center text-slate-400 text-sm">No data yet.</div>
+                  <div className="py-8 text-center text-muted-foreground text-sm">No data yet.</div>
                 )}
               </CardContent>
             </Card>
@@ -687,7 +688,7 @@ export default function AdminDashboard() {
                             <span className="text-[10px] text-muted-foreground/70">{formatDistanceToNow(new Date(ins.generated_at), { addSuffix: true })}</span>
                             {actionHref && (
                               <Link href={actionHref} className="inline-flex items-center gap-1 text-[11px] font-bold text-primary hover:underline shrink-0">
-                                {ins.category === "consultation" ? "Open lead" : ins.category === "anomaly" ? "View analytics" : "View topic"} <ArrowUpRight size={12} />
+                                {ins.category === "consultation" ? "Open lead" : ins.category === "anomaly" ? "View analytics" : ins.category === "weekly_report" ? "Read report" : "View topic"} <ArrowUpRight size={12} />
                               </Link>
                             )}
                           </div>

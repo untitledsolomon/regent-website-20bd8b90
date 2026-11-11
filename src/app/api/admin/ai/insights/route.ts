@@ -21,17 +21,15 @@ export const dynamic = "force-dynamic";
 const STALE_AFTER_MS = 12 * 60 * 60_000;
 const REGENERATED_CATEGORIES = ["content", "consultation", "anomaly"] as const;
 
-export async function GET() {
+export async function GET(req: Request) {
   const guard = await requireAdmin();
   if (guard instanceof NextResponse) return guard;
 
+  const includeDismissed = new URL(req.url).searchParams.get("include_dismissed") === "1";
   const supabase = createServiceClient();
-  const { data, error } = await (supabase as any)
-    .from("ai_insights")
-    .select("*")
-    .is("dismissed_at", null)
-    .order("generated_at", { ascending: false })
-    .limit(20);
+  let q = (supabase as any).from("ai_insights").select("*");
+  if (!includeDismissed) q = q.is("dismissed_at", null);
+  const { data, error } = await q.order("generated_at", { ascending: false }).limit(includeDismissed ? 200 : 20);
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
   const rows = data || [];
@@ -60,7 +58,9 @@ export async function POST(req: Request) {
     const facts = await gatherInsightFacts();
     const { system, user } = buildInsightPrompt(facts);
     const result = await callModel({ system, messages: [{ role: "user", content: user }], temperature: 0.3 });
-    modelRows.push(...parseInsightResponse(result.text));
+    // Validate model-chosen slugs against the real library so insights only
+    // link to pages that exist (admin edit pages), never to guessed URLs.
+    modelRows.push(...await resolveInsightTargets(parseInsightResponse(result.text)));
     await recordAiUsage({
       uid,
       feature: "insights_generator",
@@ -112,6 +112,30 @@ export async function POST(req: Request) {
 }
 
 /** Generate the weekly AI report: store a dashboard row and email it. */
+/** Resolve model-chosen target slugs against the real content library. Each
+ *  hit becomes the actual admin edit page; misses become null so the UI falls
+ *  back to the category's section instead of 404ing on an invented slug. */
+async function resolveInsightTargets(rows: InsightRow[]): Promise<InsightRow[]> {
+  const slugs = [...new Set(rows.map((r) => r.target_slug).filter(Boolean) as string[])];
+  if (!slugs.length) return rows;
+  const supabase = createServiceClient();
+  const tables = [
+    { table: "blog_posts", edit: "/admin/posts" },
+    { table: "case_studies", edit: "/admin/case-studies" },
+    { table: "resources", edit: "/admin/resources" },
+  ] as const;
+  const slugToUrl = new Map<string, string>();
+  for (const t of tables) {
+    const { data } = await (supabase as any).from(t.table).select("id, slug").in("slug", slugs);
+    for (const r of data || []) slugToUrl.set(r.slug, `${t.edit}/${r.id}`);
+  }
+  return rows.map((r) => {
+    if (!r.target_slug) return { ...r, target_url: null };
+    const url = slugToUrl.get(r.target_slug);
+    return { ...r, target_url: url ?? null };
+  });
+}
+
 async function handleWeeklyReport(uid: string): Promise<NextResponse> {
   const supabase = createServiceClient();
   const today = new Date().toISOString().slice(0, 10);
