@@ -2,17 +2,17 @@ import type { Metadata } from 'next'
 import Industries from '@/legacy-pages/Industries'
 
 export const metadata: Metadata = {
-  title: 'Who We Build For',
-  description: 'Regent builds business systems for growing retail and service businesses that have outgrown spreadsheets and disconnected tools.',
+  title: 'Industry Solutions',
+  description: 'Specialized systems integration and data infrastructure for Finance, Government, Energy, and Infrastructure sectors.',
   openGraph: {
-    title: 'Who We Build For | Regent',
-    description: 'Regent builds business systems for growing retail and service businesses that have outgrown spreadsheets and disconnected tools.',
+    title: 'Industry Solutions | Regent',
+    description: 'Specialized systems integration and data infrastructure for Finance, Government, Energy, and Infrastructure sectors.',
     type: 'website',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Who We Build For | Regent',
-    description: 'Regent builds business systems for growing retail and service businesses that have outgrown spreadsheets and disconnected tools.',
+    title: 'Industry Solutions | Regent',
+    description: 'Specialized systems integration and data infrastructure for Finance, Government, Energy, and Infrastructure sectors.',
   },
   alternates: {
     canonical: '/industries',

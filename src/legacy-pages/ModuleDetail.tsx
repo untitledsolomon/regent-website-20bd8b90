@@ -85,6 +85,7 @@ export default function ModuleDetail() {
       </section>
 
       {/* Technical Specs */}
+      {mod.specs.length > 0 && (
       <section className="py-[100px] bg-surface border-y border-border">
         <div className="section-container">
           <RevealOnScroll>
@@ -107,6 +108,7 @@ export default function ModuleDetail() {
           </RevealOnScroll>
         </div>
       </section>
+      )}
 
       {/* Use Cases */}
       <section className="py-[100px]">

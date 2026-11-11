@@ -2,17 +2,17 @@ import type { Metadata } from 'next'
 import Capabilities from '@/legacy-pages/Capabilities'
 
 export const metadata: Metadata = {
-  title: 'What We Build',
-  description: 'Regent builds custom business software, integrations, and workflow automation for growing businesses that need their systems connected.',
+  title: 'Capabilities & Solutions',
+  description: 'Enterprise capabilities in systems integration, data infrastructure, workflow automation, and intelligence.',
   openGraph: {
-    title: 'What We Build | Regent',
-    description: 'Regent builds custom business software, integrations, and workflow automation for growing businesses that need their systems connected.',
+    title: 'Capabilities & Solutions | Regent',
+    description: 'Enterprise capabilities in systems integration, data infrastructure, workflow automation, and intelligence.',
     type: 'website',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'What We Build | Regent',
-    description: 'Regent builds custom business software, integrations, and workflow automation for growing businesses that need their systems connected.',
+    title: 'Capabilities & Solutions | Regent',
+    description: 'Enterprise capabilities in systems integration, data infrastructure, workflow automation, and intelligence.',
   },
   alternates: {
     canonical: '/capabilities',

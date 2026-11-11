@@ -4,16 +4,16 @@ import { Icons } from "@/components/Icons";
 
 export const metadata = {
   title: "Products",
-  description: "Regent builds business software: Axis, a business operating system for growing businesses, plus Regent CRM and Forge, both in development.",
+  description: "Axis, Regent's business operating system, is available now. Regent CRM and Forge are in development.",
   openGraph: {
     title: "Products — Regent",
-    description: "Regent builds business software: Axis, a business operating system for growing businesses, plus Regent CRM and Forge, both in development.",
+    description: "Axis, Regent's business operating system, is available now. Regent CRM and Forge are in development.",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
     title: "Products — Regent",
-    description: "Regent builds business software: Axis, a business operating system for growing businesses, plus Regent CRM and Forge, both in development.",
+    description: "Axis, Regent's business operating system, is available now. Regent CRM and Forge are in development.",
   },
   alternates: {
     canonical: "/products",
@@ -27,13 +27,13 @@ export default function ProductsPage() {
 
       <div className="mb-14 max-w-3xl">
         <div className="mb-5 flex items-center gap-3 font-mono text-[11px] uppercase tracking-[0.12em] text-primary">
-          <span className="h-px w-8 bg-primary" /> The Regent portfolio
+          <span className="h-px w-8 bg-primary" /> Products
         </div>
         <h1 className="mb-5 font-heading text-[clamp(38px,5vw,64px)] font-semibold leading-[1.04] tracking-[-0.05em] text-text-primary">
           The systems behind better business.
         </h1>
         <p className="max-w-2xl text-lg font-light leading-relaxed text-text-secondary">
-          Business software built by Regent. Axis is available today; Regent CRM and Forge are in development.
+          Axis is available. Regent CRM and Forge are in development.
         </p>
       </div>
 
@@ -49,7 +49,7 @@ export default function ProductsPage() {
         <ProductCard
           title="Axis"
           eyebrow="Flagship platform"
-          description="The business operating system for growing businesses that have outgrown spreadsheets and disconnected tools: one connected system for sales, finance, inventory, and people."
+          description="The business operating system for organizations that need one connected record of sales, finance, inventory, and people."
           href="/axis"
           benefits={["Invoicing, clients, and full ledger accounting", "Inventory, custody, HR, and attendance", "One shared system for every core operation"]}
           ctaLabel="Explore Axis"
@@ -90,7 +90,7 @@ export default function ProductsPage() {
       </div>
 
       <div className="mt-16 flex flex-col gap-4 border-t border-border pt-6 text-sm text-text-secondary sm:flex-row sm:items-center sm:justify-between">
-        <span>One company. Focused business systems.</span>
+        <span>Systems, built to last.</span>
         <Link href="/demo" className="inline-flex items-center gap-2 font-medium text-primary hover:gap-3 transition-all">
           Talk to Regent <Icons.ArrowRight />
         </Link>

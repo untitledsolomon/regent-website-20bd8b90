@@ -4,11 +4,11 @@ import { Providers } from '@/components/Providers'
 
 export const metadata: Metadata = {
   title: {
-    default: 'Regent — Custom Software for Growing Businesses',
+    default: 'Regent: Infrastructure for the Next Generation of Systems',
     template: '%s | Regent',
   },
   description:
-    'Regent builds Axis and other business systems that give growing businesses a single source of truth for sales, inventory, finance, and operations.',
+    'Regent architects and builds enterprise systems that connect data, workflows, and intelligence across organizations.',
   icons: {
     icon: [
       { url: '/favicon.ico', sizes: 'any' },
@@ -35,7 +35,7 @@ const organizationJsonLd = {
   url: SITE_URL,
   logo: `${SITE_URL}/icon-512.png`,
   description:
-    'Regent builds Axis and other business systems for growing businesses that have outgrown spreadsheets and disconnected tools.',
+    'Regent architects and builds systems that connect data, workflows, and intelligence across organizations.',
   sameAs: [
     'https://www.facebook.com/profile.php?id=61579513311384',
     'https://www.linkedin.com/company/regent-technologies',

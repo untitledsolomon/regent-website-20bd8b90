@@ -291,7 +291,7 @@ export default function CaseStudyDetail({ initialCaseStudy, initialRelated }: Ca
                       Get similar results for your organization
                     </h3>
                     <p className="text-text-secondary text-[16px] leading-[1.6] max-w-[500px] mx-auto mb-8">
-                      Discuss your specific challenges with our systems engineers and see how Regent Integrate can unify your infrastructure.
+                      Discuss your specific challenges with our systems engineers and see how Regent can unify your infrastructure.
                     </p>
                     <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                       <Link

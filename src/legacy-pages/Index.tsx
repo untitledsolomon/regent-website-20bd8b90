@@ -336,14 +336,14 @@ export default function HomePage() {
             <SectionHeader
               label="SOLUTION MODULES"
               title="How We Build"
-              subtitle="Five integrated modules we deploy as a complete system or independently — tailored to each client."
+              subtitle="Five capabilities, deployed together or independently, shaped to each engagement."
             />
           </RevealOnScroll>
 
           {/* Flow Illustration */}
           <div className="mb-16 hidden md:block">
             <svg width="100%" height="120" viewBox="0 0 1000 120" fill="none" xmlns="http://www.w3.org/2000/svg" role="img">
-              <title>Horizontal flow diagram representing the 5 integrated modules: Integrate, Data, Automate, Intelligence, and Monitor.</title>
+              <title>Horizontal flow diagram representing five capabilities: Integration, Data, Automation, Intelligence, and Monitoring.</title>
 
               {/* Connector lines */}
               <line x1="160" y1="60" x2="240" y2="60" stroke="hsl(var(--primary))" strokeWidth="2" strokeDasharray="4 4" opacity="0.4" />

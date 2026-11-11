@@ -4,16 +4,16 @@ import { BlogClient, type BlogPost } from '@/components/blog/BlogClient'
 
 export const metadata: Metadata = {
   title: 'Blog',
-  description: 'Practical writing on running a growing business: spreadsheets, cash flow, inventory, accounting, and business systems, from the team behind Axis by Regent.',
+  description: 'Essays on systems, infrastructure, and how organizations operate.',
   openGraph: {
     title: 'Blog',
-    description: 'Practical writing on running a growing business: spreadsheets, cash flow, inventory, accounting, and business systems, from the team behind Axis by Regent.',
+    description: 'Essays on systems, infrastructure, and how organizations operate.',
     type: 'website',
   },
   twitter: {
     card: 'summary_large_image',
     title: 'Blog',
-    description: 'Practical writing on running a growing business: spreadsheets, cash flow, inventory, accounting, and business systems, from the team behind Axis by Regent.',
+    description: 'Essays on systems, infrastructure, and how organizations operate.',
   },
   alternates: {
     canonical: '/blog',

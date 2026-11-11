@@ -2,20 +2,20 @@ import type { Metadata } from 'next'
 import Index from '@/legacy-pages/Index'
 
 export const metadata: Metadata = {
-  title: 'Regent — Custom Software for Growing Businesses',
+  title: { absolute: 'Regent: Infrastructure for the Next Generation of Systems' },
   description:
-    'Regent builds Axis and other business systems that give growing businesses a single source of truth for sales, inventory, finance, and operations.',
+    'Regent architects and builds enterprise systems that connect data, workflows, and intelligence across organizations.',
   openGraph: {
-    title: 'Regent — Custom Software for Growing Businesses',
+    title: 'Regent: Infrastructure for the Next Generation of Systems',
     description:
-      'Regent builds Axis and other business systems that give growing businesses a single source of truth for sales, inventory, finance, and operations.',
+      'Regent architects and builds enterprise systems that connect data, workflows, and intelligence across organizations.',
     type: 'website',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Regent — Custom Software for Growing Businesses',
+    title: 'Regent: Infrastructure for the Next Generation of Systems',
     description:
-      'Regent builds Axis and other business systems that give growing businesses a single source of truth for sales, inventory, finance, and operations.',
+      'Regent architects and builds enterprise systems that connect data, workflows, and intelligence across organizations.',
   },
   alternates: {
     canonical: '/',
