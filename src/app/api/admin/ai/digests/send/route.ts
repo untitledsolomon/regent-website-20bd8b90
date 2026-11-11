@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { requireAdmin } from "@/app/api/mcp/_require-admin";
 import { markdownToHtml } from "@/lib/ai/insights";
 import { sendDigestEmail } from "@/lib/ai/digest-send";
+import { applyTemplateToHtml, loadTemplateContext } from "@/lib/ai/email-templates";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -36,14 +37,19 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: bad.length ? `Invalid recipient: ${bad[0]}` : "At least one recipient is required" }, { status: 400 });
   }
 
+  const supabase = createServiceClient();
   const html = markdownToHtml(markdown);
+  // Wrap the markdown render in the template selected for this use case so the
+  // recipient always gets the branded shell (logo, preheader, footer).
+  const ctx = await loadTemplateContext(supabase);
+  const templated = applyTemplateToHtml(kind, html, ctx.settings, ctx.templates, { subject });
+
   // Send with the admin's own session token (not the service-role key), so the
   // edge function validates a real access token; falls back to the service key
   // for keyless callers like the cron route.
   const { data: { session } } = await (await createClient()).auth.getSession();
-  const email = await sendDigestEmail({ subject, html, to: recipients, token: session?.access_token });
+  const email = await sendDigestEmail({ subject, html: templated, to: recipients, token: session?.access_token });
 
-  const supabase = createServiceClient();
   if (email === "sent") {
     const col = kind === "weekly" ? "weekly_last_sent_at" : "daily_last_sent_at";
     await (supabase as any)

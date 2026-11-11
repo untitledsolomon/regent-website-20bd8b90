@@ -6,6 +6,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "@/hooks/use-toast";
@@ -281,6 +282,14 @@ interface DigestSettings {
   daily_hour: number;
   weekly_last_sent_at: string | null;
   daily_last_sent_at: string | null;
+  weekly_template_id: string | null;
+  daily_template_id: string | null;
+}
+
+interface EmailTemplateRow {
+  id: string;
+  name: string;
+  html: string;
 }
 
 type DigestKind = "weekly" | "daily";
@@ -295,11 +304,12 @@ const splitCsv = (csv: string) =>
 
 function DigestControlPanel() {
   const queryClient = useQueryClient();
+  const supabase = createClient();
   const [kind, setKind] = useState<DigestKind>("weekly");
   const [csv, setCsv] = useState("");
   const [hour, setHour] = useState(9);
   const [dirty, setDirty] = useState(false);
-  const [preview, setPreview] = useState<{ subject: string; markdown: string } | null>(null);
+  const [preview, setPreview] = useState<{ subject: string; markdown: string; html: string } | null>(null);
   const [busy, setBusy] = useState<"saving" | "generating" | "sending" | null>(null);
 
   const settingsQuery = useQuery({
@@ -312,6 +322,21 @@ function DigestControlPanel() {
     },
   });
 
+  // Shells usable by the current kind (kind = any or this exact use).
+  const templatesQuery = useQuery({
+    queryKey: ["admin", "email-templates", kind],
+    staleTime: 30_000,
+    queryFn: async (): Promise<EmailTemplateRow[]> => {
+      const { data, error } = await (supabase as any)
+        .from("email_templates")
+        .select("id, name, html")
+        .in("kind", ["any", kind])
+        .order("name");
+      if (error) throw error;
+      return (data || []) as EmailTemplateRow[];
+    },
+  });
+
   const settings = settingsQuery.data;
   const kindSettings = settings
     ? {
@@ -319,8 +344,9 @@ function DigestControlPanel() {
         recipients: kind === "weekly" ? settings.weekly_recipients : settings.daily_recipients,
         sentAt: kind === "weekly" ? settings.weekly_last_sent_at : settings.daily_last_sent_at,
         defaultHour: kind === "weekly" ? settings.weekly_hour : settings.daily_hour,
+        templateId: kind === "weekly" ? settings.weekly_template_id : settings.daily_template_id,
       }
-    : { enabled: false, recipients: [], sentAt: null, defaultHour: 9 };
+    : { enabled: false, recipients: [], sentAt: null, defaultHour: 9, templateId: null };
 
   // Keep the local editor in sync when settings load or the kind tab changes.
   const initCsv = kindSettings.recipients.join(", ");
@@ -394,10 +420,30 @@ function DigestControlPanel() {
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(data.error ?? "Generation failed");
-      setPreview({ subject: data.subject, markdown: data.markdown });
+      setPreview({ subject: data.subject, markdown: data.markdown, html: data.html ?? "" });
       toast({ title: "Preview generated", description: "Edit it, then Send now." });
     } catch (e) {
       toast({ title: "Generation failed", description: e instanceof Error ? e.message : "Please try again", variant: "destructive" });
+    } finally {
+      setBusy(null);
+    }
+  };
+
+  const setTemplate = async (id: string) => {
+    setBusy("saving");
+    try {
+      const res = await fetch("/api/admin/ai/digests", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ [`${kind}_template_id`]: id || null }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error ?? "Failed to set template");
+      invalidate();
+      const name = templatesQuery.data?.find((t) => t.id === id)?.name;
+      toast({ title: "Template set", description: name ? `"${name}" wraps the ${KIND_META[kind].label.toLowerCase()} digest.` : "Default shell used." });
+    } catch (e) {
+      toast({ title: "Update failed", description: e instanceof Error ? e.message : "Please try again", variant: "destructive" });
     } finally {
       setBusy(null);
     }
@@ -509,6 +555,32 @@ function DigestControlPanel() {
             </div>
           </div>
 
+          {/* Template */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div className="flex items-center gap-2">
+              <FileText size={14} className="text-muted-foreground shrink-0" />
+              <span className="text-xs font-semibold text-muted-foreground">Template</span>
+              <select
+                value={kindSettings.templateId ?? ""}
+                onChange={(e) => setTemplate(e.target.value)}
+                disabled={busy !== null || templatesQuery.isLoading}
+                className="h-9 px-3 rounded-xl bg-background border border-border text-xs font-semibold outline-none focus:border-primary/50 cursor-pointer disabled:opacity-60 max-w-[280px]"
+                title="The shell this digest is wrapped in. Built and managed on the Templates page."
+              >
+                <option value="">Default shell</option>
+                {(templatesQuery.data ?? []).map((t) => (
+                  <option key={t.id} value={t.id}>{t.name}</option>
+                ))}
+              </select>
+            </div>
+            <Link
+              href="/admin/emails/templates"
+              className="text-xs font-semibold text-primary hover:underline shrink-0"
+            >
+              Manage templates
+            </Link>
+          </div>
+
           {/* Recipients */}
           <div>
             <label className="text-xs font-semibold text-muted-foreground">Recipients</label>
@@ -551,12 +623,26 @@ function DigestControlPanel() {
                   onChange={(e) => setPreview((p) => (p ? { ...p, subject: e.target.value } : p))}
                   className="w-full h-10 rounded-xl bg-background border border-border px-3 text-sm font-semibold outline-none focus:border-primary/50"
                 />
-                <textarea
-                  value={preview.markdown}
-                  onChange={(e) => setPreview((p) => (p ? { ...p, markdown: e.target.value } : p))}
-                  rows={10}
-                  className="w-full rounded-xl bg-background border border-border px-3 py-2.5 text-xs leading-relaxed font-mono outline-none focus:border-primary/50 resize-y"
-                />
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+                  <textarea
+                    value={preview.markdown}
+                    onChange={(e) => setPreview((p) => (p ? { ...p, markdown: e.target.value } : p))}
+                    rows={14}
+                    className="w-full rounded-xl bg-background border border-border px-3 py-2.5 text-xs leading-relaxed font-mono outline-none focus:border-primary/50 resize-y"
+                  />
+                  {preview.html ? (
+                    <iframe
+                      title="Digest email preview"
+                      srcDoc={preview.html}
+                      sandbox=""
+                      className="w-full h-72 lg:h-full lg:min-h-[280px] bg-white rounded-xl border border-border"
+                    />
+                  ) : (
+                    <div className="flex items-center justify-center rounded-xl border border-dashed border-border text-xs text-muted-foreground">
+                      Rendered preview appears here.
+                    </div>
+                  )}
+                </div>
                 <div className="flex items-center justify-end gap-2">
                   <span className="text-[11px] text-muted-foreground">
                     Will send to {splitCsv(csvValue).length || "0"} recipient{(splitCsv(csvValue).length) === 1 ? "" : "s"}
