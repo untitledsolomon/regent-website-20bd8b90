@@ -9,9 +9,10 @@ interface ProductCardProps {
   benefits: string[];
   ctaLabel: string;
   featured?: boolean;
+  status?: string;
 }
 
-export function ProductCard({ title, eyebrow, description, href, benefits, ctaLabel, featured }: ProductCardProps) {
+export function ProductCard({ title, eyebrow, description, href, benefits, ctaLabel, featured, status }: ProductCardProps) {
   return (
     <article
       className={`group flex h-full flex-col rounded-xl border border-border p-7 transition-all hover:-translate-y-1 hover:border-primary/40 hover:shadow-[0_18px_45px_rgba(35,31,94,0.1)] ${
@@ -30,6 +31,11 @@ export function ProductCard({ title, eyebrow, description, href, benefits, ctaLa
             {description}
           </p>
         </div>
+        {status && (
+          <span className="shrink-0 rounded-full border border-border px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.12em] text-text-muted">
+            {status}
+          </span>
+        )}
       </div>
 
       <ul className={`mt-7 space-y-3 border-t pt-6 text-sm ${featured ? "border-primary-foreground/15" : "border-border"}`}>

@@ -5,7 +5,6 @@ import { RevealOnScroll } from "@/components/RevealOnScroll";
 import { AnimatedCounter } from "@/components/AnimatedCounter";
 import { GradientText } from "@/components/GradientText";
 import { Icons } from "@/components/Icons";
-import { PageMeta } from "@/components/PageMeta";
 import { createClient } from "@/lib/supabase/client";
 import Image from "next/image";
 import { useQuery } from "@tanstack/react-query";
@@ -51,7 +50,7 @@ export default function CaseStudiesPage() {
 
   return (
     <div>
-      <PageMeta title="Case Studies — Regent | Client Success Stories" description="See how leading organizations have transformed their infrastructure with Regent." />
+      
       <section className="pt-[140px] pb-[100px] bg-surface border-b border-border">
         <div className="section-container">
           <motion.div

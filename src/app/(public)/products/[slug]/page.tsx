@@ -3,7 +3,6 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Icons } from "@/components/Icons";
 import { RevealOnScroll } from "@/components/RevealOnScroll";
-import { PageMeta } from "@/components/PageMeta";
 
 type Product = {
   name: string;
@@ -34,24 +33,6 @@ const PRODUCTS: Record<string, Product> = {
     benefits: ["Build and publish sites with structure", "Keep content organized as it grows", "Create a dependable publishing workflow"],
     details: ["Site building", "Content publishing", "Editorial workflows"],
   },
-  "dominion-finance": {
-    name: "Dominion Finance",
-    eyebrow: "Lending operations",
-    description: "A loan management platform for tracking lending operations end-to-end.",
-    accent: "#d97706",
-    icon: "BarChart",
-    benefits: ["Track lending operations from one system", "Keep loan activity visible end-to-end", "Give finance teams a clearer operating picture"],
-    details: ["Loan management", "Lending operations", "End-to-end tracking"],
-  },
-  "mabruk-atelier": {
-    name: "Mabruk Atelier",
-    eyebrow: "Real-world showcase",
-    description: "A luxury fashion brand built and run by Regent as a real-world showcase of its own systems.",
-    accent: "#be123c",
-    icon: "Intelligence",
-    benefits: ["A live Regent-operated brand", "Systems tested in the real world", "A working example of Regent's operating approach"],
-    details: ["Luxury fashion", "Regent-operated", "Real-world systems"],
-  },
 };
 
 export function generateStaticParams() {
@@ -61,7 +42,15 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
   const product = PRODUCTS[slug];
-  return { title: product ? `${product.name} — Regent` : "Product — Regent", description: product?.description };
+  if (!product) return { title: "Product" };
+  const title = `${product.name} by Regent (in development)`;
+  return {
+    title,
+    description: product.description,
+    alternates: { canonical: `/products/${slug}` },
+    openGraph: { title, description: product.description, type: "website", url: `/products/${slug}` },
+    twitter: { card: "summary_large_image", title, description: product.description },
+  };
 }
 
 export default async function ProductPage({ params }: { params: Promise<{ slug: string }> }) {
@@ -79,7 +68,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
 
   return (
     <>
-      <PageMeta title={product.name} description={product.description} />
+      
       <div className="border-b border-border bg-background/90 backdrop-blur">
         <div className="section-container flex h-12 items-center justify-between">
           <Link href="/products" className="text-xs text-text-secondary hover:text-text-primary">← All products</Link>
@@ -110,14 +99,14 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
                 <div className="overflow-hidden rounded-xl border border-border bg-surface">
                   <div className="flex items-center justify-between border-b border-border bg-background px-5 py-4">
                     <div className="flex items-center gap-2 font-heading text-sm font-semibold"><span className="h-2 w-2 rounded-full" style={{ backgroundColor: product.accent }} /> {product.name} workspace</div>
-                    <span className="font-mono text-[10px] text-text-muted">OVERVIEW</span>
+                    <span className="font-mono text-[10px] text-text-muted">IN DEVELOPMENT</span>
                   </div>
                   <div className="grid gap-4 p-5 sm:grid-cols-[0.75fr_1.25fr] sm:p-7">
                     <div className="space-y-2">
                       {product.details.map((detail, index) => <div key={detail} className={`rounded-md border p-3 text-xs ${index === 0 ? 'border-primary/20 bg-background text-text-primary' : 'border-border text-text-secondary'}`}><span className="mr-2 font-mono text-[10px]" style={{ color: product.accent }}>0{index + 1}</span>{detail}</div>)}
                     </div>
                     <div className="rounded-lg border border-border bg-background p-4">
-                      <div className="mb-5 flex items-center justify-between text-xs font-medium"><span>Activity overview</span><span style={{ color: product.accent }}>Live</span></div>
+                      <div className="mb-5 flex items-center justify-between text-xs font-medium"><span>Activity overview</span><span style={{ color: product.accent }}>Preview</span></div>
                       <div className="flex h-36 items-end gap-2 border-b border-border pb-2">{[35, 48, 42, 58, 54, 72, 65, 84, 78, 92].map((height, index) => <span key={index} className="flex-1 rounded-t-sm opacity-80" style={{ height: `${height}%`, backgroundColor: index > 6 ? product.accent : `${product.accent}55` }} />)}</div>
                       <div className="mt-4 flex justify-between text-[10px] text-text-muted"><span>START OF PERIOD</span><span>NOW</span></div>
                     </div>

@@ -185,10 +185,7 @@ export default function DemoPage() {
 
   return (
     <div>
-      <PageMeta
-        title="Start Your Project — Regent"
-        description="Tell us about your systems challenges and let's discuss how Regent can design and build the right solution for your organization."
-        jsonLd={{
+      <PageMeta jsonLd={{
           "@context": "https://schema.org",
           "@type": "FAQPage",
           "mainEntity": faqs.map(f => ({
@@ -196,8 +193,7 @@ export default function DemoPage() {
             "name": f.q,
             "acceptedAnswer": { "@type": "Answer", "text": f.a },
           })),
-        }}
-      />
+        }} />
       <section className="pt-[100px] pb-20 bg-surface border-b border-border">
         <div className="section-container">
           <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }} className="max-w-[640px]">

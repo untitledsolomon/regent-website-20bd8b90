@@ -5,17 +5,17 @@ import Resources from '@/legacy-pages/Resources'
 export const revalidate = 60
 
 export const metadata: Metadata = {
-  title: 'Technical Resources & Whitepapers',
-  description: 'Technical whitepapers, research, and documentation for enterprise integration and data infrastructure.',
+  title: 'Resources',
+  description: 'Guides and reports for growing businesses on inventory, finance, and operations, from the team behind Axis by Regent.',
   openGraph: {
-    title: 'Technical Resources & Whitepapers | Regent',
-    description: 'Technical whitepapers, research, and documentation for enterprise integration and data infrastructure.',
+    title: 'Resources | Regent',
+    description: 'Guides and reports for growing businesses on inventory, finance, and operations, from the team behind Axis by Regent.',
     type: 'website',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Technical Resources & Whitepapers | Regent',
-    description: 'Technical whitepapers, research, and documentation for enterprise integration and data infrastructure.',
+    title: 'Resources | Regent',
+    description: 'Guides and reports for growing businesses on inventory, finance, and operations, from the team behind Axis by Regent.',
   },
   alternates: { canonical: '/resources' },
 }
@@ -31,8 +31,8 @@ export default async function ResourcesPage() {
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'CollectionPage',
-    name: 'Technical Resources & Whitepapers',
-    description: 'Technical whitepapers, research, and documentation for enterprise integration and data infrastructure.',
+    name: 'Resources',
+    description: 'Guides and reports for growing businesses on inventory, finance, and operations, from the team behind Axis by Regent.',
     publisher: {
       '@type': 'Organization',
       name: 'Regent',

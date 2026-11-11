@@ -145,19 +145,13 @@ export default function CaseStudyDetail({ initialCaseStudy, initialRelated }: Ca
 
   return (
     <div>
-      <PageMeta
-        title={(cs as any).meta_title || `${cs.title} — Regent Case Study`}
-        description={(cs as any).meta_description || cs.summary}
-        ogImage={(cs as any).og_image || undefined}
-        ogType="article"
-        jsonLd={{
+      <PageMeta jsonLd={{
           "@context": "https://schema.org",
           "@type": "Article",
           "headline": cs.title,
           "description": cs.summary,
-          "publisher": { "@type": "Organization", "name": "Regent Systems" },
-        }}
-      />
+          "publisher": { "@type": "Organization", "name": "Regent" },
+        }} />
 
       {/* Reading progress bar */}
       <motion.div

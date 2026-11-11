@@ -82,21 +82,15 @@ export default function BlogPostPage() {
 
   return (
     <div>
-      <PageMeta
-        title={(post as any).meta_title || `${post.title} — Regent`}
-        description={(post as any).meta_description || post.excerpt}
-        ogImage={(post as any).og_image || undefined}
-        ogType="article"
-        jsonLd={{
+      <PageMeta jsonLd={{
           "@context": "https://schema.org",
           "@type": "Article",
           "headline": post.title,
           "description": post.excerpt,
           "author": { "@type": "Organization", "name": post.author },
           "datePublished": post.date,
-          "publisher": { "@type": "Organization", "name": "Regent Systems" },
-        }}
-      />
+          "publisher": { "@type": "Organization", "name": "Regent" },
+        }} />
       <motion.div
         className="fixed top-16 left-0 right-0 h-[3px] bg-primary z-[99] origin-left"
         style={{ scaleX: progress }}

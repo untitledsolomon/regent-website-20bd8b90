@@ -1,12 +1,8 @@
-import { PageMeta } from "@/components/PageMeta";
 
 export default function RefundPolicy() {
   return (
     <>
-      <PageMeta
-        title="Refund Policy — Regent Systems"
-        description="Refund policy for Axis subscriptions billed by Regent Systems, including free trials, cancellations, and how to request a refund."
-      />
+      
       <div className="section-container py-20 max-w-3xl mx-auto">
         <h1 className="font-heading text-4xl font-bold tracking-tight mb-2">Refund Policy</h1>
         <p className="text-muted-foreground mb-10">Last updated: August 27, 2026</p>
@@ -15,7 +11,7 @@ export default function RefundPolicy() {
           <section>
             <h2 className="font-heading text-xl font-semibold text-foreground mb-3">1. Scope</h2>
             <p>
-              This policy covers paid subscriptions to Axis, Regent Systems&rsquo; business
+              This policy covers paid subscriptions to Axis, Regent Technologies&rsquo; business
               operations platform, purchased directly through our checkout. Subscriptions are
               billed and processed by our payment provider and merchant of record, Paddle.com
               Market Limited, on our behalf.

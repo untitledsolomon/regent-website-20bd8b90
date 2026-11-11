@@ -9,7 +9,6 @@ import { AnimatedCounter } from "@/components/AnimatedCounter";
 import { GradientText } from "@/components/GradientText";
 import { InteractiveDemo, type DemoStep } from "@/components/InteractiveDemo";
 import { detailedCapabilities } from "@/data/siteData";
-import { PageMeta } from "@/components/PageMeta";
 import { ChartArea, Cog, Puzzle, Ruler, Search } from "lucide-react";
 
 const capabilityStats = [
@@ -22,7 +21,7 @@ const capabilityStats = [
 const approachComparison = [
   { approach: "In-House Teams", timeline: "12–18 months", risk: "High", scalability: "Limited", expertise: "Single domain" },
   { approach: "Traditional Consultancies", timeline: "6–12 months", risk: "Medium", scalability: "Project-bound", expertise: "General" },
-  { approach: "Regent Systems", timeline: "8–16 weeks", risk: "Low", scalability: "Ongoing partnership", expertise: "Deep integration", highlighted: true },
+  { approach: "Regent", timeline: "8–16 weeks", risk: "Low", scalability: "Ongoing partnership", expertise: "Deep integration", highlighted: true },
 ];
 
 const workflowSteps: DemoStep[] = [
@@ -123,10 +122,7 @@ const workflowSteps: DemoStep[] = [
 export default function CapabilitiesPage() {
   return (
     <div>
-      <PageMeta
-        title="Solutions & Capabilities — Regent | Integration Consulting"
-        description="Five core capabilities that address every layer of enterprise integration and intelligence challenges."
-      />
+      
 
       {/* Hero */}
       <section className="pt-[140px] pb-[100px] bg-surface border-b border-border relative overflow-hidden">

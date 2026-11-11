@@ -1,12 +1,8 @@
-import { PageMeta } from "@/components/PageMeta";
 
 export default function TermsOfService() {
   return (
     <>
-      <PageMeta
-        title="Terms of Service — Regent Systems"
-        description="Regent Systems terms of service. Read our terms and conditions for using our website and services."
-      />
+      
       <div className="section-container py-20 max-w-3xl mx-auto">
         <h1 className="font-heading text-4xl font-bold tracking-tight mb-2">Terms of Service</h1>
         <p className="text-muted-foreground mb-10">Last updated: March 8, 2026</p>
@@ -14,7 +10,7 @@ export default function TermsOfService() {
         <div className="prose prose-neutral max-w-none space-y-8 text-foreground/80 leading-relaxed">
           <section>
             <h2 className="font-heading text-xl font-semibold text-foreground mb-3">1. Acceptance of Terms</h2>
-            <p>By accessing and using the Regent Systems website ("Site"), you accept and agree to be bound by these Terms of Service. If you do not agree to these terms, please do not use our Site.</p>
+            <p>By accessing and using the Regent Technologies website ("Site"), you accept and agree to be bound by these Terms of Service. If you do not agree to these terms, please do not use our Site.</p>
           </section>
 
           <section>
@@ -24,7 +20,7 @@ export default function TermsOfService() {
 
           <section>
             <h2 className="font-heading text-xl font-semibold text-foreground mb-3">3. Intellectual Property</h2>
-            <p>All content on this Site — including text, graphics, logos, images, and software — is the property of Regent Systems, Inc. or its content suppliers and is protected by applicable intellectual property laws. You may not reproduce, distribute, or create derivative works without our prior written consent.</p>
+            <p>All content on this Site — including text, graphics, logos, images, and software — is the property of Regent Technologies or its content suppliers and is protected by applicable intellectual property laws. You may not reproduce, distribute, or create derivative works without our prior written consent.</p>
           </section>
 
           <section>
@@ -39,7 +35,7 @@ export default function TermsOfService() {
 
           <section>
             <h2 className="font-heading text-xl font-semibold text-foreground mb-3">6. Limitation of Liability</h2>
-            <p>To the fullest extent permitted by law, Regent Systems, Inc. shall not be liable for any indirect, incidental, special, consequential, or punitive damages arising out of your use of the Site.</p>
+            <p>To the fullest extent permitted by law, Regent Technologies shall not be liable for any indirect, incidental, special, consequential, or punitive damages arising out of your use of the Site.</p>
           </section>
 
           <section>

@@ -8,7 +8,6 @@ import { useQuery } from "@tanstack/react-query";
 import { createClient } from "@/lib/supabase/client";
 import { GradientText } from "@/components/GradientText";
 import { Icons } from "@/components/Icons";
-import { PageMeta } from "@/components/PageMeta";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
@@ -130,7 +129,7 @@ export default function CareerApply() {
   if (submitted) {
     return (
       <div>
-        <PageMeta title="Application Submitted — Regent" description="Thank you for your application." />
+        
         <section className="pt-[140px] pb-[100px]">
           <div className="section-container max-w-[600px] mx-auto text-center">
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
@@ -158,10 +157,7 @@ export default function CareerApply() {
 
   return (
     <div>
-      <PageMeta
-        title={career ? `Apply: ${career.title} — Regent` : "Apply — Regent Careers"}
-        description="Submit your application to join the Regent team."
-      />
+      
       <section className="pt-[140px] pb-[100px] bg-surface border-b border-border">
         <div className="section-container">
           <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}>

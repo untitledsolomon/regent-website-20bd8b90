@@ -23,6 +23,23 @@ export const metadata: Metadata = {
   ),
 }
 
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.regentplatform.com'
+
+const organizationJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Organization',
+  '@id': `${SITE_URL}/#organization`,
+  name: 'Regent',
+  legalName: 'Regent Technologies',
+  alternateName: ['Regent Platform', 'Regent Technologies'],
+  url: SITE_URL,
+  logo: `${SITE_URL}/icon-512.png`,
+  description:
+    'Regent builds Axis and other business systems for growing businesses that have outgrown spreadsheets and disconnected tools.',
+  // TODO: add the real profile URLs (LinkedIn, X, Instagram, TikTok, YouTube) so Google can link them to one entity.
+  sameAs: [] as string[],
+}
+
 export default function RootLayout({
   children,
 }: {
@@ -31,6 +48,10 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
+        />
         <Providers>{children}</Providers>
       </body>
     </html>

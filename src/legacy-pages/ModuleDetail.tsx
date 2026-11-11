@@ -7,7 +7,6 @@ import { motion } from "framer-motion";
 import { modules } from "@/data/siteData";
 import { Icons } from "@/components/Icons";
 import { RevealOnScroll } from "@/components/RevealOnScroll";
-import { PageMeta } from "@/components/PageMeta";
 import { CTASection } from "@/components/CardComponents";
 
 export default function ModuleDetail() {
@@ -27,10 +26,7 @@ export default function ModuleDetail() {
 
   return (
     <div>
-      <PageMeta
-        title={`${mod.name} — Regent | Systems Infrastructure`}
-        description={mod.desc}
-      />
+      
 
       {/* Hero */}
       <section className="pt-[100px] pb-20 bg-surface border-b border-border">

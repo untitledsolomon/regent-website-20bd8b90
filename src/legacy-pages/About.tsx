@@ -5,7 +5,6 @@ import { RevealOnScroll } from "@/components/RevealOnScroll";
 import { CTASection } from "@/components/CardComponents";
 import { Icons } from "@/components/Icons";
 import { AnimatedCounter } from "@/components/AnimatedCounter";
-import { PageMeta } from "@/components/PageMeta";
 
 const values = [
   {
@@ -69,7 +68,7 @@ const why_it_matters = [
 export default function AboutPage() {
   return (
     <div>
-      <PageMeta title="About — Regent | Our Mission & Story" description="Regent was founded on the belief that organizations cannot reach their operational potential when their systems don't communicate." />
+      
       {/* Hero */}
       <section className="pt-[140px] pb-[100px] bg-surface border-b border-border relative overflow-hidden">
         <div className="absolute inset-0 grid-bg opacity-40 pointer-events-none" />

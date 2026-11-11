@@ -4,7 +4,6 @@ import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { useEffect } from "react";
 import { motion } from "framer-motion";
-import { PageMeta } from "@/components/PageMeta";
 
 const NotFound = () => {
   const pathname = usePathname();
@@ -15,7 +14,7 @@ const NotFound = () => {
 
   return (
     <>
-      <PageMeta title="Page Not Found — Regent Systems" description="The page you're looking for doesn't exist." />
+      
       <div className="flex min-h-[80vh] items-center justify-center">
         <motion.div
           initial={{ opacity: 0, y: 20 }}

@@ -10,7 +10,6 @@ import { AnimatedCounter } from "@/components/AnimatedCounter";
 import { GradientText } from "@/components/GradientText";
 import { InteractiveDemo, type DemoStep } from "@/components/InteractiveDemo";
 import { archLayers, modules } from "@/data/siteData";
-import { PageMeta } from "@/components/PageMeta";
 import { ChartArea, Cog, Ruler, Search } from "lucide-react";
 
 const platformStats = [
@@ -175,7 +174,7 @@ const methodologySteps: DemoStep[] = [
 export default function PlatformPage() {
   return (
     <div>
-      <PageMeta title="How We Build — Regent | Enterprise Infrastructure" description="How Regent architects and deploys operational infrastructure that connects systems, enables automation, and delivers intelligence across organizations." />
+      
       {/* Hero */}
       <section className="pt-[140px] pb-[100px] bg-surface border-b border-border relative overflow-hidden">
         <div className="absolute inset-0 grid-bg opacity-50" />

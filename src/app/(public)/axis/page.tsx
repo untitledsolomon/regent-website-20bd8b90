@@ -3,25 +3,24 @@ import Link from "next/link";
 import { Icons } from "@/components/Icons";
 import { SectionHeader } from "@/components/SectionHeader";
 import { RevealOnScroll } from "@/components/RevealOnScroll";
-import { PageMeta } from "@/components/PageMeta";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { AXIS_SIGNUP_URL } from "@/lib/axis";
 
 export const metadata: Metadata = {
-  title: "Axis — Business Operations Platform",
+  title: { absolute: "Axis by Regent: Business Management Software" },
   description:
-    "Axis is Regent's all-in-one business operations platform: invoicing, ledger accounting, inventory, and HR in one system built for growing businesses.",
+    "Axis by Regent is the business operating system for growing businesses: invoicing, accounting, inventory, and HR in one connected system. Try it free for 7 days.",
   openGraph: {
-    title: "Axis | Regent",
+    title: "Axis by Regent: Business Management Software",
     description:
-      "Axis is Regent's all-in-one business operations platform: invoicing, ledger accounting, inventory, and HR in one system built for growing businesses.",
+      "Axis by Regent is the business operating system for growing businesses: invoicing, accounting, inventory, and HR in one connected system. Try it free for 7 days.",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Axis | Regent",
+    title: "Axis by Regent: Business Management Software",
     description:
-      "Axis is Regent's all-in-one business operations platform: invoicing, ledger accounting, inventory, and HR in one system built for growing businesses.",
+      "Axis by Regent is the business operating system for growing businesses: invoicing, accounting, inventory, and HR in one connected system. Try it free for 7 days.",
   },
   alternates: {
     canonical: "/axis",
@@ -32,11 +31,13 @@ export default function AxisPage() {
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "SoftwareApplication",
-    name: "Axis",
+    name: "Axis by Regent",
+    alternateName: "Axis",
+    url: (process.env.NEXT_PUBLIC_SITE_URL || "https://www.regentplatform.com") + "/axis",
     applicationCategory: "BusinessApplication",
     operatingSystem: "Web",
     description:
-      "Axis is Regent's all-in-one business operations platform: invoicing, ledger accounting, inventory, and HR in one system built for growing businesses.",
+      "Axis by Regent is the business operating system for growing businesses: invoicing, accounting, inventory, and HR in one connected system. Try it free for 7 days.",
     offers: {
       "@type": "Offer",
       url:
@@ -55,10 +56,7 @@ export default function AxisPage() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <PageMeta
-        title="Axis"
-        description="Regent's all-in-one business operations platform."
-      />
+      
 
       {/* Hero — light split layout matching the rest of the site */}
       <section className="grid-bg relative overflow-hidden border-b border-border">
@@ -80,11 +78,11 @@ export default function AxisPage() {
                 <span className="h-px w-8 bg-primary" /> Regent Product <span className="h-px w-8 bg-primary" />
               </div>
               <h1 className="mb-6 font-heading text-[clamp(36px,5vw,60px)] font-semibold leading-[1.05] tracking-[-0.04em] text-text-primary">
-                A system to support{" "}
-                <span className="rounded-md bg-accent-light px-2 text-primary">running your business.</span>
+                Axis by Regent: {" "}
+                <span className="rounded-md bg-accent-light px-2 text-primary">one system for your entire business.</span>
               </h1>
               <p className="mx-auto mb-8 max-w-[560px] text-lg font-light leading-relaxed text-text-secondary">
-                Axis is Regent&rsquo;s done-for-you operations platform for teams who&rsquo;ve outgrown spreadsheets. Invoicing, accounting, inventory, and HR share the same data, so your work stays in sync.
+                Axis is the business operating system from Regent for growing businesses that have outgrown spreadsheets. Invoicing, accounting, inventory, and HR share the same data, so your work stays in sync.
               </p>
               <div className="flex flex-col items-center justify-center gap-3 sm:flex-row">
                 <a href={AXIS_SIGNUP_URL} target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-[18px] py-3 font-heading text-[13px] font-medium text-primary-foreground transition-all hover:-translate-y-px hover:shadow-lg">

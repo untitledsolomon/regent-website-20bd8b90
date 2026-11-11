@@ -1,12 +1,8 @@
-import { PageMeta } from "@/components/PageMeta";
 
 export default function PrivacyPolicy() {
   return (
     <>
-      <PageMeta
-        title="Privacy Policy — Regent Systems"
-        description="Regent Systems privacy policy. Learn how we collect, use, and protect your personal information."
-      />
+      
       <div className="section-container py-20 max-w-3xl mx-auto">
         <h1 className="font-heading text-4xl font-bold tracking-tight mb-2">Privacy Policy</h1>
         <p className="text-muted-foreground mb-10">Last updated: March 8, 2026</p>

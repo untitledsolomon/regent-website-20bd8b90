@@ -1,9 +1,25 @@
+import type { Metadata } from 'next';
 import { createClient } from '@/lib/supabase/server';
 import { notFound } from 'next/navigation';
 import { RevealOnScroll } from '@/components/RevealOnScroll';
 import { Icons } from '@/components/Icons';
 import { GradientText } from '@/components/GradientText';
 import ResourceReader from './ResourceReader';
+
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params;
+  const supabase = await createClient();
+  const { data } = await supabase.from('resources').select('title, description').eq('slug', slug).single();
+  if (!data) return { title: 'Resource not found', robots: { index: false, follow: false } };
+  const description = data.description || undefined;
+  return {
+    title: data.title,
+    description,
+    alternates: { canonical: `/resources/${slug}` },
+    openGraph: { title: `${data.title} | Regent`, description, type: 'article', url: `/resources/${slug}` },
+    twitter: { card: 'summary_large_image', title: `${data.title} | Regent`, description },
+  };
+}
 
 export default async function ResourceDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;

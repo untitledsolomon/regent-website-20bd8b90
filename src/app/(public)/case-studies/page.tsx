@@ -2,17 +2,17 @@ import type { Metadata } from 'next'
 import CaseStudies from '@/legacy-pages/CaseStudies'
 
 export const metadata: Metadata = {
-  title: 'Client Success Stories',
-  description: 'Real-world examples of how Regent transforms enterprise infrastructure across finance, government, and infrastructure sectors.',
+  title: 'Case Studies',
+  description: 'How growing retail and service businesses move from spreadsheets and disconnected tools to one connected system.',
   openGraph: {
-    title: 'Client Success Stories | Regent',
-    description: 'Real-world examples of how Regent transforms enterprise infrastructure across finance, government, and infrastructure sectors.',
+    title: 'Case Studies | Regent',
+    description: 'How growing retail and service businesses move from spreadsheets and disconnected tools to one connected system.',
     type: 'website',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Client Success Stories | Regent',
-    description: 'Real-world examples of how Regent transforms enterprise infrastructure across finance, government, and infrastructure sectors.',
+    title: 'Case Studies | Regent',
+    description: 'How growing retail and service businesses move from spreadsheets and disconnected tools to one connected system.',
   },
   alternates: {
     canonical: '/case-studies',

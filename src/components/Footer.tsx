@@ -128,7 +128,7 @@ export function Footer() {
             ))}
           </div>
           <div className="border-t border-background/10 pt-8 mt-16 flex flex-col md:flex-row justify-between items-center text-[13px] text-background/35 gap-4">
-            <span>© {new Date().getFullYear()} Regent Systems, Inc. All rights reserved.</span>
+            <span>© {new Date().getFullYear()} Regent Technologies All rights reserved.</span>
             <span className="flex gap-6">
               <Link href="/privacy" className="group hover:text-background/60 relative">
                 Privacy Policy

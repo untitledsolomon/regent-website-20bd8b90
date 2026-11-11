@@ -4,7 +4,6 @@ import { headers } from "next/headers";
 import { Icons } from "@/components/Icons";
 import { SectionHeader } from "@/components/SectionHeader";
 import { RevealOnScroll } from "@/components/RevealOnScroll";
-import { PageMeta } from "@/components/PageMeta";
 import { AXIS_SIGNUP_URL } from "@/lib/axis";
 import { getAxisPricing, type AxisPlanPricing } from "@/lib/paddle-pricing";
 
@@ -159,10 +158,7 @@ export default async function PricingPage() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <PageMeta
-        title="Axis Pricing"
-        description="Simple, transparent pricing for Axis. Every plan includes a 7-day free trial."
-      />
+      
       <div className="section-container py-24">
         <h1 className="sr-only">Axis Pricing</h1>
         <SectionHeader

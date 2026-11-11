@@ -107,7 +107,7 @@ export default function NewsletterCompose() {
               </div>
               <div className="prose prose-sm max-w-none" dangerouslySetInnerHTML={{ __html: body }} />
               <div className="border-t border-border mt-8 pt-4">
-                <p className="text-xs text-text-muted">© {new Date().getFullYear()} Regent Systems, Inc.</p>
+                <p className="text-xs text-text-muted">© {new Date().getFullYear()} Regent Technologies</p>
               </div>
             </div>
           </div>

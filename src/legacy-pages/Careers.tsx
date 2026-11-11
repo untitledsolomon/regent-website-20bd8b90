@@ -7,7 +7,6 @@ import { RevealOnScroll } from "@/components/RevealOnScroll";
 import { GradientText } from "@/components/GradientText";
 import { Icons } from "@/components/Icons";
 import { companyValues, benefits } from "@/data/siteData";
-import { PageMeta } from "@/components/PageMeta";
 import { createClient } from "@/lib/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 
@@ -41,7 +40,7 @@ export default function CareersPage() {
 
   return (
     <div>
-      <PageMeta title="Careers — Regent | Join Our Team" description="Join the team engineering infrastructure for the next generation of organizations." />
+      
       <section className="pt-[140px] pb-[100px] bg-surface border-b border-border">
         <div className="section-container">
           <motion.div

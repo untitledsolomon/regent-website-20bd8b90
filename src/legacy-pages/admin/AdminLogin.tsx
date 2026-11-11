@@ -97,7 +97,7 @@ export default function AdminLogin() {
         </form>
 
         <p className="text-center text-xs text-muted-foreground mt-6">
-          Regent Systems · Enterprise AI Platform
+          Regent · Admin
         </p>
       </div>
     </div>

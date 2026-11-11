@@ -10,7 +10,6 @@ import { RevealOnScroll } from "@/components/RevealOnScroll";
 import { CapabilityCard, ArchitectureLayer, ModuleCard, IndustryCard, BlogCard, CTASection } from "@/components/CardComponents";
 import { GradientText } from "@/components/GradientText";
 import { capabilities, archLayers, modules, industries } from "@/data/siteData";
-import { PageMeta } from "@/components/PageMeta";
 import { createClient } from "@/lib/supabase/client";
 
 const AnimatedBackground = dynamic(
@@ -116,19 +115,7 @@ export default function HomePage() {
 
   return (
     <div>
-      <PageMeta
-        title="Regent — Enterprise Systems Builder"
-        description="Regent architects and builds enterprise systems that connect data, workflows, and intelligence across organizations."
-        jsonLd={{
-          "@context": "https://schema.org",
-          "@type": "Organization",
-          "name": "Regent Systems",
-          "url": "https://regent.systems",
-          "description": "Regent architects and builds enterprise systems that connect data, workflows, and intelligence across organizations.",
-          "foundingDate": "2026",
-          "sameAs": [],
-        }}
-      />
+      
       {/* Hero */}
       <section className="pt-[140px] pb-[100px] relative overflow-hidden bg-card">
         <AnimatedBackground />

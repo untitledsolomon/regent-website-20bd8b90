@@ -1,9 +1,27 @@
+import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { modules } from '@/data/siteData'
 import ModuleDetail from '@/legacy-pages/ModuleDetail'
 
 export function generateStaticParams() {
   return modules.map((m) => ({ moduleSlug: m.slug }))
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ moduleSlug: string }>
+}): Promise<Metadata> {
+  const { moduleSlug } = await params
+  const mod = modules.find((m) => m.slug === moduleSlug)
+  if (!mod) return { title: 'Not found', robots: { index: false, follow: false } }
+  return {
+    title: mod.name,
+    description: mod.desc,
+    alternates: { canonical: `/platform/${moduleSlug}` },
+    openGraph: { title: `${mod.name} | Regent`, description: mod.desc, type: 'website', url: `/platform/${moduleSlug}` },
+    twitter: { card: 'summary_large_image', title: `${mod.name} | Regent`, description: mod.desc },
+  }
 }
 
 export default async function ModuleDetailPage({

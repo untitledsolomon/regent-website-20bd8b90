@@ -3,17 +3,17 @@ import type { Metadata } from 'next'
 import { BlogClient, type BlogPost } from '@/components/blog/BlogClient'
 
 export const metadata: Metadata = {
-  title: 'Blog — Regent | Insights & Technical Articles',
-  description: 'Ideas on systems, infrastructure, intelligence, and enterprise technology from the Regent team.',
+  title: 'Blog',
+  description: 'Practical writing on running a growing business: spreadsheets, cash flow, inventory, accounting, and business systems, from the team behind Axis by Regent.',
   openGraph: {
-    title: 'Blog — Regent | Insights & Technical Articles',
-    description: 'Ideas on systems, infrastructure, intelligence, and enterprise technology from the Regent team.',
+    title: 'Blog',
+    description: 'Practical writing on running a growing business: spreadsheets, cash flow, inventory, accounting, and business systems, from the team behind Axis by Regent.',
     type: 'website',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Blog — Regent | Insights & Technical Articles',
-    description: 'Ideas on systems, infrastructure, intelligence, and enterprise technology from the Regent team.',
+    title: 'Blog',
+    description: 'Practical writing on running a growing business: spreadsheets, cash flow, inventory, accounting, and business systems, from the team behind Axis by Regent.',
   },
   alternates: {
     canonical: '/blog',

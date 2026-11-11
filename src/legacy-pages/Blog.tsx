@@ -7,7 +7,6 @@ import { RevealOnScroll } from "@/components/RevealOnScroll";
 import { BlogCard } from "@/components/CardComponents";
 import { GradientText } from "@/components/GradientText";
 import { Icons } from "@/components/Icons";
-import { PageMeta } from "@/components/PageMeta";
 import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -65,7 +64,7 @@ export default function BlogPage() {
   if (isLoading) {
     return (
       <div>
-        <PageMeta title="Blog — Regent | Insights & Technical Articles" description="Ideas on systems, infrastructure, intelligence, and enterprise technology from the Regent team." />
+        
         <section className="pt-[140px] pb-[100px] bg-surface border-b border-border">
           <div className="section-container">
             <div className="h-12 w-64 bg-card border border-border rounded-lg animate-pulse mb-4" />
@@ -84,7 +83,7 @@ export default function BlogPage() {
   if (isError) {
     return (
       <div>
-        <PageMeta title="Blog — Regent" description="Ideas on systems, infrastructure, intelligence, and enterprise technology." />
+        
         <section className="pt-[140px] pb-[100px]">
           <div className="section-container text-center">
             <h1 className="font-heading text-2xl font-semibold text-text-primary mb-4">Unable to load articles</h1>
@@ -104,7 +103,7 @@ export default function BlogPage() {
 
   return (
     <div>
-      <PageMeta title="Blog — Regent | Insights & Technical Articles" description="Ideas on systems, infrastructure, intelligence, and enterprise technology from the Regent team." />
+      
       <section className="pt-[140px] pb-[100px] bg-surface border-b border-border">
         <div className="section-container">
           <motion.div

@@ -6,7 +6,6 @@ import { RevealOnScroll } from "@/components/RevealOnScroll";
 import { ResourceCard, CTASection } from "@/components/CardComponents";
 import { GradientText } from "@/components/GradientText";
 import { Icons } from "@/components/Icons";
-import { PageMeta } from "@/components/PageMeta";
 import {
   Dialog,
   DialogContent,
@@ -132,7 +131,7 @@ export default function ResourcesPage({ initialResources }: { initialResources?:
   if (isLoading) {
     return (
       <div>
-        <PageMeta title="Resources — Regent | Guides, Whitepapers & Reports" description="Technical whitepapers, research, documentation, and case studies for enterprise architects and technology leaders." />
+        
         <section className="pt-[140px] pb-[100px] bg-surface border-b border-border">
           <div className="section-container">
             <div className="h-12 w-64 bg-card border border-border rounded-lg animate-pulse mb-4" />
@@ -151,7 +150,7 @@ export default function ResourcesPage({ initialResources }: { initialResources?:
   if (isError) {
     return (
       <div>
-        <PageMeta title="Resources — Regent" description="Technical resources for enterprise architects." />
+        
         <section className="pt-[140px] pb-[100px]">
           <div className="section-container text-center">
             <h1 className="font-heading text-2xl font-semibold text-text-primary mb-4">Unable to load resources</h1>
@@ -167,7 +166,7 @@ export default function ResourcesPage({ initialResources }: { initialResources?:
 
   return (
     <div>
-      <PageMeta title="Resources — Regent | Guides, Whitepapers & Reports" description="Technical whitepapers, research, documentation, and case studies for enterprise architects and technology leaders." />
+      
       <section className="pt-[140px] pb-[100px] bg-surface border-b border-border relative overflow-hidden">
         <div className="absolute inset-0 grid-bg opacity-50" />
         <div className="section-container relative z-10">

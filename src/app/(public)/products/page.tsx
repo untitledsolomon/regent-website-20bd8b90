@@ -1,20 +1,19 @@
 import { ProductCard } from "@/components/ui/ProductCard";
-import { PageMeta } from "@/components/PageMeta";
 import Link from "next/link";
 import { Icons } from "@/components/Icons";
 
 export const metadata = {
-  title: "Products — Regent",
-  description: "Regent product suite: Axis, Regent CRM, Forge, Dominion Finance, and Mabruk Atelier.",
+  title: "Products",
+  description: "Regent builds business software: Axis, a business operating system for growing businesses, plus Regent CRM and Forge, both in development.",
   openGraph: {
     title: "Products — Regent",
-    description: "Regent product suite: Axis, Regent CRM, Forge, Dominion Finance, and Mabruk Atelier.",
+    description: "Regent builds business software: Axis, a business operating system for growing businesses, plus Regent CRM and Forge, both in development.",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
     title: "Products — Regent",
-    description: "Regent product suite: Axis, Regent CRM, Forge, Dominion Finance, and Mabruk Atelier.",
+    description: "Regent builds business software: Axis, a business operating system for growing businesses, plus Regent CRM and Forge, both in development.",
   },
   alternates: {
     canonical: "/products",
@@ -24,7 +23,7 @@ export const metadata = {
 export default function ProductsPage() {
   return (
     <div className="section-container py-28">
-      <PageMeta title={metadata.title} description={metadata.description} />
+      
 
       <div className="mb-14 max-w-3xl">
         <div className="mb-5 flex items-center gap-3 font-mono text-[11px] uppercase tracking-[0.12em] text-primary">
@@ -34,12 +33,12 @@ export default function ProductsPage() {
           The systems behind better business.
         </h1>
         <p className="max-w-2xl text-lg font-light leading-relaxed text-text-secondary">
-          Business-facing products built and operated by Regent. Choose the system that fits the work you need to move forward.
+          Business software built by Regent. Axis is available today; Regent CRM and Forge are in development.
         </p>
       </div>
 
       <div className="mb-8 flex flex-wrap gap-2 border-y border-border py-4 text-xs font-medium text-text-secondary">
-        {['All products', 'Operations', 'Relationships', 'Publishing', 'Finance', 'Showcase'].map((category, index) => (
+        {['All products', 'Operations', 'Relationships', 'Publishing'].map((category, index) => (
           <span key={category} className={`rounded-full px-3 py-1.5 ${index === 0 ? 'bg-text-primary text-background' : 'bg-surface'}`}>
             {category}
           </span>
@@ -50,7 +49,7 @@ export default function ProductsPage() {
         <ProductCard
           title="Axis"
           eyebrow="Flagship platform"
-          description="A done-for-you business operations system for teams moving beyond spreadsheets and disconnected tools."
+          description="The business operating system for growing businesses that have outgrown spreadsheets and disconnected tools: one connected system for sales, finance, inventory, and people."
           href="/axis"
           benefits={["Invoicing, clients, and full ledger accounting", "Inventory, custody, HR, and attendance", "One shared system for every core operation"]}
           ctaLabel="Explore Axis"
@@ -63,7 +62,8 @@ export default function ProductsPage() {
           description="Multi-tenant CRM for managing client relationships and sales pipelines."
           href="/products/regent-crm"
           benefits={["Client relationship management", "Sales pipeline visibility"]}
-          ctaLabel="View Regent CRM"
+          ctaLabel="Learn more"
+          status="In development"
         />
 
         <ProductCard
@@ -72,26 +72,11 @@ export default function ProductsPage() {
           description="A content management system for building and publishing sites and content."
           href="/products/forge"
           benefits={["Site and content publishing", "A structured editorial workflow"]}
-          ctaLabel="View Forge"
+          ctaLabel="Learn more"
+          status="In development"
         />
 
-        <ProductCard
-          title="Dominion Finance"
-          eyebrow="Lending operations"
-          description="Loan management platform for tracking lending operations end-to-end."
-          href="/products/dominion-finance"
-          benefits={["End-to-end lending operations", "Clear loan tracking"]}
-          ctaLabel="View Dominion Finance"
-        />
 
-        <ProductCard
-          title="Mabruk Atelier"
-          eyebrow="Real-world showcase"
-          description="A luxury fashion brand, built and run by Regent as a real-world showcase of its own systems."
-          href="/products/mabruk-atelier"
-          benefits={["A live Regent-operated brand", "Systems tested in the real world"]}
-          ctaLabel="Visit Mabruk Atelier"
-        />
       </div>
 
       <div className="mt-20 grid gap-8 border-t border-border pt-10 lg:grid-cols-[0.7fr_1.3fr]">
@@ -105,7 +90,7 @@ export default function ProductsPage() {
       </div>
 
       <div className="mt-16 flex flex-col gap-4 border-t border-border pt-6 text-sm text-text-secondary sm:flex-row sm:items-center sm:justify-between">
-        <span>One studio. Multiple operating systems.</span>
+        <span>One company. Focused business systems.</span>
         <Link href="/demo" className="inline-flex items-center gap-2 font-medium text-primary hover:gap-3 transition-all">
           Talk to Regent <Icons.ArrowRight />
         </Link>
