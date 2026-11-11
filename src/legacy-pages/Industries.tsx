@@ -11,10 +11,10 @@ import { GradientText } from "@/components/GradientText";
 import { industriesDetailed } from "@/data/siteData";
 
 const industryStats = [
-  { label: "Events Processed Daily", value: "1.4M+" },
-  { label: "System Reliability", value: "99.99%" },
-  { label: "Data Sync Latency", value: "<1s" },
-  { label: "Production Systems Across Industries", value: "6+" },
+  { label: "Industry Sectors", value: "8" },
+  { label: "Capability Areas", value: "5" },
+  { label: "Architecture Layers", value: "6" },
+  { label: "Platform in Production", value: "1" },
 ];
 
 const crossIndustryBenefits = [

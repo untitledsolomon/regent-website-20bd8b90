@@ -11,10 +11,10 @@ import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 
 const heroStats = [
-  { value: "6+", label: "Systems Delivered" },
-  { value: "99.99%", label: "System Uptime SLA" },
-  { value: "1.4M+", label: "Daily Events Processed" },
-  { value: "2+", label: "Enterprise Clients" },
+  { value: "5", label: "Core Capabilities" },
+  { value: "6", label: "Architecture Layers" },
+  { value: "1", label: "Platform in Production" },
+  { value: "2", label: "Products in Development" },
 ];
 
 interface CaseStudy {

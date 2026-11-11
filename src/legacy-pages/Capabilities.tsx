@@ -12,10 +12,10 @@ import { detailedCapabilities } from "@/data/siteData";
 import { ChartArea, Cog, Puzzle, Ruler, Search } from "lucide-react";
 
 const capabilityStats = [
-  { label: "Protocols Supported", value: "10+" },
-  { label: "Integration Patterns", value: "25+" },
-  { label: "System Uptime SLA", value: "99.99%" },
-  { label: "Deployment Time", value: "8–16 Weeks" },
+  { label: "Capability Areas", value: "5" },
+  { label: "Architecture Layers", value: "6" },
+  { label: "Platform in Production", value: "1" },
+  { label: "Products in Development", value: "2" },
 ];
 
 const approachComparison = [

@@ -33,10 +33,10 @@ const TestimonialCarousel = dynamic(
 );
 
 const metrics = [
-  { n: "6+", l: "Systems Delivered" },
-  { n: "99.99%", l: "System Uptime SLA" },
-  { n: "1.4M+", l: "Daily Events Processed" },
-  { n: "2+", l: "Enterprise Clients" },
+  { n: "5", l: "Core Capabilities" },
+  { n: "6", l: "Architecture Layers" },
+  { n: "1", l: "Platform in Production" },
+  { n: "2", l: "Products in Development" },
 ];
 
 // Staggered word reveal for the headline

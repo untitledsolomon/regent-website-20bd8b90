@@ -13,10 +13,10 @@ import { archLayers, modules } from "@/data/siteData";
 import { ChartArea, Cog, Ruler, Search } from "lucide-react";
 
 const platformStats = [
-  { label: "Protocols Supported", value: "12+" },
-  { label: "Integration Patterns", value: "25+" },
-  { label: "Deployment Time", value: "8–16 Weeks" },
-  { label: "Uptime SLA", value: "99.99%" },
+  { label: "Capability Areas", value: "5" },
+  { label: "Architecture Layers", value: "6" },
+  { label: "Platform in Production", value: "1" },
+  { label: "Products in Development", value: "2" },
 ];
 
 const deploymentOptions = [
@@ -26,10 +26,10 @@ const deploymentOptions = [
 ];
 
 const performanceMetrics = [
-  { metric: "Throughput", value: "2.4B events/day", detail: "Sustained throughput we've achieved across client deployments with automatic load balancing and back-pressure handling." },
-  { metric: "Latency", value: "12ms P99", detail: "End-to-end processing latency including transformation, routing, and delivery confirmation across production systems." },
-  { metric: "Availability", value: "99.997%", detail: "Measured over trailing 12 months across all client production environments globally." },
-  { metric: "Recovery", value: "<30s RTO", detail: "Automated failover with recovery time objective under 30 seconds for any single component failure." },
+  { metric: "Delivery", value: "Verifiable", detail: "Every movement of data between systems can be confirmed, retried, and traced." },
+  { metric: "Recovery", value: "By design", detail: "Failures are expected, detected, and handled without losing data or interrupting dependent systems." },
+  { metric: "Visibility", value: "End to end", detail: "Every connection and workflow reports on its own health, from the individual interface to the whole process." },
+  { metric: "Change", value: "Controlled", detail: "Updates to data structures and logic are versioned, tested, and reversible." },
 ];
 
 const methodologySteps: DemoStep[] = [
@@ -155,7 +155,7 @@ const methodologySteps: DemoStep[] = [
           <div className="space-y-4">
             {[
               { label: "Monitoring", value: "Real-time dashboards and alerts" },
-              { label: "SLA", value: "99.99% uptime guarantee" },
+              { label: "Reliability", value: "Service levels defined per engagement" },
               { label: "Evolution", value: "Quarterly architecture reviews" },
               { label: "Deliverable", value: "Continuous improvement program" },
             ].map(item => (
@@ -237,7 +237,7 @@ export default function PlatformPage() {
                 Unlike point-to-point integration tools or single-purpose middleware, we provide a complete approach to the entire integration and automation lifecycle — from assessment through ongoing optimization.
               </p>
               <div className="flex flex-col gap-3">
-                {['Enterprise-grade security and compliance', 'Deploy on-premises, cloud, or hybrid', '99.99% uptime SLA with 24/7 support', 'Scales from 10 to 10,000+ systems'].map(item => (
+                {['Enterprise-grade security and compliance', 'Deploy on-premises, cloud, or hybrid', 'Service levels and support defined per engagement', 'Designed to grow with the organization'].map(item => (
                   <div key={item} className="flex items-center gap-2.5">
                     <div className="text-primary flex-shrink-0"><Icons.Check /></div>
                     <span className="text-[15px] text-text-primary">{item}</span>
@@ -387,8 +387,8 @@ export default function PlatformPage() {
               { icon: 'Shield' as const, title: 'Zero-Trust Architecture', desc: 'Every component operates on zero-trust principles. All traffic is authenticated, encrypted, and logged.' },
               { icon: 'Monitor' as const, title: 'Compliance-Ready', desc: 'We build systems that meet SOC 2, ISO 27001, and industry-specific compliance requirements from day one.' },
               { icon: 'Database' as const, title: 'Data Residency Controls', desc: 'Configure data residency at the field level. Comply with GDPR, CCPA, and regional data sovereignty requirements.' },
-              { icon: 'Zap' as const, title: '99.99% Uptime SLA', desc: 'Contractual uptime commitments backed by distributed architecture and automated failover.' },
-              { icon: 'Globe' as const, title: 'Global Deployment', desc: 'Deploy across 18 regions worldwide. Data never leaves your designated geographic boundaries.' },
+              { icon: 'Zap' as const, title: 'Reliability by Design', desc: 'Redundancy, automated recovery, and continuous monitoring are built into the architecture rather than added afterward.' },
+              { icon: 'Globe' as const, title: 'Environment-Specific Deployment', desc: 'Systems are deployed to fit the environment they run in, with data kept inside the boundaries the organization defines.' },
               { icon: 'FileText' as const, title: 'Audit & Compliance', desc: 'Complete audit trails for all system activity. Configurable retention policies for regulatory compliance.' },
             ].map((item, i) => (
               <CapabilityCard key={item.title} icon={item.icon} title={item.title} desc={item.desc} delay={Math.min(i + 1, 5)} />
