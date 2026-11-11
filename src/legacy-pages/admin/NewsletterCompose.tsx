@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import RichTextEditor from "@/components/admin/RichTextEditor";
-import { Send, Eye, ArrowLeft, Save, FolderOpen } from "lucide-react";
+import { Send, Eye, ArrowLeft, Save, FolderOpen, Sparkles, Loader2, X } from "lucide-react";
 import Link from "next/link";
 
 interface NewsletterTemplate {
@@ -12,6 +12,13 @@ interface NewsletterTemplate {
   name: string;
   subject: string;
   html: string;
+}
+
+interface AiForm {
+  topic: string;
+  audience: string;
+  goal: string;
+  tone: string;
 }
 
 export default function NewsletterCompose() {
@@ -22,6 +29,10 @@ export default function NewsletterCompose() {
   const [preview, setPreview] = useState(false);
   const [templates, setTemplates] = useState<NewsletterTemplate[]>([]);
   const [selectedTemplate, setSelectedTemplate] = useState("");
+  const [aiOpen, setAiOpen] = useState(false);
+  const [aiMode, setAiMode] = useState<"draft" | "improve">("draft");
+  const [aiBusy, setAiBusy] = useState(false);
+  const [aiForm, setAiForm] = useState<AiForm>({ topic: "", audience: "", goal: "", tone: "professional" });
   const { toast } = useToast();
 
   const loadTemplates = async () => {
@@ -121,6 +132,31 @@ export default function NewsletterCompose() {
     }
   };
 
+  const runAi = async (mode: "draft" | "improve") => {
+    setAiBusy(true);
+    try {
+      const res = await fetch("/api/admin/ai/email", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(
+          mode === "draft"
+            ? { mode, ...aiForm }
+            : { mode, tone: aiForm.tone, subject, body }
+        ),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error ?? "AI draft failed");
+      setSubject(data.subject);
+      setBody(data.html);
+      setAiOpen(false);
+      toast({ title: mode === "draft" ? "Draft ready" : "Draft improved", description: "Subject and body updated — review and send." });
+    } catch (e) {
+      toast({ title: "AI draft failed", description: e instanceof Error ? e.message : "Please try again.", variant: "destructive" });
+    } finally {
+      setAiBusy(false);
+    }
+  };
+
   return (
     <div className="p-8 lg:p-10 max-w-[800px]">
       {/* Header */}
@@ -201,6 +237,21 @@ export default function NewsletterCompose() {
       {/* Actions */}
       <div className="flex items-center gap-3 flex-wrap">
         <button
+          onClick={() => { setAiMode("draft"); setAiOpen(true); }}
+          className="inline-flex items-center gap-2 h-11 px-5 bg-primary/5 border border-primary/20 text-primary rounded-lg text-sm font-medium hover:bg-primary/10 transition-all"
+        >
+          <Sparkles size={16} />
+          Draft with AI
+        </button>
+        <button
+          onClick={() => { setAiMode("improve"); setAiOpen(true); }}
+          disabled={!body.trim()}
+          className="inline-flex items-center gap-2 h-11 px-5 bg-card border border-border text-text-secondary rounded-lg text-sm font-medium hover:border-primary/30 hover:text-text-primary transition-all disabled:opacity-40"
+        >
+          <Sparkles size={16} />
+          Improve draft
+        </button>
+        <button
           onClick={saveTemplate}
           className="inline-flex items-center gap-2 h-11 px-5 bg-card border border-border text-text-secondary rounded-lg text-sm font-medium hover:border-primary/30 hover:text-text-primary transition-all"
         >
@@ -223,6 +274,84 @@ export default function NewsletterCompose() {
           {sending ? "Sending…" : "Send Newsletter"}
         </button>
       </div>
+
+      {/* AI helper modal */}
+      {aiOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/60 backdrop-blur-sm p-4" onClick={() => !aiBusy && setAiOpen(false)}>
+          <div
+            className="w-full max-w-md bg-card border border-border rounded-2xl p-6 shadow-xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <Sparkles size={18} className="text-primary" />
+                <h2 className="font-heading text-lg font-semibold text-text-primary">
+                  {aiMode === "draft" ? "Draft with AI" : "Improve draft"}
+                </h2>
+              </div>
+              <button onClick={() => setAiOpen(false)} className="text-text-muted hover:text-text-primary" aria-label="Close">
+                <X size={18} />
+              </button>
+            </div>
+
+            {aiMode === "draft" ? (
+              <div className="space-y-4">
+                <Field label="Topic">
+                  <input value={aiForm.topic} onChange={(e) => setAiForm({ ...aiForm, topic: e.target.value })} placeholder="e.g. New case study: warehouse automation" className={inputCls} />
+                </Field>
+                <Field label="Audience">
+                  <input value={aiForm.audience} onChange={(e) => setAiForm({ ...aiForm, audience: e.target.value })} placeholder="e.g. Supply chain leaders" className={inputCls} />
+                </Field>
+                <Field label="Goal">
+                  <input value={aiForm.goal} onChange={(e) => setAiForm({ ...aiForm, goal: e.target.value })} placeholder="e.g. Drive a reply to book a call" className={inputCls} />
+                </Field>
+                <Field label="Tone">
+                  <select value={aiForm.tone} onChange={(e) => setAiForm({ ...aiForm, tone: e.target.value })} className={inputCls}>
+                    {["professional", "friendly", "energetic", "authoritative"].map((t) => (
+                      <option key={t} value={t}>{t}</option>
+                    ))}
+                  </select>
+                </Field>
+              </div>
+            ) : (
+              <p className="text-sm text-text-muted">
+                The AI will tighten your current subject and body while keeping the core message. Tone:
+                <select value={aiForm.tone} onChange={(e) => setAiForm({ ...aiForm, tone: e.target.value })} className="ml-2 h-8 px-2 rounded-lg bg-card border border-border text-sm text-text-primary outline-none focus:border-primary">
+                  {["professional", "friendly", "energetic", "authoritative"].map((t) => (
+                    <option key={t} value={t}>{t}</option>
+                  ))}
+                </select>
+              </p>
+            )}
+
+            <div className="flex items-center justify-end gap-2 mt-6">
+              <button onClick={() => setAiOpen(false)} className="h-10 px-4 text-sm font-medium text-text-muted hover:text-text-primary">
+                Cancel
+              </button>
+              <button
+                onClick={() => runAi(aiMode)}
+                disabled={aiBusy}
+                className="inline-flex items-center gap-2 h-10 px-5 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary/90 transition-all disabled:opacity-50"
+              >
+                {aiBusy ? <Loader2 size={15} className="animate-spin" /> : <Sparkles size={15} />}
+                {aiBusy ? "Writing…" : aiMode === "draft" ? "Generate draft" : "Improve"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+const inputCls =
+  "w-full h-10 border border-border rounded-lg px-3 text-sm text-text-primary bg-card outline-none focus:border-primary focus:ring-[3px] focus:ring-accent-light transition-all";
+
+function Field({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div>
+      <label className="block text-sm font-medium text-text-primary mb-1.5">{label}</label>
+      {children}
     </div>
   );
 }

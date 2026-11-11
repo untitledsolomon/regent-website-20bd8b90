@@ -4,7 +4,7 @@
 // its template preview) plus reusable templates. Links into the Composer so a
 // template can be loaded and sent. Reads live from Supabase via React Query.
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -12,7 +12,9 @@ import { toast } from "@/hooks/use-toast";
 import { format } from "date-fns";
 import {
   Send, Mail, Users, AlertTriangle, ChevronDown, ChevronUp, Plus, Trash2, FileText, Clock,
+  CalendarClock, Sparkles, Loader2, Save,
 } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface SendRow {
   id: string;
@@ -145,6 +147,9 @@ export default function EmailsPage() {
         </div>
       </div>
 
+      {/* AI scheduled reports */}
+      <DigestControlPanel />
+
       {/* Send log */}
       <div className="bg-card border border-border rounded-3xl overflow-hidden">
         <div className="px-6 py-4 border-b border-border flex items-center justify-between">
@@ -257,6 +262,322 @@ export default function EmailsPage() {
           </div>
         )}
       </div>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// AI Scheduled reports — control center for the weekly + daily digests.
+// Reads/writes the email_settings row via /api/admin/ai/digests, generates
+// editable previews via .../generate and delivers via .../send.
+// ---------------------------------------------------------------------------
+
+interface DigestSettings {
+  weekly_enabled: boolean;
+  weekly_recipients: string[];
+  weekly_hour: number;
+  daily_enabled: boolean;
+  daily_recipients: string[];
+  daily_hour: number;
+  weekly_last_sent_at: string | null;
+  daily_last_sent_at: string | null;
+}
+
+type DigestKind = "weekly" | "daily";
+
+const KIND_META: Record<DigestKind, { label: string; blurb: string }> = {
+  weekly: { label: "Weekly", blurb: "Monday morning — full founder report" },
+  daily: { label: "Daily", blurb: "Every morning — numbers-first summary" },
+};
+
+const splitCsv = (csv: string) =>
+  [...new Set(csv.split(",").map((s) => s.trim().toLowerCase()).filter(Boolean))];
+
+function DigestControlPanel() {
+  const queryClient = useQueryClient();
+  const [kind, setKind] = useState<DigestKind>("weekly");
+  const [csv, setCsv] = useState("");
+  const [hour, setHour] = useState(9);
+  const [dirty, setDirty] = useState(false);
+  const [preview, setPreview] = useState<{ subject: string; markdown: string } | null>(null);
+  const [busy, setBusy] = useState<"saving" | "generating" | "sending" | null>(null);
+
+  const settingsQuery = useQuery({
+    queryKey: ["admin", "digest-settings"],
+    staleTime: 30_000,
+    queryFn: async (): Promise<DigestSettings> => {
+      const res = await fetch("/api/admin/ai/digests");
+      if (!res.ok) throw new Error("Failed to load digest settings");
+      return (await res.json()).settings;
+    },
+  });
+
+  const settings = settingsQuery.data;
+  const kindSettings = settings
+    ? {
+        enabled: kind === "weekly" ? settings.weekly_enabled : settings.daily_enabled,
+        recipients: kind === "weekly" ? settings.weekly_recipients : settings.daily_recipients,
+        sentAt: kind === "weekly" ? settings.weekly_last_sent_at : settings.daily_last_sent_at,
+        defaultHour: kind === "weekly" ? settings.weekly_hour : settings.daily_hour,
+      }
+    : { enabled: false, recipients: [], sentAt: null, defaultHour: 9 };
+
+  // Keep the local editor in sync when settings load or the kind tab changes.
+  const initCsv = kindSettings.recipients.join(", ");
+  useEffect(() => {
+    setDirty(false);
+    setCsv("");
+    setHour(kindSettings.defaultHour);
+    setPreview(null);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [kind]);
+
+  const csvValue = dirty ? csv : initCsv;
+  const hourValue = dirty ? hour : kindSettings.defaultHour;
+
+  const invalidate = () => queryClient.invalidateQueries({ queryKey: ["admin", "digest-settings"] });
+
+  const save = async () => {
+    const recipients = splitCsv(csvValue);
+    if (!recipients.length) {
+      toast({ title: "Add at least one recipient", variant: "destructive" });
+      return;
+    }
+    setBusy("saving");
+    try {
+      const res = await fetch("/api/admin/ai/digests", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          [`${kind}_recipients`]: recipients,
+          [`${kind}_hour`]: Number(hourValue) || kindSettings.defaultHour,
+        }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error ?? "Failed to save");
+      setDirty(false);
+      invalidate();
+      toast({ title: "Saved", description: `${KIND_META[kind].label} digest settings updated.` });
+    } catch (e) {
+      toast({ title: "Save failed", description: e instanceof Error ? e.message : "Please try again", variant: "destructive" });
+    } finally {
+      setBusy(null);
+    }
+  };
+
+  const toggle = async (on: boolean) => {
+    setBusy("saving");
+    try {
+      const res = await fetch("/api/admin/ai/digests", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ [`${kind}_enabled`]: on }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error ?? "Failed to toggle");
+      invalidate();
+      toast({ title: on ? "Enabled" : "Disabled", description: `${KIND_META[kind].label} digest ${on ? "turned on" : "turned off"}.` });
+    } catch (e) {
+      toast({ title: "Toggle failed", description: e instanceof Error ? e.message : "Please try again", variant: "destructive" });
+    } finally {
+      setBusy(null);
+    }
+  };
+
+  const generate = async () => {
+    setBusy("generating");
+    try {
+      const res = await fetch("/api/admin/ai/digests/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ kind }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error ?? "Generation failed");
+      setPreview({ subject: data.subject, markdown: data.markdown });
+      toast({ title: "Preview generated", description: "Edit it, then Send now." });
+    } catch (e) {
+      toast({ title: "Generation failed", description: e instanceof Error ? e.message : "Please try again", variant: "destructive" });
+    } finally {
+      setBusy(null);
+    }
+  };
+
+  const send = async () => {
+    if (!preview) return;
+    const recipients = splitCsv(csvValue);
+    if (!recipients.length) {
+      toast({ title: "Add at least one recipient", variant: "destructive" });
+      return;
+    }
+    setBusy("sending");
+    try {
+      const res = await fetch("/api/admin/ai/digests/send", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ kind, subject: preview.subject, markdown: preview.markdown, to: recipients }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error ?? "Send failed");
+      if (data.email !== "sent") throw new Error(`Delivery failed (${data.email})`);
+      invalidate();
+      toast({ title: "Sent", description: `${KIND_META[kind].label} digest delivered to ${recipients.length} recipient${recipients.length === 1 ? "" : "s"}.` });
+    } catch (e) {
+      toast({ title: "Send failed", description: e instanceof Error ? e.message : "Please try again", variant: "destructive" });
+    } finally {
+      setBusy(null);
+    }
+  };
+
+  return (
+    <div className="bg-card border border-border rounded-3xl overflow-hidden">
+      <div className="px-6 py-4 border-b border-border flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <CalendarClock size={16} className="text-muted-foreground" />
+          <h2 className="font-heading font-bold text-lg text-foreground">AI Scheduled reports</h2>
+        </div>
+        <div className="flex items-center gap-1 rounded-lg bg-muted p-0.5" role="tablist" aria-label="Digest type">
+          {(Object.keys(KIND_META) as DigestKind[]).map((k) => (
+            <button
+              key={k}
+              role="tab"
+              aria-selected={kind === k}
+              onClick={() => setKind(k)}
+              className={cn(
+                "px-3 h-7 rounded-md text-xs font-semibold transition-all",
+                kind === k ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"
+              )}
+            >
+              {KIND_META[k].label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {settingsQuery.isLoading ? (
+        <div className="py-12 text-center text-muted-foreground text-sm">Loading settings…</div>
+      ) : settingsQuery.isError ? (
+        <div className="py-12 text-center text-muted-foreground text-sm">Settings unavailable.</div>
+      ) : (
+        <div className="px-6 py-5 space-y-5">
+          {/* Schedule row */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <div className="flex items-center gap-2.5">
+                <div className="flex items-center gap-2">
+                  <span className="font-bold text-sm text-foreground">{KIND_META[kind].label} digest</span>
+                  <button
+                    role="switch"
+                    aria-checked={kindSettings.enabled}
+                    onClick={() => toggle(!kindSettings.enabled)}
+                    disabled={busy !== null}
+                    className={cn(
+                      "relative w-9 h-5 rounded-full transition-colors",
+                      kindSettings.enabled ? "bg-primary" : "bg-muted border border-border",
+                      busy !== null && "opacity-60"
+                    )}
+                  >
+                    <span className={cn(
+                      "absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white shadow-sm transition-transform",
+                      kindSettings.enabled && "translate-x-4"
+                    )} />
+                  </button>
+                </div>
+                <span className="text-xs font-semibold text-foreground">
+                  {kindSettings.enabled ? "Scheduled" : "Off"}
+                </span>
+              </div>
+              {kindSettings.enabled && (
+                <p className="text-xs text-muted-foreground mt-1">
+                  {KIND_META[kind].blurb} at {hourValue || kindSettings.defaultHour}:00 UTC
+                  {kind === "weekly" ? " on Mondays" : ""}.
+                  {kindSettings.sentAt && <> Last sent {format(new Date(kindSettings.sentAt), "MMM d, yyyy")}.</>}
+                </p>
+              )}
+            </div>
+            <div className="flex items-center gap-2">
+              <label className="text-xs font-semibold text-muted-foreground">Send hour (UTC)</label>
+              <select
+                value={hourValue}
+                onChange={(e) => { setHour(Number(e.target.value)); setDirty(true); }}
+                className="h-9 px-3 rounded-xl bg-background border border-border text-xs font-semibold outline-none focus:border-primary/50 cursor-pointer"
+              >
+                {Array.from({ length: 24 }, (_, i) => (
+                  <option key={i} value={i}>{String(i).padStart(2, "0")}:00</option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          {/* Recipients */}
+          <div>
+            <label className="text-xs font-semibold text-muted-foreground">Recipients</label>
+            <div className="flex items-start gap-2 mt-1.5">
+              <input
+                value={csvValue}
+                onChange={(e) => { setCsv(e.target.value); setDirty(true); }}
+                placeholder="admin@regent.systems, another@example.com"
+                className="flex-1 h-10 rounded-xl bg-background border border-border px-3 text-sm outline-none focus:border-primary/50"
+              />
+              <button
+                onClick={save}
+                disabled={busy !== null}
+                className="inline-flex items-center gap-1.5 h-10 px-4 rounded-xl border border-border text-xs font-bold hover:border-primary/40 hover:text-primary transition-all disabled:opacity-60"
+              >
+                {busy === "saving" ? <Loader2 size={13} className="animate-spin" /> : <Save size={13} />} Save
+              </button>
+            </div>
+          </div>
+
+          <div className="border-t border-border/60 pt-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div>
+                <div className="text-sm font-bold text-foreground">Preview &amp; send</div>
+                <p className="text-xs text-muted-foreground">Generate a draft, edit it here, then deliver it now.</p>
+              </div>
+              <button
+                onClick={generate}
+                disabled={busy !== null}
+                className="inline-flex items-center gap-1.5 h-10 px-4 rounded-xl bg-secondary text-secondary-foreground text-xs font-bold hover:bg-secondary/80 transition-all disabled:opacity-60"
+              >
+                {busy === "generating" ? <Loader2 size={13} className="animate-spin" /> : <Sparkles size={13} />} Generate preview
+              </button>
+            </div>
+
+            {preview ? (
+              <div className="mt-4 space-y-3">
+                <input
+                  value={preview.subject}
+                  onChange={(e) => setPreview((p) => (p ? { ...p, subject: e.target.value } : p))}
+                  className="w-full h-10 rounded-xl bg-background border border-border px-3 text-sm font-semibold outline-none focus:border-primary/50"
+                />
+                <textarea
+                  value={preview.markdown}
+                  onChange={(e) => setPreview((p) => (p ? { ...p, markdown: e.target.value } : p))}
+                  rows={10}
+                  className="w-full rounded-xl bg-background border border-border px-3 py-2.5 text-xs leading-relaxed font-mono outline-none focus:border-primary/50 resize-y"
+                />
+                <div className="flex items-center justify-end gap-2">
+                  <span className="text-[11px] text-muted-foreground">
+                    Will send to {splitCsv(csvValue).length || "0"} recipient{(splitCsv(csvValue).length) === 1 ? "" : "s"}
+                  </span>
+                  <button
+                    onClick={send}
+                    disabled={busy !== null}
+                    className="inline-flex items-center gap-1.5 h-10 px-5 rounded-xl bg-primary text-primary-foreground text-xs font-bold hover:bg-primary/90 transition-all disabled:opacity-60"
+                  >
+                    {busy === "sending" ? <Loader2 size={13} className="animate-spin" /> : <Send size={13} />} Send now
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <p className="text-xs text-muted-foreground mt-3">
+                No preview yet — click &ldquo;Generate preview&rdquo; to draft the {KIND_META[kind].label.toLowerCase()} digest.
+              </p>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

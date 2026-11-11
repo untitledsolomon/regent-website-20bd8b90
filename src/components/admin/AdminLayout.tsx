@@ -9,7 +9,7 @@ import {
   LayoutDashboard, FileText, BarChart3, FolderOpen, Mail, MessageSquare,
   Briefcase, LogOut, ExternalLink, ChevronRight, Menu, X, Settings,
   BookOpen, Activity, PanelLeftClose, PanelLeft,
-  ClipboardList, Search, User, Sparkles, Send,
+  ClipboardList, Search, User, Sparkles, Send, Lightbulb,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
@@ -31,6 +31,7 @@ const contentNavItems = [
   { label: "Leads", path: "/admin/inquiries", icon: MessageSquare },
   { label: "Analytics", path: "/admin/analytics", icon: Activity },
   { label: "Assistant", path: "/admin/assistant", icon: Sparkles },
+  { label: "Insights", path: "/admin/insights", icon: Lightbulb },
   { label: "Emails", path: "/admin/emails", icon: Send },
   { label: "Users", path: "/admin/users", icon: User },
   { label: "Blog Posts", path: "/admin/posts", icon: FileText },

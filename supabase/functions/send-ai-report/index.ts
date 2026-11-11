@@ -1,7 +1,9 @@
-// Weekly AI report email delivery for the admin dashboard.
-// Receives a pre-rendered HTML body from the Next.js generator route and sends
-// it via Resend to the admin notification address. Mirrors send-newsletter:
-// JWT-auth via the service-role client, cors headers, non-fatal on error.
+// Weekly AI report / digest email delivery for the admin.
+// Receives a pre-rendered HTML body from the Next.js generator/send routes and
+// sends it via Resend to the supplied recipients (or the admin notification
+// address). Mirrors send-newsletter: JWT-auth, cors headers, non-fatal on error.
+// Auth accepts EITHER an authenticated admin's access token (browser-triggered
+// sends) OR the service-role key itself (the cron route has no user session).
 //
 // Required env vars (set in Supabase Edge Function Secrets):
 //   RESEND_API_KEY
@@ -30,13 +32,16 @@ Deno.serve(async (req) => {
     }
 
     const token = authHeader.replace("Bearer ", "");
-    const admin = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
-    const { data: { user }, error: userErr } = await admin.auth.getUser(token);
-    if (userErr || !user) {
-      return new Response(JSON.stringify({ error: "Unauthorized" }), {
-        status: 401,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+    const isServiceRole = token === SUPABASE_SERVICE_ROLE_KEY;
+    if (!isServiceRole) {
+      const admin = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
+      const { data: { user }, error: userErr } = await admin.auth.getUser(token);
+      if (userErr || !user) {
+        return new Response(JSON.stringify({ error: "Unauthorized" }), {
+          status: 401,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
     }
 
     const { subject, html, to } = await req.json();
@@ -54,6 +59,12 @@ Deno.serve(async (req) => {
       });
     }
 
+    const recipients: string[] = Array.isArray(to)
+      ? to.filter((r: unknown) => typeof r === "string" && r.trim())
+      : typeof to === "string" && to.trim()
+        ? [to]
+        : [];
+
     const res = await fetch("https://api.resend.com/emails", {
       method: "POST",
       headers: {
@@ -62,7 +73,7 @@ Deno.serve(async (req) => {
       },
       body: JSON.stringify({
         from: "Regent <updates@regent.systems>",
-        to: [to || NOTIFICATION_EMAIL],
+        to: recipients.length ? recipients : [NOTIFICATION_EMAIL],
         subject,
         html,
       }),

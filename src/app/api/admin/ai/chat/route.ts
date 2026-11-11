@@ -4,7 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createServiceClient } from "@/lib/supabase/service";
 import { requireAdmin } from "@/app/api/mcp/_require-admin";
 import { loadAiSettings, resolveApiKey, computeCost } from "@/lib/ai/settings";
-import { ANALYTICS_TOOL_NAMES, openAiToolsList, parseToolArgs, normalizeArgs } from "@/lib/ai/tools";
+import { ANALYTICS_TOOL_NAMES, CONTENT_TOOL_NAME, openAiToolsList, parseToolArgs, normalizeArgs } from "@/lib/ai/tools";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -32,15 +32,53 @@ const TOOL_RESULT_LIMIT = 3000;
 // request so the catch below can surface a real error and record a failure.
 const UPSTREAM_TIMEOUT_MS = 90_000;
 
+/**
+ * read-only content_library tool: every authored item (slug, id, title, whether
+ * it has a meta description) joined to last-30-day view counts so the assistant
+ * can answer content/SEO questions and point to the right editor — never write.
+ */
+async function runContentLibrary(client: any): Promise<{ ok: boolean; preview: string }> {
+  try {
+    const now = new Date();
+    const from = new Date(now.getTime() - 30 * 86_400_000).toISOString();
+    const [posts, cases, resources, top] = await Promise.all([
+      client.from("blog_posts").select("id, slug, title, meta_description, published").limit(300),
+      client.from("case_studies").select("id, slug, title, meta_description").limit(300),
+      client.from("resources").select("id, slug, title, meta_description").limit(300),
+      client.rpc("analytics_top_content", { p_from: from, p_to: now.toISOString(), p_include_internal: false }),
+    ]);
+    const viewMap = new Map<string, number>((top ?? []).map((r: any) => [String(r.slug), r.views ?? 0]));
+    const item = (type: string, r: any) => ({
+      type,
+      id: r.id,
+      slug: r.slug,
+      title: r.title ?? "",
+      has_meta: !!r.meta_description,
+      published: r.published ?? null,
+      views30d: r.slug ? (viewMap.get(r.slug) ?? 0) : 0,
+    });
+    const library = [
+      ...(posts.data ?? []).map((r: any) => item("blog_post", r)),
+      ...(cases.data ?? []).map((r: any) => item("case_study", r)),
+      ...(resources.data ?? []).map((r: any) => item("resource", r)),
+    ];
+    return { ok: true, preview: JSON.stringify(library) };
+  } catch (e) {
+    return { ok: false, preview: `content_library error: ${e instanceof Error ? e.message : String(e)}` };
+  }
+}
+
 function SYSTEM_PROMPT(today: string): string {
   return [
     "You are the Regent analytics assistant for the Regent website admin dashboard.",
     `Today's date is ${today} (UTC).`,
-    "You answer questions about the site's content analytics, traffic, and conversions by calling the analytics_* tools, which query live Supabase data.",
+    "You answer questions about the site's content analytics, traffic, conversions, and content quality by calling the analytics_* tools (live Supabase data) and the content_library tool (the actual list of posts, case studies and resources).",
     "Rules:",
     "- Always answer in Markdown. Use a table when returning more than one row of data, short bullets otherwise.",
     "- The analytics tools default to the last 30 days and exclude internal traffic unless the user asks for a different window.",
     "- Never invent numbers: report exactly what the tools return. If a tool errors, say so plainly.",
+    "- For content/SEO questions (which pages underperform, who lacks a meta description, what to write next), call content_library and reference real titles and slugs.",
+    "- You may suggest edits to published content (better meta description, section suggestions, SEO fixes) and refer the admin to the editor, e.g. the editor page for a post. You are read-only — never claim a change was made.",
     "- Call the fewest tools needed to answer, and prefer one combined query over several.",
     "- Keep answers concise and actionable; lead with the key finding.",
   ].join("\n");
@@ -167,7 +205,11 @@ export async function POST(req: Request) {
         const args = normalizeArgs(parseToolArgs(call.function.arguments));
         let ok = false;
         let preview = "";
-        if (!(ANALYTICS_TOOL_NAMES as readonly string[]).includes(name)) {
+        if (name === CONTENT_TOOL_NAME) {
+          const result = await runContentLibrary(supabase);
+          ok = result.ok;
+          preview = result.preview;
+        } else if (!(ANALYTICS_TOOL_NAMES as readonly string[]).includes(name)) {
           preview = `Unknown tool: ${name}`;
         } else {
           try {
