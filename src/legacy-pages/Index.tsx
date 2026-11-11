@@ -252,7 +252,7 @@ export default function HomePage() {
             <SectionHeader
               label="CAPABILITIES"
               title="Enterprise Systems Engineering Capabilities"
-              subtitle="Complete capabilities in systems integration, data infrastructure, automation, and intelligence — deployed at enterprise scale."
+              subtitle="Systems integration, data infrastructure, automation, and intelligence, built as one connected architecture."
             />
           </RevealOnScroll>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
@@ -394,8 +394,8 @@ export default function HomePage() {
               subtitle="Regent serves organizations where operational complexity demands institutional-grade infrastructure."
             />
           </RevealOnScroll>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
-            {industries.map((ind, i) => (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-5">
+            {industries.filter((ind) => ind.primary).map((ind, i) => (
               <IndustryCard key={ind.name} {...ind} delay={i + 1} />
             ))}
           </div>

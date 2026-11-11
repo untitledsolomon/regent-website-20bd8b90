@@ -13,9 +13,9 @@ import { archLayers, modules } from "@/data/siteData";
 import { ChartArea, Cog, Ruler, Search } from "lucide-react";
 
 const deploymentOptions = [
-  { title: "Cloud-Native", desc: "Fully managed deployments on AWS, Azure, or GCP with auto-scaling, zero-downtime releases, and global edge distribution.", icon: "Globe" as const },
-  { title: "On-Premises", desc: "We deploy within your data center with full control over infrastructure, networking, and data residency.", icon: "Building" as const },
-  { title: "Hybrid", desc: "We architect split workloads between cloud and on-premises environments with unified management and seamless data flow.", icon: "Integration" as const },
+  { title: "Cloud", desc: "Managed deployments on AWS, Azure, or GCP, configured to the organization's requirements.", icon: "Globe" as const },
+  { title: "On-Premises", desc: "Deployed within the organization's own data center, with control over infrastructure, networking, and data residency.", icon: "Building" as const },
+  { title: "Hybrid", desc: "Workloads split between cloud and on-premises environments and managed as one system.", icon: "Integration" as const },
 ];
 
 const performanceMetrics = [
