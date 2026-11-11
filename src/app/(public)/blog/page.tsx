@@ -1,4 +1,4 @@
-import { createServiceClient } from '@/lib/supabase/service'
+import { createServiceClient, hasSupabaseEnv } from '@/lib/supabase/service'
 import type { Metadata } from 'next'
 import { BlogClient, type BlogPost } from '@/components/blog/BlogClient'
 
@@ -23,6 +23,7 @@ export const metadata: Metadata = {
 export const revalidate = 60
 
 export default async function BlogIndexPage() {
+  if (!hasSupabaseEnv()) return <BlogClient posts={[]} />
   const supabase = createServiceClient()
 
   const { data } = await supabase

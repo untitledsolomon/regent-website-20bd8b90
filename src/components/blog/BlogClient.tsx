@@ -199,7 +199,11 @@ export function BlogClient({ posts }: { posts: BlogPost[] }) {
       return;
     }
     try {
-      const { error } = await supabase.from("newsletter_subscribers").insert({ email: trimmed, source: "blog" });
+      const { data: subscriber, error } = await supabase
+        .from("newsletter_subscribers")
+        .insert({ email: trimmed, source: "blog" })
+        .select("id")
+        .single();
       if (error) {
         if (error.code === "23505") {
           toast({ title: "Already subscribed", description: "This email is already on our list." });
@@ -207,7 +211,7 @@ export function BlogClient({ posts }: { posts: BlogPost[] }) {
       } else {
         toast({ title: "Subscribed!", description: "You'll receive our latest insights." });
         setEmail("");
-        trackConversion("newsletter");
+        trackConversion("newsletter", subscriber?.id);
         supabase.functions.invoke("newsletter-welcome", { body: { email: trimmed } }).catch(() => {});
         supabase.functions.invoke("sync-resend-contact", { body: { email: trimmed } }).catch(() => {});
       }

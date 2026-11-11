@@ -1,14 +1,23 @@
 import { createServiceClient } from "@/lib/supabase/service";
+import { requireAdmin } from "@/app/api/mcp/_require-admin";
 import { NextResponse } from "next/server";
 
-export async function POST(req: Request) {
-  const supabase = createServiceClient();
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 
-  // Verify the requester is authenticated
-  const { data: { user }, error: authError } = await supabase.auth.getUser();
-  if (authError || !user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+export async function POST(req: Request) {
+  if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
+    return NextResponse.json(
+      { error: "Autosave unavailable: Supabase credentials not configured" },
+      { status: 503 }
+    );
   }
+
+  // Editors must be logged-in admins to write content
+  const guard = await requireAdmin();
+  if (guard instanceof NextResponse) return guard;
+
+  const supabase = createServiceClient();
 
   const { id, type, content } = await req.json();
 

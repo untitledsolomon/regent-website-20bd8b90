@@ -1,4 +1,4 @@
-import { createServiceClient } from '@/lib/supabase/service'
+import { createServiceClient, hasSupabaseEnv } from '@/lib/supabase/service'
 import type { MetadataRoute } from 'next'
 
 // Hardcoded (not env-driven) on purpose: canonical tags, robots.ts, and the
@@ -42,6 +42,7 @@ const staticPages: StaticEntry[] = [
 ]
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  if (!hasSupabaseEnv()) return []
   const supabase = createServiceClient()
 
   // Only published content should ever appear in the sitemap — this is the

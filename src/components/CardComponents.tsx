@@ -8,7 +8,6 @@ import { motion } from "framer-motion";
 import { Puzzle } from "lucide-react";
 import type { BlogPost, Resource, ArchLayer } from "@/data/siteData";
 import { archLayers } from "@/data/siteData";
-import { trackDownload } from "@/hooks/useContentTracking";
 import { toast } from "@/hooks/use-toast";
 
 // ---------------------------------------------------------------------------

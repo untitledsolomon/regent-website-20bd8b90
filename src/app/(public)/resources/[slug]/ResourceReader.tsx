@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Icons } from '@/components/Icons';
 import { createClient } from '@/lib/supabase/client';
-import { trackConversion, useTrackView } from '@/hooks/useContentTracking';
+import { trackConversion, trackDownload, useTrackView } from '@/hooks/useContentTracking';
 
 interface ResourceReaderProps {
   resource: {
@@ -37,12 +37,16 @@ export default function ResourceReader({ resource }: ResourceReaderProps) {
 
     setSubscribing(true);
     try {
-      await supabase.from('newsletter_subscribers').insert({
-        email,
-        source: `resource_gate_${resource.slug}`
-      });
+      const { data: subscriber } = await supabase
+        .from('newsletter_subscribers')
+        .insert({
+          email,
+          source: `resource_gate_${resource.slug}`
+        })
+        .select('id')
+        .single();
       localStorage.setItem('regent_lead_email', email);
-      trackConversion('resource_access');
+      trackConversion('resource_access', subscriber?.id, resource.id);
       setIsGated(false);
     } catch (err) {
       console.error(err);
@@ -81,6 +85,7 @@ export default function ResourceReader({ resource }: ResourceReaderProps) {
                       href={resource.file_url}
                       target="_blank"
                       rel="noopener noreferrer"
+                      onClick={() => trackDownload(resource.id)}
                       className="font-heading text-[15px] font-medium bg-primary text-primary-foreground rounded-lg px-8 py-3.5 inline-flex items-center gap-2 hover:shadow-lg transition-all"
                     >
                       Download PDF <Icons.ArrowRight />

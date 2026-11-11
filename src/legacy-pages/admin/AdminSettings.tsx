@@ -3,7 +3,8 @@
 import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { createClient } from "@/lib/supabase/client";
-import { Settings, Mail, Shield, LogOut, AlertTriangle, Check } from "lucide-react";
+import { Settings, Mail, Shield, LogOut, AlertTriangle, Check, EyeOff, Sparkles } from "lucide-react";
+import AISettingsSection from "@/components/admin/ai/AISettingsSection";
 import { useToast } from "@/hooks/use-toast";
 
 export default function AdminSettings() {
@@ -13,6 +14,26 @@ export default function AdminSettings() {
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [updating, setUpdating] = useState(false);
+  const [optOut, setOptOut] = useState(
+    () =>
+      typeof window !== "undefined" &&
+      (localStorage.getItem("regent_opt_out") === "1" ||
+        document.cookie.includes("regent_opt_out=1"))
+  );
+
+  const toggleOptOut = () => {
+    const next = !optOut;
+    setOptOut(next);
+    if (next) {
+      localStorage.setItem("regent_opt_out", "1");
+      document.cookie = "regent_opt_out=1; path=/; max-age=63072000; SameSite=Lax";
+      toast({ title: "Analytics excluded", description: "This browser will not be counted in analytics." });
+    } else {
+      localStorage.removeItem("regent_opt_out");
+      document.cookie = "regent_opt_out=1; path=/; max-age=0; SameSite=Lax";
+      toast({ title: "Analytics enabled", description: "This browser will be counted again." });
+    }
+  };
 
   const handlePasswordChange = async () => {
     if (newPassword.length < 8) {
@@ -99,6 +120,35 @@ export default function AdminSettings() {
             <StatusItem label="Resend API" sublabel="Email delivery service" status="Configured" />
             <StatusItem label="Notification Email" sublabel="Receives consultation alerts" status="Set" />
           </div>
+        </Section>
+
+        <Section icon={EyeOff} title="Analytics" description="Your browser's tracking preference">
+          <div className="flex items-center justify-between gap-3 p-3 bg-muted/50 rounded-xl">
+            <div>
+              <div className="text-sm font-medium text-foreground">Exclude this browser from analytics</div>
+              <div className="text-xs text-muted-foreground mt-0.5">
+                Skips counts and sessions on this device (visits stay out of default reports).
+              </div>
+            </div>
+            <button
+              onClick={toggleOptOut}
+              role="switch"
+              aria-checked={optOut}
+              className={`relative w-11 h-6 rounded-full transition-colors shrink-0 ${
+                optOut ? "bg-primary" : "bg-muted-foreground/30"
+              }`}
+            >
+              <span
+                className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform ${
+                  optOut ? "translate-x-[22px]" : "translate-x-0.5"
+                }`}
+              />
+            </button>
+          </div>
+        </Section>
+
+        <Section icon={Sparkles} title="AI Assistant" description="Provider, model, API key and cost tracker">
+          <AISettingsSection />
         </Section>
 
         <Section icon={Shield} title="Security" description="Password management and access control">

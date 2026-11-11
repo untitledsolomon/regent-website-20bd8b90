@@ -59,10 +59,14 @@ export default function ResourcesPage({ initialResources }: { initialResources?:
     if (!trimmed || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed)) return;
     setSubscribing(true);
     try {
-      const { error } = await supabase.from("newsletter_subscribers").insert({ email: trimmed, source: "resources" });
+      const { data: subscriber, error } = await supabase
+        .from("newsletter_subscribers")
+        .insert({ email: trimmed, source: "resources" })
+        .select("id")
+        .single();
       if (error && error.code !== "23505") throw error;
       setEmail("");
-      trackConversion("newsletter");
+      trackConversion("newsletter", subscriber?.id);
       supabase.functions.invoke("newsletter-welcome", { body: { email: trimmed } }).catch(() => {});
     } catch {
       // silent
@@ -90,12 +94,17 @@ export default function ResourcesPage({ initialResources }: { initialResources?:
 
     setSubscribing(true);
     try {
-      await supabase.from("newsletter_subscribers").insert({
-        email: gateEmail,
-        source: `resource_gate_${pendingResource?.slug || 'unknown'}`
-      });
+      const { data: subscriber } = await supabase
+        .from("newsletter_subscribers")
+        .insert({
+          email: gateEmail,
+          source: `resource_gate_${pendingResource?.slug || 'unknown'}`
+        })
+        .select("id")
+        .single();
       localStorage.setItem("regent_lead_email", gateEmail);
       if (pendingResource) executeDownload(pendingResource);
+      trackConversion("resource_access", subscriber?.id, pendingResource?.id);
       setGateOpen(false);
     } catch (err) {
       console.error(err);

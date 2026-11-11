@@ -57,7 +57,11 @@ export function Footer() {
       return;
     }
     try {
-      const { error } = await supabase.from("newsletter_subscribers").insert({ email: trimmed, source: "footer" });
+      const { data: subscriber, error } = await supabase
+        .from("newsletter_subscribers")
+        .insert({ email: trimmed, source: "footer" })
+        .select("id")
+        .single();
       if (error) {
         if (error.code === "23505") {
           toast({ title: "Already subscribed", description: "This email is already on our list." });
@@ -65,7 +69,7 @@ export function Footer() {
       } else {
       toast({ title: "Subscribed!", description: "You'll receive our latest insights." });
         setEmail("");
-        trackConversion("newsletter");
+        trackConversion("newsletter", subscriber?.id);
         // Send welcome email (fire and forget)
         supabase.functions.invoke("newsletter-welcome", { body: { email: trimmed } }).catch(() => {});
       }

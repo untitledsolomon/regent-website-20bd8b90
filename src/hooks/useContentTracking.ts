@@ -1,26 +1,59 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { createClient } from "@/lib/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
+
+const SESSION_KEY = "regent_session_id";
+const SESSION_STARTED_KEY = "regent_session_started";
+const VISITOR_KEY = "regent_visitor_id";
+const CONSENT_KEY = "regent-cookie-consent";
+const OPT_OUT_KEY = "regent_opt_out";
+const SESSION_TTL_MS = 30 * 60 * 1000; // 30 min inactivity rollover
 
 function getSessionId(): string {
-  if (typeof window === 'undefined') return '';
-  let sid = sessionStorage.getItem("regent_session_id");
-  if (!sid) {
-    sid = crypto.randomUUID();
-    sessionStorage.setItem("regent_session_id", sid);
-  }
+  if (typeof window === "undefined") return "";
+  const now = Date.now();
+  const existing = localStorage.getItem(SESSION_KEY);
+  const startedRaw = localStorage.getItem(SESSION_STARTED_KEY);
+  const started = startedRaw ? parseInt(startedRaw, 10) : 0;
+  // Shared across tabs via localStorage; a new session after 30 min idle.
+  if (existing && started && now - started < SESSION_TTL_MS) return existing;
+  const sid = crypto.randomUUID();
+  localStorage.setItem(SESSION_KEY, sid);
+  localStorage.setItem(SESSION_STARTED_KEY, String(now));
   return sid;
 }
 
+function consentAccepted(): boolean {
+  if (typeof window === "undefined") return false;
+  return localStorage.getItem(CONSENT_KEY) === "accepted";
+}
+
 function getVisitorId(): string {
-  if (typeof window === 'undefined') return '';
-  let vid = localStorage.getItem("regent_visitor_id");
-  if (!vid) {
-    vid = crypto.randomUUID();
-    localStorage.setItem("regent_visitor_id", vid);
+  if (typeof window === "undefined") return "";
+  // A persistent visitor id only after consent (privacy policy §6). Before that,
+  // the visitor is scoped to this session and forgettable by clearing it.
+  if (consentAccepted()) {
+    let vid = localStorage.getItem(VISITOR_KEY);
+    if (!vid) {
+      vid = crypto.randomUUID();
+      localStorage.setItem(VISITOR_KEY, vid);
+    }
+    return vid;
   }
+  const scoped = sessionStorage.getItem("regent_session_visitor_id");
+  if (scoped) return scoped;
+  const vid = crypto.randomUUID();
+  sessionStorage.setItem("regent_session_visitor_id", vid);
   return vid;
+}
+
+function isOptedOut(): boolean {
+  if (typeof window === "undefined") return false;
+  return (
+    localStorage.getItem(OPT_OUT_KEY) === "1" ||
+    document.cookie.includes(`${OPT_OUT_KEY}=1`)
+  );
 }
 
 function parseUserAgent(): { device_type: string; browser: string; os: string } {
@@ -49,230 +82,249 @@ function parseUserAgent(): { device_type: string; browser: string; os: string } 
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
-/**
- * Splits an id that may be either a real content UUID or a page path
- * into the two columns content_views actually has for them.
- */
-function splitContentRef(id: string | undefined): { content_id: string | null; page_path: string | null } {
-  if (id && UUID_RE.test(id)) return { content_id: id, page_path: null };
-  return { content_id: null, page_path: id ?? null };
-}
-
-function getTrackingPayload() {
+function trackingPayload() {
   const { device_type, browser, os } = parseUserAgent();
-  const referrer = document.referrer || null;
-  const session_id = getSessionId();
-  const visitor_id = getVisitorId();
-  const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-  const country = timezone.split("/")[0] || null;
-  const city = timezone.split("/")[1]?.replace(/_/g, " ") || null;
-  return { device_type, browser, os, referrer, session_id, visitor_id, country, city };
+  const params = new URLSearchParams(window.location.search);
+  return {
+    session_id: getSessionId(),
+    visitor_id: getVisitorId(),
+    device_type,
+    browser,
+    os,
+    referrer: document.referrer || null,
+    utm_source: params.get("utm_source"),
+    utm_medium: params.get("utm_medium"),
+    utm_campaign: params.get("utm_campaign"),
+    utm_term: params.get("utm_term"),
+    utm_content: params.get("utm_content"),
+    gclid: params.get("gclid"),
+    li_fat_id: params.get("li_fat_id"),
+    fbclid: params.get("fbclid"),
+  };
 }
 
-async function checkIsReturning(session_id: string): Promise<boolean> {
-  const supabase = createClient();
-  const { data } = await (supabase as any)
-    .from("known_sessions")
-    .select("session_id")
-    .eq("session_id", session_id)
-    .maybeSingle();
-
-  if (data) return true;
-
-  await (supabase as any)
-    .from("known_sessions")
-    .insert({ session_id });
-
-  return false;
+function splitContentRef(id: string): { content_id: string | null; page_path: string | null } {
+  if (UUID_RE.test(id)) return { content_id: id, page_path: null };
+  return { content_id: null, page_path: id };
 }
 
+async function sendTrack(body: Record<string, unknown>): Promise<void> {
+  try {
+    const res = await fetch("/api/track", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+    if (!res.ok && res.status !== 204 && res.status !== 429) {
+      console.warn("track:", res.status);
+    }
+  } catch {
+    // analytics must never break the page
+  }
+}
+
+function sendTrackKeepalive(body: Record<string, unknown>): void {
+  try {
+    if (navigator.sendBeacon) {
+      navigator.sendBeacon(
+        "/api/track",
+        new Blob([JSON.stringify(body)], { type: "application/json" })
+      );
+      return;
+    }
+  } catch {
+    // fall through to fetch keepalive
+  }
+  fetch("/api/track", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+    keepalive: true,
+  }).catch(() => {});
+}
+
+/**
+ * Max scroll depth tracking. Uses document.scrollingElement (the blog's scroll
+ * bug was documentElement-based), recomputes on resize / content height changes,
+ * and only counts while the tab is visible.
+ */
 function trackScrollDepth(): { sample: () => number; stop: () => number } {
   let maxDepth = 0;
+  let ro: ResizeObserver | null = null;
 
-  const handleScroll = () => {
-    const scrollTop = window.scrollY;
-    const docHeight = document.documentElement.scrollHeight - window.innerHeight;
-    if (docHeight > 0) {
-      const depth = Math.round((scrollTop / docHeight) * 100);
-      if (depth > maxDepth) maxDepth = depth;
+  const measure = () => {
+    const el = document.scrollingElement || document.documentElement;
+    const scrollTop = el.scrollTop;
+    const scrollable = el.scrollHeight - el.clientHeight;
+    if (scrollable > 0) {
+      const depth = Math.round((scrollTop / scrollable) * 100);
+      if (depth > maxDepth) maxDepth = Math.min(100, depth);
     }
   };
 
-  window.addEventListener("scroll", handleScroll, { passive: true });
+  window.addEventListener("scroll", measure, { passive: true });
+  window.addEventListener("resize", measure, { passive: true });
+  if (typeof ResizeObserver !== "undefined") {
+    ro = new ResizeObserver(() => measure());
+    ro.observe(document.body);
+  }
+  measure();
 
   return {
-    // Read the current max depth without stopping tracking (safe to call repeatedly, e.g. on heartbeats)
     sample: () => maxDepth,
-    // Read the max depth and stop tracking (call once, when the view is actually ending)
     stop: () => {
-      window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("scroll", measure);
+      window.removeEventListener("resize", measure);
+      ro?.disconnect();
       return maxDepth;
     },
   };
 }
 
+const allowedToTrack = () =>
+  !isOptedOut() &&
+  !window.location.pathname.startsWith("/admin");
+
 /**
- * Low-level function to track a page view.
- * Returns the view ID so it can be updated later.
+ * Tracks a content view with engagement (time on page, max scroll depth).
+ * Fire-and-forget POST to /api/track; updates heartbeat while visible and a
+ * final update fires on page hide / unmount. Skips logged-in admins, /admin
+ * pages, opted-out browsers, and stores nothing for bots (server-side).
  */
-export async function trackPageView(contentType: string = 'page', contentId?: string) {
-  const supabase = createClient();
-  const payload = getTrackingPayload();
-  const is_returning = await checkIsReturning(payload.session_id);
+export function useTrackView(contentType: string, contentId: string | undefined) {
+  const { user } = useAuth();
+  const enabledRef = useRef(false);
+  const viewIdRef = useRef<string | null>(null);
+  const startRef = useRef(0);
+  const trackerRef = useRef<ReturnType<typeof trackScrollDepth> | null>(null);
+  const sessionRef = useRef<string>("");
+  const visitorRef = useRef<string>("");
+  const finalizedRef = useRef(false);
 
-  const fallbackId = contentId || (typeof window !== 'undefined' ? window.location.pathname : 'unknown');
-  const { content_id, page_path } = splitContentRef(fallbackId);
+  useEffect(() => {
+    finalizedRef.current = false;
 
-  const { data } = await (supabase as any)
-    .from("content_views")
-    .insert({
+    // Logged-in admins, /admin/* and opted-out browsers are never tracked.
+    if (user || !allowedToTrack() || !contentId) {
+      enabledRef.current = false;
+      return;
+    }
+    enabledRef.current = true;
+
+    const { content_id, page_path } = splitContentRef(contentId);
+    const payload = trackingPayload();
+    const viewId = crypto.randomUUID();
+    viewIdRef.current = viewId;
+    sessionRef.current = payload.session_id;
+    visitorRef.current = payload.visitor_id;
+    startRef.current = Date.now();
+    trackerRef.current = trackScrollDepth();
+
+    sendTrack({
+      ...payload,
+      kind: "view",
+      id: viewId,
       content_type: contentType,
       content_id,
       page_path,
-      ...payload,
-      is_returning,
-      scroll_depth: 0,
-      time_on_page: 0,
-    })
-    .select("id")
-    .single();
+    });
 
-  return data?.id || null;
-}
+    const currentViewId = viewId;
+    const heartbeat = setInterval(() => {
+      if (document.visibilityState !== "visible" || !viewIdRef.current) return;
+      sendTrack({
+        kind: "update",
+        id: viewIdRef.current,
+        session_id: sessionRef.current,
+        visitor_id: visitorRef.current,
+        time_on_page: Math.round((Date.now() - startRef.current) / 1000),
+        scroll_depth: trackerRef.current?.sample() ?? 0,
+      });
+    }, 20000);
 
-export function useTrackView(contentType: string, contentId: string | undefined) {
-  const supabase = createClient();
-  const viewIdRef = useRef<string | null>(null);
-  const lastTrackedId = useRef<string | null>(null);
-  const startTimeRef = useRef<number>(Date.now());
-
-  useEffect(() => {
-    if (!contentId || lastTrackedId.current === contentId) return;
-
-    // Reset tracking state for new content
-    lastTrackedId.current = contentId;
-    viewIdRef.current = null;
-    startTimeRef.current = Date.now();
-
-    const payload = getTrackingPayload();
-    const scrollTracker = trackScrollDepth();
-
-    const insertView = async () => {
-      const is_returning = await checkIsReturning(payload.session_id);
-      const { content_id, page_path } = splitContentRef(contentId);
-
-      const { data } = await (supabase as any)
-        .from("content_views")
-        .insert({
-          content_type: contentType,
-          content_id,
-          page_path,
-          ...payload,
-          is_returning,
-          scroll_depth: 0,
-          time_on_page: 0,
-        })
-        .select("id")
-        .single();
-
-      if (data) viewIdRef.current = data.id;
-    };
-
-    insertView();
-
-    const heartbeatInterval = setInterval(() => {
-      if (!viewIdRef.current) return;
-      const timeOnPage = Math.round((Date.now() - startTimeRef.current) / 1000);
-      const scrollDepth = scrollTracker.sample();
-
-      supabase
-        .from("content_views")
-        .update({ time_on_page: timeOnPage, scroll_depth: scrollDepth })
-        .eq("id", viewIdRef.current)
-        .then(() => {});
-    }, 30000);
-
-    const handleUnload = () => {
-      if (!viewIdRef.current) return;
-      const timeOnPage = Math.round((Date.now() - startTimeRef.current) / 1000);
-      const scrollDepth = scrollTracker.sample();
-
-      const url = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/content_views?id=eq.${viewIdRef.current}`;
-      const body = JSON.stringify({ time_on_page: timeOnPage, scroll_depth: scrollDepth });
-
-      fetch(url, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          'apikey': process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '',
-          'Authorization': `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''}`
-        },
-        body,
-        keepalive: true
+    const onPageHide = () => {
+      if (finalizedRef.current || !viewIdRef.current) return;
+      finalizedRef.current = true;
+      sendTrackKeepalive({
+        kind: "update",
+        id: currentViewId,
+        session_id: sessionRef.current,
+        visitor_id: visitorRef.current,
+        time_on_page: Math.round((Date.now() - startRef.current) / 1000),
+        scroll_depth: trackerRef.current?.stop() ?? 0,
       });
     };
-
-    const handleVisibilityChange = () => {
-      if (document.visibilityState === 'hidden') {
-        handleUnload();
-      }
-    };
-
-    window.addEventListener("visibilitychange", handleVisibilityChange);
-    window.addEventListener("beforeunload", handleUnload);
+    window.addEventListener("pagehide", onPageHide);
 
     return () => {
-      clearInterval(heartbeatInterval);
-      window.removeEventListener("visibilitychange", handleVisibilityChange);
-      window.removeEventListener("beforeunload", handleUnload);
-
-      // Final update on unmount â€” this is the real end of tracking for this view, so stop the listener
-      if (viewIdRef.current) {
-        const timeOnPage = Math.round((Date.now() - startTimeRef.current) / 1000);
-        const scrollDepth = scrollTracker.stop();
-        supabase
-          .from("content_views")
-          .update({ time_on_page: timeOnPage, scroll_depth: scrollDepth })
-          .eq("id", viewIdRef.current)
-          .then(() => {});
-      } else {
-        scrollTracker.stop();
-      }
+      clearInterval(heartbeat);
+      window.removeEventListener("pagehide", onPageHide);
+      if (!enabledRef.current || finalizedRef.current) return;
+      finalizedRef.current = true;
+      sendTrackKeepalive({
+        kind: "update",
+        id: currentViewId,
+        session_id: sessionRef.current,
+        visitor_id: visitorRef.current,
+        time_on_page: Math.round((Date.now() - startRef.current) / 1000),
+        scroll_depth: trackerRef.current?.stop() ?? 0,
+      });
     };
-  }, [contentType, contentId]);
+  }, [contentType, contentId, user]);
 }
 
-export async function trackDownload(contentId: string) {
-  const supabase = createClient();
-  const payload = getTrackingPayload();
-  const is_returning = await checkIsReturning(payload.session_id);
-  await supabase
-    .from("content_views")
-    .insert({
-      content_type: "resource_download",
-      content_id: contentId,
-      ...payload,
-      is_returning,
-      scroll_depth: 0,
-      time_on_page: 0,
-    });
+/**
+ * One-shot page view (pages that don't use the hook). Returns the recorded
+ * view id or null when tracking is disabled.
+ */
+export async function trackPageView(contentType = "page", contentId?: string): Promise<string | null> {
+  if (!allowedToTrack()) return null;
+  const { content_id, page_path } = contentId
+    ? splitContentRef(contentId)
+    : { content_id: null, page_path: window.location.pathname };
+  const viewId = crypto.randomUUID();
+  await sendTrack({
+    ...trackingPayload(),
+    kind: "view",
+    id: viewId,
+    content_type: contentType,
+    content_id,
+    page_path,
+  });
+  return viewId;
 }
 
-export async function trackConversion(conversionType: "newsletter" | "inquiry" | "resource_access") {
-  const supabase = createClient();
-  const session_id = getSessionId();
-  const { data } = await supabase
-    .from("content_views")
-    .select("id")
-    .eq("session_id", session_id)
-    .order("created_at", { ascending: false })
-    .limit(1)
-    .single();
+/** Records a resource download as a resource_download content view. */
+export async function trackDownload(contentId: string): Promise<void> {
+  if (!allowedToTrack()) return;
+  const { content_id } = splitContentRef(contentId);
+  await sendTrack({
+    ...trackingPayload(),
+    kind: "download",
+    id: crypto.randomUUID(),
+    content_type: "resource_download",
+    content_id,
+    page_path: null,
+  });
+}
 
-  if (data) {
-    await (supabase as any)
-      .from("content_views")
-      .update({ converted_to: conversionType })
-      .eq("id", data.id);
-  }
+/**
+ * Records a conversion (newsletter / inquiry / resource_access) through
+ * /api/track, linking it to the session's channel. ref_id points at the
+ * newsletter_subscriber / consultation_request / resource row.
+ */
+export async function trackConversion(
+  type: "newsletter" | "inquiry" | "resource_access",
+  refId?: string | null,
+  contentId?: string | null
+): Promise<void> {
+  if (!allowedToTrack()) return;
+  const { content_id } = contentId ? splitContentRef(contentId) : { content_id: null };
+  await sendTrack({
+    ...trackingPayload(),
+    kind: "conversion",
+    type,
+    ref_id: refId ?? null,
+    content_id,
+  });
 }

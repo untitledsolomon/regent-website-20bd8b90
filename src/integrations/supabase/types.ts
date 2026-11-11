@@ -1,4 +1,15 @@
-﻿export type Json =
+﻿export type AnalyticsArgs = {
+  p_from?: string
+  p_to?: string
+  p_content_type?: string
+  p_slug?: string
+  p_source?: string
+  p_country?: string
+  p_device?: string
+  p_include_internal?: boolean
+}
+
+export type Json =
   | string
   | number
   | boolean
@@ -598,6 +609,121 @@ export type Database = {
           unique_sessions: number
           view_count: number
           view_date: string
+        }[]
+      }
+      analytics_overview: {
+        Args: AnalyticsArgs
+        Returns: {
+          views: number
+          prev_views: number
+          views_change: number | null
+          visitors: number
+          prev_visitors: number
+          visitors_change: number | null
+          sessions: number
+          prev_sessions: number
+          sessions_change: number | null
+          engaged_views: number
+          prev_engaged_views: number
+          engaged_views_change: number | null
+          engaged_rate: number | null
+          prev_engaged_rate: number | null
+          engaged_rate_change: number | null
+          avg_time_on_page: number | null
+          prev_avg_time_on_page: number | null
+          avg_time_change: number | null
+          conversions: number
+          prev_conversions: number
+          conversions_change: number | null
+        }[]
+      }
+      analytics_daily: {
+        Args: AnalyticsArgs
+        Returns: {
+          day: string
+          views: number
+          visitors: number
+          sessions: number
+          engaged_views: number
+          conversions: number
+        }[]
+      }
+      analytics_top_content: {
+        Args: AnalyticsArgs
+        Returns: {
+          content_type: string
+          title: string | null
+          slug: string | null
+          views: number
+          visitors: number
+          avg_time_on_page: number | null
+          avg_scroll_depth: number | null
+          engaged_sessions: number
+          conversions: number
+          last_viewed_at: string | null
+        }[]
+      }
+      analytics_content_trend: {
+        Args: AnalyticsArgs
+        Returns: {
+          content_type: string
+          title: string | null
+          slug: string | null
+          day: string
+          views: number
+          visitors: number
+        }[]
+      }
+      analytics_sources: {
+        Args: AnalyticsArgs
+        Returns: {
+          channel: string
+          source: string | null
+          sessions: number
+          visitors: number
+          views: number
+          conversions: number
+        }[]
+      }
+      analytics_geo: {
+        Args: AnalyticsArgs
+        Returns: {
+          country_code: string
+          sessions: number
+          visitors: number
+          views: number
+          share: number
+        }[]
+      }
+      analytics_devices: {
+        Args: AnalyticsArgs
+        Returns: {
+          device_type: string
+          sessions: number
+          visitors: number
+          views: number
+          share: number
+        }[]
+      }
+      analytics_funnel: {
+        Args: AnalyticsArgs
+        Returns: {
+          visitors: number
+          engaged_visitors: number
+          converted_visitors: number
+          engaged_rate: number | null
+          conversion_rate: number | null
+          engaged_drop: number | null
+          converted_drop: number | null
+          inquiry_statuses: Json
+        }[]
+      }
+      analytics_unique_visitors: {
+        Args: AnalyticsArgs
+        Returns: {
+          day: string
+          visitors: number
+          sessions: number
         }[]
       }
       has_role:
