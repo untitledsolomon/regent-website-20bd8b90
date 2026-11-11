@@ -588,7 +588,7 @@ function DigestControlPanel() {
               <input
                 value={csvValue}
                 onChange={(e) => { setCsv(e.target.value); setDirty(true); }}
-                placeholder="admin@regent.systems, another@example.com"
+                placeholder="admin@regentplatform.com, another@example.com"
                 className="flex-1 h-10 rounded-xl bg-background border border-border px-3 text-sm outline-none focus:border-primary/50"
               />
               <button

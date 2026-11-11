@@ -5,7 +5,7 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-const SITE = "https://regent.systems";
+const SITE = "https://regentplatform.com";
 
 const staticPages = [
   { loc: "/", priority: "1.0", changefreq: "weekly" },
