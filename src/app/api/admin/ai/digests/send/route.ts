@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createServiceClient } from "@/lib/supabase/service";
+import { createClient } from "@/lib/supabase/server";
 import { requireAdmin } from "@/app/api/mcp/_require-admin";
 import { markdownToHtml } from "@/lib/ai/insights";
 import { sendDigestEmail } from "@/lib/ai/digest-send";
@@ -36,7 +37,11 @@ export async function POST(req: Request) {
   }
 
   const html = markdownToHtml(markdown);
-  const email = await sendDigestEmail({ subject, html, to: recipients });
+  // Send with the admin's own session token (not the service-role key), so the
+  // edge function validates a real access token; falls back to the service key
+  // for keyless callers like the cron route.
+  const { data: { session } } = await (await createClient()).auth.getSession();
+  const email = await sendDigestEmail({ subject, html, to: recipients, token: session?.access_token });
 
   const supabase = createServiceClient();
   if (email === "sent") {
