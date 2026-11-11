@@ -1,35 +1,39 @@
 "use client"
 
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
-import { Shield, Mail, Calendar, User as UserIcon, Loader2 } from 'lucide-react'
-import { toast } from 'sonner'
+import { Button } from '@/components/ui/button'
+import { AlertTriangle, Calendar, RefreshCw, Shield, User as UserIcon, Loader2 } from 'lucide-react'
 
 export default function UsersPage() {
   const [users, setUsers] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  const fetchUsers = useCallback(async () => {
+    setLoading(true)
+    setError(null)
+    try {
+      const response = await fetch('/api/admin/users')
+      if (!response.ok) {
+        const body = await response.json().catch(() => null)
+        throw new Error(body?.error || `Request failed (${response.status})`)
+      }
+      const data = await response.json()
+      setUsers(data.users || [])
+    } catch (err) {
+      console.error('Error fetching users:', err)
+      setError(err instanceof Error ? err.message : 'Failed to load system users')
+    } finally {
+      setLoading(false)
+    }
+  }, [])
 
   useEffect(() => {
-    async function fetchUsers() {
-      try {
-        const response = await fetch('/api/admin/users')
-        if (!response.ok) {
-          throw new Error('Failed to fetch users')
-        }
-        const data = await response.json()
-        setUsers(data.users || [])
-      } catch (error) {
-        console.error('Error fetching users:', error)
-        toast.error('Failed to load system users')
-      } finally {
-        setLoading(false)
-      }
-    }
-
     fetchUsers()
-  }, [])
+  }, [fetchUsers])
 
   if (loading) {
     return (
@@ -47,11 +51,25 @@ export default function UsersPage() {
           <h1 className="text-3xl font-heading font-bold tracking-tight text-foreground">System Users</h1>
           <p className="text-muted-foreground mt-2 text-base">Manage administrative access and track system activity.</p>
         </div>
-        <Badge variant="outline" className="px-4 py-1.5 rounded-full bg-background border-primary/20 text-primary font-semibold">
-          {users.length} {users.length === 1 ? 'User' : 'Users'} Active
+        <Badge variant="outline" className={`px-4 py-1.5 rounded-full bg-background border-primary/20 font-semibold ${error ? 'border-destructive/30 text-destructive' : 'text-primary'}`}>
+          {error ? 'Unavailable' : `${users.length} ${users.length === 1 ? 'User' : 'Users'} Active`}
         </Badge>
       </div>
 
+      {error && (
+        <div className="py-16 text-center space-y-4 bg-secondary/20 rounded-[2.5rem] border-2 border-dashed border-destructive/30">
+          <AlertTriangle className="h-12 w-12 text-destructive/60 mx-auto" />
+          <div className="space-y-1">
+            <p className="text-xl font-bold text-foreground">Couldn&apos;t load users</p>
+            <p className="text-muted-foreground max-w-md mx-auto">{error}</p>
+          </div>
+          <Button onClick={fetchUsers} variant="outline">
+            <RefreshCw className="h-4 w-4 mr-2" /> Retry
+          </Button>
+        </div>
+      )}
+
+      {!error && (
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {users.length > 0 ? (
           users.map(user => (
@@ -96,11 +114,12 @@ export default function UsersPage() {
             <UserIcon className="h-12 w-12 text-muted-foreground/40 mx-auto" />
             <div className="space-y-1">
               <p className="text-xl font-bold text-foreground">No users found</p>
-              <p className="text-muted-foreground">The system couldn't retrieve any administrative users.</p>
+              <p className="text-muted-foreground">The system couldn&apos;t retrieve any administrative users.</p>
             </div>
           </div>
         )}
       </div>
+      )}
     </div>
   )
 }

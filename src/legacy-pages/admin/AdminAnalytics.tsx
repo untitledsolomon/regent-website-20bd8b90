@@ -1,75 +1,46 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
-import { createClient } from "@/lib/supabase/client";
-import { format, subDays } from "date-fns";
+import { useMemo, useState } from "react";
+import { format, parseISO } from "date-fns";
 import {
-  Eye, Users, Globe, Monitor, Smartphone, Tablet, Clock, ExternalLink,
-  TrendingUp, BarChart3, Repeat, MousePointerClick, ArrowUpRight, ArrowDownRight, Download,
-  Filter, Calendar as CalendarIcon, Search, MoreHorizontal, ChevronRight,
+  Eye, Users, Monitor, Smartphone, Tablet, Clock,
+  BarChart3, MousePointerClick, Download,
+  Filter, Calendar as CalendarIcon,
 } from "lucide-react";
 import {
-  AreaChart, Area, BarChart, Bar, PieChart, Pie, Cell,
-  XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, Legend,
+  AreaChart, Area, PieChart, Pie, Cell,
+  XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer,
 } from "recharts";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
-
-interface AnalyticsView {
-  id: string;
-  content_type: string;
-  content_id: string;
-  title: string;
-  created_at: string;
-  country: string | null;
-  city: string | null;
-  device_type: string | null;
-  browser: string | null;
-  os: string | null;
-  referrer: string | null;
-  session_id: string | null;
-  time_on_page: number | null;
-  scroll_depth: number | null;
-  is_returning: boolean | null;
-  converted_to: string | null;
-}
-
-interface TopContent {
-  content_type: string;
-  title: string;
-  view_count: number;
-  avg_time_on_page: number;
-  avg_scroll_depth: number;
-}
-
-interface DailyView {
-  date: string;
-  views: number;
-  unique_sessions: number;
-}
-
-interface AudienceItem {
-  dimension: string;
-  value: string;
-  count: number;
-}
-
-interface ConversionStat {
-  converted_to: string;
-  count: number;
-  conversion_rate: number;
-}
+import {
+  useAnalytics, downloadCsv, defaultParams, CONTENT_TYPES, CHANNELS, DEVICES,
+  type AnalyticsParams,
+} from "./useAnalytics";
 
 const PIE_COLORS = ["#4F46E5", "#818CF8", "#C084FC", "#22C55E", "#EAB308", "#F43F5E"];
 
-const contentTypeLabel: Record<string, string> = {
-  blog_post: "Blog Post",
-  case_study: "Case Study",
-  resource_download: "Download",
-};
+function TrendBadge({ change }: { change: number | null }) {
+  if (change == null) return <Badge variant="outline" className="rounded-full border-none px-1.5 py-0 text-[10px] font-bold bg-muted text-muted-foreground">—</Badge>;
+  const up = change >= 0;
+  return (
+    <Badge variant="outline" className={cn("rounded-full border-none px-1.5 py-0 text-[10px] font-bold", up ? "bg-emerald-500/10 text-emerald-600" : "bg-rose-500/10 text-rose-600")}>
+      {up ? "+" : ""}{change.toLocaleString()}%
+    </Badge>
+  );
+}
+
+function formatClock(s: number | null): string {
+  if (s == null) return "—";
+  if (s < 60) return `${Math.round(s)}s`;
+  return `${Math.floor(s / 60)}m ${Math.round(s % 60)}s`;
+}
 
 const deviceIcons: Record<string, React.ReactNode> = {
   desktop: <Monitor size={14} />,
@@ -77,127 +48,53 @@ const deviceIcons: Record<string, React.ReactNode> = {
   tablet: <Tablet size={14} />,
 };
 
-const DATE_RANGES = [
-  { label: "7d", days: 7 },
-  { label: "30d", days: 30 },
-  { label: "90d", days: 90 },
-];
-
-function formatSeconds(s: number | null): string {
-  if (!s) return "—";
-  if (s < 60) return `${s}s`;
-  return `${Math.floor(s / 60)}m ${s % 60}s`;
-}
-
 export default function AdminAnalytics() {
-  const supabase = createClient();
-  const [views, setViews] = useState<AnalyticsView[]>([]);
-  const [audience, setAudience] = useState<AudienceItem[]>([]);
-  const [topContent, setTopContent] = useState<TopContent[]>([]);
-  const [dailyViews, setDailyViews] = useState<DailyView[]>([]);
-  const [conversions, setConversions] = useState<ConversionStat[]>([]);
-  const [totalViews, setTotalViews] = useState(0);
-  const [prevTotalViews, setPrevTotalViews] = useState(0);
-  const [uniqueSessions, setUniqueSessions] = useState(0);
-  const [returningCount, setReturningCount] = useState(0);
-  const [avgTimeOnPage, setAvgTimeOnPage] = useState(0);
-  const [avgScrollDepth, setAvgScrollDepth] = useState(0);
-  const [loading, setLoading] = useState(true);
-  const [daysBack, setDaysBack] = useState(30);
+  const [preset, setPreset] = useState<number | null>(30);
+  const [customFrom, setCustomFrom] = useState("");
+  const [customTo, setCustomTo] = useState("");
+  const [contentType, setContentType] = useState("");
+  const [source, setSource] = useState("");
+  const [country, setCountry] = useState("");
+  const [device, setDevice] = useState("");
+  const [includeInternal, setIncludeInternal] = useState(false);
 
-  const load = useCallback(async () => {
-    setLoading(true);
-    const [detailRes, audienceRes, analyticsRes, dailyRes, totalRes, prevTotalRes, convRes] = await Promise.all([
-      supabase.rpc("get_analytics_detail", { p_limit: 200, p_offset: 0 }),
-      supabase.rpc("get_audience_breakdown"),
-      (supabase as any).rpc("get_content_analytics"),
-      supabase.rpc("get_daily_views", { days_back: daysBack }),
-      supabase
-        .from("content_views")
-        .select("id", { count: "exact", head: true })
-        .gte("created_at", new Date(Date.now() - daysBack * 24 * 60 * 60 * 1000).toISOString()),
-      supabase
-        .from("content_views")
-        .select("id", { count: "exact", head: true })
-        .gte("created_at", new Date(Date.now() - daysBack * 2 * 24 * 60 * 60 * 1000).toISOString())
-        .lt("created_at", new Date(Date.now() - daysBack * 24 * 60 * 60 * 1000).toISOString()),
-      (supabase as any).rpc("get_conversion_stats"),
-    ]);
+  const filters = useMemo(() => ({
+    p_include_internal: includeInternal,
+    ...(contentType ? { p_content_type: contentType } : {}),
+    ...(source ? { p_source: source } : {}),
+    ...(country ? { p_country: country } : {}),
+    ...(device ? { p_device: device } : {}),
+  }), [contentType, source, country, device, includeInternal]);
 
-    const viewsData = (detailRes.data || []) as AnalyticsView[];
-    setViews(viewsData);
+  const params = useMemo<AnalyticsParams>(() => {
+    const base = preset != null ? defaultParams(preset) : {
+      p_from: customFrom ? new Date(customFrom + "T00:00:00").toISOString() : defaultParams(30).p_from,
+      p_to: customTo ? new Date(customTo + "T23:59:59.999").toISOString() : defaultParams(30).p_to,
+    };
+    return { ...base, ...filters };
+  }, [preset, customFrom, customTo, filters]);
 
-    const periodViews = viewsData.filter(v =>
-      new Date(v.created_at) >= new Date(Date.now() - daysBack * 24 * 60 * 60 * 1000)
-    );
-    const timesOnPage = periodViews.map(v => v.time_on_page).filter((t): t is number => t !== null && t > 0);
-    const scrollDepths = periodViews.map(v => v.scroll_depth).filter((s): s is number => s !== null && s > 0);
-    setAvgTimeOnPage(timesOnPage.length > 0 ? Math.round(timesOnPage.reduce((a, b) => a + b, 0) / timesOnPage.length) : 0);
-    setAvgScrollDepth(scrollDepths.length > 0 ? Math.round(scrollDepths.reduce((a, b) => a + b, 0) / scrollDepths.length) : 0);
+  const a = useAnalytics(params);
+  const o = a.overview;
+  const rangeLabel = preset != null ? `Last ${preset} days` : `${customFrom && customTo ? `${customFrom} → ${customTo}` : "Custom range"}`;
 
-    setAudience(
-      (audienceRes.data || []).map((a: any) => ({
-        dimension: a.dimension,
-        value: a.value,
-        count: Number(a.count),
-      }))
-    );
+  const exportRows = a.topContent.map((r) => ({
+    content_type: r.content_type, title: r.title, slug: r.slug, views: r.views,
+    visitors: r.visitors, avg_time_on_page: r.avg_time_on_page, avg_scroll_depth: r.avg_scroll_depth,
+    engaged_sessions: r.engaged_sessions, conversions: r.conversions, last_viewed_at: r.last_viewed_at,
+  }));
 
-    setTopContent(
-      (analyticsRes.data || []).map((item: any) => ({
-        content_type: item.content_type,
-        title: item.title,
-        view_count: Number(item.view_count),
-        avg_time_on_page: Number(item.avg_time_on_page) || 0,
-        avg_scroll_depth: Number(item.avg_scroll_depth) || 0,
-      }))
-    );
+  if (a.loading) return <div className="p-8 animate-pulse">Loading analytics...</div>;
 
-    const daily = Array.from({ length: daysBack }, (_, i) => {
-      const d = subDays(new Date(), daysBack - 1 - i);
-      const dateStr = format(d, "yyyy-MM-dd");
-      const displayDate = format(d, "MMM dd");
-      const found = (dailyRes.data || []).find((v: any) => v.view_date === dateStr);
-      return {
-        date: displayDate,
-        views: found ? Number(found.view_count) : 0,
-        unique_sessions: found ? Number(found.unique_sessions) : 0,
-      };
-    });
-    setDailyViews(daily);
+  const kpis = [
+    { label: "TOTAL VIEWS", value: o?.views ?? 0, trend: o?.views_change ?? null, sub: rangeLabel, icon: Eye },
+    { label: "UNIQUE VISITORS", value: o?.visitors ?? 0, trend: o?.visitors_change ?? null, sub: `${o?.engaged_rate ?? 0}% engaged`, icon: Users },
+    { label: "AVG ENGAGEMENT", value: formatClock(o?.avg_time_on_page ?? null), trend: o?.avg_time_change ?? null, sub: `engaged rate ${o?.engaged_rate ?? 0}%`, icon: Clock },
+    { label: "CONVERSIONS", value: o?.conversions ?? 0, trend: o?.conversions_change ?? null, sub: `${o?.sessions ?? 0} sessions`, icon: MousePointerClick },
+  ];
 
-    setTotalViews(totalRes.count || 0);
-    setPrevTotalViews(prevTotalRes.count || 0);
-
-    const sessions = new Set(viewsData.filter(v => v.session_id).map(v => v.session_id));
-    setUniqueSessions(sessions.size);
-    setReturningCount(viewsData.filter(v => v.is_returning).length);
-
-    setConversions(
-      (convRes.data || []).map((c: any) => ({
-        converted_to: c.converted_to,
-        count: Number(c.count),
-        conversion_rate: Number(c.conversion_rate),
-      }))
-    );
-
-    setLoading(false);
-  }, [daysBack, supabase]);
-
-  useEffect(() => { load(); }, [load]);
-
-  const getBreakdown = (dim: string) =>
-    audience.filter(a => a.dimension === dim).sort((a, b) => b.count - a.count);
-
-  const viewsTrend = prevTotalViews > 0
-    ? Math.round(((totalViews - prevTotalViews) / prevTotalViews) * 100)
-    : 0;
-
-  const returningRate = uniqueSessions > 0
-    ? Math.round((returningCount / uniqueSessions) * 100)
-    : 0;
-
-  if (loading) return <div className="p-8 animate-pulse">Loading analytics...</div>;
+  const dailyData = a.daily.map((d) => ({ ...d, date: format(parseISO(d.day), "MMM dd") }));
+  const totalViews = a.sources.reduce((s, r) => s + r.views, 0);
 
   return (
     <div className="p-4 sm:p-8 space-y-8 max-w-[1400px]">
@@ -205,104 +102,141 @@ export default function AdminAnalytics() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-heading font-bold tracking-tight">Content Analytics</h1>
-          <p className="text-muted-foreground text-sm">Deep dive into your audience and content performance.</p>
+          <p className="text-muted-foreground text-sm">Deep dive into audience and content performance.</p>
         </div>
-        <div className="flex items-center gap-2">
-          <div className="bg-muted/50 p-1 rounded-xl flex mr-2">
-            {DATE_RANGES.map(r => (
-              <Button
-                key={r.label}
-                variant={daysBack === r.days ? 'secondary' : 'ghost'}
-                size="sm"
-                className={cn("rounded-lg text-xs h-8 px-4", daysBack === r.days && "bg-card shadow-sm")}
-                onClick={() => setDaysBack(r.days)}
-              >
-                {r.label}
+        <div className="flex items-center gap-2 flex-wrap">
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button variant="outline" className="rounded-xl h-10 bg-card text-xs font-medium">
+                <CalendarIcon size={14} className="mr-2" /> {rangeLabel}
               </Button>
-            ))}
-          </div>
-          <Button variant="outline" className="rounded-xl h-10 bg-card">
+            </PopoverTrigger>
+            <PopoverContent className="w-72 p-3 space-y-3">
+              <div className="flex gap-1.5">
+                {[7, 30, 90].map((d) => (
+                  <Button key={d} size="sm" variant={preset === d ? "secondary" : "ghost"} className="rounded-lg text-xs h-8 flex-1" onClick={() => setPreset(d)}>{d}d</Button>
+                ))}
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <label className="text-[10px] font-bold text-muted-foreground uppercase">From</label>
+                  <input type="date" value={customFrom} onChange={(e) => { setCustomFrom(e.target.value); setPreset(null); }} className="w-full h-9 px-2 text-xs bg-background border border-input rounded-lg" />
+                </div>
+                <div>
+                  <label className="text-[10px] font-bold text-muted-foreground uppercase">To</label>
+                  <input type="date" value={customTo} onChange={(e) => { setCustomTo(e.target.value); setPreset(null); }} className="w-full h-9 px-2 text-xs bg-background border border-input rounded-lg" />
+                </div>
+              </div>
+              {customFrom && customTo && preset === null && (
+                <Button size="sm" className="w-full rounded-lg" onClick={() => { setCustomFrom(""); setCustomTo(""); setPreset(30); }}>Reset to 30d</Button>
+              )}
+            </PopoverContent>
+          </Popover>
+
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button variant="outline" size="icon" className="rounded-xl h-10 bg-card"><Filter size={15} /></Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-64 p-4 space-y-4">
+              <div>
+                <label className="text-[10px] font-bold text-muted-foreground uppercase">Content type</label>
+                <Select value={contentType} onValueChange={setContentType}>
+                  <SelectTrigger className="mt-1 h-9 text-xs"><SelectValue placeholder="All types" /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="">All types</SelectItem>
+                    {CONTENT_TYPES.map((c) => <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <label className="text-[10px] font-bold text-muted-foreground uppercase">Channel</label>
+                <Select value={source} onValueChange={setSource}>
+                  <SelectTrigger className="mt-1 h-9 text-xs"><SelectValue placeholder="All channels" /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="">All channels</SelectItem>
+                    {CHANNELS.map((c) => <SelectItem key={c} value={c} className="capitalize">{c.replace("_", " ")}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <label className="text-[10px] font-bold text-muted-foreground uppercase">Device</label>
+                <Select value={device} onValueChange={setDevice}>
+                  <SelectTrigger className="mt-1 h-9 text-xs"><SelectValue placeholder="All devices" /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="">All devices</SelectItem>
+                    {DEVICES.map((d) => <SelectItem key={d} value={d} className="capitalize">{d}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <label className="text-[10px] font-bold text-muted-foreground uppercase">Country (ISO-2)</label>
+                <input value={country} onChange={(e) => setCountry(e.target.value)} placeholder="e.g. US" className="w-full h-9 px-2 mt-1 text-xs bg-background border border-input rounded-lg" />
+              </div>
+              <div className="flex items-center justify-between">
+                <label className="text-xs font-medium">Include internal traffic</label>
+                <Switch checked={includeInternal} onCheckedChange={setIncludeInternal} />
+              </div>
+            </PopoverContent>
+          </Popover>
+
+          <Button variant="outline" className="rounded-xl h-10 bg-card" onClick={() => downloadCsv(exportRows, `analytics-${rangeLabel.replace(/[^a-z0-9]+/gi, "-")}.csv`)}>
             <Download size={16} className="mr-2" /> Export
           </Button>
         </div>
       </div>
 
+      {a.error && <div className="rounded-2xl border border-destructive/30 bg-destructive/5 text-destructive text-sm p-4">Analytics error: {a.error}</div>}
+
       {/* KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        <Card className="border-none shadow-sm rounded-2xl bg-card">
-          <CardContent className="pt-6">
-            <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-1">Total Views</div>
-            <div className="flex items-baseline gap-2">
-              <div className="text-2xl font-bold">{totalViews.toLocaleString()}</div>
-              <Badge variant="outline" className={cn("rounded-full border-none px-1.5 py-0 text-[10px] font-bold", viewsTrend >= 0 ? "bg-emerald-500/10 text-emerald-600" : "bg-rose-500/10 text-rose-600")}>
-                {viewsTrend >= 0 ? '+' : ''}{viewsTrend}%
-              </Badge>
-            </div>
-            <p className="text-[11px] text-muted-foreground mt-1">Last {daysBack} days</p>
-          </CardContent>
-        </Card>
-        <Card className="border-none shadow-sm rounded-2xl bg-card">
-          <CardContent className="pt-6">
-            <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-1">Unique Sessions</div>
-            <div className="text-2xl font-bold">{uniqueSessions.toLocaleString()}</div>
-            <p className="text-[11px] text-muted-foreground mt-1">Tracked sessions</p>
-          </CardContent>
-        </Card>
-        <Card className="border-none shadow-sm rounded-2xl bg-card">
-          <CardContent className="pt-6">
-            <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-1">Return Rate</div>
-            <div className="text-2xl font-bold">{returningRate}%</div>
-            <p className="text-[11px] text-muted-foreground mt-1">{returningCount} returning users</p>
-          </CardContent>
-        </Card>
-        <Card className="border-none shadow-sm rounded-2xl bg-card">
-          <CardContent className="pt-6">
-            <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-1">Avg Engagement</div>
-            <div className="text-2xl font-bold">{formatSeconds(avgTimeOnPage)}</div>
-            <p className="text-[11px] text-muted-foreground mt-1">{avgScrollDepth}% average scroll</p>
-          </CardContent>
-        </Card>
+        {kpis.map((k) => (
+          <Card key={k.label} className="border-none shadow-sm rounded-2xl bg-card">
+            <CardContent className="pt-6">
+              <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-1">{k.label}</div>
+              <div className="flex items-baseline gap-2">
+                <div className="text-2xl font-bold">{typeof k.value === "number" ? k.value.toLocaleString() : k.value}</div>
+                <TrendBadge change={k.trend} />
+              </div>
+              <p className="text-[11px] text-muted-foreground mt-1">{k.sub}</p>
+            </CardContent>
+          </Card>
+        ))}
       </div>
 
       {/* Main Chart */}
       <Card className="border-none shadow-sm rounded-3xl overflow-hidden bg-card">
         <CardHeader>
-          <CardTitle className="text-lg font-heading font-bold">Views & Sessions Over Time</CardTitle>
+          <CardTitle className="text-lg font-heading font-bold">Views & Engaged Sessions Over Time</CardTitle>
           <CardDescription className="text-xs">Daily performance metrics for the selected period</CardDescription>
         </CardHeader>
         <CardContent className="h-[350px] pt-4">
+          {a.daily.length === 0 ? (
+            <div className="h-full flex flex-col items-center justify-center text-muted-foreground gap-2">
+              <BarChart3 size={28} className="opacity-40" />
+              <p className="text-sm">No data yet for this range.</p>
+            </div>
+          ) : (
           <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={dailyViews}>
+            <AreaChart data={dailyData}>
               <defs>
                 <linearGradient id="colorViews" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#4F46E5" stopOpacity={0.1}/>
-                  <stop offset="95%" stopColor="#4F46E5" stopOpacity={0}/>
+                  <stop offset="5%" stopColor="#4F46E5" stopOpacity={0.1} />
+                  <stop offset="95%" stopColor="#4F46E5" stopOpacity={0} />
                 </linearGradient>
-                <linearGradient id="colorSessions" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#10B981" stopOpacity={0.1}/>
-                  <stop offset="95%" stopColor="#10B981" stopOpacity={0}/>
+                <linearGradient id="colorEngaged" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#10B981" stopOpacity={0.1} />
+                  <stop offset="95%" stopColor="#10B981" stopOpacity={0} />
                 </linearGradient>
               </defs>
               <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E2E8F0" opacity={0.5} />
-              <XAxis
-                dataKey="date"
-                axisLine={false}
-                tickLine={false}
-                tick={{ fontSize: 10, fill: '#94A3B8' }}
-                interval={Math.floor(daysBack / 8)}
-              />
-              <YAxis
-                axisLine={false}
-                tickLine={false}
-                tick={{ fontSize: 10, fill: '#94A3B8' }}
-              />
-              <RechartsTooltip
-                contentStyle={{ borderRadius: '16px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }}
-              />
+              <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#94A3B8' }} interval={Math.max(3, Math.floor(a.daily.length / 10))} />
+              <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#94A3B8' }} />
+              <RechartsTooltip contentStyle={{ borderRadius: '16px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }} />
               <Area type="monotone" dataKey="views" name="Page Views" stroke="#4F46E5" strokeWidth={3} fillOpacity={1} fill="url(#colorViews)" />
-              <Area type="monotone" dataKey="unique_sessions" name="Sessions" stroke="#10B981" strokeWidth={3} fillOpacity={1} fill="url(#colorSessions)" />
+              <Area type="monotone" dataKey="engaged_views" name="Engaged" stroke="#10B981" strokeWidth={2} fillOpacity={1} fill="url(#colorEngaged)" />
             </AreaChart>
           </ResponsiveContainer>
+          )}
         </CardContent>
       </Card>
 
@@ -312,24 +246,30 @@ export default function AdminAnalytics() {
           <TabsTrigger value="content" className="rounded-lg px-6">Top Content</TabsTrigger>
           <TabsTrigger value="audience" className="rounded-lg px-6">Audience</TabsTrigger>
           <TabsTrigger value="conversions" className="rounded-lg px-6">Conversions</TabsTrigger>
-          <TabsTrigger value="realtime" className="rounded-lg px-6">Real-time Feed</TabsTrigger>
         </TabsList>
 
         <TabsContent value="content" className="space-y-6">
           <Card className="border-none shadow-sm rounded-3xl overflow-hidden bg-card">
             <CardContent className="p-0">
+              {a.topContent.length === 0 ? (
+                <div className="py-12 text-center text-muted-foreground">
+                  <BarChart3 size={28} className="mx-auto mb-2 opacity-40" />
+                  <p className="text-sm">No views yet for this range.</p>
+                </div>
+              ) : (
               <table className="w-full">
                 <thead>
                   <tr className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider text-left border-b border-border">
                     <th className="px-6 py-4">Article / Resource</th>
                     <th className="px-6 py-4">Views</th>
+                    <th className="px-6 py-4">Visitors</th>
                     <th className="px-6 py-4">Avg. Time</th>
                     <th className="px-6 py-4">Scroll</th>
-                    <th className="px-6 py-4 text-right">Trend</th>
+                    <th className="px-6 py-4">Conversions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border">
-                  {topContent.map((item, idx) => (
+                  {a.topContent.map((item, idx) => (
                     <tr key={idx} className="group hover:bg-muted/30 transition-colors">
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-3">
@@ -337,28 +277,28 @@ export default function AdminAnalytics() {
                             <BarChart3 size={18} className={idx % 2 === 0 ? "text-indigo-600" : "text-emerald-600"} />
                           </div>
                           <div>
-                            <div className="text-sm font-bold text-foreground line-clamp-1">{item.title}</div>
-                            <div className="text-[10px] text-muted-foreground uppercase font-bold">{contentTypeLabel[item.content_type] || item.content_type}</div>
+                            <div className="text-sm font-bold text-foreground line-clamp-1">{item.title || item.slug || "Untitled"}</div>
+                            <div className="text-[10px] text-muted-foreground uppercase font-bold">{item.content_type.replace("_", " ")}</div>
                           </div>
                         </div>
                       </td>
-                      <td className="px-6 py-4 text-sm font-bold">{item.view_count.toLocaleString()}</td>
-                      <td className="px-6 py-4 text-sm font-medium text-slate-600">{formatSeconds(item.avg_time_on_page)}</td>
+                      <td className="px-6 py-4 text-sm font-bold">{item.views.toLocaleString()}</td>
+                      <td className="px-6 py-4 text-sm font-medium">{item.visitors.toLocaleString()}</td>
+                      <td className="px-6 py-4 text-sm font-medium text-slate-600">{formatClock(item.avg_time_on_page)}</td>
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-2">
                           <div className="w-16 h-1.5 bg-muted rounded-full overflow-hidden">
-                            <div className="h-full bg-indigo-500 rounded-full" style={{ width: `${item.avg_scroll_depth}%` }} />
+                            <div className="h-full bg-indigo-500 rounded-full" style={{ width: `${Math.min(100, item.avg_scroll_depth ?? 0)}%` }} />
                           </div>
-                          <span className="text-[10px] font-bold text-muted-foreground">{Math.round(item.avg_scroll_depth)}%</span>
+                          <span className="text-[10px] font-bold text-muted-foreground">{item.avg_scroll_depth != null ? `${Math.round(item.avg_scroll_depth)}%` : "—"}</span>
                         </div>
                       </td>
-                      <td className="px-6 py-4 text-right">
-                        <TrendingUp size={16} className="text-emerald-500 ml-auto" />
-                      </td>
+                      <td className="px-6 py-4 text-sm font-bold">{item.conversions > 0 ? item.conversions : "—"}</td>
                     </tr>
                   ))}
                 </tbody>
               </table>
+              )}
             </CardContent>
           </Card>
         </TabsContent>
@@ -366,65 +306,61 @@ export default function AdminAnalytics() {
         <TabsContent value="audience">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             <Card className="border-none shadow-sm rounded-3xl bg-card">
-              <CardHeader pb-2>
+              <CardHeader>
                 <CardTitle className="text-sm font-bold uppercase tracking-wider text-muted-foreground">Devices</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="h-[200px]">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <PieChart>
-                      <Pie data={getBreakdown("device_type")} dataKey="count" nameKey="value" cx="50%" cy="50%" innerRadius={50} outerRadius={75} paddingAngle={5} stroke="none">
-                        {getBreakdown("device_type").map((_, i) => <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />)}
-                      </Pie>
-                      <RechartsTooltip contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }} />
-                    </PieChart>
-                  </ResponsiveContainer>
-                </div>
-                <div className="space-y-2 mt-4">
-                  {getBreakdown("device_type").map((item, i) => (
-                    <div key={item.value} className="flex items-center justify-between text-xs">
-                      <div className="flex items-center gap-2">
-                        <div className="w-2 h-2 rounded-full" style={{ background: PIE_COLORS[i % PIE_COLORS.length] }} />
-                        <span className="font-medium capitalize">{item.value}</span>
-                      </div>
-                      <span className="font-bold">{item.count}</span>
+                {a.devices.length === 0 ? (
+                  <div className="py-8 text-center text-muted-foreground text-sm">No data yet.</div>
+                ) : (
+                  <>
+                    <div className="h-[200px]">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <PieChart>
+                          <Pie data={a.devices} dataKey="views" nameKey="device_type" cx="50%" cy="50%" innerRadius={50} outerRadius={75} paddingAngle={5} stroke="none">
+                            {a.devices.map((_, i) => <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />)}
+                          </Pie>
+                          <RechartsTooltip contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }} formatter={(v: any, n: any) => [`${Number(v).toLocaleString()} views`, String(n).replace("_", " ")]} />
+                        </PieChart>
+                      </ResponsiveContainer>
                     </div>
-                  ))}
-                </div>
+                    <div className="space-y-2 mt-4">
+                      {a.devices.map((item, i) => (
+                        <div key={item.device_type} className="flex items-center justify-between text-xs">
+                          <div className="flex items-center gap-2">
+                            <div className="w-2 h-2 rounded-full" style={{ background: PIE_COLORS[i % PIE_COLORS.length] }} />
+                            {deviceIcons[item.device_type]}{" "}
+                            <span className="font-medium capitalize">{item.device_type}</span>
+                          </div>
+                          <span className="font-bold">{item.views.toLocaleString()} · {item.share}%</span>
+                        </div>
+                      ))}
+                    </div>
+                  </>
+                )}
               </CardContent>
             </Card>
 
             <Card className="border-none shadow-sm rounded-3xl bg-card lg:col-span-2">
               <CardHeader>
-                <CardTitle className="text-sm font-bold uppercase tracking-wider text-muted-foreground">Top Regions & Browsers</CardTitle>
+                <CardTitle className="text-sm font-bold uppercase tracking-wider text-muted-foreground">Top Countries</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
+                {a.geo.length === 0 ? (
+                  <div className="py-8 text-center text-muted-foreground text-sm">No data yet.</div>
+                ) : (
                   <div className="space-y-4">
-                    <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Countries</h4>
-                    {getBreakdown("country").slice(0, 5).map((item, i) => (
-                      <div key={i} className="flex items-center justify-between p-3 bg-muted/30 rounded-xl">
+                    {a.geo.slice(0, 8).map((g, i) => (
+                      <div key={g.country_code} className="flex items-center justify-between p-3 bg-muted/30 rounded-xl">
                         <div className="flex items-center gap-3">
-                          <span className="text-lg">📍</span>
-                          <span className="text-sm font-bold">{item.value}</span>
+                          <span className="w-6 h-6 rounded-lg bg-primary/10 flex items-center justify-center text-[11px] font-bold text-primary">{g.country_code}</span>
+                          <span className="text-sm font-medium">{g.country_code}</span>
                         </div>
-                        <span className="text-sm font-medium">{item.count}</span>
+                        <span className="text-sm font-medium">{g.views.toLocaleString()} views · {g.share}%</span>
                       </div>
                     ))}
                   </div>
-                  <div className="space-y-4">
-                    <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Browsers</h4>
-                    {getBreakdown("browser").slice(0, 5).map((item, i) => (
-                      <div key={i} className="flex items-center justify-between p-3 bg-muted/30 rounded-xl">
-                        <div className="flex items-center gap-3">
-                          <span className="text-lg">🌐</span>
-                          <span className="text-sm font-bold">{item.value}</span>
-                        </div>
-                        <span className="text-sm font-medium">{item.count}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
+                )}
               </CardContent>
             </Card>
           </div>
@@ -432,51 +368,72 @@ export default function AdminAnalytics() {
 
         <TabsContent value="conversions">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-             <Card className="border-none shadow-sm rounded-3xl bg-[#0F172A] text-white">
-                <CardHeader>
-                  <CardTitle className="text-lg font-heading font-bold">Newsletter Conversions</CardTitle>
-                  <CardDescription className="text-slate-400 text-xs">Performance of the blog & footer capture</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  {conversions.filter(c => c.converted_to === 'newsletter').map(c => (
-                    <div key={c.converted_to} className="space-y-6">
-                       <div className="text-4xl font-bold">{c.count}</div>
-                       <div className="space-y-2">
-                          <div className="flex justify-between text-xs text-slate-400">
-                             <span>Conversion Rate</span>
-                             <span>{c.conversion_rate}%</span>
-                          </div>
-                          <div className="h-2 w-full bg-slate-800 rounded-full overflow-hidden">
-                             <div className="h-full bg-indigo-500 rounded-full" style={{ width: `${c.conversion_rate * 5}%` }} />
-                          </div>
-                       </div>
+            <Card className="border-none shadow-sm rounded-3xl bg-[#0F172A] text-white">
+              <CardHeader>
+                <CardTitle className="text-lg font-heading font-bold">Conversions</CardTitle>
+                <CardDescription className="text-slate-400 text-xs">Tracked conversion events ({o?.conversions ?? 0} in range)</CardDescription>
+              </CardHeader>
+              <CardContent>
+                {a.sources.reduce((s, r) => s + r.conversions, 0) === 0 ? (
+                  <div className="py-10 text-center text-slate-400 text-sm">No conversions tracked yet.</div>
+                ) : (
+                  <div className="space-y-4">
+                    {a.sources.filter((s) => s.conversions > 0).slice(0, 6).map((s) => (
+                      <div key={s.channel} className="flex items-center justify-between p-3 bg-slate-800/50 rounded-xl">
+                        <span className="text-sm font-medium capitalize text-slate-300">{s.channel.replace("_", " ")}</span>
+                        <span className="text-sm font-bold">{s.conversions} conversion{s.conversions === 1 ? "" : "s"}</span>
+                      </div>
+                    ))}
+                    <div className="pt-4 mt-2 border-t border-slate-800">
+                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Conversion rate</span>
+                      <div className="text-2xl font-bold mt-1">{a.funnel?.conversion_rate != null ? `${a.funnel.conversion_rate}%` : "—"}</div>
                     </div>
-                  ))}
-                </CardContent>
-             </Card>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
 
-             <Card className="border-none shadow-sm rounded-3xl bg-card">
-                <CardHeader>
-                  <CardTitle className="text-lg font-heading font-bold">Inquiry Conversions</CardTitle>
-                  <CardDescription className="text-muted-foreground text-xs">Leads generated via demo request form</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  {conversions.filter(c => c.converted_to === 'inquiry').map(c => (
-                    <div key={c.converted_to} className="space-y-6">
-                       <div className="text-4xl font-bold text-indigo-600">{c.count}</div>
-                       <div className="space-y-2">
-                          <div className="flex justify-between text-xs text-muted-foreground">
-                             <span>Conversion Rate</span>
-                             <span>{c.conversion_rate}%</span>
-                          </div>
-                          <div className="h-2 w-full bg-muted rounded-full overflow-hidden">
-                             <div className="h-full bg-indigo-500 rounded-full" style={{ width: `${c.conversion_rate * 5}%` }} />
-                          </div>
-                       </div>
+            <Card className="border-none shadow-sm rounded-3xl bg-card">
+              <CardHeader>
+                <CardTitle className="text-lg font-heading font-bold">Attribution by Channel</CardTitle>
+                <CardDescription className="text-muted-foreground text-xs">Where conversion-driving traffic originates</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {a.sources.length === 0 ? (
+                  <div className="py-10 text-center text-muted-foreground text-sm">No data yet.</div>
+                ) : (
+                  a.sources.slice(0, 6).map((s) => (
+                    <div key={s.channel + (s.source || "")} className="space-y-1">
+                      <div className="flex items-center justify-between text-xs">
+                        <span className="font-medium capitalize">{s.channel.replace("_", " ")}{s.source && <span className="text-muted-foreground font-normal"> · {s.source}</span>}</span>
+                        <span className="font-bold">{s.views.toLocaleString()} views</span>
+                      </div>
+                      <div className="h-1.5 w-full bg-muted rounded-full overflow-hidden">
+                        <div className="h-full bg-indigo-500 rounded-full" style={{ width: `${totalViews > 0 ? Math.max(2, Math.round((s.views / totalViews) * 100)) : 0}%` }} />
+                      </div>
                     </div>
-                  ))}
-                </CardContent>
-             </Card>
+                  ))
+                )}
+              </CardContent>
+            </Card>
+
+            <Card className="border-none shadow-sm rounded-3xl bg-card md:col-span-2">
+              <CardHeader>
+                <CardTitle className="text-lg font-heading font-bold">Inquiry Status Breakdown</CardTitle>
+                <CardDescription className="text-muted-foreground text-xs">Consultation-request statuses for inquiries attributed to this range</CardDescription>
+              </CardHeader>
+              <CardContent>
+                {a.funnel && Object.keys(a.funnel.inquiry_statuses).length > 0 ? (
+                  <div className="flex flex-wrap gap-2">
+                    {Object.entries(a.funnel.inquiry_statuses).map(([k, v]) => (
+                      <span key={k} className="text-xs font-bold capitalize bg-muted rounded-full px-3 py-1.5">{k}: {v}</span>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="py-6 text-center text-muted-foreground text-sm">No inquiries in this range.</div>
+                )}
+              </CardContent>
+            </Card>
           </div>
         </TabsContent>
       </Tabs>

@@ -64,15 +64,19 @@ export default function DemoPage() {
     if (!validateStep(0)) { setCurrentStep(0); return; }
     setSubmitting(true);
     try {
-      const { error } = await supabase.from("consultation_requests").insert({
-        name: formData.name.trim(),
-        company: formData.company.trim(),
-        email: formData.email.trim(),
-        industry: formData.industry || null,
-        size: formData.size || null,
-        budget: formData.budget || null,
-        message: formData.message.trim() || null,
-      });
+      const { data: request, error } = await supabase
+        .from("consultation_requests")
+        .insert({
+          name: formData.name.trim(),
+          company: formData.company.trim(),
+          email: formData.email.trim(),
+          industry: formData.industry || null,
+          size: formData.size || null,
+          budget: formData.budget || null,
+          message: formData.message.trim() || null,
+        })
+        .select("id")
+        .single();
       if (error) throw error;
 
       supabase.functions.invoke('notify-consultation', {
@@ -88,7 +92,7 @@ export default function DemoPage() {
       }).catch(console.error);
 
       setSubmitted(true);
-      trackConversion("inquiry");
+      trackConversion("inquiry", request?.id);
       toast({ title: "Request submitted", description: "We'll be in touch within one business day." });
     } catch {
       toast({ title: "Something went wrong", description: "Please try again or email us directly.", variant: "destructive" });

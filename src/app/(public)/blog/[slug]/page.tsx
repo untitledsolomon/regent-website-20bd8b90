@@ -1,4 +1,4 @@
-import { createServiceClient } from '@/lib/supabase/service'
+import { createServiceClient, hasSupabaseEnv } from '@/lib/supabase/service'
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 import { BlogPostClient } from '@/components/blog/BlogPostClient'
@@ -6,6 +6,7 @@ import { BlogPostClient } from '@/components/blog/BlogPostClient'
 export const revalidate = 60
 
 export async function generateStaticParams() {
+  if (!hasSupabaseEnv()) return []
   const supabase = createServiceClient()
   const { data } = await supabase.from('blog_posts').select('slug')
   return (data ?? []).map(post => ({ slug: post.slug }))
@@ -17,6 +18,7 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>
 }): Promise<Metadata> {
   const { slug } = await params
+  if (!hasSupabaseEnv()) return { title: 'Post Not Found' }
   const supabase = createServiceClient()
   const { data: post } = await supabase
     .from('blog_posts')
@@ -55,6 +57,7 @@ export default async function BlogPostPage({
   params: Promise<{ slug: string }>
 }) {
   const { slug } = await params
+  if (!hasSupabaseEnv()) notFound()
   const supabase = createServiceClient()
 
   const { data: post } = await supabase

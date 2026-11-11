@@ -1,4 +1,4 @@
-import { createServiceClient } from '@/lib/supabase/service'
+import { createServiceClient, hasSupabaseEnv } from '@/lib/supabase/service'
 
 // Hardcoded for the same reason as sitemap.ts: canonical host must never
 // silently drift from what's deployed.
@@ -14,6 +14,7 @@ function section(title: string, lines: string[]): string {
 }
 
 export async function GET() {
+  if (!hasSupabaseEnv()) return new Response('', { status: 200, headers: { 'Content-Type': 'text/plain; charset=utf-8' } })
   const supabase = createServiceClient()
 
   // Same filter discipline as sitemap.ts: only published rows should ever
