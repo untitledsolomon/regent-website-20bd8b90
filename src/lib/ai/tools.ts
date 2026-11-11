@@ -19,6 +19,9 @@ export const ANALYTICS_TOOL_NAMES = [
 
 export type AnalyticsToolName = (typeof ANALYTICS_TOOL_NAMES)[number];
 
+/** Read-only content library tool: real posts/case-studies/resources + views. */
+export const CONTENT_TOOL_NAME = "content_library";
+
 // Shared parameter shape for every analytics tool (p_to exclusive, p_from inclusive).
 const analyticsArgsShape = z.object({
   p_from: z.string().datetime().optional().describe("ISO start date (inclusive)"),
@@ -66,7 +69,21 @@ const toolDescriptions: Record<AnalyticsToolName, string> = {
 };
 
 export function openAiToolsList(): Array<Record<string, unknown>> {
-  return ANALYTICS_TOOL_NAMES.map((name) => ({
+  return [
+    {
+      type: "function",
+      function: {
+        name: CONTENT_TOOL_NAME,
+        description:
+          "Read-only content library: every authored piece of content (blog posts, case studies, resources) with its slug, title, id, whether it has a meta description, publication state and last-30-day view count. Use it to answer content/SEO questions: which items lack meta descriptions or underperform, and what to write next.",
+        parameters: {
+          type: "object",
+          properties: {},
+          additionalProperties: false,
+        },
+      },
+    },
+    ...ANALYTICS_TOOL_NAMES.map((name) => ({
     type: "function",
     function: {
       name,
@@ -88,5 +105,6 @@ export function openAiToolsList(): Array<Record<string, unknown>> {
         additionalProperties: false,
       },
     },
-  }));
+  })),
+  ];
 }

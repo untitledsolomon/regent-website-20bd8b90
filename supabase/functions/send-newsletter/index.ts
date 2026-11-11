@@ -104,6 +104,19 @@ Deno.serve(async (req) => {
       }
     }
 
+    // Record the campaign in the send log so the Emails page history and the
+    // failure indicators have real data. Non-fatal if the write fails.
+    try {
+      await admin.from("newsletter_sends").insert({
+        subject,
+        html_preview: html,
+        sent_count: sent,
+        failed_count: failed,
+      });
+    } catch (e) {
+      console.error("Failed to record newsletter_sends row", e);
+    }
+
     return new Response(JSON.stringify({ sent, failed, total: emails.length }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });

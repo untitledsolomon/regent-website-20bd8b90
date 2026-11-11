@@ -60,7 +60,7 @@ export async function POST(req: Request) {
     const facts = await gatherInsightFacts();
     const { system, user } = buildInsightPrompt(facts);
     const result = await callModel({ system, messages: [{ role: "user", content: user }], temperature: 0.3 });
-    modelRows.push(...parseInsightResponse(result.text));
+    modelRows.push(...parseInsightResponse(result.text, facts.library));
     await recordAiUsage({
       uid,
       feature: "insights_generator",
@@ -137,8 +137,10 @@ async function handleWeeklyReport(uid: string): Promise<NextResponse> {
       title: `Weekly report — ${today}`,
       body: result.text,
       target_type: null,
+      target_id: null,
       target_slug: null,
       target_url: null,
+      action: null,
       actionable: false,
       generated_by: "model",
       dedupe_key: null,

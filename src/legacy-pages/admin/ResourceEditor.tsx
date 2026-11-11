@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import RichTextEditor from "@/components/admin/RichTextEditor";
+import { Sparkles, Loader2 } from "lucide-react";
 
 const resourceTypes = ["Whitepaper", "Research", "Documentation", "Case Study"] as const;
 
@@ -16,9 +17,11 @@ export default function ResourceEditor() {
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [aiBusy, setAiBusy] = useState(false);
   const [form, setForm] = useState({
     title: "", slug: "", type: "Whitepaper" as string, description: "",
     file_url: "" as string | null, featured: false, published: false,
+    meta_title: "", meta_description: "", og_image: "",
   });
 
   useEffect(() => {
@@ -40,11 +43,16 @@ export default function ResourceEditor() {
   useEffect(() => {
     if (isEdit) {
       supabase.from("resources").select("*").eq("id", id).single().then(({ data }) => {
-        if (data) setForm({
-          title: data.title, slug: data.slug, type: data.type,
-          description: data.description, file_url: data.file_url,
-          featured: data.featured, published: data.published,
-        });
+        if (data) {
+          const d = data as any; // generated types predate the SEO columns
+          setForm({
+            title: d.title, slug: d.slug, type: d.type,
+            description: d.description, file_url: d.file_url,
+            featured: d.featured, published: d.published,
+            meta_title: d.meta_title ?? "", meta_description: d.meta_description ?? "",
+            og_image: d.og_image ?? "",
+          });
+        }
       });
     }
   }, [id, isEdit]);
@@ -75,6 +83,8 @@ export default function ResourceEditor() {
       title: form.title, slug: form.slug, type: form.type as any,
       description: form.description, file_url: form.file_url || null,
       featured: form.featured, published: form.published,
+      meta_title: form.meta_title || null, meta_description: form.meta_description || null,
+      og_image: form.og_image || null,
       updated_at: new Date().toISOString(),
     };
     const { error } = isEdit
@@ -83,6 +93,30 @@ export default function ResourceEditor() {
     setLoading(false);
     if (error) { toast({ title: "Error", description: error.message, variant: "destructive" }); }
     else { toast({ title: isEdit ? "Updated" : "Created" }); router.push("/admin/resources"); }
+  };
+
+  const generateSeo = async () => {
+    if (!form.title.trim()) { toast({ title: "Add a title first", variant: "destructive" }); return; }
+    setAiBusy(true);
+    try {
+      const res = await fetch("/api/admin/ai/editor", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title: form.title, body: form.description || form.title }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error ?? "AI generation failed");
+      setForm((f) => ({
+        ...f,
+        meta_title: f.meta_title || f.title,
+        meta_description: data.meta_description || f.meta_description,
+      }));
+      toast({ title: "SEO draft generated", description: "Review the meta description, then save." });
+    } catch (e) {
+      toast({ title: "Generation failed", description: e instanceof Error ? e.message : "Please try again", variant: "destructive" });
+    } finally {
+      setAiBusy(false);
+    }
   };
 
   const inputClass = "w-full h-10 border border-border rounded-lg px-3 text-sm bg-background text-text-primary focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all";
@@ -140,6 +174,37 @@ export default function ResourceEditor() {
               View uploaded file →
             </a>
           )}
+        </div>
+
+        {/* SEO */}
+        <div className="border-t border-border pt-5">
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="text-sm font-semibold text-text-primary">SEO</h2>
+            <button
+              onClick={generateSeo}
+              disabled={aiBusy}
+              className="inline-flex items-center gap-1.5 h-8 px-3 rounded-lg bg-primary/5 border border-primary/20 text-primary text-xs font-medium hover:bg-primary/10 transition-all disabled:opacity-50"
+            >
+              {aiBusy ? <Loader2 size={13} className="animate-spin" /> : <Sparkles size={13} />}
+              {aiBusy ? "Generating…" : "Generate with AI"}
+            </button>
+          </div>
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-text-primary mb-1.5">Meta title</label>
+              <input value={form.meta_title} onChange={e => setForm(f => ({ ...f, meta_title: e.target.value }))} placeholder="Under 60 characters — appears in search results" className={inputClass} />
+              <p className="text-[11px] text-text-muted mt-1">{form.meta_title.length}/60</p>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-text-primary mb-1.5">Meta description</label>
+              <textarea value={form.meta_description} onChange={e => setForm(f => ({ ...f, meta_description: e.target.value }))} rows={3} placeholder="One or two sentences — the search result snippet" className={`${inputClass} h-auto resize-y py-2`} />
+              <p className="text-[11px] text-text-muted mt-1">{form.meta_description.length}/160</p>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-text-primary mb-1.5">Open Graph image URL</label>
+              <input value={form.og_image} onChange={e => setForm(f => ({ ...f, og_image: e.target.value }))} placeholder="https://… (used when shared to social)" className={`${inputClass} font-mono`} />
+            </div>
+          </div>
         </div>
       </div>
     </div>

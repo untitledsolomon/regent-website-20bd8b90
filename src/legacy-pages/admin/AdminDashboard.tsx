@@ -9,7 +9,7 @@ import {
   FileText, TrendingUp, TrendingDown, Activity, Eye,
   ArrowUpRight, Download, Filter, Calendar as CalendarIcon,
   Sparkles, AlertCircle, Lightbulb, Loader2, X, RefreshCw,
-  Users, Globe, Monitor,
+  Users, Globe, Monitor, Cpu,
 } from "lucide-react";
 import { formatDistanceToNow, format, parseISO } from "date-fns";
 import {
@@ -39,6 +39,13 @@ interface Stats {
   resources: { total: number; published: number };
 }
 
+/** Compact token counts: 1.2M / 340K / 9000. */
+function compactNumber(n: number): string {
+  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
+  if (n >= 1_000) return `${(n / 1_000).toFixed(0)}K`;
+  return `${n}`;
+}
+
 interface InsightUi {
   id: string;
   category: string;
@@ -46,6 +53,7 @@ interface InsightUi {
   title: string;
   body: string | null;
   target_url: string | null;
+  action: string | null;
   generated_at: string;
 }
 
@@ -184,6 +192,20 @@ export default function AdminDashboard() {
   const [expandedInsights, setExpandedInsights] = useState<Set<string>>(new Set());
   const autoFiredRef = useRef(false);
 
+  // AI usage ledger (last 1000 records) for the small widget under the KPIs.
+  const usageQuery = useQuery({
+    queryKey: ["admin", "ai", "usage"],
+    staleTime: 5 * 60_000,
+    queryFn: async () => {
+      const res = await fetch("/api/admin/ai/usage");
+      if (!res.ok) throw new Error("Failed to load AI usage");
+      return res.json();
+    },
+  });
+  const usage = usageQuery.data as
+    | { totals: { calls: number; tokens: number; cost: number; failed: number }; currency: string }
+    | undefined;
+
   const refreshInsights = async () => {
     setGenerating(true);
     setGenError(null);
@@ -209,17 +231,24 @@ export default function AdminDashboard() {
     }
   };
 
-  // Insights stop at being messages: every card routes somewhere useful. The
-  // generator stamps target_url on content rows; the fallbacks cover categories
-  // the model produced without one.
+  // Insights route somewhere useful. Content/anomaly/weekly rows land on the
+  // insights hub; consultation rows open the leads list; editor rows carry an
+  // admin target_url stamped by the generator after slug validation.
   const insightAction = (ins: InsightUi): string | null => {
     if (ins.target_url) return ins.target_url;
     switch (ins.category) {
-      case "content": return "/admin/posts";
       case "consultation": return "/admin/inquiries";
-      case "anomaly": return "/admin/analytics";
-      default: return null;
+      default: return "/admin/insights";
     }
+  };
+
+  const insightLabel = (ins: InsightUi): string => {
+    if (ins.target_url?.startsWith("/admin/posts/")) return "Edit post";
+    if (ins.target_url?.startsWith("/admin/case-studies/")) return "Edit case study";
+    if (ins.target_url?.startsWith("/admin/resources/")) return "Edit resource";
+    if (ins.target_url === "/admin/analytics") return "View analytics";
+    if (ins.category === "consultation") return "Open lead";
+    return "View";
   };
 
   const toggleInsight = (id: string) => {
@@ -258,9 +287,9 @@ export default function AdminDashboard() {
 
   const funnel = analytics.funnel;
   const funnelStages = funnel ? [
-    { label: "Visitors", value: funnel.visitors, pct: 100, drop: null, color: "bg-indigo-500" },
-    { label: "Engaged", value: funnel.engaged_visitors, pct: funnel.visitors > 0 ? Math.round((funnel.engaged_visitors / funnel.visitors) * 100) : 0, drop: "drop", color: "bg-indigo-600" },
-    { label: "Converted", value: funnel.converted_visitors, pct: funnel.visitors > 0 ? Math.round((funnel.converted_visitors / funnel.visitors) * 100) : 0, drop: "drop", color: "bg-pink-500" },
+    { label: "Visitors", value: funnel.visitors, pct: 100, drop: null, color: "bg-primary/80" },
+    { label: "Engaged", value: funnel.engaged_visitors, pct: funnel.visitors > 0 ? Math.round((funnel.engaged_visitors / funnel.visitors) * 100) : 0, drop: "drop", color: "bg-primary" },
+    { label: "Converted", value: funnel.converted_visitors, pct: funnel.visitors > 0 ? Math.round((funnel.converted_visitors / funnel.visitors) * 100) : 0, drop: "drop", color: "bg-accent-mid" },
   ] : [];
 
   const empty = !analytics.loading && o != null && o.views === 0;
@@ -389,6 +418,47 @@ export default function AdminDashboard() {
             ))}
           </div>
 
+          {/* AI usage */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <Card className="md:col-span-3 border-none shadow-sm rounded-2xl bg-card">
+              <CardContent className="pt-6">
+                <div className="flex items-start justify-between mb-4">
+                  <span className="text-[10px] font-bold tracking-wider text-muted-foreground uppercase">AI usage — last 30 days</span>
+                  <div className="p-2 bg-muted/50 rounded-lg">
+                    <Cpu size={16} className="text-muted-foreground" />
+                  </div>
+                </div>
+                {usageQuery.isLoading ? (
+                  <Loader2 size={18} className="animate-spin text-muted-foreground" />
+                ) : usageQuery.isError || !usage ? (
+                  <p className="text-[12px] text-muted-foreground">AI usage unavailable.</p>
+                ) : (
+                  <>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                      <div>
+                        <div className="text-xl font-heading font-bold">{usage.totals.calls.toLocaleString()}</div>
+                        <div className="text-[11px] text-muted-foreground">Model calls</div>
+                      </div>
+                      <div>
+                        <div className="text-xl font-heading font-bold">{compactNumber(usage.totals.tokens)}</div>
+                        <div className="text-[11px] text-muted-foreground">Tokens</div>
+                      </div>
+                      <div>
+                        <div className="text-xl font-heading font-bold">{usage.currency === "USD" ? "$" : `${usage.currency} `}{(+usage.totals.cost).toFixed(2)}</div>
+                        <div className="text-[11px] text-muted-foreground">Estimated cost</div>
+                      </div>
+                    </div>
+                    {usage.totals.failed > 0 && (
+                      <p className="text-[11px] text-destructive mt-3 inline-flex items-center gap-1">
+                        <AlertCircle size={11} /> {usage.totals.failed} failed call{usage.totals.failed === 1 ? "" : "s"}
+                      </p>
+                    )}
+                  </>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+
           {/* Main Charts Grid */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <Card className="lg:col-span-2 border-none shadow-sm rounded-3xl overflow-hidden">
@@ -424,53 +494,53 @@ export default function AdminDashboard() {
             </Card>
 
             {/* Conversion Funnel */}
-            <Card className="border-none shadow-sm rounded-3xl bg-[#0F172A] text-white">
+            <Card className="border-none shadow-sm rounded-3xl bg-card">
               <CardHeader>
                 <CardTitle className="text-lg font-heading font-bold">Conversion Funnel</CardTitle>
-                <CardDescription className="text-slate-400 text-xs">Visitors → engaged → converted</CardDescription>
+                <CardDescription className="text-muted-foreground text-xs">Visitors → engaged → converted</CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
                 {empty ? (
-                  <div className="py-8 text-center text-slate-400 text-sm">No data yet for this range.</div>
+                  <div className="py-8 text-center text-muted-foreground text-sm">No data yet for this range.</div>
                 ) : funnel ? (
                   <>
                     {funnelStages.map((stage) => (
                       <div key={stage.label} className="space-y-2">
                         <div className="flex items-center justify-between text-xs font-medium">
-                          <span className="text-slate-300">{stage.label}</span>
-                          <span>{stage.value.toLocaleString()}</span>
+                          <span className="text-foreground">{stage.label}</span>
+                          <span className="text-foreground">{stage.value.toLocaleString()}</span>
                         </div>
-                        <div className="h-6 w-full bg-slate-800 rounded-lg overflow-hidden relative">
+                        <div className="h-6 w-full bg-muted rounded-lg overflow-hidden relative">
                           <div className={cn("h-full rounded-lg transition-all", stage.color)} style={{ width: `${stage.pct}%` }} />
                         </div>
                         {stage.label === "Engaged" && funnel.engaged_drop != null && (
                           <div className="flex justify-center">
-                            <span className="text-[9px] font-bold text-rose-400 bg-rose-400/10 px-1.5 py-0.5 rounded uppercase">▾ {funnel.engaged_drop}% drop</span>
+                            <span className="text-[9px] font-bold text-destructive bg-destructive/10 px-1.5 py-0.5 rounded uppercase">▾ {funnel.engaged_drop}% drop</span>
                           </div>
                         )}
                         {stage.label === "Converted" && funnel.converted_drop != null && (
                           <div className="flex justify-center">
-                            <span className="text-[9px] font-bold text-rose-400 bg-rose-400/10 px-1.5 py-0.5 rounded uppercase">▾ {funnel.converted_drop}% of engaged</span>
+                            <span className="text-[9px] font-bold text-destructive bg-destructive/10 px-1.5 py-0.5 rounded uppercase">▾ {funnel.converted_drop}% of engaged</span>
                           </div>
                         )}
                       </div>
                     ))}
-                    <div className="pt-4 mt-4 border-t border-slate-800">
-                      <div className="bg-slate-800/50 rounded-2xl p-4">
-                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Conversion Rate</span>
-                        <div className="text-2xl font-bold mt-1">{funnel.conversion_rate != null ? `${funnel.conversion_rate}%` : "—"}</div>
+                    <div className="pt-4 mt-4 border-t border-border">
+                      <div className="bg-muted/50 rounded-2xl p-4">
+                        <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Conversion Rate</span>
+                        <div className="text-2xl font-bold mt-1 text-foreground">{funnel.conversion_rate != null ? `${funnel.conversion_rate}%` : "—"}</div>
                       </div>
                       {Object.keys(funnel.inquiry_statuses).length > 0 && (
                         <div className="flex flex-wrap gap-1.5 mt-3">
                           {Object.entries(funnel.inquiry_statuses).map(([k, v]) => (
-                            <span key={k} className="text-[10px] font-bold bg-slate-800 rounded-full px-2 py-0.5 text-slate-300 capitalize">{k}: {v}</span>
+                            <span key={k} className="text-[10px] font-bold bg-muted rounded-full px-2 py-0.5 text-muted-foreground capitalize">{k}: {v}</span>
                           ))}
                         </div>
                       )}
                     </div>
                   </>
                 ) : (
-                  <div className="py-8 text-center text-slate-400 text-sm">No data yet.</div>
+                  <div className="py-8 text-center text-muted-foreground text-sm">No data yet.</div>
                 )}
               </CardContent>
             </Card>
@@ -625,12 +695,17 @@ export default function AdminDashboard() {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 pb-12">
             <Card className="lg:col-span-2 border-none shadow-sm rounded-3xl overflow-hidden">
               <CardHeader>
-                <div className="flex items-center gap-2">
-                  <Sparkles className="text-primary" size={20} />
-                  <CardTitle className="text-lg font-heading font-bold">Intelligence Insights</CardTitle>
-                  {insightRows.length > 0 && !insightsQuery.data?.stale && (
-                    <Badge className="rounded-full bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border-none text-[10px] font-bold uppercase">fresh</Badge>
-                  )}
+                <div className="flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-2">
+                    <Sparkles className="text-primary" size={20} />
+                    <CardTitle className="text-lg font-heading font-bold">Intelligence Insights</CardTitle>
+                    {insightRows.length > 0 && !insightsQuery.data?.stale && (
+                      <Badge className="rounded-full bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border-none text-[10px] font-bold uppercase">fresh</Badge>
+                    )}
+                  </div>
+                  <Link href="/admin/insights" className="text-xs font-bold text-primary hover:underline shrink-0">
+                    View all
+                  </Link>
                 </div>
                 <CardDescription className="text-muted-foreground text-xs">AI performance analysis, lead signals and anomaly alerts — last 30 days</CardDescription>
               </CardHeader>
@@ -687,7 +762,7 @@ export default function AdminDashboard() {
                             <span className="text-[10px] text-muted-foreground/70">{formatDistanceToNow(new Date(ins.generated_at), { addSuffix: true })}</span>
                             {actionHref && (
                               <Link href={actionHref} className="inline-flex items-center gap-1 text-[11px] font-bold text-primary hover:underline shrink-0">
-                                {ins.category === "consultation" ? "Open lead" : ins.category === "anomaly" ? "View analytics" : "View topic"} <ArrowUpRight size={12} />
+                                {insightLabel(ins)} <ArrowUpRight size={12} />
                               </Link>
                             )}
                           </div>
