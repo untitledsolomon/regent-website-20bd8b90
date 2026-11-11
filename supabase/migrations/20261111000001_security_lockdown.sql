@@ -41,8 +41,17 @@ $$;
 --    (role = role, always true for anyone holding any role).
 --    Drop the drifted (uuid, text) overload if it exists; CREATE OR REPLACE the
 --    canonical (uuid, app_role) overload with the correct EXISTS body.
+--
+--    Drift tables may carry policies bound to the (uuid, text) overload
+--    (e.g. mcp_agents_admins, mcp_call_log_admins on the live DB); a plain
+--    DROP FUNCTION then fails with 2BP01 (objects in the catalogs depend on
+--    it). CASCADE removes exactly those dependents — the broken always-true
+--    overload should not stay referenced by any policy. Policies bound to the
+--    canonical (uuid, app_role) overload are untouched, since they depend on a
+--    different function object. 0002 re-creates the admin policies for the
+--    drift tables it reconciles (mcp_agents, mcp_call_log).
 -- -----------------------------------------------------------------------------
-DROP FUNCTION IF EXISTS public.has_role(uuid, text);
+DROP FUNCTION IF EXISTS public.has_role(uuid, text) CASCADE;
 
 CREATE OR REPLACE FUNCTION public.has_role(_user_id uuid, _role app_role)
 RETURNS boolean
