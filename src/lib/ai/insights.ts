@@ -406,9 +406,23 @@ export function buildDailyReportPrompt(facts: InsightFactSet): { system: string;
   };
 }
 
-/** Tiny markdown → HTML for emails (headings, bullets, paragraphs; otherwise escaped). */
+/**
+ * Tiny markdown → HTML for emails (headings, bullets, paragraphs, inline
+ * emphasis; otherwise escaped). Inline conversion handles the markers the
+ * digest prompts emit (**bold**, *italic*, `code` and simple [links](url)).
+ */
 export function markdownToHtml(md: string): string {
   const esc = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  // Applied to already-escaped text. Links are restricted to http(s) URLs —
+  // other schemes (javascript:, data:) are dropped rather than turned into
+  // clickable anchors. Leading/trailing markers need a word boundary so stray
+  // asterisks (e.g. "cost is 5 * 3") are not treated as emphasis.
+  const inline = (s: string) =>
+    s
+      .replace(/`([^`\n]+)`/g, "<code>$1</code>")
+      .replace(/\*\*([^*\n]+)\*\*/g, "<strong>$1</strong>")
+      .replace(/(^|[\s(])\*([^*\n*]+)\*(?=[\s.,;:!?)]|$)/g, "$1<em>$2</em>")
+      .replace(/\[([^\]\n]+)\]\((https?:\/\/[^\s)]+)\)/g, '<a href="$2">$1</a>');
   const out: string[] = [];
   let listOpen = false;
   const closeList = () => {
@@ -426,7 +440,7 @@ export function markdownToHtml(md: string): string {
     const h = line.match(/^(#{1,4})\s+(.*)/);
     if (h) {
       closeList();
-      out.push(`<h${h[1].length}>${esc(h[2])}</h${h[1].length}>`);
+      out.push(`<h${h[1].length}>${inline(esc(h[2]))}</h${h[1].length}>`);
       continue;
     }
     const li = line.match(/^[-*]\s+(.*)/);
@@ -435,11 +449,11 @@ export function markdownToHtml(md: string): string {
         out.push("<ul>");
         listOpen = true;
       }
-      out.push(`<li>${esc(li[1])}</li>`);
+      out.push(`<li>${inline(esc(li[1]))}</li>`);
       continue;
     }
     closeList();
-    out.push(`<p>${esc(line)}</p>`);
+    out.push(`<p>${inline(esc(line))}</p>`);
   }
   closeList();
   return out.join("\n");

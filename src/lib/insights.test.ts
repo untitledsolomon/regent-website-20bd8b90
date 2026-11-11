@@ -24,6 +24,28 @@ describe("markdownToHtml", () => {
     const html = markdownToHtml("- one\n- two\n\nNext para\n- three");
     expect(html).toBe("<ul>\n<li>one</li>\n<li>two</li>\n</ul>\n<p>Next para</p>\n<ul>\n<li>three</li>\n</ul>");
   });
+
+  it("converts inline emphasis to HTML", () => {
+    const html = markdownToHtml("**361 views** and *italic* and `code`");
+    expect(html).toBe("<p><strong>361 views</strong> and <em>italic</em> and <code>code</code></p>");
+  });
+
+  it("converts bold inside headings and list items", () => {
+    const html = markdownToHtml("## **Weekly**\n- **/demo** is top");
+    expect(html).toBe("<h2><strong>Weekly</strong></h2>\n<ul>\n<li><strong>/demo</strong> is top</li>\n</ul>");
+  });
+
+  it("turns http(s) links into anchors and drops dangerous schemes", () => {
+    const html = markdownToHtml("See [blog](https://regentplatform.com/blog) or [bad](javascript:alert(1))");
+    expect(html).toBe(
+      '<p>See <a href="https://regentplatform.com/blog">blog</a> or [bad](javascript:alert(1))</p>'
+    );
+  });
+
+  it("leaves stray asterisks and math alone", () => {
+    const html = markdownToHtml("cost is 5 * 3 per unit *here");
+    expect(html).toBe("<p>cost is 5 * 3 per unit *here</p>");
+  });
 });
 
 describe("parseInsightResponse slug validation", () => {
