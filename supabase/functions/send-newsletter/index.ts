@@ -82,7 +82,7 @@ Deno.serve(async (req) => {
   ${html}
   <div style="border-top:1px solid #e2e8f0;margin-top:40px;padding-top:20px;">
     <p style="font-size:12px;color:#a0aec0;margin:0;">
-      © ${new Date().getFullYear()} Regent Systems, Inc. You received this because you subscribed at regentplatform.com.
+      © ${new Date().getFullYear()} Regent Technologies, Inc. You received this because you subscribed at regentplatform.com.
     </p>
     <p style="font-size:12px;color:#a0aec0;margin:8px 0 0;">
       ${unsubscribeFor(recipient)}
@@ -98,7 +98,7 @@ Deno.serve(async (req) => {
               "Content-Type": "application/json",
             },
             body: JSON.stringify({
-              from: "Regent Systems <updates@regentplatform.com>",
+              from: "Regent Technologies <updates@regentplatform.com>",
               to: [recipient],
               subject,
               html: finalHtml,

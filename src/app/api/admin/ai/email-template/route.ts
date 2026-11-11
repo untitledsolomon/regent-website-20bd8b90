@@ -40,7 +40,7 @@ export async function POST(req: Request) {
   }
 
   const system =
-    "You are an email designer for Regent Systems, a business software company. " +
+    "You are an email designer for Regent Technologies, a business software company. " +
     "Produce ONLY a complete, email-safe HTML email template — the SHELL (layout), not content. " +
     "The template is the container: table-based layout, inline styles only (email clients strip <style>), " +
     "brand palette navy #1A3A5B with a white rounded card (#FFFFFF, border-radius 20px), " +

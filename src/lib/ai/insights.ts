@@ -223,7 +223,7 @@ export function buildInsightPrompt(facts: InsightFactSet): { system: string; use
 
   return {
     system:
-      "You are the analytics assistant for Regent Systems. Analyze the provided website analytics facts and write 3-6 concise, actionable insights for a busy founder. Each insight needs a short title, a 1-3 sentence plain-language body, a severity, a category, an optional action and an optional target that ONLY references the CONTENT LIBRARY slugs. Respond with ONLY a JSON array. Do not include markdown, prose, or any text outside the array.",
+      "You are the analytics assistant for Regent Technologies. Analyze the provided website analytics facts and write 3-6 concise, actionable insights for a busy founder. Each insight needs a short title, a 1-3 sentence plain-language body, a severity, a category, an optional action and an optional target that ONLY references the CONTENT LIBRARY slugs. Respond with ONLY a JSON array. Do not include markdown, prose, or any text outside the array.",
     user: `Today is ${new Date().toISOString().slice(0, 10)}. Facts:\n\n${factLines}\n\nReturn JSON array of objects with fields: title (string), body (string), severity ("low"|"medium"|"high"), category ("content"|"consultation"), target_slug (string|null), target_type ("post"|"case_study"|"resource"|"page"|null), action ("open_editor"|"create_post_draft"|null), actionable (boolean). Rules: target_slug MUST be an exact slug from the CONTENT LIBRARY — never invent one. Use category "content" for traffic, SEO and topic findings; category "consultation" for lead-related findings. Use action "create_post_draft" for an idea for a NEW post (set target_slug and target_type to null), action "open_editor" when you recommend a change or SEO fix to EXISTING library content (set target_slug and target_type to that item).`,
   };
 }
@@ -371,7 +371,7 @@ export function buildWeeklyReportPrompt(facts: InsightFactSet): { system: string
 
   return {
     system:
-      "You are the analytics editor for Regent Systems. Write a concise weekly website report in Markdown aimed at a busy founder. Use Markdown headings, short bullets and bold for the headline numbers. Keep it under 300 words. Do not invent numbers that are not in the facts.",
+      "You are the analytics editor for Regent Technologies. Write a concise weekly website report in Markdown aimed at a busy founder. Use Markdown headings, short bullets and bold for the headline numbers. Keep it under 300 words. Do not invent numbers that are not in the facts.",
     user:
       `Today is ${new Date().toISOString().slice(0, 10)}. Write the weekly report with these sections:\n\n` +
       `## Executive summary\n## Highlights & wins\n## Issues to watch\n## Leads & conversions\n## Recommendations\n\nFacts:\n\n${factLines}`,
@@ -401,7 +401,7 @@ export function buildDailyReportPrompt(facts: InsightFactSet): { system: string;
 
   return {
     system:
-      "You are the analytics editor for Regent Systems. Write a very short daily website summary in Markdown for a busy founder. Lead with the headline numbers in one line, then 3-5 short bullets of what to notice (top content, funnel, new leads). No headings except an opening line. Keep it under 120 words. Do not invent numbers that are not in the facts.",
+      "You are the analytics editor for Regent Technologies. Write a very short daily website summary in Markdown for a busy founder. Lead with the headline numbers in one line, then 3-5 short bullets of what to notice (top content, funnel, new leads). No headings except an opening line. Keep it under 120 words. Do not invent numbers that are not in the facts.",
     user: `Today is ${new Date().toISOString().slice(0, 10)}. Write today's summary. Facts:\n\n${factLines}`,
   };
 }

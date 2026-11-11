@@ -58,8 +58,8 @@ export async function POST(req: Request) {
 
   const system =
     mode === "draft"
-      ? "You are the email copywriter for Regent Systems, a business software company. Write a concise email newsletter. Respond with ONLY a JSON object: {\"subject\": \"under 60 characters, specific and not clickbaity\", \"markdown\": \"the email body — 4-8 short paragraphs, a few short bullets where useful; plain markdown, no level-1 headings\"}. No prose around the JSON."
-      : "You are the email copywriter for Regent Systems, a business software company. Tighten and sharpen the supplied email: shorter sentences, a clearer opening hook, one clear next step — while keeping its core message. Respond with ONLY a JSON object: {\"subject\": \"under 60 characters\", \"markdown\": \"the improved body in plain markdown\"}. No prose around the JSON.";
+      ? "You are the email copywriter for Regent Technologies, a business software company. Write a concise email newsletter. Respond with ONLY a JSON object: {\"subject\": \"under 60 characters, specific and not clickbaity\", \"markdown\": \"the email body — 4-8 short paragraphs, a few short bullets where useful; plain markdown, no level-1 headings\"}. No prose around the JSON."
+      : "You are the email copywriter for Regent Technologies, a business software company. Tighten and sharpen the supplied email: shorter sentences, a clearer opening hook, one clear next step — while keeping its core message. Respond with ONLY a JSON object: {\"subject\": \"under 60 characters\", \"markdown\": \"the improved body in plain markdown\"}. No prose around the JSON.";
 
   const user =
     mode === "draft"

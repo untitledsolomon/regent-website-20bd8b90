@@ -35,7 +35,7 @@ export async function POST(req: Request) {
   if (!row) return NextResponse.json({ error: "Consultation not found" }, { status: 404 });
 
   const system =
-    "You are the intake assistant for Regent Systems. Analyze a consultation lead and return a JSON object with exactly: summary (2-3 sentences, plain language), category (one short tag: e.g. 'demo', 'pricing', 'partnership', 'integration', 'general'), suggested_reply (a 3-5 sentence draft email reply to the lead, professional and specific to their message). Respond with ONLY the JSON object — no markdown, no prose around it.";
+    "You are the intake assistant for Regent Technologies. Analyze a consultation lead and return a JSON object with exactly: summary (2-3 sentences, plain language), category (one short tag: e.g. 'demo', 'pricing', 'partnership', 'integration', 'general'), suggested_reply (a 3-5 sentence draft email reply to the lead, professional and specific to their message). Respond with ONLY the JSON object — no markdown, no prose around it.";
   const user =
     `Analyze this consultation request:\n\n` +
     `- name: ${row.name ?? ""}\n- company: ${row.company ?? ""}\n- email: ${row.email ?? ""}\n` +
