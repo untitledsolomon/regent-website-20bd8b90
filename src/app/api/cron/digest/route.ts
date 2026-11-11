@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { createServiceClient } from "@/lib/supabase/service";
 import { generateDigest, type DigestKind } from "@/lib/ai/digest";
 import { sendDigestEmail } from "@/lib/ai/digest-send";
+import { applyTemplateToHtml } from "@/lib/ai/email-templates";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -32,6 +33,8 @@ export async function GET(req: Request) {
     if (error || !settings) {
       return NextResponse.json({ error: "No email settings" }, { status: 400 });
     }
+    const { data: templates } = await (supabase as any).from("email_templates").select("*");
+    const templateRows = templates ?? [];
 
     const due: Array<{ kind: DigestKind; to: string[] }> = [];
     if (settings.weekly_enabled && monday && settings.weekly_hour === hour && (settings.weekly_recipients ?? []).length) {
@@ -47,7 +50,8 @@ export async function GET(req: Request) {
     for (const { kind, to } of due) {
       try {
         const preview = await generateDigest(kind, featureUid);
-        const outcome = await sendDigestEmail({ subject: preview.subject, html: preview.html, to });
+        const html = applyTemplateToHtml(kind, preview.html, settings, templateRows, { subject: preview.subject });
+        const outcome = await sendDigestEmail({ subject: preview.subject, html, to });
         results[kind] = outcome;
         if (outcome === "sent") {
           const col = kind === "weekly" ? "weekly_last_sent_at" : "daily_last_sent_at";

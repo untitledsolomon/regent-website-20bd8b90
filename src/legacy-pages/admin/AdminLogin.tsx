@@ -67,7 +67,7 @@ export default function AdminLogin() {
               onChange={e => setEmail(e.target.value)}
               required
               className="w-full h-11 border border-input rounded-xl px-4 text-sm bg-background text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
-              placeholder="admin@regent.systems"
+              placeholder="admin@regentplatform.com"
             />
           </div>
 

@@ -26,7 +26,7 @@ export async function POST(req: Request) {
   }
 
   const system =
-    "You are the copy editor for Regent Systems, a business software company. From an article title and body produce a JSON object with exactly: meta_description (150-160 characters, SEO, with a call to action), excerpt (one short paragraph suitable for blog cards, 2-3 sentences), social_copy (a 200-280 character post for X/LinkedIn, with the title and a hook). Respond with ONLY the JSON object — no markdown, no prose around it.";
+    "You are the copy editor for Regent Technologies, a business software company. From an article title and body produce a JSON object with exactly: meta_description (150-160 characters, SEO, with a call to action), excerpt (one short paragraph suitable for blog cards, 2-3 sentences), social_copy (a 200-280 character post for X/LinkedIn, with the title and a hook). Respond with ONLY the JSON object — no markdown, no prose around it.";
   const user = `Title: ${title}\n\nBody:\n${contentBody.slice(0, 6000)}`;
   const result = await callModel({ system, messages: [{ role: "user", content: user }], temperature: 0.4 });
   await recordAiUsage({

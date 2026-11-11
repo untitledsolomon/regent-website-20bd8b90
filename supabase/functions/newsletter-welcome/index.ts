@@ -17,7 +17,7 @@ Deno.serve(async (req) => {
       method: "POST",
       headers: { Authorization: `Bearer ${RESEND_API_KEY}`, "Content-Type": "application/json" },
       body: JSON.stringify({
-        from: "Regent Systems <updates@regentplatform.com>",
+        from: "Regent Technologies <updates@regentplatform.com>",
         to: [email],
         subject: "Welcome to Regent Insights",
         html: `
@@ -37,15 +37,15 @@ Deno.serve(async (req) => {
   <p style="font-size:15px;line-height:1.7;color:#4a5568;margin:0 0 32px;">
     In the meantime, explore our latest content:
   </p>
-  <a href="https://regent.systems/blog" style="display:inline-block;background:#4f8cff;color:#ffffff;text-decoration:none;padding:12px 24px;border-radius:8px;font-size:14px;font-weight:500;">
+  <a href="https://regentplatform.com/blog" style="display:inline-block;background:#4f8cff;color:#ffffff;text-decoration:none;padding:12px 24px;border-radius:8px;font-size:14px;font-weight:500;">
     Read the Blog →
   </a>
   <div style="border-top:1px solid #e2e8f0;margin-top:40px;padding-top:20px;">
     <p style="font-size:12px;color:#a0aec0;margin:0;">
-      © ${new Date().getFullYear()} Regent Systems, Inc. You're receiving this because you subscribed at regent.systems.
+      © ${new Date().getFullYear()} Regent Technologies, Inc. You're receiving this because you subscribed at regentplatform.com.
     </p>
     <p style="font-size:12px;color:#a0aec0;margin:8px 0 0;">
-      <a href="https://regent.systems/unsubscribe?email=${encodeURIComponent(email)}" style="color:#a0aec0;text-decoration:underline;">Unsubscribe</a>
+      <a href="https://regentplatform.com/unsubscribe?email=${encodeURIComponent(email)}" style="color:#a0aec0;text-decoration:underline;">Unsubscribe</a>
     </p>
   </div>
 </div>

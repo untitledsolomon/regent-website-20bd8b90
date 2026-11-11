@@ -70,7 +70,7 @@ function hostOf(referrer: string): string | null {
   }
 }
 
-const SITE_HOSTS = ["regentplatform.com", "regent.systems", "www.regentplatform.com"];
+const SITE_HOSTS = ["regentplatform.com", "www.regentplatform.com"];
 
 export async function POST(request: Request) {
   if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {

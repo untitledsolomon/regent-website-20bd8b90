@@ -8,6 +8,7 @@ export const dynamic = "force-dynamic";
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const HOUR_OK = (h: unknown): h is number =>
   typeof h === "number" && Number.isInteger(h) && h >= 0 && h <= 23;
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 /** Read the single email_settings row, or seed it if missing. */
 async function getSettings() {
@@ -61,6 +62,20 @@ export async function PUT(req: Request) {
       const bad = cleaned.filter((r) => !EMAIL_RE.test(r));
       if (bad.length) return NextResponse.json({ error: `Invalid ${kind} recipient: ${bad[0]}` }, { status: 400 });
       patch[`${kind}_recipients`] = cleaned;
+    }
+  }
+
+  // Template selection for the weekly/daily reports and the newsletter.
+  for (const kind of ["weekly", "daily", "newsletter"] as const) {
+    const templateId = body[`${kind}_template_id`];
+    if (templateId !== undefined) {
+      if (templateId === null) {
+        patch[`${kind}_template_id`] = null;
+      } else if (typeof templateId === "string" && UUID_RE.test(templateId)) {
+        patch[`${kind}_template_id`] = templateId;
+      } else {
+        return NextResponse.json({ error: `${kind} template id must be a valid id` }, { status: 400 });
+      }
     }
   }
 

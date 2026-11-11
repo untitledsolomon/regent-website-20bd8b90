@@ -30,8 +30,8 @@ Deno.serve(async (req) => {
       });
     }
 
-    const { subject, html } = await req.json();
-    if (!subject || !html) {
+    const { subject, html, template_html } = await req.json();
+    if (!subject || (!html && !template_html)) {
       return new Response(JSON.stringify({ error: "Subject and html body required" }), {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -55,21 +55,23 @@ Deno.serve(async (req) => {
     let failed = 0;
     const batchSize = 10;
 
+    // Per-recipient unsubscribe link (same URL shape the legacy wrapper used).
+    const unsubscribeFor = (recipient: string) =>
+      `<a href="https://regentplatform.com/unsubscribe?email=${encodeURIComponent(recipient)}" style="color:#657081;text-decoration:underline;">Unsubscribe</a>`;
+
     for (let i = 0; i < emails.length; i += batchSize) {
       const batch = emails.slice(i, i + batchSize);
       const results = await Promise.allSettled(
         batch.map(async (recipient: string) => {
-          const res = await fetch("https://api.resend.com/emails", {
-            method: "POST",
-            headers: {
-              Authorization: `Bearer ${RESEND_API_KEY}`,
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              from: "Regent Systems <updates@regentplatform.com>",
-              to: [recipient],
-              subject,
-              html: `
+          let finalHtml: string;
+          if (template_html) {
+            // Admin-picked template shell (from the Emails > Templates page):
+            // the edge fills the per-recipient unsubscribe token, the app has
+            // already substituted logo/content/preheader/subject/year.
+            finalHtml = template_html.replace(/\{\{unsubscribe\}\}/g, unsubscribeFor(recipient));
+          } else {
+            // Legacy path: wrap the body in today's hard-coded layout.
+            finalHtml = `
 <!DOCTYPE html>
 <html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"></head>
 <body style="margin:0;padding:0;background:#ffffff;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
@@ -80,14 +82,26 @@ Deno.serve(async (req) => {
   ${html}
   <div style="border-top:1px solid #e2e8f0;margin-top:40px;padding-top:20px;">
     <p style="font-size:12px;color:#a0aec0;margin:0;">
-      © ${new Date().getFullYear()} Regent Systems, Inc. You received this because you subscribed at regent.systems.
+      © ${new Date().getFullYear()} Regent Technologies, Inc. You received this because you subscribed at regentplatform.com.
     </p>
     <p style="font-size:12px;color:#a0aec0;margin:8px 0 0;">
-      <a href="https://regent.systems/unsubscribe?email=${encodeURIComponent(recipient)}" style="color:#a0aec0;text-decoration:underline;">Unsubscribe</a>
+      ${unsubscribeFor(recipient)}
     </p>
   </div>
 </div>
-</body></html>`,
+</body></html>`;
+          }
+          const res = await fetch("https://api.resend.com/emails", {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${RESEND_API_KEY}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              from: "Regent Technologies <updates@regentplatform.com>",
+              to: [recipient],
+              subject,
+              html: finalHtml,
             }),
           });
           if (!res.ok) {

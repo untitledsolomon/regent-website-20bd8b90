@@ -4,13 +4,20 @@ import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import RichTextEditor from "@/components/admin/RichTextEditor";
-import { Send, Eye, ArrowLeft, Save, FolderOpen, Sparkles, Loader2, X } from "lucide-react";
+import { Send, Eye, ArrowLeft, Save, FolderOpen, Sparkles, Loader2, X, LayoutTemplate } from "lucide-react";
 import Link from "next/link";
+import { renderEmailTemplate } from "@/lib/ai/email-templates";
 
 interface NewsletterTemplate {
   id: string;
   name: string;
   subject: string;
+  html: string;
+}
+
+interface EmailShell {
+  id: string;
+  name: string;
   html: string;
 }
 
@@ -29,6 +36,8 @@ export default function NewsletterCompose() {
   const [preview, setPreview] = useState(false);
   const [templates, setTemplates] = useState<NewsletterTemplate[]>([]);
   const [selectedTemplate, setSelectedTemplate] = useState("");
+  const [shells, setShells] = useState<EmailShell[]>([]);
+  const [selectedShellId, setSelectedShellId] = useState("");
   const [aiOpen, setAiOpen] = useState(false);
   const [aiMode, setAiMode] = useState<"draft" | "improve">("draft");
   const [aiBusy, setAiBusy] = useState(false);
@@ -43,9 +52,21 @@ export default function NewsletterCompose() {
     if (!error && data) setTemplates(data as NewsletterTemplate[]);
   };
 
+  // Email shells (the layout wrappers from Emails > Templates) usable by the
+  // newsletter. The body renders inside {{content}}; the {{unsubscribe}} token
+  // is left for the edge function to fill per recipient.
+  const loadShells = async () => {
+    const { data, error } = await (supabase as any)
+      .from("email_templates")
+      .select("id, name, html")
+      .in("kind", ["any", "newsletter"]);
+    if (!error && data) setShells(data as EmailShell[]);
+  };
+
   // Load templates and apply a draft shared from the Emails page.
   useEffect(() => {
     loadTemplates();
+    loadShells();
     const draft = localStorage.getItem("regent-template-draft");
     if (draft) {
       try {
@@ -66,6 +87,18 @@ export default function NewsletterCompose() {
     setBody(t.html || "");
     toast({ title: "Template loaded", description: `Draft updated from "${t.name}".` });
   };
+
+  const activeShell = shells.find((s) => s.id === selectedShellId) ?? null;
+
+  /** Render the chosen shell with the current body; {{unsubscribe}} stays for the edge. */
+  const renderShell = () =>
+    activeShell
+      ? renderEmailTemplate(activeShell.html, {
+          content: body,
+          preheader: `${subject} — ${stripHtml(body).slice(0, 100)}`,
+          subject,
+        })
+      : null;
 
   const saveTemplate = async () => {
     if (!subject.trim() || !body.trim()) {
@@ -108,7 +141,13 @@ export default function NewsletterCompose() {
             "Authorization": `Bearer ${session.access_token}`,
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ subject: subject.trim(), html: body }),
+          body: JSON.stringify({
+            subject: subject.trim(),
+            html: body,
+            // The selected shell renders content inside the layout; the edge
+            // fills {{unsubscribe}} per recipient. Absent => legacy wrapper.
+            ...(renderShell() ? { template_html: renderShell() } : {}),
+          }),
         }
       );
 
@@ -207,6 +246,29 @@ export default function NewsletterCompose() {
         </div>
       )}
 
+      {/* Email shell (layout from Emails > Templates) */}
+      {shells.length > 0 && (
+        <div className="mb-6 flex flex-wrap items-center gap-3">
+          <label className="text-sm font-medium text-text-primary">Email shell</label>
+          <div className="relative">
+            <LayoutTemplate size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" />
+            <select
+              value={selectedShellId}
+              onChange={e => {
+                setSelectedShellId(e.target.value);
+                const s = shells.find(x => x.id === e.target.value);
+                if (s) toast({ title: "Shell selected", description: `"${s.name}" wraps the preview and the send. Manage shells in Emails → Templates.` });
+              }}
+              className="h-10 pl-9 pr-8 rounded-lg bg-card border border-border text-sm text-text-primary outline-none focus:border-primary focus:ring-[3px] focus:ring-accent-light cursor-pointer"
+            >
+              <option value="">No shell (legacy layout)</option>
+              {shells.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
+            </select>
+          </div>
+          <span className="text-xs text-text-muted">Wraps your content in the branded layout; each recipient gets their own unsubscribe link.</span>
+        </div>
+      )}
+
       {/* Body */}
       <div className="mb-8">
         <label className="block text-sm font-medium text-text-primary mb-2">Email Body</label>
@@ -221,15 +283,24 @@ export default function NewsletterCompose() {
             <button onClick={() => setPreview(false)} className="text-xs text-text-muted hover:text-text-primary">Close</button>
           </div>
           <div className="p-8 bg-card">
-            <div style={{ maxWidth: 560, margin: "0 auto" }}>
-              <div className="font-heading text-xl font-semibold tracking-[-0.03em] text-text-primary mb-6">
-                Regent<span className="text-primary">.</span>
+            {renderShell() ? (
+              <iframe
+                title="Newsletter shell preview"
+                srcDoc={renderShell() ?? undefined}
+                sandbox=""
+                className="w-full h-[520px] bg-white rounded-xl border border-border"
+              />
+            ) : (
+              <div style={{ maxWidth: 560, margin: "0 auto" }}>
+                <div className="font-heading text-xl font-semibold tracking-[-0.03em] text-text-primary mb-6">
+                  Regent<span className="text-primary">.</span>
+                </div>
+                <div className="prose prose-sm max-w-none" dangerouslySetInnerHTML={{ __html: body }} />
+                <div className="border-t border-border mt-8 pt-4">
+                  <p className="text-xs text-text-muted">© {new Date().getFullYear()} Regent Technologies</p>
+                </div>
               </div>
-              <div className="prose prose-sm max-w-none" dangerouslySetInnerHTML={{ __html: body }} />
-              <div className="border-t border-border mt-8 pt-4">
-                <p className="text-xs text-text-muted">© {new Date().getFullYear()} Regent Technologies</p>
-              </div>
-            </div>
+            )}
           </div>
         </div>
       )}
@@ -346,6 +417,15 @@ export default function NewsletterCompose() {
 
 const inputCls =
   "w-full h-10 border border-border rounded-lg px-3 text-sm text-text-primary bg-card outline-none focus:border-primary focus:ring-[3px] focus:ring-accent-light transition-all";
+
+/** Crude HTML → text, for the shell preheader. */
+const stripHtml = (s: string) =>
+  s
+    .replace(/<style[\s\S]*?<\/style>/gi, " ")
+    .replace(/<[^>]+>/g, " ")
+    .replace(/&nbsp;/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
