@@ -286,10 +286,15 @@ export default function Assistant() {
 
       {/* Main chat */}
       <div className="flex-1 rounded-xl border bg-card flex flex-col min-w-0">
-        <div className="p-3 border-b flex items-center justify-between gap-2">
-          <div className="flex items-center gap-2">
-            <Sparkles size={18} className="text-primary" />
-            <span className="font-medium">Analytics Assistant</span>
+        <div className="p-3 border-b flex items-center justify-between gap-2 bg-gradient-to-r from-primary/5 to-transparent">
+          <div className="flex items-center gap-2.5 min-w-0">
+            <div className="w-8 h-8 rounded-xl bg-primary/10 border border-primary/15 flex items-center justify-center shrink-0">
+              <Sparkles size={15} className="text-primary" />
+            </div>
+            <div className="leading-tight min-w-0">
+              <div className="font-semibold text-sm truncate">Analytics Assistant</div>
+              <div className="text-[11px] text-muted-foreground">Answers from live site data</div>
+            </div>
             {modelName && <Badge variant="secondary" className="text-[10px]">{modelName}</Badge>}
           </div>
           <Button size="icon" variant="ghost" onClick={() => setSidebarOpen((v) => !v)} aria-label="Toggle conversations">
@@ -300,16 +305,19 @@ export default function Assistant() {
         <ScrollArea className="flex-1">
           <div className="space-y-4 p-4">
             {messages.length === 0 && historyLoaded && !streaming && (
-              <div className="text-center py-16 space-y-2">
-                <Bot size={40} className="mx-auto text-muted-foreground/40" />
+              <div className="py-14 text-center space-y-2">
+                <div className="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-br from-primary/10 to-primary/5 border border-primary/10 flex items-center justify-center mb-3">
+                  <Bot size={26} className="text-primary" />
+                </div>
                 <p className="font-medium">Ask about your Regent traffic</p>
-                <div className="flex flex-wrap justify-center gap-2 pt-2">
+                <p className="text-xs text-muted-foreground">Live answers from the analytics tools — no code needed.</p>
+                <div className="flex flex-wrap justify-center gap-2 pt-3">
                   {SUGGESTED_PROMPTS.map((p) => (
                     <button
                       key={p}
                       type="button"
                       onClick={() => send(p)}
-                      className="text-xs rounded-full border bg-muted/40 px-3 py-1.5 text-muted-foreground hover:bg-muted hover:text-foreground transition"
+                      className="text-xs rounded-full border border-border bg-card px-3 py-1.5 text-muted-foreground hover:border-primary/30 hover:text-primary transition"
                     >
                       {p}
                     </button>
@@ -390,7 +398,7 @@ const MessageBubble = memo(function MessageBubble({ msg }: { msg: MessageUi }) {
   if (msg.role === "user") {
     return (
       <div className="flex justify-end">
-        <div className="max-w-[80%] rounded-2xl rounded-tr-sm bg-primary text-primary-foreground px-4 py-2 text-sm whitespace-pre-wrap break-words">
+        <div className="max-w-[80%] rounded-2xl rounded-tr-sm bg-primary/10 border border-primary/15 px-4 py-2 text-sm text-foreground whitespace-pre-wrap break-words">
           {msg.content}
         </div>
       </div>
@@ -400,7 +408,7 @@ const MessageBubble = memo(function MessageBubble({ msg }: { msg: MessageUi }) {
   const cards = msg.toolCalls ?? [];
   return (
     <div className="flex gap-3">
-      <div className="shrink-0 w-7 h-7 rounded-full bg-primary/10 text-primary flex items-center justify-center">
+      <div className="shrink-0 w-7 h-7 mt-0.5 rounded-full bg-gradient-to-br from-primary/15 to-primary/25 border border-primary/10 text-primary flex items-center justify-center">
         <Bot size={15} />
       </div>
       <div className="max-w-[85%] space-y-2 min-w-0">
@@ -411,12 +419,12 @@ const MessageBubble = memo(function MessageBubble({ msg }: { msg: MessageUi }) {
           // Streaming keeps the cheap plain-text render; markdown parses once,
           // after the reply finishes, so partial tables never jank mid-stream.
           msg.stream ? (
-            <div className="rounded-2xl rounded-tl-sm bg-muted/60 px-4 py-2 text-sm whitespace-pre-wrap break-words">
+            <div className="rounded-2xl rounded-tl-sm bg-muted/40 border border-border/60 px-4 py-2 text-sm whitespace-pre-wrap break-words">
               {msg.content}
               <span className="inline-block w-2 h-4 ml-1 bg-primary/60 animate-pulse align-middle" />
             </div>
           ) : (
-            <div className="rounded-2xl rounded-tl-sm bg-muted/60 px-4 py-2 text-sm">
+            <div className="rounded-2xl rounded-tl-sm bg-muted/40 border border-border/60 shadow-sm px-4 py-2 text-sm">
               <div className="prose prose-sm dark:prose-invert prose-p:my-1.5 prose-pre:bg-muted prose-pre:my-2 prose-table:text-sm prose-a:text-primary break-words">
                 <ReactMarkdown remarkPlugins={[remarkGfm]}>{msg.content}</ReactMarkdown>
               </div>

@@ -9,10 +9,9 @@ import {
   LayoutDashboard, FileText, BarChart3, FolderOpen, Mail, MessageSquare,
   Briefcase, LogOut, ExternalLink, ChevronRight, Menu, X, Settings,
   BookOpen, Activity, PanelLeftClose, PanelLeft,
-  ClipboardList, Search, Bell, Grid, User, Sparkles,
+  ClipboardList, Search, User, Sparkles, Send,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
   DropdownMenu,
@@ -23,12 +22,16 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import NotificationsBell from "./NotificationsBell";
+import AppLauncher from "./AppLauncher";
+import AddLeadDialog from "./AddLeadDialog";
 
 const contentNavItems = [
   { label: "Dashboard", path: "/admin", icon: LayoutDashboard, exact: true },
   { label: "Leads", path: "/admin/inquiries", icon: MessageSquare },
   { label: "Analytics", path: "/admin/analytics", icon: Activity },
   { label: "Assistant", path: "/admin/assistant", icon: Sparkles },
+  { label: "Emails", path: "/admin/emails", icon: Send },
   { label: "Users", path: "/admin/users", icon: User },
   { label: "Blog Posts", path: "/admin/posts", icon: FileText },
   { label: "Case Studies", path: "/admin/case-studies", icon: BarChart3 },
@@ -85,9 +88,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       {/* Brand */}
       <div className={cn("h-16 flex items-center border-b border-border px-6", collapsed && !mobile && "justify-center px-0")}>
         <Link href="/" className="flex items-center gap-2 font-heading font-bold text-xl tracking-tight text-foreground">
-          <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center text-primary-foreground">L</div>
+          <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center text-primary-foreground">R</div>
           {!collapsed && (
-            <span>LeadEngine</span>
+            <span>Regent Console</span>
           )}
         </Link>
       </div>
@@ -118,10 +121,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   );
 
   return (
-    <div className="min-h-screen bg-[#F8F9FC] dark:bg-background flex overflow-hidden">
+    <div className="h-screen bg-[#F8F9FC] dark:bg-background flex overflow-hidden">
       {/* Sidebar - desktop */}
       <aside className={cn(
-        "hidden lg:flex flex-col bg-card border-r border-border transition-all duration-300 ease-in-out shrink-0 z-30",
+        "hidden lg:flex flex-col bg-card border-r border-border transition-all duration-300 ease-in-out shrink-0 z-30 sticky top-0 h-screen",
         collapsed ? "w-[72px]" : "w-[260px]"
       )}>
         <SidebarContent />
@@ -162,19 +165,14 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           </div>
 
           <div className="flex items-center gap-2 sm:gap-4">
-            <div className="hidden md:flex items-center gap-6 mr-4">
-              <Link href="/admin/campaigns" className="text-sm font-medium text-muted-foreground hover:text-foreground">New Campaign</Link>
-              <Button size="sm" className="bg-primary hover:bg-primary/90 rounded-xl px-5">Add Lead</Button>
+            <div className="hidden md:flex items-center gap-3 mr-4">
+              <Link href="/admin/newsletter/compose" className="text-sm font-medium text-muted-foreground hover:text-foreground">New Campaign</Link>
+              <AddLeadDialog />
             </div>
 
-            <button className="p-2 text-muted-foreground hover:text-foreground relative">
-              <Bell size={20} />
-              <span className="absolute top-2 right-2 w-2 h-2 bg-destructive rounded-full border-2 border-card" />
-            </button>
+            <NotificationsBell />
 
-            <button className="p-2 text-muted-foreground hover:text-foreground">
-              <Grid size={20} />
-            </button>
+            <AppLauncher />
 
             <ThemeToggle />
 

@@ -130,6 +130,15 @@ async function handleView(
   const pagePath = nonNull(cap(body.page_path, "page_path"));
   const sessionId = nonNull(cap(body.session_id, "session_id"));
   const visitorId = nonNull(cap(body.visitor_id, "visitor_id"));
+
+  // Admin pages are never site traffic. The client hook guards /admin, but the
+  // DataFast auto-pageview runs there too and bypasses that guard (it posted
+  // /admin rows as site_view), so this server gate is the enforcement point —
+  // drop the view before any session row is written.
+  if (pagePath && (pagePath === "/admin" || pagePath.startsWith("/admin/"))) {
+    return new NextResponse(null, { status: 204 });
+  }
+
   if (!sessionId || !visitorId) return NextResponse.json({ error: "session required" }, { status: 400 });
 
   const referrer = nonNull(cap(body.referrer, "referrer")) ?? "";

@@ -37,16 +37,12 @@ export default function ResourceReader({ resource }: ResourceReaderProps) {
 
     setSubscribing(true);
     try {
-      const { data: subscriber } = await supabase
-        .from('newsletter_subscribers')
-        .insert({
-          email,
-          source: `resource_gate_${resource.slug}`
-        })
-        .select('id')
-        .single();
+      const { data: subscriberId } = await (supabase as any).rpc("record_newsletter_subscriber", {
+        p_email: email,
+        p_source: `resource_gate_${resource.slug}`,
+      });
       localStorage.setItem('regent_lead_email', email);
-      trackConversion('resource_access', subscriber?.id, resource.id);
+      trackConversion('resource_access', subscriberId ?? undefined, resource.id);
       setIsGated(false);
     } catch (err) {
       console.error(err);

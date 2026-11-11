@@ -1,11 +1,18 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import RichTextEditor from "@/components/admin/RichTextEditor";
-import { Send, Eye, ArrowLeft } from "lucide-react";
+import { Send, Eye, ArrowLeft, Save, FolderOpen } from "lucide-react";
 import Link from "next/link";
+
+interface NewsletterTemplate {
+  id: string;
+  name: string;
+  subject: string;
+  html: string;
+}
 
 export default function NewsletterCompose() {
   const supabase = createClient();
@@ -13,7 +20,61 @@ export default function NewsletterCompose() {
   const [body, setBody] = useState("");
   const [sending, setSending] = useState(false);
   const [preview, setPreview] = useState(false);
+  const [templates, setTemplates] = useState<NewsletterTemplate[]>([]);
+  const [selectedTemplate, setSelectedTemplate] = useState("");
   const { toast } = useToast();
+
+  const loadTemplates = async () => {
+    const { data, error } = await (supabase as any)
+      .from("newsletter_templates")
+      .select("id, name, subject, html")
+      .order("updated_at", { ascending: false });
+    if (!error && data) setTemplates(data as NewsletterTemplate[]);
+  };
+
+  // Load templates and apply a draft shared from the Emails page.
+  useEffect(() => {
+    loadTemplates();
+    const draft = localStorage.getItem("regent-template-draft");
+    if (draft) {
+      try {
+        const d = JSON.parse(draft);
+        if (typeof d.subject === "string" && typeof d.html === "string") {
+          setSubject(d.subject);
+          setBody(d.html);
+        }
+      } catch {
+        /* ignore malformed draft */
+      }
+      localStorage.removeItem("regent-template-draft");
+    }
+  }, []);
+
+  const applyTemplate = (t: NewsletterTemplate) => {
+    setSubject(t.subject || "");
+    setBody(t.html || "");
+    toast({ title: "Template loaded", description: `Draft updated from "${t.name}".` });
+  };
+
+  const saveTemplate = async () => {
+    if (!subject.trim() || !body.trim()) {
+      toast({ title: "Nothing to save", description: "Add a subject and body first.", variant: "destructive" });
+      return;
+    }
+    const name = window.prompt("Name this template");
+    if (!name || !name.trim()) return;
+    const { error } = await (supabase as any).from("newsletter_templates").insert({
+      name: name.trim(),
+      subject: subject.trim(),
+      html: body,
+    });
+    if (error) {
+      toast({ title: "Failed to save template", variant: "destructive" });
+    } else {
+      toast({ title: "Template saved", description: `"${name.trim()}" is ready to reuse.` });
+      loadTemplates();
+    }
+  };
 
   const handleSend = async () => {
     if (!subject.trim() || !body.trim()) {
@@ -87,6 +148,29 @@ export default function NewsletterCompose() {
         />
       </div>
 
+      {/* Templates */}
+      {templates.length > 0 && (
+        <div className="mb-6 flex flex-wrap items-center gap-3">
+          <label className="text-sm font-medium text-text-primary">Load template</label>
+          <div className="relative">
+            <FolderOpen size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" />
+            <select
+              value={selectedTemplate}
+              onChange={e => {
+                const t = templates.find(t => t.id === e.target.value);
+                if (t) applyTemplate(t);
+                setSelectedTemplate("");
+              }}
+              className="h-10 pl-9 pr-8 rounded-lg bg-card border border-border text-sm text-text-primary outline-none focus:border-primary focus:ring-[3px] focus:ring-accent-light cursor-pointer"
+            >
+              <option value="">Choose a template…</option>
+              {templates.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
+            </select>
+          </div>
+          <span className="text-xs text-text-muted">Templates replace the subject and body above.</span>
+        </div>
+      )}
+
       {/* Body */}
       <div className="mb-8">
         <label className="block text-sm font-medium text-text-primary mb-2">Email Body</label>
@@ -115,7 +199,14 @@ export default function NewsletterCompose() {
       )}
 
       {/* Actions */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-3 flex-wrap">
+        <button
+          onClick={saveTemplate}
+          className="inline-flex items-center gap-2 h-11 px-5 bg-card border border-border text-text-secondary rounded-lg text-sm font-medium hover:border-primary/30 hover:text-text-primary transition-all"
+        >
+          <Save size={16} />
+          Save as Template
+        </button>
         <button
           onClick={() => setPreview(!preview)}
           className="inline-flex items-center gap-2 h-11 px-5 bg-card border border-border text-text-secondary rounded-lg text-sm font-medium hover:border-primary/30 hover:text-text-primary transition-all"
