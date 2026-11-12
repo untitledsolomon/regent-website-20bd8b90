@@ -162,6 +162,7 @@ www-side already handled (verified live): `/unsubscribe` noindex, `/careers/appl
 **F3 — expand module pages** (`src/lib/axisModules.ts` data + `src/components/AxisModulePage.tsx`)
 - Each module: 5 features (lucide-style `Icons` already in repo), 4-step "How it works", "What it replaces", "How Axis connects to the other modules" (names the other 3 with links), "Who it is for", 6-question FAQ **including a trial Q and per-plan pricing Q answered verbatim from `/axis/pricing`** (e.g. inventory: "Inventory tracking is in Pro and above. Starter covers quotations, invoicing and core accounting."; HR: "Employee management is in Advanced.").
 - `AxisModulePage.tsx`: hero with optional screenshot slot (2-col desktop, stacked mobile), alternating feature rows with per-row screenshot slots, numbered step cards, FAQPage JSON-LD, sibling cross-links, CTA. H1s, titles, canonicals, breadcrumbs, CTAs preserved.
+- **FAQ rendered with the same "sane" components as the `/axis` product page** (per PR #46 review comment): shadcn `Accordion`/`AccordionItem`/`AccordionTrigger`/`AccordionContent` + `SectionHeader`, replacing the prior bespoke `divide-y` listing. Answers stream client-side via the RSC payload exactly as `/axis` does; the FAQPage JSON-LD still exposes full Q&A in the initial HTML.
 - Rendered word counts (built output): invoicing **727**, accounting **712**, inventory **720**, HR **745** (target ~700–900 ✓).
 
 **F4 — expand services page** (`src/app/(public)/services/custom-software-development-uganda/page.tsx`)

@@ -4,6 +4,8 @@ import { AXIS_MODULES, type AxisModule } from '@/lib/axisModules'
 import { MODULE_SCREENS } from '@/lib/screens'
 import { ScreenshotFrame } from '@/components/ScreenshotFrame'
 import { Icons } from '@/components/Icons'
+import { SectionHeader } from '@/components/SectionHeader'
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion'
 
 function HeroText({ module }: { module: AxisModule }) {
   return (
@@ -194,20 +196,27 @@ export function AxisModulePage({ module }: { module: AxisModule }) {
       {/* FAQ */}
       <section className="border-t border-border bg-surface py-20">
         <div className="section-container max-w-3xl">
-          <div className="mb-10">
-            <div className="mb-4 font-mono text-[11px] uppercase tracking-[0.12em] text-primary">FAQ</div>
-            <h2 className="font-heading text-3xl font-semibold tracking-[-0.04em] text-text-primary md:text-4xl">
-              Questions about Axis {module.name}.
-            </h2>
-          </div>
-          <div className="divide-y divide-border border-y border-border">
-            {module.faq.map((item) => (
-              <div key={item.q} className="py-6">
-                <h3 className="mb-2 font-heading text-base font-semibold text-text-primary">{item.q}</h3>
-                <p className="text-sm leading-relaxed text-text-secondary">{item.a}</p>
-              </div>
+          <SectionHeader
+            label="FAQ"
+            title={`Questions about Axis ${module.name}.`}
+            subtitle="If something's not covered here, ask us directly before you start a trial."
+          />
+          <Accordion type="single" collapsible className="space-y-3">
+            {module.faq.map((item, i) => (
+              <AccordionItem
+                key={item.q}
+                value={`faq-${i}`}
+                className="rounded-xl border border-border bg-surface px-6"
+              >
+                <AccordionTrigger className="py-5 text-left font-heading text-[15px] font-medium text-text-primary hover:no-underline">
+                  {item.q}
+                </AccordionTrigger>
+                <AccordionContent className="pb-5 text-sm leading-[1.7] text-text-secondary">
+                  {item.a}
+                </AccordionContent>
+              </AccordionItem>
             ))}
-          </div>
+          </Accordion>
         </div>
       </section>
 
