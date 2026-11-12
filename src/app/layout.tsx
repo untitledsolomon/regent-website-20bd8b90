@@ -4,11 +4,11 @@ import { Providers } from '@/components/Providers'
 
 export const metadata: Metadata = {
   title: {
-    default: 'Regent: Infrastructure for the Next Generation of Systems',
-    template: '%s | Regent',
+    default: 'Regent Technologies | Enterprise Systems & Infrastructure',
+    template: '%s | Regent Technologies',
   },
   description:
-    'Regent architects and builds enterprise systems that connect data, workflows, and intelligence across organizations.',
+    'Regent Technologies architects and builds enterprise systems that connect data, workflows and intelligence across organizations. Based in Kampala, Uganda.',
   icons: {
     icon: [
       { url: '/favicon.ico', sizes: 'any' },
@@ -21,6 +21,19 @@ export const metadata: Metadata = {
   metadataBase: new URL(
     process.env.NEXT_PUBLIC_SITE_URL || 'https://www.regentplatform.com'
   ),
+  // Site-wide Open Graph / Twitter defaults. Page-level metadata deep-merges
+  // over these, so a page with its own values overrides; a page without an
+  // image inherits the default og:image below (referencing the existing
+  // public/og-image.png — dimensions are non-standard, so no sizes are set).
+  openGraph: {
+    type: 'website',
+    siteName: 'Regent Technologies',
+    images: [{ url: '/og-image.png' }],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    images: ['/og-image.png'],
+  },
 }
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.regentplatform.com'
@@ -29,18 +42,33 @@ const organizationJsonLd = {
   '@context': 'https://schema.org',
   '@type': 'Organization',
   '@id': `${SITE_URL}/#organization`,
-  name: 'Regent',
+  name: 'Regent Technologies',
   legalName: 'Regent Technologies',
-  alternateName: ['Regent Platform', 'Regent Technologies'],
+  alternateName: 'Regent',
   url: SITE_URL,
   logo: `${SITE_URL}/icon-512.png`,
   description:
-    'Regent architects and builds systems that connect data, workflows, and intelligence across organizations.',
+    "Regent Technologies architects and builds systems that connect data, workflows, and intelligence across organizations — including Axis, Regent's business operations platform.",
+  address: {
+    '@type': 'PostalAddress',
+    addressLocality: 'Kampala',
+    addressCountry: 'UG',
+    // TODO(solomon): add the full street address once one is public.
+  },
   sameAs: [
     'https://www.facebook.com/profile.php?id=61579513311384',
     'https://www.linkedin.com/company/regent-technologies',
     'https://www.instagram.com/regent.technologies_/',
   ],
+}
+
+const websiteJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  '@id': `${SITE_URL}/#website`,
+  name: 'Regent Technologies',
+  url: SITE_URL,
+  inLanguage: 'en',
 }
 
 export default function RootLayout({
@@ -54,6 +82,10 @@ export default function RootLayout({
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }}
         />
         <script
           async
