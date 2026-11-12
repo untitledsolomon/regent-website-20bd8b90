@@ -9,11 +9,13 @@ export const metadata: Metadata = {
     title: 'Capabilities & Solutions | Regent',
     description: 'Enterprise capabilities in systems integration, data infrastructure, workflow automation, and intelligence.',
     type: 'website',
+    images: [{ url: '/og-image.png' }]
   },
   twitter: {
     card: 'summary_large_image',
     title: 'Capabilities & Solutions | Regent',
     description: 'Enterprise capabilities in systems integration, data infrastructure, workflow automation, and intelligence.',
+    images: ['/og-image.png']
   },
   alternates: {
     canonical: '/capabilities',

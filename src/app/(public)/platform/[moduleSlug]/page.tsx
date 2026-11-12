@@ -20,8 +20,19 @@ export async function generateMetadata({
     title: mod.name,
     description: mod.desc,
     alternates: { canonical: `/platform/${moduleSlug}` },
-    openGraph: { title: `${mod.name} | Regent`, description: mod.desc, type: 'website', url: `/platform/${moduleSlug}` },
-    twitter: { card: 'summary_large_image', title: `${mod.name} | Regent`, description: mod.desc },
+    openGraph: {
+      title: `${mod.name} | Regent`,
+      description: mod.desc,
+      type: 'website',
+      url: `/platform/${moduleSlug}`,
+      images: [{ url: '/og-image.png' }],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: `${mod.name} | Regent`,
+      description: mod.desc,
+      images: ['/og-image.png'],
+    },
   }
 }
 

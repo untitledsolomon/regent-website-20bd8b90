@@ -10,12 +10,14 @@ export const metadata: Metadata = {
     description:
       'Regent Technologies architects and builds enterprise systems that connect data, workflows and intelligence across organizations. Based in Kampala, Uganda.',
     type: 'website',
+    images: [{ url: '/og-image.png' }]
   },
   twitter: {
     card: 'summary_large_image',
     title: 'Regent Technologies | Enterprise Systems & Infrastructure',
     description:
       'Regent Technologies architects and builds enterprise systems that connect data, workflows and intelligence across organizations. Based in Kampala, Uganda.',
+    images: ['/og-image.png']
   },
   alternates: {
     canonical: '/',

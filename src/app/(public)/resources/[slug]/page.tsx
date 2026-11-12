@@ -17,8 +17,19 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     title: data.title,
     description,
     alternates: { canonical: `/resources/${slug}` },
-    openGraph: { title: `${data.title} | Regent`, description, type: 'article', url: `/resources/${slug}` },
-    twitter: { card: 'summary_large_image', title: `${data.title} | Regent`, description },
+    openGraph: {
+      title: `${data.title} | Regent`,
+      description,
+      type: 'article',
+      url: `/resources/${slug}`,
+      images: [{ url: '/og-image.png' }],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: `${data.title} | Regent`,
+      description,
+      images: ['/og-image.png'],
+    },
   };
 }
 

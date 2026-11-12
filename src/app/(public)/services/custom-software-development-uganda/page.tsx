@@ -13,11 +13,13 @@ export const metadata: Metadata = {
     description,
     type: 'website',
     url: '/services/custom-software-development-uganda',
+    images: [{ url: '/og-image.png' }]
   },
   twitter: {
     card: 'summary_large_image',
     title: 'Custom Software & Enterprise Systems | Regent Technologies',
     description,
+    images: ['/og-image.png']
   },
   alternates: {
     canonical: '/services/custom-software-development-uganda',

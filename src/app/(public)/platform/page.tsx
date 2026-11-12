@@ -11,12 +11,14 @@ export const metadata: Metadata = {
     description:
       "See how Regent's platform connects data, workflows, and operations into one system for growing businesses.",
     type: 'website',
+    images: [{ url: '/og-image.png' }]
   },
   twitter: {
     card: 'summary_large_image',
     title: 'Platform Overview | Regent',
     description:
       "See how Regent's platform connects data, workflows, and operations into one system for growing businesses.",
+    images: ['/og-image.png']
   },
   alternates: {
     canonical: '/platform',

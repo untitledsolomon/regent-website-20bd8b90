@@ -10,11 +10,13 @@ export const metadata = {
     title: "Products — Regent",
     description: "Axis, Regent's business operating system, is available now. Regent CRM and Forge are in development.",
     type: "website",
+    images: [{ url: '/og-image.png' }]
   },
   twitter: {
     card: "summary_large_image",
     title: "Products — Regent",
     description: "Axis, Regent's business operating system, is available now. Regent CRM and Forge are in development.",
+    images: ['/og-image.png']
   },
   alternates: {
     canonical: "/products",

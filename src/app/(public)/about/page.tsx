@@ -11,12 +11,14 @@ export const metadata: Metadata = {
     description:
       'Regent Technologies architects and builds enterprise systems that connect data, workflows and intelligence across organizations.',
     type: 'website',
+    images: [{ url: '/og-image.png' }]
   },
   twitter: {
     card: 'summary_large_image',
     title: 'About Regent Technologies | Enterprise Systems',
     description:
       'Regent Technologies architects and builds enterprise systems that connect data, workflows and intelligence across organizations.',
+    images: ['/og-image.png']
   },
   alternates: {
     canonical: '/about',

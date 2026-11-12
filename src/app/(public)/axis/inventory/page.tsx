@@ -13,11 +13,13 @@ export const metadata: Metadata = {
     description: mod.description,
     type: 'website',
     url: '/axis/inventory',
+    images: [{ url: '/og-image.png' }]
   },
   twitter: {
     card: 'summary_large_image',
     title: mod.ogTitle,
     description: mod.description,
+    images: ['/og-image.png']
   },
   alternates: {
     canonical: '/axis/inventory',

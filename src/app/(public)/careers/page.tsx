@@ -9,11 +9,13 @@ export const metadata: Metadata = {
     title: 'Careers | Regent',
     description: 'Join Regent and help build Axis and other systems for growing businesses.',
     type: 'website',
+    images: [{ url: '/og-image.png' }]
   },
   twitter: {
     card: 'summary_large_image',
     title: 'Careers | Regent',
     description: 'Join Regent and help build Axis and other systems for growing businesses.',
+    images: ['/og-image.png']
   },
   alternates: {
     canonical: '/careers',
