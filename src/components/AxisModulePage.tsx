@@ -211,7 +211,10 @@ export function AxisModulePage({ module }: { module: AxisModule }) {
                 <AccordionTrigger className="py-5 text-left font-heading text-[15px] font-medium text-text-primary hover:no-underline">
                   {item.q}
                 </AccordionTrigger>
-                <AccordionContent className="pb-5 text-sm leading-[1.7] text-text-secondary">
+                <AccordionContent
+                  forceMount
+                  className="pb-5 text-sm leading-[1.7] text-text-secondary"
+                >
                   {item.a}
                 </AccordionContent>
               </AccordionItem>
