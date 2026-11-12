@@ -1,6 +1,7 @@
 import { createServiceClient, hasSupabaseEnv } from '@/lib/supabase/service'
 import type { Metadata } from 'next'
 import { BlogClient, type BlogPost } from '@/components/blog/BlogClient'
+import { Breadcrumbs } from '@/components/Breadcrumbs'
 
 export const metadata: Metadata = {
   title: 'Blog',
@@ -32,5 +33,10 @@ export default async function BlogIndexPage() {
     .eq('published', true)
     .order('date', { ascending: false })
 
-  return <BlogClient posts={(data ?? []) as BlogPost[]} />
+  return (
+    <>
+      <Breadcrumbs items={[{ name: 'Blog', href: '/blog' }]} />
+      <BlogClient posts={(data ?? []) as BlogPost[]} />
+    </>
+  )
 }

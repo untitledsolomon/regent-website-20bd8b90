@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import Careers from '@/legacy-pages/Careers'
+import { Breadcrumbs } from '@/components/Breadcrumbs'
 
 export const metadata: Metadata = {
   title: 'Careers',
@@ -20,5 +21,10 @@ export const metadata: Metadata = {
 }
 
 export default function CareersPage() {
-  return <Careers />
+  return (
+    <>
+      <Breadcrumbs items={[{ name: 'Careers', href: '/careers' }]} />
+      <Careers />
+    </>
+  )
 }

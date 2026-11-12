@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import PrivacyPolicy from '@/legacy-pages/PrivacyPolicy'
+import { Breadcrumbs } from '@/components/Breadcrumbs'
 
 export const metadata: Metadata = {
   title: 'Privacy Policy',
@@ -20,5 +21,10 @@ export const metadata: Metadata = {
 }
 
 export default function PrivacyPage() {
-  return <PrivacyPolicy />
+  return (
+    <>
+      <Breadcrumbs items={[{ name: 'Privacy Policy', href: '/privacy' }]} />
+      <PrivacyPolicy />
+    </>
+  )
 }

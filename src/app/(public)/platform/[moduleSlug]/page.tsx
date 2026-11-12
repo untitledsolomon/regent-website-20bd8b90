@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { modules } from '@/data/siteData'
 import ModuleDetail from '@/legacy-pages/ModuleDetail'
+import { Breadcrumbs } from '@/components/Breadcrumbs'
 
 export function generateStaticParams() {
   return modules.map((m) => ({ moduleSlug: m.slug }))
@@ -36,9 +37,20 @@ export default async function ModuleDetailPage({
   // That serves a 200 with blank/incomplete HTML to crawlers before the JS
   // redirect runs -- a soft 404. Guarding here on the server means an
   // invalid slug gets a real 404 status immediately.
-  if (!modules.some((m) => m.slug === moduleSlug)) {
+  const mod = modules.find((m) => m.slug === moduleSlug)
+  if (!mod) {
     notFound()
   }
 
-  return <ModuleDetail />
+  return (
+    <>
+      <Breadcrumbs
+        items={[
+          { name: 'Platform', href: '/platform' },
+          { name: mod.name, href: `/platform/${moduleSlug}` },
+        ]}
+      />
+      <ModuleDetail />
+    </>
+  )
 }

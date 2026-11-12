@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import CaseStudies from '@/legacy-pages/CaseStudies'
+import { Breadcrumbs } from '@/components/Breadcrumbs'
 
 export const metadata: Metadata = {
   title: 'Case Studies',
@@ -20,5 +21,10 @@ export const metadata: Metadata = {
 }
 
 export default function CaseStudiesPage() {
-  return <CaseStudies />
+  return (
+    <>
+      <Breadcrumbs items={[{ name: 'Case Studies', href: '/case-studies' }]} />
+      <CaseStudies />
+    </>
+  )
 }

@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import Demo from '@/legacy-pages/Demo'
+import { Breadcrumbs } from '@/components/Breadcrumbs'
 
 export const metadata: Metadata = {
   title: 'Book a Demo',
@@ -20,5 +21,10 @@ export const metadata: Metadata = {
 }
 
 export default function DemoPage() {
-  return <Demo />
+  return (
+    <>
+      <Breadcrumbs items={[{ name: 'Book a Demo', href: '/demo' }]} />
+      <Demo />
+    </>
+  )
 }

@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import RefundPolicy from '@/legacy-pages/RefundPolicy'
+import { Breadcrumbs } from '@/components/Breadcrumbs'
 
 export const metadata: Metadata = {
   title: 'Refund Policy',
@@ -23,5 +24,10 @@ export const metadata: Metadata = {
 }
 
 export default function RefundPolicyPage() {
-  return <RefundPolicy />
+  return (
+    <>
+      <Breadcrumbs items={[{ name: 'Refund Policy', href: '/refund-policy' }]} />
+      <RefundPolicy />
+    </>
+  )
 }

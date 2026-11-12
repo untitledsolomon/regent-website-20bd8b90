@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import Industries from '@/legacy-pages/Industries'
+import { Breadcrumbs } from '@/components/Breadcrumbs'
 
 export const metadata: Metadata = {
   title: 'Industry Solutions',
@@ -20,5 +21,10 @@ export const metadata: Metadata = {
 }
 
 export default function IndustriesPage() {
-  return <Industries />
+  return (
+    <>
+      <Breadcrumbs items={[{ name: 'Industry Solutions', href: '/industries' }]} />
+      <Industries />
+    </>
+  )
 }

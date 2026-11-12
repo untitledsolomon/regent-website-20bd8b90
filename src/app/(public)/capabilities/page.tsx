@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import Capabilities from '@/legacy-pages/Capabilities'
+import { Breadcrumbs } from '@/components/Breadcrumbs'
 
 export const metadata: Metadata = {
   title: 'Capabilities & Solutions',
@@ -20,5 +21,10 @@ export const metadata: Metadata = {
 }
 
 export default function CapabilitiesPage() {
-  return <Capabilities />
+  return (
+    <>
+      <Breadcrumbs items={[{ name: 'Capabilities & Solutions', href: '/capabilities' }]} />
+      <Capabilities />
+    </>
+  )
 }

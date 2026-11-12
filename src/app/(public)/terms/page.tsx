@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import TermsOfService from '@/legacy-pages/TermsOfService'
+import { Breadcrumbs } from '@/components/Breadcrumbs'
 
 export const metadata: Metadata = {
   title: 'Terms of Service',
@@ -20,5 +21,10 @@ export const metadata: Metadata = {
 }
 
 export default function TermsPage() {
-  return <TermsOfService />
+  return (
+    <>
+      <Breadcrumbs items={[{ name: 'Terms of Service', href: '/terms' }]} />
+      <TermsOfService />
+    </>
+  )
 }

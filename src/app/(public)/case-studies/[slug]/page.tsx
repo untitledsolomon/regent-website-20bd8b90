@@ -1,6 +1,8 @@
 import { createClient } from '@/lib/supabase/server'
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
+import { seoTitle } from '@/lib/seo'
+import { Breadcrumbs } from '@/components/Breadcrumbs'
 import CaseStudyDetail from '@/legacy-pages/CaseStudyDetail'
 
 export const revalidate = 60
@@ -14,27 +16,29 @@ export async function generateMetadata({
   const supabase = await createClient()
   const { data: cs } = await supabase
     .from('case_studies')
-    .select('title, summary, image_url, industry')
+    .select('title, meta_title, meta_description, summary, image_url, og_image, industry')
     .eq('slug', slug)
     .single()
 
   if (!cs) return { title: 'Case Study Not Found' }
 
-  const ogImage = cs.image_url || '/og-default.jpg'
+  const pageTitle = cs.meta_title || cs.title
+  const description = cs.meta_description || cs.summary || ''
+  const ogImage = cs.og_image || cs.image_url || '/og-image.png'
 
   return {
-    title: `${cs.title} | Case Study`,
-    description: cs.summary || '',
+    title: seoTitle(pageTitle),
+    description,
     openGraph: {
       type: 'article',
-      title: cs.title,
-      description: cs.summary || '',
+      title: pageTitle,
+      description,
       images: [{ url: ogImage }],
     },
     twitter: {
       card: 'summary_large_image',
-      title: cs.title,
-      description: cs.summary || '',
+      title: pageTitle,
+      description,
       images: [ogImage],
     },
     alternates: { canonical: `/case-studies/${slug}` },
@@ -68,15 +72,15 @@ export default async function CaseStudyDetailPage({
     '@context': 'https://schema.org',
     '@type': 'TechArticle',
     headline: cs.title,
-    description: cs.summary || '',
+    description: cs.meta_description || cs.summary || '',
     image: cs.image_url || '',
     author: {
       '@type': 'Organization',
-      name: 'Regent',
+      name: 'Regent Technologies',
     },
     publisher: {
       '@type': 'Organization',
-      name: 'Regent',
+      name: 'Regent Technologies',
       url: process.env.NEXT_PUBLIC_SITE_URL,
     },
     mainEntityOfPage: {
@@ -91,6 +95,7 @@ export default async function CaseStudyDetailPage({
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
+      <Breadcrumbs items={[{ name: 'Case Studies', href: '/case-studies' }, { name: cs.title, href: `/case-studies/${cs.slug}` }]} />
       <CaseStudyDetail
         initialCaseStudy={{
           id: cs.id,

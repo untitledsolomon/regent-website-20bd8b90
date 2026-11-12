@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { createClient } from '@/lib/supabase/server'
 import Resources from '@/legacy-pages/Resources'
+import { Breadcrumbs } from '@/components/Breadcrumbs'
 
 export const revalidate = 60
 
@@ -45,6 +46,7 @@ export default async function ResourcesPage() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
+      <Breadcrumbs items={[{ name: 'Resources', href: '/resources' }]} />
       <Resources initialResources={resources ?? []} />
     </>
   )

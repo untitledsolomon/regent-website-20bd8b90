@@ -1,6 +1,7 @@
 import { ProductCard } from "@/components/ui/ProductCard";
 import Link from "next/link";
 import { Icons } from "@/components/Icons";
+import { Breadcrumbs } from "@/components/Breadcrumbs";
 
 export const metadata = {
   title: "Products",
@@ -23,6 +24,7 @@ export const metadata = {
 export default function ProductsPage() {
   return (
     <div className="section-container py-28">
+      <Breadcrumbs items={[{ name: "Products", href: "/products" }]} />
 
       <div className="mb-14 max-w-3xl">
         <div className="mb-5 flex items-center gap-3 font-mono text-[11px] uppercase tracking-[0.12em] text-primary">
