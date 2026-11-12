@@ -55,6 +55,15 @@ export default function RootLayout({
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
         />
+        <script
+          async
+          src="https://www.googletagmanager.com/gtm.js?id=AW-656595205"
+        />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `window.dataLayer = window.dataLayer || []; function gtag(){dataLayer.push(arguments);} gtag('js', new Date());`,
+          }}
+        />
         <Providers>{children}</Providers>
       </body>
     </html>
