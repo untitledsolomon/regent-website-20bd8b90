@@ -209,7 +209,7 @@ export const AXIS_MODULES: AxisModule[] = [
   {
     slug: 'inventory',
     name: 'Inventory',
-    title: 'Inventory Management Software for Business | Regent Technologies',
+    title: 'Inventory Software for Business | Regent Technologies',
     h1: 'Know what is on hand and who has it, inside Axis',
     ogTitle: 'Axis Inventory & Custody — Inventory Management Software for Business',
     description:
