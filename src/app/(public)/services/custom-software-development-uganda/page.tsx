@@ -1,6 +1,8 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { Breadcrumbs } from '@/components/Breadcrumbs'
+import { ScreenshotFrame } from '@/components/ScreenshotFrame'
+import { SERVICES_SCREENS } from '@/lib/screens'
 
 const description =
   'Regent Technologies architects and builds enterprise systems and custom software development for organizations in Uganda and beyond.'
@@ -70,6 +72,25 @@ export default function CustomSoftwareDevelopmentPage() {
     })),
   }
 
+  const whatWeBuild = [
+    {
+      item: 'Enterprise systems',
+      body: 'Systems that connect an organization’s data, workflows and intelligence into one coherent whole — the record systems and operations tools a business runs on.',
+    },
+    {
+      item: 'Internal systems',
+      body: 'The tools an organization operates on day to day: the shared records, approvals and workflows that keep teams from running on separate spreadsheets.',
+    },
+    {
+      item: 'Web applications',
+      body: 'Fast, dependable web apps built around real work — applications people actually use, maintained in production long after launch.',
+    },
+    {
+      item: 'AI-powered tools',
+      body: 'Intelligence layered onto real operations — where structured data and trained models make decisions easier, not where AI is bolted on for its own sake.',
+    },
+  ]
+
   const principles = [
     {
       title: 'Connected data',
@@ -88,6 +109,8 @@ export default function CustomSoftwareDevelopmentPage() {
       body: 'Every system is built around the way the organization actually operates, not reshaped to fit a generic platform.',
     },
   ]
+
+  const heroShot = SERVICES_SCREENS[0] ?? null
 
   return (
     <>
@@ -127,6 +150,29 @@ export default function CustomSoftwareDevelopmentPage() {
         </div>
       </section>
 
+      {/* Opening statement */}
+      <section className="py-20">
+        <div className="section-container max-w-4xl">
+          <p className="max-w-2xl font-heading text-2xl font-semibold leading-snug tracking-[-0.02em] text-text-primary md:text-3xl">
+            Most software starts from what a product can do. Regent starts from how an organization actually works —
+            the data it holds, the workflow that moves work between teams, and the intelligence that turns both into
+            decisions.
+          </p>
+          <p className="mt-6 max-w-2xl text-base leading-relaxed text-text-secondary">
+            That is the difference between buying software and having systems built. Custom software development, done
+            properly, means the system fits the operation instead of the operation reshaping itself around the software.
+            Regent designs, builds and operates the systems an organization runs on.
+          </p>
+        </div>
+      </section>
+
+      {/* Wide visual slot */}
+      <section className="border-y border-border bg-surface py-20">
+        <div className="section-container max-w-5xl">
+          <ScreenshotFrame shot={heroShot} className="mx-auto w-full" />
+        </div>
+      </section>
+
       {/* What Regent builds */}
       <section className="py-20">
         <div className="section-container max-w-4xl">
@@ -136,30 +182,18 @@ export default function CustomSoftwareDevelopmentPage() {
               Systems, not software in a box.
             </h2>
             <p className="text-lg font-light leading-relaxed text-text-secondary">
-              Regent is an enterprise systems builder. We design and build the systems an organization runs on — the
-              records, tools and integrations that keep its operations connected — and we do that through custom
-              software development tailored to how each organization works.
+              Regent is an enterprise systems builder. The systems it designs and builds are the records, tools and
+              integrations an organization runs on — delivered through custom software development tailored to how that
+              organization works.
             </p>
           </div>
-          <div className="grid gap-4 md:grid-cols-3">
-            <div className="rounded-xl border border-border bg-surface p-7">
-              <div className="mb-3 font-mono text-[10px] uppercase tracking-[0.16em] text-primary">Enterprise systems</div>
-              <p className="text-base leading-relaxed text-text-secondary">
-                Full systems that connect an organization's data, workflows and intelligence into one coherent whole.
-              </p>
-            </div>
-            <div className="rounded-xl border border-border bg-surface p-7">
-              <div className="mb-3 font-mono text-[10px] uppercase tracking-[0.16em] text-primary">Custom software development</div>
-              <p className="text-base leading-relaxed text-text-secondary">
-                Software built around the way an organization operates, from a single tool to a complete platform.
-              </p>
-            </div>
-            <div className="rounded-xl border border-border bg-surface p-7">
-              <div className="mb-3 font-mono text-[10px] uppercase tracking-[0.16em] text-primary">Infrastructure</div>
-              <p className="text-base leading-relaxed text-text-secondary">
-                The data and hosting infrastructure that keeps systems reliable, secure and running in production.
-              </p>
-            </div>
+          <div className="grid gap-4 md:grid-cols-2">
+            {whatWeBuild.map((item) => (
+              <div key={item.item} className="rounded-xl border border-border bg-surface p-7">
+                <div className="mb-3 font-mono text-[10px] uppercase tracking-[0.16em] text-primary">{item.item}</div>
+                <p className="text-sm leading-relaxed text-text-secondary">{item.body}</p>
+              </div>
+            ))}
           </div>
         </div>
       </section>
@@ -173,8 +207,8 @@ export default function CustomSoftwareDevelopmentPage() {
               Built around the work.
             </h2>
             <p className="text-lg font-light leading-relaxed text-text-secondary">
-              Regent builds systems the same way we run our own — starting from the work, connecting it end to end, and
-              keeping it running.
+              Regent builds systems the way it runs its own — starting from the work, connecting it end to end, and
+              keeping it running. A few principles hold across every system:
             </p>
           </div>
           <div className="grid gap-4 md:grid-cols-2">
@@ -198,12 +232,14 @@ export default function CustomSoftwareDevelopmentPage() {
             </h2>
             <p className="max-w-2xl text-base leading-relaxed text-text-secondary">
               Axis is a business operating system Regent has built and currently operates — one record of clients,
-              items and ledger shared across invoicing, accounting, inventory and HR for growing small businesses in
-              Uganda. It is a working example of how Regent builds systems, not the limits of it.
+              items and ledger shared across invoicing, accounting, inventory and HR for growing small businesses. It
+              is a working example of how Regent builds systems: single source of truth, shared records, nothing out of
+              sync. A system is not finished when it ships; it is finished when the organization runs on it. Axis is
+              that — running in production, in daily use, and evolving as the businesses using it grow.
             </p>
             <Link
               href="/axis"
-              className="mt-6 inline-flex items-center gap-2 font-heading text-[13px] font-medium text-primary hover:gap-3 transition-all"
+              className="mt-6 inline-flex items-center gap-2 font-heading text-[13px] font-medium text-primary transition-all hover:gap-3"
             >
               Explore Axis →
             </Link>

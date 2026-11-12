@@ -8,11 +8,9 @@ import { useToast } from "@/hooks/use-toast";
 import { trackConversion } from "@/hooks/useContentTracking";
 
 const cols = [
-  { title: "Solutions", links: [{ label: "Overview", to: "/platform" }, { label: "Architecture", to: "/platform" }, { label: "Modules", to: "/platform" }, { label: "Security", to: "/platform" }, { label: "Axis Pricing", to: "/axis/pricing" }, { label: "Axis Invoicing", to: "/axis/invoicing" }, { label: "Axis Accounting", to: "/axis/accounting" }, { label: "Axis Inventory", to: "/axis/inventory" }, { label: "Axis HR", to: "/axis/hr" }] },
-  { title: "Capabilities", links: [{ label: "Systems Integration", to: "/capabilities" }, { label: "Data Infrastructure", to: "/capabilities" }, { label: "Workflow Automation", to: "/capabilities" }, { label: "Intelligence Systems", to: "/capabilities" }] },
-  { title: "Industries", links: [{ label: "Finance", to: "/industries" }, { label: "Government", to: "/industries" }, { label: "Education", to: "/industries" }, { label: "Real Estate", to: "/industries" }] },
-  { title: "Resources", links: [{ label: "Whitepapers", to: "/resources" }, { label: "Case Studies", to: "/case-studies" }, { label: "Documentation", to: "/resources" }, { label: "Blog", to: "/blog" }] },
-  { title: "Company", links: [{ label: "About", to: "/about" }, { label: "Services", to: "/services/custom-software-development-uganda" }, { label: "Careers", to: "/careers" }, { label: "News", to: "/about" }, { label: "Contact", to: "/demo" }] },
+  { title: "Solutions", links: [{ label: "Platform", to: "/platform" }, { label: "Capabilities", to: "/capabilities" }, { label: "Industries", to: "/industries" }, { label: "Axis Pricing", to: "/axis/pricing" }] },
+  { title: "Resources", links: [{ label: "Whitepapers & Docs", to: "/resources" }, { label: "Case Studies", to: "/case-studies" }, { label: "Blog", to: "/blog" }] },
+  { title: "Company", links: [{ label: "About", to: "/about" }, { label: "Services", to: "/services/custom-software-development-uganda" }, { label: "Careers", to: "/careers" }, { label: "Contact", to: "/demo" }] },
 ];
 
 function BackToTop() {
@@ -81,7 +79,7 @@ export function Footer() {
       <BackToTop />
       <footer className="bg-text-primary text-background pt-[72px] pb-10">
         <div className="section-container">
-          <div className="grid grid-cols-2 md:grid-cols-[240px_1fr_1fr_1fr_1fr_1fr] gap-8">
+          <div className="grid grid-cols-2 md:grid-cols-[240px_1fr_1fr_1fr] gap-8">
             <div className="col-span-2 md:col-span-1">
               <div className="font-heading text-xl font-semibold tracking-[-0.03em] mb-3">
                 Regent<span className="text-accent-mid">.</span>
@@ -144,10 +142,6 @@ export function Footer() {
                 Refund Policy
                 <span className="absolute bottom-0 left-0 w-full h-px bg-background/30 origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-300" />
               </Link>
-              <span className="group cursor-pointer hover:text-background/60 relative">
-                Security
-                <span className="absolute bottom-0 left-0 w-full h-px bg-background/30 origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-300" />
-              </span>
             </span>
           </div>
         </div>
