@@ -337,6 +337,17 @@ export default function AxisPage() {
             );
           })}
         </div>
+
+        {/* Explore each Axis module — add-only link row for module coverage */}
+        <div className="border-t border-border pt-10">
+          <div className="mb-6 font-mono text-[11px] uppercase tracking-[0.12em] text-primary">Explore each Axis module</div>
+          <div className="flex flex-wrap gap-3">
+            <Link href="/axis/invoicing" className="rounded-full border border-border bg-surface px-4 py-2 font-heading text-[12px] font-medium text-text-primary transition-all hover:border-primary hover:text-primary">Axis Invoicing</Link>
+            <Link href="/axis/accounting" className="rounded-full border border-border bg-surface px-4 py-2 font-heading text-[12px] font-medium text-text-primary transition-all hover:border-primary hover:text-primary">Axis Accounting</Link>
+            <Link href="/axis/inventory" className="rounded-full border border-border bg-surface px-4 py-2 font-heading text-[12px] font-medium text-text-primary transition-all hover:border-primary hover:text-primary">Axis Inventory</Link>
+            <Link href="/axis/hr" className="rounded-full border border-border bg-surface px-4 py-2 font-heading text-[12px] font-medium text-text-primary transition-all hover:border-primary hover:text-primary">Axis HR</Link>
+          </div>
+        </div>
       </div>
 
       <div className="border-y border-border bg-surface">
