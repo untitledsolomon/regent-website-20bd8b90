@@ -30,7 +30,9 @@ export const metadata: Metadata = {
 
 const PLAN_FEATURES: Record<AxisPlanPricing["planId"], string[]> = {
   starter: [
-    "Invoicing & client management",
+    "Quotations, invoices & client management",
+    "Job orders & delivery forms",
+    "1 user",
     "Core financial tracking & ledger",
     "Basic reports",
     "1 organization",
@@ -40,6 +42,8 @@ const PLAN_FEATURES: Record<AxisPlanPricing["planId"], string[]> = {
     "Everything in Starter",
     "Advanced reports & analytics",
     "Inventory tracking",
+    "Job cost & margin tracking",
+    "Up to 5 users",
     "Priority support",
   ],
   advanced: [
@@ -47,6 +51,7 @@ const PLAN_FEATURES: Record<AxisPlanPricing["planId"], string[]> = {
     "Employee management",
     "Custom email domain",
     "Third-party connections",
+    "Up to 20 users",
     "Priority support with SLA",
   ],
 };
@@ -59,11 +64,19 @@ async function getClientIp(): Promise<string | undefined> {
 
 const PLAN_ORDER: AxisPlanPricing["planId"][] = ["starter", "pro", "advanced"];
 
+// Shown only if the live Paddle lookup fails, so visitors (and ad reviewers)
+// never see "Contact us" instead of a price. Keep in sync with Paddle.
+const FALLBACK_PRICES: Record<AxisPlanPricing["planId"], [string, string]> = {
+  starter: ["$25", "$250"],
+  pro: ["$60", "$600"],
+  advanced: ["$120", "$1,200"],
+};
+
 const FALLBACK_PLANS: AxisPlanPricing[] = PLAN_ORDER.map((planId) => ({
   planId,
   name: planId.charAt(0).toUpperCase() + planId.slice(1),
-  monthly: null,
-  yearly: null,
+  monthly: { priceId: "", billingInterval: "month", formattedTotal: FALLBACK_PRICES[planId][0], currencyCode: "USD" },
+  yearly: { priceId: "", billingInterval: "year", formattedTotal: FALLBACK_PRICES[planId][1], currencyCode: "USD" },
 }));
 
 
@@ -164,7 +177,7 @@ export default async function PricingPage() {
         <SectionHeader
           label="Pricing"
           title="Simple pricing for every stage"
-          subtitle="Every Axis plan includes a 7-day free trial. Cancel anytime. Prices shown reflect your location and are billed in your local currency where available."
+          subtitle="Every Axis plan includes a 7-day free trial, no credit card required. Subscriptions renew automatically each month or year and you can cancel anytime. Prices shown reflect your location and are billed in your local currency where available."
           center
         />
 
@@ -178,8 +191,7 @@ export default async function PricingPage() {
 
         {pricingUnavailable && (
           <p className="text-center text-sm text-text-muted mt-8">
-            We&rsquo;re having trouble loading live pricing right now. Start a free trial to
-            see current rates, or check back shortly.
+            Prices shown are in USD. Live local pricing is temporarily unavailable.
           </p>
         )}
 
