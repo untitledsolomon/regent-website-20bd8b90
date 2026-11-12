@@ -12,7 +12,7 @@ const cols = [
   { title: "Capabilities", links: [{ label: "Systems Integration", to: "/capabilities" }, { label: "Data Infrastructure", to: "/capabilities" }, { label: "Workflow Automation", to: "/capabilities" }, { label: "Intelligence Systems", to: "/capabilities" }] },
   { title: "Industries", links: [{ label: "Finance", to: "/industries" }, { label: "Government", to: "/industries" }, { label: "Education", to: "/industries" }, { label: "Real Estate", to: "/industries" }] },
   { title: "Resources", links: [{ label: "Whitepapers", to: "/resources" }, { label: "Case Studies", to: "/case-studies" }, { label: "Documentation", to: "/resources" }, { label: "Blog", to: "/blog" }] },
-  { title: "Company", links: [{ label: "About", to: "/about" }, { label: "Careers", to: "/careers" }, { label: "News", to: "/about" }, { label: "Contact", to: "/demo" }] },
+  { title: "Company", links: [{ label: "About", to: "/about" }, { label: "Services", to: "/services/custom-software-development-uganda" }, { label: "Careers", to: "/careers" }, { label: "News", to: "/about" }, { label: "Contact", to: "/demo" }] },
 ];
 
 function BackToTop() {
