@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import TermsOfService from '@/legacy-pages/TermsOfService'
+import { Breadcrumbs } from '@/components/Breadcrumbs'
 
 export const metadata: Metadata = {
   title: 'Terms of Service',
@@ -8,11 +9,13 @@ export const metadata: Metadata = {
     title: 'Terms of Service | Regent',
     description: 'Read the terms of service governing use of Regent and Axis.',
     type: 'website',
+    images: [{ url: '/og-image.png' }]
   },
   twitter: {
     card: 'summary_large_image',
     title: 'Terms of Service | Regent',
     description: 'Read the terms of service governing use of Regent and Axis.',
+    images: ['/og-image.png']
   },
   alternates: {
     canonical: '/terms',
@@ -20,5 +23,10 @@ export const metadata: Metadata = {
 }
 
 export default function TermsPage() {
-  return <TermsOfService />
+  return (
+    <>
+      <Breadcrumbs items={[{ name: 'Terms of Service', href: '/terms' }]} />
+      <TermsOfService />
+    </>
+  )
 }

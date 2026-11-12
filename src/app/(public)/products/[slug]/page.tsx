@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Icons } from "@/components/Icons";
 import { RevealOnScroll } from "@/components/RevealOnScroll";
+import { Breadcrumbs } from "@/components/Breadcrumbs";
 
 type Product = {
   name: string;
@@ -48,8 +49,19 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     title,
     description: product.description,
     alternates: { canonical: `/products/${slug}` },
-    openGraph: { title, description: product.description, type: "website", url: `/products/${slug}` },
-    twitter: { card: "summary_large_image", title, description: product.description },
+    openGraph: {
+      title,
+      description: product.description,
+      type: "website",
+      url: `/products/${slug}`,
+      images: [{ url: '/og-image.png' }],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description: product.description,
+      images: ['/og-image.png'],
+    },
   };
 }
 
@@ -69,6 +81,12 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
   return (
     <>
       
+      <Breadcrumbs
+        items={[
+          { name: "Products", href: "/products" },
+          { name: product.name, href: `/products/${slug}` },
+        ]}
+      />
       <div className="border-b border-border bg-background/90 backdrop-blur">
         <div className="section-container flex h-12 items-center justify-between">
           <Link href="/products" className="text-xs text-text-secondary hover:text-text-primary">← All products</Link>

@@ -1,6 +1,8 @@
 import { createServiceClient, hasSupabaseEnv } from '@/lib/supabase/service'
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
+import { seoTitle } from '@/lib/seo'
+import { Breadcrumbs } from '@/components/Breadcrumbs'
 import { BlogPostClient } from '@/components/blog/BlogPostClient'
 
 export const revalidate = 60
@@ -8,7 +10,11 @@ export const revalidate = 60
 export async function generateStaticParams() {
   if (!hasSupabaseEnv()) return []
   const supabase = createServiceClient()
-  const { data } = await supabase.from('blog_posts').select('slug')
+  // Same visibility condition the index and sitemap use: published = true.
+  const { data } = await supabase
+    .from('blog_posts')
+    .select('slug')
+    .eq('published', true)
   return (data ?? []).map(post => ({ slug: post.slug }))
 }
 
@@ -24,27 +30,30 @@ export async function generateMetadata({
     .from('blog_posts')
     .select('meta_title, meta_description, og_image, title, excerpt, author, date')
     .eq('slug', slug)
+    .eq('published', true)
     .single()
 
   if (!post) return { title: 'Post Not Found' }
 
-  const ogImage = post.og_image || '/og-default.jpg'
+  const pageTitle = post.meta_title || post.title
+  const description = post.meta_description || post.excerpt || ''
+  const ogImage = post.og_image || '/og-image.png'
 
   return {
-    title: post.meta_title || post.title,
-    description: post.meta_description || post.excerpt || '',
+    title: seoTitle(pageTitle),
+    description,
     authors: post.author ? [{ name: post.author }] : undefined,
     openGraph: {
       type: 'article',
-      title: post.meta_title || post.title,
-      description: post.meta_description || post.excerpt || '',
+      title: pageTitle,
+      description,
       images: [{ url: ogImage }],
       publishedTime: post.date,
     },
     twitter: {
       card: 'summary_large_image',
-      title: post.meta_title || post.title,
-      description: post.meta_description || post.excerpt || '',
+      title: pageTitle,
+      description,
       images: [ogImage],
     },
     alternates: { canonical: `/blog/${slug}` },
@@ -64,6 +73,7 @@ export default async function BlogPostPage({
     .from('blog_posts')
     .select('*')
     .eq('slug', slug)
+    .eq('published', true)
     .single()
 
   if (!post) notFound()
@@ -81,7 +91,7 @@ export default async function BlogPostPage({
     },
     publisher: {
       '@type': 'Organization',
-      name: 'Regent',
+      name: 'Regent Technologies',
       url: process.env.NEXT_PUBLIC_SITE_URL,
     },
     mainEntityOfPage: {
@@ -96,6 +106,7 @@ export default async function BlogPostPage({
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
+      <Breadcrumbs items={[{ name: 'Blog', href: '/blog' }, { name: post.title, href: `/blog/${post.slug}` }]} />
       <BlogPostClient post={post} />
     </>
   )

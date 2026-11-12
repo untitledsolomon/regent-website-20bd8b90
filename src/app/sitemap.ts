@@ -26,11 +26,16 @@ type StaticEntry = {
 const staticPages: StaticEntry[] = [
   { path: '', changeFrequency: 'weekly', priority: 1.0 }, // homepage
   { path: '/axis', changeFrequency: 'weekly', priority: 0.9 },
+  { path: '/axis/invoicing', changeFrequency: 'weekly', priority: 0.8 },
+  { path: '/axis/accounting', changeFrequency: 'weekly', priority: 0.8 },
+  { path: '/axis/inventory', changeFrequency: 'weekly', priority: 0.8 },
+  { path: '/axis/hr', changeFrequency: 'weekly', priority: 0.8 },
   { path: '/platform', changeFrequency: 'monthly', priority: 0.9 },
   { path: '/pricing', changeFrequency: 'weekly', priority: 0.9 },
   { path: '/products', changeFrequency: 'weekly', priority: 0.9 },
   { path: '/capabilities', changeFrequency: 'monthly', priority: 0.8 },
   { path: '/industries', changeFrequency: 'monthly', priority: 0.8 },
+  { path: '/services/custom-software-development-uganda', changeFrequency: 'monthly', priority: 0.8 },
   { path: '/case-studies', changeFrequency: 'weekly', priority: 0.8 },
   { path: '/blog', changeFrequency: 'daily', priority: 0.8 },
   { path: '/resources', changeFrequency: 'weekly', priority: 0.8 },

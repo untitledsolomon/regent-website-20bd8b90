@@ -5,6 +5,7 @@ import { RevealOnScroll } from '@/components/RevealOnScroll';
 import { Icons } from '@/components/Icons';
 import { GradientText } from '@/components/GradientText';
 import ResourceReader from './ResourceReader';
+import { Breadcrumbs } from '@/components/Breadcrumbs';
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
@@ -16,8 +17,19 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     title: data.title,
     description,
     alternates: { canonical: `/resources/${slug}` },
-    openGraph: { title: `${data.title} | Regent`, description, type: 'article', url: `/resources/${slug}` },
-    twitter: { card: 'summary_large_image', title: `${data.title} | Regent`, description },
+    openGraph: {
+      title: `${data.title} | Regent`,
+      description,
+      type: 'article',
+      url: `/resources/${slug}`,
+      images: [{ url: '/og-image.png' }],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: `${data.title} | Regent`,
+      description,
+      images: ['/og-image.png'],
+    },
   };
 }
 
@@ -37,6 +49,12 @@ export default async function ResourceDetailPage({ params }: { params: Promise<{
 
   return (
     <div className="min-h-screen bg-background">
+      <Breadcrumbs
+        items={[
+          { name: 'Resources', href: '/resources' },
+          { name: resource.title, href: `/resources/${slug}` },
+        ]}
+      />
       {/* Header */}
       <section className="pt-[140px] pb-[60px] bg-surface border-b border-border relative overflow-hidden">
         <div className="absolute inset-0 grid-bg opacity-30" />

@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import Platform from '@/legacy-pages/Platform'
+import { Breadcrumbs } from '@/components/Breadcrumbs'
 
 export const metadata: Metadata = {
   title: 'Platform Overview',
@@ -10,12 +11,14 @@ export const metadata: Metadata = {
     description:
       "See how Regent's platform connects data, workflows, and operations into one system for growing businesses.",
     type: 'website',
+    images: [{ url: '/og-image.png' }]
   },
   twitter: {
     card: 'summary_large_image',
     title: 'Platform Overview | Regent',
     description:
       "See how Regent's platform connects data, workflows, and operations into one system for growing businesses.",
+    images: ['/og-image.png']
   },
   alternates: {
     canonical: '/platform',
@@ -23,5 +26,10 @@ export const metadata: Metadata = {
 }
 
 export default function PlatformPage() {
-  return <Platform />
+  return (
+    <>
+      <Breadcrumbs items={[{ name: 'Platform', href: '/platform' }]} />
+      <Platform />
+    </>
+  )
 }

@@ -8,11 +8,11 @@ import { useToast } from "@/hooks/use-toast";
 import { trackConversion } from "@/hooks/useContentTracking";
 
 const cols = [
-  { title: "Solutions", links: [{ label: "Overview", to: "/platform" }, { label: "Architecture", to: "/platform" }, { label: "Modules", to: "/platform" }, { label: "Security", to: "/platform" }, { label: "Pricing", to: "/axis/pricing" }] },
+  { title: "Solutions", links: [{ label: "Overview", to: "/platform" }, { label: "Architecture", to: "/platform" }, { label: "Modules", to: "/platform" }, { label: "Security", to: "/platform" }, { label: "Axis Pricing", to: "/axis/pricing" }] },
   { title: "Capabilities", links: [{ label: "Systems Integration", to: "/capabilities" }, { label: "Data Infrastructure", to: "/capabilities" }, { label: "Workflow Automation", to: "/capabilities" }, { label: "Intelligence Systems", to: "/capabilities" }] },
   { title: "Industries", links: [{ label: "Finance", to: "/industries" }, { label: "Government", to: "/industries" }, { label: "Education", to: "/industries" }, { label: "Real Estate", to: "/industries" }] },
   { title: "Resources", links: [{ label: "Whitepapers", to: "/resources" }, { label: "Case Studies", to: "/case-studies" }, { label: "Documentation", to: "/resources" }, { label: "Blog", to: "/blog" }] },
-  { title: "Company", links: [{ label: "About", to: "/about" }, { label: "Careers", to: "/careers" }, { label: "News", to: "/about" }, { label: "Contact", to: "/demo" }] },
+  { title: "Company", links: [{ label: "About", to: "/about" }, { label: "Services", to: "/services/custom-software-development-uganda" }, { label: "Careers", to: "/careers" }, { label: "News", to: "/about" }, { label: "Contact", to: "/demo" }] },
 ];
 
 function BackToTop() {
@@ -87,7 +87,7 @@ export function Footer() {
                 Regent<span className="text-accent-mid">.</span>
               </div>
               <p className="text-sm text-background/45 max-w-[260px] leading-relaxed mb-6">
-                Systems engineering and infrastructure for the next generation of organizations.
+                Systems engineering and infrastructure for the next generation of organizations. Based in Kampala, Uganda.
               </p>
               {/* Newsletter */}
               <div className="relative">

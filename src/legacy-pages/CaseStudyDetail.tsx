@@ -6,7 +6,6 @@ import { useState, useEffect, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { motion, useScroll } from "framer-motion";
 import { createClient } from "@/lib/supabase/client";
-import { PageMeta } from "@/components/PageMeta";
 import { GradientText } from "@/components/GradientText";
 import { RevealOnScroll } from "@/components/RevealOnScroll";
 import { Icons } from "@/components/Icons";
@@ -145,14 +144,6 @@ export default function CaseStudyDetail({ initialCaseStudy, initialRelated }: Ca
 
   return (
     <div>
-      <PageMeta jsonLd={{
-          "@context": "https://schema.org",
-          "@type": "Article",
-          "headline": cs.title,
-          "description": cs.summary,
-          "publisher": { "@type": "Organization", "name": "Regent" },
-        }} />
-
       {/* Reading progress bar */}
       <motion.div
         className="fixed top-16 left-0 right-0 h-[3px] bg-primary z-[99] origin-left"
