@@ -14,6 +14,7 @@ export const SITE_URL = 'https://www.regentplatform.com'
  */
 export function stripBrandSuffix(title: string): string {
   return title
+    .replace(/\s*[|–—-]\s*Axis by Regent\s*$/i, '')
     .replace(/\s*[|–—-]\s*Regent Technologies\s*$/i, '')
     .replace(/\s*[|–—-]\s*Regent\s*$/i, '')
     .trim()
