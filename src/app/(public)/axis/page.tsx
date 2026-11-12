@@ -9,18 +9,18 @@ import { AXIS_SIGNUP_URL } from "@/lib/axis";
 export const metadata: Metadata = {
   title: { absolute: "Axis by Regent: Business Management Software" },
   description:
-    "Axis by Regent is the business operating system for growing businesses: invoicing, accounting, inventory, and HR in one connected system. Try it free for 7 days.",
+    "Axis by Regent is cloud-based ERP and accounting software: quotations, invoices, job orders, delivery notes, ledger accounting and inventory in one system for growing businesses. Try it free for 7 days.",
   openGraph: {
     title: "Axis by Regent: Business Management Software",
     description:
-      "Axis by Regent is the business operating system for growing businesses: invoicing, accounting, inventory, and HR in one connected system. Try it free for 7 days.",
+      "Axis by Regent is cloud-based ERP and accounting software: quotations, invoices, job orders, delivery notes, ledger accounting and inventory in one system for growing businesses. Try it free for 7 days.",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
     title: "Axis by Regent: Business Management Software",
     description:
-      "Axis by Regent is the business operating system for growing businesses: invoicing, accounting, inventory, and HR in one connected system. Try it free for 7 days.",
+      "Axis by Regent is cloud-based ERP and accounting software: quotations, invoices, job orders, delivery notes, ledger accounting and inventory in one system for growing businesses. Try it free for 7 days.",
   },
   alternates: {
     canonical: "/axis",
@@ -37,7 +37,7 @@ export default function AxisPage() {
     applicationCategory: "BusinessApplication",
     operatingSystem: "Web",
     description:
-      "Axis by Regent is the business operating system for growing businesses: invoicing, accounting, inventory, and HR in one connected system. Try it free for 7 days.",
+      "Axis by Regent is cloud-based ERP and accounting software: quotations, invoices, job orders, delivery notes, ledger accounting and inventory in one system for growing businesses. Try it free for 7 days.",
     offers: {
       "@type": "Offer",
       url:
@@ -86,13 +86,13 @@ export default function AxisPage() {
               </p>
               <div className="flex flex-col items-center justify-center gap-3 sm:flex-row">
                 <a href={AXIS_SIGNUP_URL} target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-[18px] py-3 font-heading text-[13px] font-medium text-primary-foreground transition-all hover:-translate-y-px hover:shadow-lg">
-                  Start with Axis <Icons.ArrowRight />
+                  Start your free trial <Icons.ArrowRight />
                 </a>
                 <Link href="/axis/pricing" className="inline-flex items-center justify-center rounded-lg border border-border-strong bg-background px-[18px] py-3 font-heading text-[13px] font-medium text-text-primary transition-all hover:border-primary hover:text-primary">
                   See pricing
                 </Link>
               </div>
-              <p className="mt-6 font-mono text-[10px] uppercase tracking-[0.12em] text-text-muted">7-day free trial · Cancel anytime</p>
+              <p className="mt-6 font-mono text-[10px] uppercase tracking-[0.12em] text-text-muted">7-day free trial · No credit card required</p>
             </div>
           </RevealOnScroll>
         </div>
@@ -188,6 +188,44 @@ export default function AxisPage() {
                   <div className="flex justify-between"><span>Amount</span><span className="text-text-primary">$4,200.00</span></div>
                   <div className="flex justify-between"><span>Due</span><span className="text-text-primary">Sep 12, 2026</span></div>
                 </div>
+              </div>
+            </div>
+          </RevealOnScroll>
+        </div>
+
+        {/* Row — Orders workflow: quotation -> invoice -> job order -> delivery */}
+        <div className="grid gap-12 border-b border-border py-16 lg:grid-cols-2 lg:items-center">
+          <RevealOnScroll direction="left">
+            <div>
+              <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-accent-light text-primary">
+                <Icons.FileText size={18} />
+              </div>
+              <div className="mb-2 font-mono text-[10px] uppercase tracking-[0.14em] text-primary">Orders — Quotations, Job Orders &amp; Delivery</div>
+              <h3 className="mb-4 font-heading text-2xl font-semibold text-text-primary">Follow every order from quote to delivery</h3>
+              <p className="mb-6 max-w-md text-base leading-relaxed text-text-secondary">
+                Send a quotation, invoice the client, track the job internally and record what was delivered. Each document links to the next, so you can trace any order end to end.
+              </p>
+              <ul className="space-y-2 text-sm text-text-secondary">
+                <li className="flex items-center gap-2"><Icons.Check size={14} /> Quotations sent to clients, the same way as invoices</li>
+                <li className="flex items-center gap-2"><Icons.Check size={14} /> Internal job orders with your own status stages</li>
+                <li className="flex items-center gap-2"><Icons.Check size={14} /> Delivery forms, including partial deliveries</li>
+                <li className="flex items-center gap-2"><Icons.Check size={14} /> Cost and margin tracking per job (Pro and above)</li>
+              </ul>
+            </div>
+          </RevealOnScroll>
+
+          <RevealOnScroll direction="right" delay={0.1}>
+            <div className="rounded-2xl border border-border bg-background p-3 shadow-[0_24px_70px_rgba(35,31,94,0.1)]">
+              <div className="rounded-xl border border-border bg-surface p-5">
+                <ol className="space-y-2">
+                  {[["1", "Quotation", "Sent to the client"], ["2", "Invoice", "Part or full payment"], ["3", "Job order", "Internal tracking and costs"], ["4", "Delivery form", "Client and business record"]].map(([n, title, note]) => (
+                    <li key={n} className="flex items-center gap-3 rounded-lg border border-border bg-background px-4 py-3 text-xs">
+                      <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-accent-light font-mono text-[10px] text-primary">{n}</span>
+                      <span className="font-medium text-text-primary">{title}</span>
+                      <span className="ml-auto text-text-muted">{note}</span>
+                    </li>
+                  ))}
+                </ol>
               </div>
             </div>
           </RevealOnScroll>
@@ -341,9 +379,9 @@ export default function AxisPage() {
         />
         <div className="mx-auto grid max-w-5xl grid-cols-1 gap-6 md:grid-cols-3">
           {[
-            { name: "Starter", blurb: "For teams getting off spreadsheets.", features: ["Invoicing & client management", "Core financial tracking & ledger", "Basic reports", "1 organization"] },
-            { name: "Pro", blurb: "For growing teams that need more.", features: ["Everything in Starter", "Advanced reports & analytics", "Inventory tracking", "Priority support"], featured: true },
-            { name: "Advanced", blurb: "For teams running complex operations.", features: ["Everything in Pro", "Employee management", "Custom email domain", "Third-party connections"] },
+            { name: "Starter", blurb: "For teams getting off spreadsheets.", features: ["Quotations, invoices & client management", "Job orders & delivery forms", "Core financial tracking & ledger", "Basic reports", "1 user"] },
+            { name: "Pro", blurb: "For growing teams that need more.", features: ["Everything in Starter", "Advanced reports & analytics", "Inventory tracking", "Job cost & margin tracking", "Up to 5 users"], featured: true },
+            { name: "Advanced", blurb: "For teams running complex operations.", features: ["Everything in Pro", "Employee management", "Custom email domain", "Third-party connections", "Up to 20 users"] },
           ].map((plan) => (
             <RevealOnScroll key={plan.name}>
               <div className={`relative flex h-full flex-col rounded-xl border p-7 ${plan.featured ? "border-primary bg-surface shadow-[0_16px_40px_rgba(35,31,94,0.1)]" : "border-border bg-background"}`}>
@@ -379,9 +417,9 @@ export default function AxisPage() {
         <div className="mx-auto max-w-3xl">
           <Accordion type="single" collapsible className="space-y-3">
             {[
-              ["What is Axis?", "Axis is Regent's business operations platform — invoicing, ledger accounting, inventory, and HR in one system, set up and supported by Regent for your team."],
-              ["How do I get started?", "Start a 7-day free trial from the pricing page, no setup call required. Pick the plan that fits your team and cancel anytime during the trial."],
-              ["Which plan do I need?", "Starter covers invoicing and core accounting. Pro adds inventory tracking and advanced reports. Advanced adds employee management, custom email domains, and integrations."],
+              ["What is Axis?", "Axis is cloud-based ERP and accounting software built by Regent. It brings quotations, invoices, job orders, delivery forms, ledger accounting and inventory into one system, so your records stay in sync."],
+              ["How do I get started?", "Sign up for a 7-day free trial, no credit card required and no setup call needed. You can create your organisation and start adding clients and invoices straight away."],
+              ["Which plan do I need?", "Starter covers quotations, invoicing, job orders, delivery forms and core accounting for one user. Pro adds inventory, advanced reports, job costing and up to 5 users. Advanced adds employee management, custom email domains, integrations and up to 20 users."],
               ["Do you help with setup?", "Yes — Regent can help configure Axis for your business beyond what's self-serve. Reach out through the support form and we'll scope it with you."],
             ].map(([q, a], i) => (
               <AccordionItem key={q} value={`faq-${i}`} className="rounded-xl border border-border bg-surface px-6">
