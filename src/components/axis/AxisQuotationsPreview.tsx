@@ -43,8 +43,8 @@ export function AxisQuotationsPreview() {
                   <tr key={q.ref} className="ax-row">
                     <td className="ax-td" style={{ fontWeight: 500 }}>{q.ref}</td>
                     <td className="ax-td ax-trunc">{q.client}</td>
-                    <td className="ax-td" style={{ color: "var(--ax-muted)" }}>{q.issue}</td>
-                    <td className="ax-td" style={{ color: "var(--ax-muted)" }}>{q.valid}</td>
+                    <td className="ax-td" style={{ color: "var(--ax-muted)", whiteSpace: "nowrap" }}>{q.issue}</td>
+                    <td className="ax-td" style={{ color: "var(--ax-muted)", whiteSpace: "nowrap" }}>{q.valid}</td>
                     <td className="ax-td"><AxStatusPill status={q.status} /></td>
                     <td className="ax-td ax-td-num" style={{ fontWeight: 500 }}>{q.amount}</td>
                   </tr>

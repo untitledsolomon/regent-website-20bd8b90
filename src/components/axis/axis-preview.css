@@ -110,10 +110,10 @@
 
 /* ---- Summary bar ---- */
 .ax-summarybar {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(96px, 1fr));
   align-items: center;
-  gap: 8px 20px;
+  gap: 8px 16px;
   padding: 12px 16px;
   background: var(--ax-card);
   border: 1px solid var(--ax-border);
@@ -122,17 +122,17 @@
 }
 
 .ax-summarybar .ax-divider {
-  width: 1px;
-  height: 16px;
-  background: var(--ax-border);
+  display: none;
 }
 
 .ax-summary-item {
-  font-size: 12px;
+  font-size: 11px;
   color: var(--ax-muted);
   display: flex;
-  align-items: center;
-  gap: 6px;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  white-space: nowrap;
 }
 
 .ax-summary-item b {

@@ -6,8 +6,7 @@ import { RevealOnScroll } from "@/components/RevealOnScroll";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { AXIS_SIGNUP_URL } from "@/lib/axis";
 import { AxisFrame } from "@/components/axis/AxisFrame";
-import { AxisAppShell } from "@/components/axis/AxisAppShell";
-import { AxisDashboardPreview } from "@/components/axis/AxisDashboardPreview";
+import Image from "next/image";
 import { AxisInvoicingPreview } from "@/components/axis/AxisInvoicingPreview";
 import { AxisQuotationsPreview } from "@/components/axis/AxisQuotationsPreview";
 import { AxisLedgerPreview } from "@/components/axis/AxisLedgerPreview";
@@ -67,6 +66,7 @@ export default function AxisPage() {
 
       {/* Hero — light split layout matching the rest of the site */}
       <section className="grid-bg relative overflow-hidden border-b border-border">
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_70%_55%_at_50%_0%,rgba(79,70,229,0.10),transparent_70%)]" aria-hidden="true" />
         <div className="hidden border-b border-border bg-background/90 backdrop-blur md:block">
           <div className="section-container flex h-12 items-center justify-between">
             <Link href="/axis" className="font-heading text-sm font-semibold tracking-[-0.02em] text-text-primary">Axis<span className="text-primary">.</span></Link>
@@ -85,8 +85,8 @@ export default function AxisPage() {
                 <span className="h-px w-8 bg-primary" /> Regent Product <span className="h-px w-8 bg-primary" />
               </div>
               <h1 className="mb-6 font-heading text-[clamp(36px,5vw,60px)] font-semibold leading-[1.05] tracking-[-0.04em] text-text-primary">
-                Axis by Regent: {" "}
-                <span className="rounded-md bg-accent-light px-2 text-primary">one system for your entire business.</span>
+                One system for your{" "}
+                <span className="font-['Instrument_Serif'] text-[1.12em] font-normal italic text-primary">entire business.</span>
               </h1>
               <p className="mx-auto mb-8 max-w-[560px] text-lg font-light leading-relaxed text-text-secondary">
                 Axis is the business operating system from Regent for growing businesses that have outgrown spreadsheets. Invoicing, accounting, inventory, and HR share the same data, so your work stays in sync.
@@ -105,16 +105,25 @@ export default function AxisPage() {
         </div>
       </section>
 
-      {/* Screenshot showcase — one full app window: the Axis dashboard */}
+      {/* Hero visual — the real Axis dashboard */}
       <div className="section-container -mt-14 pb-24">
         <RevealOnScroll delay={0.08}>
-          <div className="relative mx-auto max-w-7xl">
-            <AxisFrame height="h-[560px] sm:h-[620px]">
-              <AxisAppShell active="Dashboard">
-                <AxisDashboardPreview />
-              </AxisAppShell>
-            </AxisFrame>
-          </div>
+          <figure className="relative mx-auto max-w-6xl">
+            <div className="absolute -inset-x-6 -top-6 bottom-0 -z-10 rounded-[2rem] bg-gradient-to-b from-primary/10 to-transparent blur-2xl" aria-hidden="true" />
+            <div className="overflow-hidden rounded-2xl border border-border bg-background p-2 shadow-[0_40px_120px_rgba(35,31,94,0.18)]">
+              <div className="overflow-hidden rounded-xl border border-border">
+                <Image
+                  src="/axis/axis-dashboard.webp"
+                  alt="The Axis dashboard: revenue, active clients, outstanding invoices, net profit, a revenue chart, recent activity and inventory status"
+                  width={1866}
+                  height={928}
+                  priority
+                  sizes="(min-width: 1152px) 1120px, 100vw"
+                  className="h-auto w-full"
+                />
+              </div>
+            </div>
+          </figure>
         </RevealOnScroll>
       </div>
 
@@ -295,6 +304,58 @@ export default function AxisPage() {
                   </div>
                   <h3 className="mb-1 font-heading text-sm font-semibold text-text-primary">{title}</h3>
                   <p className="text-sm leading-relaxed text-text-secondary">{description}</p>
+                </div>
+              </RevealOnScroll>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Get started in 3 steps */}
+      <div className="border-y border-border bg-surface">
+        <div className="section-container py-24">
+          <SectionHeader
+            label="Getting started"
+            title="Up and running in 3 simple steps"
+            subtitle="No setup call and no data migration project. Create your organisation and start working the same day."
+            center
+          />
+          <div className="mx-auto grid max-w-5xl gap-6 md:grid-cols-3">
+            {[
+              { n: "01", title: "Create your organisation", body: "Sign up, name your business and set your currency, tax rates and invoice branding.", visual: (
+                <div className="space-y-2">
+                  {["Business name", "Currency", "Default tax rate"].map((f, i) => (
+                    <div key={f} className="flex items-center justify-between rounded-md border border-border bg-background px-3 py-2 text-[11px]">
+                      <span className="text-text-muted">{f}</span>
+                      <span className="font-medium text-text-primary">{["Regent Workspace", "UGX", "18% VAT"][i]}</span>
+                    </div>
+                  ))}
+                </div>
+              ) },
+              { n: "02", title: "Add clients and items", body: "Import or add the clients you bill and the items you sell. Invoices and stock share the same records.", visual: (
+                <div className="space-y-2">
+                  {[["Tekowa Engineering", "Client"], ["Juba Logistics", "Client"], ["Fuel (petrol)", "Item"]].map(([name, kind]) => (
+                    <div key={name} className="flex items-center justify-between rounded-md border border-border bg-background px-3 py-2 text-[11px]">
+                      <span className="font-medium text-text-primary">{name}</span>
+                      <span className="rounded-full bg-accent-light px-2 py-0.5 font-mono text-[9px] text-primary">{kind}</span>
+                    </div>
+                  ))}
+                </div>
+              ) },
+              { n: "03", title: "Send your first invoice", body: "Create it, send a branded PDF and watch it post to your ledger and your client's balance.", visual: (
+                <div className="rounded-md border border-border bg-background p-3 text-[11px]">
+                  <div className="mb-2 flex items-center justify-between"><span className="font-medium text-text-primary">INV-0001</span><span className="rounded-full bg-emerald-500/10 px-2 py-0.5 font-mono text-[9px] text-emerald-600">sent</span></div>
+                  <div className="flex justify-between text-text-muted"><span>Tekowa Engineering</span><span className="font-mono text-text-primary">UGX 4,200,000</span></div>
+                  <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-border"><div className="h-full w-2/3 rounded-full bg-primary" /></div>
+                </div>
+              ) },
+            ].map((step, i) => (
+              <RevealOnScroll key={step.n} delay={i * 0.06}>
+                <div className="flex h-full flex-col rounded-2xl border border-border bg-background p-6">
+                  <div className="mb-6 rounded-xl border border-border bg-surface p-4">{step.visual}</div>
+                  <div className="mb-2 font-mono text-[10px] uppercase tracking-[0.14em] text-primary">Step {step.n}</div>
+                  <h3 className="mb-2 font-heading text-base font-semibold text-text-primary">{step.title}</h3>
+                  <p className="text-sm leading-relaxed text-text-secondary">{step.body}</p>
                 </div>
               </RevealOnScroll>
             ))}
