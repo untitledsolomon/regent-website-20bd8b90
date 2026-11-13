@@ -72,7 +72,7 @@ export function AxisModulePage({ module }: { module: AxisModule }) {
       <section className="grid-bg border-b border-border">
         <div className="section-container pb-20 pt-[120px]">
           {heroShot || heroElement ? (
-            <div className="grid items-center gap-12 lg:grid-cols-2">
+            <div className="grid items-center gap-12 lg:grid-cols-[0.95fr_1.05fr]">
               <div>
                 <HeroText module={module} />
               </div>
@@ -132,7 +132,7 @@ export function AxisModulePage({ module }: { module: AxisModule }) {
 
       {/* Features — alternating rows with optional per-row screenshot slot */}
       <section className="border-y border-border py-20">
-        <div className="section-container max-w-5xl">
+        <div className="section-container max-w-6xl">
           <div className="mb-12 max-w-2xl">
             <div className="mb-4 font-mono text-[11px] uppercase tracking-[0.12em] text-primary">
               What Axis {module.name} does
@@ -164,7 +164,7 @@ export function AxisModulePage({ module }: { module: AxisModule }) {
               )
 
               return hasVisual ? (
-                <div key={feature.title} className="grid gap-10 border-t border-border py-14 lg:grid-cols-2 lg:items-center">
+                <div key={feature.title} className="grid gap-10 border-t border-border py-14 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
                   <div className={flip ? 'lg:order-2' : ''}>{text}</div>
                   <div className={flip ? 'lg:order-1' : ''}>
                     {element ? (

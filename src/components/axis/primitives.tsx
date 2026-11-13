@@ -213,11 +213,11 @@ export function AxSidebar({ active }: { active?: string }) {
       </div>
 
       <div style={{ marginTop: "auto", borderTop: "1px solid var(--ax-border)", padding: "12px 16px", display: "flex", alignItems: "center", gap: 10 }}>
-        <AxAvatar initials="SK" size={28} />
+        <AxAvatar initials="RN" size={28} />
         <span style={{ lineHeight: 1, minWidth: 0 }}>
-          <span style={{ display: "block", fontSize: 12, fontWeight: 600, color: "var(--ax-primary)", whiteSpace: "nowrap" }}>Solomon Kimani</span>
+          <span style={{ display: "block", fontSize: 12, fontWeight: 600, color: "var(--ax-primary)", whiteSpace: "nowrap" }}>Ruth Nakato</span>
           <span style={{ fontSize: 10, color: "var(--ax-muted)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", display: "block" }}>
-            admin@regentplatform.com
+            ruth@regentplatform.com
           </span>
         </span>
         <span style={{ marginLeft: "auto", color: "var(--ax-muted)" }}>

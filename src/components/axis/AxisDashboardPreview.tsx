@@ -20,7 +20,7 @@ export function AxisDashboardPreview() {
       <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 12, marginBottom: 12 }}>
         <div>
           <h1 className="ax-serif" style={{ fontSize: 22, fontWeight: 600, letterSpacing: "-0.01em" }}>
-            Hello, Solomon!
+            Hello, Ruth!
           </h1>
           <p style={{ fontSize: 12.5, color: "var(--ax-muted)", marginTop: 2 }}>
             Here is what is happening across your business today.

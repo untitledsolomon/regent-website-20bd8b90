@@ -170,7 +170,7 @@ export const inventorySummary = [
 ] as const;
 
 export const custody = [
-  { asset: "Laptop — HP ProBook", assignee: "Solomon Kimani", due: "Returns 20 Nov", status: "assigned" },
+  { asset: "Laptop — HP ProBook", assignee: "Ruth Nakato", due: "Returns 20 Nov", status: "assigned" },
   { asset: "Camera — Canon EOS", assignee: "Naomi Alimo", due: "Returns 15 Nov", status: "due" },
   { asset: "Survey tools kit", assignee: "Ops room", due: "Available", status: "available" },
 ] as const;

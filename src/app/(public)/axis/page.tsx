@@ -80,7 +80,7 @@ export default function AxisPage() {
 
         <div className="section-container relative pb-24 pt-28">
           <RevealOnScroll>
-            <div className="mx-auto max-w-2xl text-center">
+            <div className="mx-auto max-w-3xl text-center">
               <div className="mb-5 flex items-center justify-center gap-3 font-mono text-[11px] uppercase tracking-[0.12em] text-primary">
                 <span className="h-px w-8 bg-primary" /> Regent Product <span className="h-px w-8 bg-primary" />
               </div>
@@ -108,7 +108,7 @@ export default function AxisPage() {
       {/* Screenshot showcase — one full app window: the Axis dashboard */}
       <div className="section-container -mt-14 pb-24">
         <RevealOnScroll delay={0.08}>
-          <div className="relative mx-auto max-w-6xl">
+          <div className="relative mx-auto max-w-7xl">
             <AxisFrame height="h-[560px] sm:h-[620px]">
               <AxisAppShell active="Dashboard">
                 <AxisDashboardPreview />
@@ -126,7 +126,7 @@ export default function AxisPage() {
         />
 
         {/* Row 1 — Invoicing: text left, screenshot right */}
-        <div className="grid gap-12 border-b border-border py-16 lg:grid-cols-2 lg:items-center">
+        <div className="grid gap-12 border-b border-border py-16 lg:grid-cols-[0.9fr_1.15fr] lg:items-center">
           <RevealOnScroll direction="left">
             <div>
               <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-accent-light text-primary">
@@ -154,7 +154,7 @@ export default function AxisPage() {
         </div>
 
         {/* Row — Orders workflow: quotation -> invoice -> job order -> delivery */}
-        <div className="grid gap-12 border-b border-border py-16 lg:grid-cols-2 lg:items-center">
+        <div className="grid gap-12 border-b border-border py-16 lg:grid-cols-[0.9fr_1.15fr] lg:items-center">
           <RevealOnScroll direction="left">
             <div>
               <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-accent-light text-primary">
@@ -183,7 +183,7 @@ export default function AxisPage() {
         </div>
 
         {/* Row 2 — Ledger: screenshot left, text right */}
-        <div className="grid gap-12 border-b border-border py-16 lg:grid-cols-2 lg:items-center">
+        <div className="grid gap-12 border-b border-border py-16 lg:grid-cols-[1.15fr_0.9fr] lg:items-center">
           {/* Rendered Axis app — general ledger / journal entries screen */}
           <RevealOnScroll direction="left" delay={0.1} className="order-2 lg:order-1">
             <AxisFrame>
@@ -211,7 +211,7 @@ export default function AxisPage() {
         </div>
 
         {/* Row 3 — Inventory: text left, screenshot right */}
-        <div className="grid gap-12 border-b border-border py-16 lg:grid-cols-2 lg:items-center">
+        <div className="grid gap-12 border-b border-border py-16 lg:grid-cols-[0.9fr_1.15fr] lg:items-center">
           <RevealOnScroll direction="left">
             <div>
               <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-accent-light text-primary">
