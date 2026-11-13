@@ -55,7 +55,7 @@ export function AxisInvoicingPreview() {
           </div>
 
           <div style={{ overflowX: "auto" }}>
-            <table className="ax-table" style={{ minWidth: 640 }}>
+            <table className="ax-table" style={{ minWidth: 320 }}>
               <thead>
                 <tr>
                   <th className="ax-th">Invoice #</th>
@@ -70,7 +70,7 @@ export function AxisInvoicingPreview() {
                 {invoices.map((inv) => (
                   <tr key={inv.ref} className="ax-row">
                     <td className="ax-td" style={{ fontWeight: 500 }}>{inv.ref}</td>
-                    <td className="ax-td">{inv.client}</td>
+                    <td className="ax-td ax-trunc">{inv.client}</td>
                     <td className="ax-td" style={{ color: "var(--ax-muted)" }}>{inv.issue}</td>
                     <td className="ax-td" style={{ color: "var(--ax-muted)" }}>{inv.due}</td>
                     <td className="ax-td"><AxStatusPill status={inv.status} /></td>

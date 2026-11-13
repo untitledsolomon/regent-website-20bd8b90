@@ -110,7 +110,7 @@ export default function AxisPage() {
       <div className="section-container -mt-14 pb-24">
         <RevealOnScroll delay={0.08}>
           <div className="relative mx-auto grid max-w-5xl grid-cols-1 gap-6 sm:grid-cols-[1.3fr_0.7fr]">
-            <AxisFrame className="self-start">
+            <AxisFrame height="h-[480px] sm:h-[560px]" className="self-start">
               <AxisAppShell active="Dashboard">
                 <AxisDashboardPreview />
               </AxisAppShell>
@@ -118,7 +118,7 @@ export default function AxisPage() {
 
             {/* Secondary floating panel — a real invoice screen */}
             <div className="sm:mt-10">
-              <AxisFrame>
+              <AxisFrame height="h-[420px] sm:h-[500px]">
                 <AxisInvoiceDetailPreview />
               </AxisFrame>
             </div>
@@ -155,7 +155,7 @@ export default function AxisPage() {
 
           {/* Rendered Axis app — invoices list screen */}
           <RevealOnScroll direction="right" delay={0.1}>
-            <AxisFrame>
+            <AxisFrame height="h-[420px] sm:h-[460px]">
               <AxisInvoicingPreview />
             </AxisFrame>
           </RevealOnScroll>
@@ -184,7 +184,7 @@ export default function AxisPage() {
 
           {/* Rendered Axis app — quotations / orders screen */}
           <RevealOnScroll direction="right" delay={0.1}>
-            <AxisFrame>
+            <AxisFrame height="h-[420px] sm:h-[460px]">
               <AxisQuotationsPreview />
             </AxisFrame>
           </RevealOnScroll>
@@ -194,7 +194,7 @@ export default function AxisPage() {
         <div className="grid gap-12 border-b border-border py-16 lg:grid-cols-2 lg:items-center">
           {/* Rendered Axis app — general ledger / journal entries screen */}
           <RevealOnScroll direction="left" delay={0.1} className="order-2 lg:order-1">
-            <AxisFrame>
+            <AxisFrame height="h-[420px] sm:h-[460px]">
               <AxisLedgerPreview />
             </AxisFrame>
           </RevealOnScroll>
@@ -240,7 +240,7 @@ export default function AxisPage() {
 
           {/* Rendered Axis app — inventory / stock list screen */}
           <RevealOnScroll direction="right" delay={0.1}>
-            <AxisFrame>
+            <AxisFrame height="h-[420px] sm:h-[460px]">
               <AxisInventoryPreview />
             </AxisFrame>
           </RevealOnScroll>

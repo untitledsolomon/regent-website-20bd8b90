@@ -82,8 +82,8 @@
   background: var(--ax-card);
   border: 1px solid var(--ax-border);
   border-radius: 0.75rem;
-  padding: 16px;
-  min-height: 128px;
+  padding: 14px 16px;
+  min-height: 104px;
   display: flex;
   flex-direction: column;
 }
@@ -101,10 +101,10 @@
 .ax-kpi {
   font-family: var(--ax-font-mono);
   font-variant-numeric: tabular-nums;
-  font-size: 22px;
+  font-size: 20px;
   font-weight: 600;
   line-height: 1.1;
-  margin-top: 14px;
+  margin-top: 10px;
   color: var(--ax-primary);
 }
 
@@ -152,7 +152,7 @@
 
 .ax-th {
   text-align: left;
-  padding: 10px 14px;
+  padding: 8px 12px;
   font-size: 11px;
   font-weight: 600;
   text-transform: uppercase;
@@ -163,11 +163,20 @@
 }
 
 .ax-td {
-  padding: 11px 14px;
-  font-size: 13px;
+  padding: 9px 12px;
+  font-size: 12.5px;
   border-bottom: 1px solid var(--ax-border);
   color: var(--ax-primary);
   vertical-align: middle;
+}
+
+/* Cell that gives up width gracefully so a table always fits its window. */
+.ax-trunc {
+  min-width: 0;
+  max-width: 160px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .ax-td-num {
@@ -340,13 +349,19 @@
 }
 
 /* ---- App shell composition ---- */
+/* The shell fills the bounded AxisFrame height so the topbar stays put and
+   the content clips like a real app window. `container-type` lets the
+   sidebar collapse based on the shell's actual width (not the viewport), the
+   same way the app's drawer hides inside narrow preview columns. */
 .ax-shell {
   display: flex;
-  min-height: 100%;
+  height: 100%;
+  container-type: inline-size;
+  container-name: ax-shell;
 }
 
 .ax-shell-sidebar {
-  width: 208px;
+  width: 200px;
   flex-shrink: 0;
 }
 
@@ -363,7 +378,7 @@
   overflow: auto;
 }
 
-@media (max-width: 920px) {
+@container ax-shell (max-width: 760px) {
   .ax-shell-sidebar {
     display: none;
   }

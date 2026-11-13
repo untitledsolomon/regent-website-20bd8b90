@@ -37,7 +37,7 @@ export function AxisHRPreview() {
 
         <div className="ax-panel" style={{ marginTop: 12, overflow: "hidden" }}>
           <div style={{ overflowX: "auto" }}>
-            <table className="ax-table" style={{ minWidth: 560 }}>
+            <table className="ax-table" style={{ minWidth: 360 }}>
               <thead>
                 <tr>
                   <th className="ax-th">Employee</th>
@@ -52,7 +52,7 @@ export function AxisHRPreview() {
                     <td className="ax-td">
                       <span style={{ display: "flex", alignItems: "center", gap: 10 }}>
                         <AxAvatar initials={e.initials} />
-                        <span style={{ fontWeight: 500 }}>{e.name}</span>
+                        <span className="ax-trunc" style={{ fontWeight: 500 }}>{e.name}</span>
                       </span>
                     </td>
                     <td className="ax-td">

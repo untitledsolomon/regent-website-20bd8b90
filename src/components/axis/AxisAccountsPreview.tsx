@@ -28,7 +28,7 @@ export function AxisAccountsPreview() {
 
         <div className="ax-panel" style={{ marginTop: 12, overflow: "hidden" }}>
           <div style={{ overflowX: "auto" }}>
-            <table className="ax-table" style={{ minWidth: 560 }}>
+            <table className="ax-table" style={{ minWidth: 320 }}>
               <thead>
                 <tr>
                   <th className="ax-th">Code</th>
@@ -41,7 +41,7 @@ export function AxisAccountsPreview() {
                 {chartOfAccounts.map((a) => (
                   <tr key={a.code} className="ax-row">
                     <td className="ax-td ax-mono" style={{ color: "var(--ax-muted)" }}>{a.code}</td>
-                    <td className="ax-td" style={{ fontWeight: 500, paddingLeft: a.indent ? 44 : 14, paddingRight: 14 }}>
+                    <td className="ax-td ax-trunc" style={{ fontWeight: 500, maxWidth: 190, paddingLeft: a.indent ? 40 : 12, paddingRight: 12 }}>
                       {a.indent ? "↳ " : ""}{a.name}
                     </td>
                     <td className="ax-td">

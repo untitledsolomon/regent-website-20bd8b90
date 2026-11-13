@@ -32,7 +32,7 @@ export function AxisQuotationsPreview() {
 
         <div className="ax-panel" style={{ marginTop: 12, overflow: "hidden" }}>
           <div style={{ overflowX: "auto" }}>
-            <table className="ax-table" style={{ minWidth: 620 }}>
+            <table className="ax-table" style={{ minWidth: 320 }}>
               <thead>
                 <tr>
                   <th className="ax-th">Quotation #</th>
@@ -47,7 +47,7 @@ export function AxisQuotationsPreview() {
                 {quotations.map((q) => (
                   <tr key={q.ref} className="ax-row">
                     <td className="ax-td" style={{ fontWeight: 500 }}>{q.ref}</td>
-                    <td className="ax-td">{q.client}</td>
+                    <td className="ax-td ax-trunc">{q.client}</td>
                     <td className="ax-td" style={{ color: "var(--ax-muted)" }}>{q.issue}</td>
                     <td className="ax-td" style={{ color: "var(--ax-muted)" }}>{q.valid}</td>
                     <td className="ax-td"><AxStatusPill status={q.status} /></td>

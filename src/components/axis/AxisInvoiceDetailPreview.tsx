@@ -27,7 +27,7 @@ export function AxisInvoiceDetailPreview() {
 
         <div className="ax-panel" style={{ overflow: "hidden" }}>
           <div style={{ overflowX: "auto" }}>
-            <table className="ax-table" style={{ minWidth: 340 }}>
+            <table className="ax-table" style={{ minWidth: 280 }}>
               <thead>
                 <tr>
                   <th className="ax-th">Description</th>
@@ -39,7 +39,7 @@ export function AxisInvoiceDetailPreview() {
               <tbody>
                 {inv.items.map((item) => (
                   <tr key={item.description} className="ax-row">
-                    <td className="ax-td" style={{ maxWidth: 180 }}>{item.description}</td>
+                    <td className="ax-td ax-trunc">{item.description}</td>
                     <td className="ax-td">{item.qty}</td>
                     <td className="ax-td ax-td-num">{item.unit}</td>
                     <td className="ax-td ax-td-num">{item.total}</td>

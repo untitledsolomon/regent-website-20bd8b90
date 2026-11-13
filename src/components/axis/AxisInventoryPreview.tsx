@@ -50,13 +50,12 @@ export function AxisInventoryPreview() {
             ))}
           </div>
           <div style={{ overflowX: "auto" }}>
-            <table className="ax-table" style={{ minWidth: 640 }}>
+            <table className="ax-table" style={{ minWidth: 320 }}>
               <thead>
                 <tr>
                   <th className="ax-th">Item</th>
-                  <th className="ax-th">SKU</th>
                   <th className="ax-th">Category</th>
-                  <th className="ax-th" style={{ textAlign: "right" }}>Qty</th>
+                  <th className="ax-th" style={{ textAlign: "right" }}>On hand</th>
                   <th className="ax-th" style={{ textAlign: "right" }}>Cost</th>
                   <th className="ax-th" style={{ textAlign: "right" }}>Selling</th>
                 </tr>
@@ -64,8 +63,7 @@ export function AxisInventoryPreview() {
               <tbody>
                 {inventoryItems.map((item) => (
                   <tr key={item.sku} className={`ax-row${item.low ? " ax-row--low" : ""}`}>
-                    <td className="ax-td" style={{ fontWeight: 500 }}>{item.name}</td>
-                    <td className="ax-td ax-mono" style={{ color: "var(--ax-muted)" }}>{item.sku}</td>
+                    <td className="ax-td ax-trunc" style={{ fontWeight: 500 }}>{item.name}</td>
                     <td className="ax-td"><AxPill tone="muted">{item.category}</AxPill></td>
                     <td className="ax-td ax-td-num">
                       <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>

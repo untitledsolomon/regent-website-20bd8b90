@@ -32,7 +32,7 @@ export function AxisLedgerPreview() {
 
         <div className="ax-panel" style={{ marginTop: 12, overflow: "hidden" }}>
           <div style={{ overflowX: "auto" }}>
-            <table className="ax-table" style={{ minWidth: 620 }}>
+            <table className="ax-table" style={{ minWidth: 320 }}>
               <thead>
                 <tr>
                   <th className="ax-th">Date</th>
@@ -47,7 +47,7 @@ export function AxisLedgerPreview() {
                   <tr key={`${e.ref}-${e.date}`} className="ax-row">
                     <td className="ax-td" style={{ color: "var(--ax-muted)", whiteSpace: "nowrap" }}>{e.date}</td>
                     <td className="ax-td" style={{ fontWeight: 500, whiteSpace: "nowrap" }}>{e.ref}</td>
-                    <td className="ax-td">{e.description}</td>
+                    <td className="ax-td ax-trunc">{e.description}</td>
                     <td className="ax-td"><AxStatusPill status={e.status} /></td>
                     <td className="ax-td ax-td-num" style={{ color: e.amount.startsWith("−") || e.amount.startsWith("-") ? "var(--ax-danger)" : "var(--ax-success)", fontWeight: 500, whiteSpace: "nowrap" }}>
                       {e.amount}

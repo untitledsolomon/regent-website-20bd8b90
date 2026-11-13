@@ -78,7 +78,7 @@ export function AxisModulePage({ module }: { module: AxisModule }) {
               </div>
               <div className="lg:pl-6">
                 {heroElement ? (
-                  <AxisFrame>{heroElement}</AxisFrame>
+                  <AxisFrame height="h-[420px] sm:h-[480px]">{heroElement}</AxisFrame>
                 ) : (
                   <ScreenshotFrame shot={heroShot} priority />
                 )}
@@ -168,7 +168,7 @@ export function AxisModulePage({ module }: { module: AxisModule }) {
                   <div className={flip ? 'lg:order-2' : ''}>{text}</div>
                   <div className={flip ? 'lg:order-1' : ''}>
                     {element ? (
-                      <AxisFrame>{element}</AxisFrame>
+                      <AxisFrame height="h-[420px] sm:h-[470px]">{element}</AxisFrame>
                     ) : (
                       <ScreenshotFrame shot={shot} />
                     )}
