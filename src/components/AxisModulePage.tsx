@@ -2,7 +2,9 @@ import Link from 'next/link'
 import { AXIS_SIGNUP_URL } from '@/lib/axis'
 import { AXIS_MODULES, type AxisModule } from '@/lib/axisModules'
 import { MODULE_SCREENS } from '@/lib/screens'
+import { MODULE_PREVIEWS } from '@/lib/axisPreviews'
 import { ScreenshotFrame } from '@/components/ScreenshotFrame'
+import { AxisFrame } from '@/components/axis/AxisFrame'
 import { Icons } from '@/components/Icons'
 import { SectionHeader } from '@/components/SectionHeader'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion'
@@ -45,6 +47,9 @@ export function AxisModulePage({ module }: { module: AxisModule }) {
   const shots = MODULE_SCREENS[module.slug] ?? []
   const heroShot = shots[0] ?? null
   const featureShots = shots.slice(1)
+  const previews = MODULE_PREVIEWS[module.slug]
+  const heroElement = previews?.hero ?? null
+  const featureElements = previews?.features ?? []
 
   const faqJsonLd = {
     '@context': 'https://schema.org',
@@ -66,13 +71,17 @@ export function AxisModulePage({ module }: { module: AxisModule }) {
       {/* Hero — text left, screenshot slot right on desktop (below on mobile) */}
       <section className="grid-bg border-b border-border">
         <div className="section-container pb-20 pt-[120px]">
-          {heroShot ? (
+          {heroShot || heroElement ? (
             <div className="grid items-center gap-12 lg:grid-cols-2">
               <div>
                 <HeroText module={module} />
               </div>
               <div className="lg:pl-6">
-                <ScreenshotFrame shot={heroShot} priority />
+                {heroElement ? (
+                  <AxisFrame>{heroElement}</AxisFrame>
+                ) : (
+                  <ScreenshotFrame shot={heroShot} priority />
+                )}
               </div>
             </div>
           ) : (
@@ -136,6 +145,8 @@ export function AxisModulePage({ module }: { module: AxisModule }) {
             {module.features.map((feature, index) => {
               const Icon = Icons[feature.icon]
               const shot = featureShots[index] ?? null
+              const element = featureElements[index] ?? null
+              const hasVisual = Boolean(shot || element)
               const flip = index % 2 === 1
               const text = (
                 <div>
@@ -145,18 +156,22 @@ export function AxisModulePage({ module }: { module: AxisModule }) {
                   <div className="mb-2 font-mono text-[10px] uppercase tracking-[0.14em] text-primary">
                     {String(index + 1).padStart(2, '0')} — Axis {module.name}
                   </div>
-                  <h3 className={`mb-3 font-heading text-2xl font-semibold text-text-primary ${shot ? 'max-w-md' : ''}`}>
+                  <h3 className={`mb-3 font-heading text-2xl font-semibold text-text-primary ${hasVisual ? 'max-w-md' : ''}`}>
                     {feature.title}
                   </h3>
                   <p className="mb-6 max-w-md text-base leading-relaxed text-text-secondary">{feature.body}</p>
                 </div>
               )
 
-              return shot ? (
+              return hasVisual ? (
                 <div key={feature.title} className="grid gap-10 border-t border-border py-14 lg:grid-cols-2 lg:items-center">
                   <div className={flip ? 'lg:order-2' : ''}>{text}</div>
                   <div className={flip ? 'lg:order-1' : ''}>
-                    <ScreenshotFrame shot={shot} />
+                    {element ? (
+                      <AxisFrame>{element}</AxisFrame>
+                    ) : (
+                      <ScreenshotFrame shot={shot} />
+                    )}
                   </div>
                 </div>
               ) : (

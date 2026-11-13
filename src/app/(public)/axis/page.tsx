@@ -5,6 +5,14 @@ import { SectionHeader } from "@/components/SectionHeader";
 import { RevealOnScroll } from "@/components/RevealOnScroll";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { AXIS_SIGNUP_URL } from "@/lib/axis";
+import { AxisFrame } from "@/components/axis/AxisFrame";
+import { AxisAppShell } from "@/components/axis/AxisAppShell";
+import { AxisDashboardPreview } from "@/components/axis/AxisDashboardPreview";
+import { AxisInvoiceDetailPreview } from "@/components/axis/AxisInvoiceDetailPreview";
+import { AxisInvoicingPreview } from "@/components/axis/AxisInvoicingPreview";
+import { AxisQuotationsPreview } from "@/components/axis/AxisQuotationsPreview";
+import { AxisLedgerPreview } from "@/components/axis/AxisLedgerPreview";
+import { AxisInventoryPreview } from "@/components/axis/AxisInventoryPreview";
 
 export const metadata: Metadata = {
   title: { absolute: "Axis by Regent: Business Management Software" },
@@ -98,51 +106,21 @@ export default function AxisPage() {
         </div>
       </section>
 
-      {/* Screenshot showcase — floating device frames, staggered like the reference layouts */}
+      {/* Screenshot showcase — the live Axis app: dashboard + invoice detail */}
       <div className="section-container -mt-14 pb-24">
         <RevealOnScroll delay={0.08}>
           <div className="relative mx-auto grid max-w-5xl grid-cols-1 gap-6 sm:grid-cols-[1.3fr_0.7fr]">
-            <div className="rounded-2xl border border-border bg-background p-3 shadow-[0_30px_90px_rgba(35,31,94,0.14)]">
-              <div className="rounded-xl border border-border bg-surface p-4 sm:p-6">
-                <div className="mb-6 flex items-center justify-between border-b border-border pb-4">
-                  <div className="flex items-center gap-2 font-heading text-sm font-semibold"><span className="h-2 w-2 rounded-full bg-primary" /> Axis workspace</div>
-                  <span className="font-mono text-[10px] text-text-muted">MON · 09:41</span>
-                </div>
-                <div className="mb-5 grid grid-cols-3 gap-3">
-                  {["Revenue", "Outstanding", "Stock value"].map((label, index) => (
-                    <div key={label} className="rounded-lg border border-border bg-background p-3">
-                      <div className="mb-2 text-[10px] text-text-muted">{label}</div>
-                      <div className="font-heading text-sm font-semibold text-text-primary">{["$42.8k", "$8.4k", "$19.2k"][index]}</div>
-                    </div>
-                  ))}
-                </div>
-                <div className="rounded-lg border border-border bg-background p-4">
-                  <div className="mb-5 flex items-center justify-between text-xs font-medium"><span>Cash flow</span><span className="text-primary">This month</span></div>
-                  <div className="flex h-24 items-end gap-2 border-b border-border pb-2">
-                    {[35, 48, 42, 64, 56, 78, 68, 91, 74, 85].map((height, index) => <span key={index} className={`flex-1 rounded-t-sm ${index > 6 ? "bg-primary" : "bg-accent-mid/50"}`} style={{ height: `${height}%` }} />)}
-                  </div>
-                </div>
-              </div>
-            </div>
+            <AxisFrame className="self-start">
+              <AxisAppShell active="Dashboard">
+                <AxisDashboardPreview />
+              </AxisAppShell>
+            </AxisFrame>
 
-            {/* Secondary floating panel, positioned like the offset detail-card in the reference */}
-            <div className="rounded-2xl border border-border bg-background p-3 shadow-[0_30px_90px_rgba(35,31,94,0.14)] sm:mt-10">
-              <div className="rounded-xl border border-border bg-surface p-4">
-                <div className="mb-4 text-xs font-medium text-text-primary">Today&rsquo;s work</div>
-                <div className="space-y-3 text-[11px] text-text-secondary">
-                  <div className="flex items-center gap-2"><span className="h-1.5 w-1.5 rounded-full bg-primary" /> 3 invoices sent</div>
-                  <div className="flex items-center gap-2"><span className="h-1.5 w-1.5 rounded-full bg-emerald-500" /> 12 items in stock</div>
-                  <div className="flex items-center gap-2"><span className="h-1.5 w-1.5 rounded-full bg-amber-500" /> 4 shifts scheduled</div>
-                </div>
-                <div className="mt-5 rounded-lg border border-border bg-background p-3">
-                  <div className="mb-2 text-[10px] text-text-muted">Team</div>
-                  <div className="flex -space-x-2">
-                    {[0, 1, 2, 3].map((i) => (
-                      <span key={i} className="h-7 w-7 rounded-full border-2 border-background bg-accent-light" />
-                    ))}
-                  </div>
-                </div>
-              </div>
+            {/* Secondary floating panel — a real invoice screen */}
+            <div className="sm:mt-10">
+              <AxisFrame>
+                <AxisInvoiceDetailPreview />
+              </AxisFrame>
             </div>
           </div>
         </RevealOnScroll>
@@ -175,21 +153,11 @@ export default function AxisPage() {
             </div>
           </RevealOnScroll>
 
-          {/* TODO: swap for a real product screenshot (Invoice detail view) */}
+          {/* Rendered Axis app — invoices list screen */}
           <RevealOnScroll direction="right" delay={0.1}>
-            <div className="rounded-2xl border border-border bg-background p-3 shadow-[0_24px_70px_rgba(35,31,94,0.1)]">
-              <div className="rounded-xl border border-border bg-surface p-5">
-                <div className="mb-4 flex items-center justify-between border-b border-border pb-3">
-                  <span className="font-heading text-sm font-semibold text-text-primary">Invoice #1042</span>
-                  <span className="rounded-full bg-emerald-500/10 px-2 py-0.5 font-mono text-[10px] text-emerald-600">Paid</span>
-                </div>
-                <div className="space-y-3 text-xs text-text-secondary">
-                  <div className="flex justify-between"><span>Client</span><span className="text-text-primary">Retail Co.</span></div>
-                  <div className="flex justify-between"><span>Amount</span><span className="text-text-primary">$4,200.00</span></div>
-                  <div className="flex justify-between"><span>Due</span><span className="text-text-primary">Sep 12, 2026</span></div>
-                </div>
-              </div>
-            </div>
+            <AxisFrame>
+              <AxisInvoicingPreview />
+            </AxisFrame>
           </RevealOnScroll>
         </div>
 
@@ -214,47 +182,21 @@ export default function AxisPage() {
             </div>
           </RevealOnScroll>
 
+          {/* Rendered Axis app — quotations / orders screen */}
           <RevealOnScroll direction="right" delay={0.1}>
-            <div className="rounded-2xl border border-border bg-background p-3 shadow-[0_24px_70px_rgba(35,31,94,0.1)]">
-              <div className="rounded-xl border border-border bg-surface p-5">
-                <ol className="space-y-2">
-                  {[["1", "Quotation", "Sent to the client"], ["2", "Invoice", "Part or full payment"], ["3", "Job order", "Internal tracking and costs"], ["4", "Delivery form", "Client and business record"]].map(([n, title, note]) => (
-                    <li key={n} className="flex items-center gap-3 rounded-lg border border-border bg-background px-4 py-3 text-xs">
-                      <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-accent-light font-mono text-[10px] text-primary">{n}</span>
-                      <span className="font-medium text-text-primary">{title}</span>
-                      <span className="ml-auto text-text-muted">{note}</span>
-                    </li>
-                  ))}
-                </ol>
-              </div>
-            </div>
+            <AxisFrame>
+              <AxisQuotationsPreview />
+            </AxisFrame>
           </RevealOnScroll>
         </div>
 
         {/* Row 2 — Ledger: screenshot left, text right */}
         <div className="grid gap-12 border-b border-border py-16 lg:grid-cols-2 lg:items-center">
-          {/* TODO: swap for a real product screenshot (Journal entries / ledger view) */}
+          {/* Rendered Axis app — general ledger / journal entries screen */}
           <RevealOnScroll direction="left" delay={0.1} className="order-2 lg:order-1">
-            <div className="rounded-2xl border border-border bg-background p-3 shadow-[0_24px_70px_rgba(35,31,94,0.1)]">
-              <div className="rounded-xl border border-border bg-surface p-5">
-                <div className="mb-4 flex items-center justify-between border-b border-border pb-3">
-                  <span className="font-heading text-sm font-semibold text-text-primary">Journal entries</span>
-                  <span className="font-mono text-[10px] text-text-muted">Auto-posted</span>
-                </div>
-                <div className="space-y-2">
-                  {[
-                    ["Invoice #1042 — Client A", "+$4,200"],
-                    ["Daily sales — retail", "+$1,180"],
-                    ["Office supplies", "−$96"],
-                  ].map(([label, amt]) => (
-                    <div key={label} className="flex items-center justify-between rounded-lg border border-border bg-background px-4 py-2.5 text-xs">
-                      <span className="text-text-primary">{label}</span>
-                      <span className={`font-mono ${amt.startsWith("+") ? "text-emerald-600" : "text-text-secondary"}`}>{amt}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
+            <AxisFrame>
+              <AxisLedgerPreview />
+            </AxisFrame>
           </RevealOnScroll>
 
           <RevealOnScroll direction="right" className="order-1 lg:order-2">
@@ -296,23 +238,11 @@ export default function AxisPage() {
             </div>
           </RevealOnScroll>
 
-          {/* TODO: swap for a real product screenshot (Inventory / stock overview) */}
+          {/* Rendered Axis app — inventory / stock list screen */}
           <RevealOnScroll direction="right" delay={0.1}>
-            <div className="rounded-2xl border border-border bg-background p-3 shadow-[0_24px_70px_rgba(35,31,94,0.1)]">
-              <div className="rounded-xl border border-border bg-surface p-5">
-                <div className="mb-4 text-sm font-semibold text-text-primary">Stock overview</div>
-                <div className="grid grid-cols-2 gap-2 text-xs">
-                  <div className="rounded-lg border border-border bg-background p-3">
-                    <div className="text-text-muted">On hand</div>
-                    <div className="font-semibold text-text-primary">312 units</div>
-                  </div>
-                  <div className="rounded-lg border border-border bg-background p-3">
-                    <div className="text-text-muted">In custody</div>
-                    <div className="font-semibold text-text-primary">18 units</div>
-                  </div>
-                </div>
-              </div>
-            </div>
+            <AxisFrame>
+              <AxisInventoryPreview />
+            </AxisFrame>
           </RevealOnScroll>
         </div>
 

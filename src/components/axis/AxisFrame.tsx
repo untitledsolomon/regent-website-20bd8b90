@@ -1,0 +1,38 @@
+import type { ReactNode } from "react";
+
+/**
+ * Window chrome for a live Axis app preview: the site's framed look (rounded
+ * border + soft shadow + browser-style top bar) around a rendered app screen.
+ * Equivalent of `ScreenshotFrame`, but the payload is a React element instead
+ * of a next/image screenshot.
+ */
+export function AxisFrame({
+  children,
+  caption,
+  className = "",
+}: {
+  children: ReactNode;
+  caption?: string;
+  className?: string;
+}) {
+  return (
+    <figure className={className}>
+      <div className="overflow-hidden rounded-xl border border-border bg-background shadow-[0_24px_70px_rgba(35,31,94,0.1)]">
+        {/* Browser-style top bar */}
+        <div className="flex items-center gap-2 border-b border-border bg-surface px-4 py-2.5">
+          <span className="h-2 w-2 rounded-full bg-text-muted/40" />
+          <span className="h-2 w-2 rounded-full bg-text-muted/40" />
+          <span className="h-2 w-2 rounded-full bg-text-muted/40" />
+        </div>
+        <div className="overflow-x-auto">
+          <div className="min-w-[320px]">{children}</div>
+        </div>
+      </div>
+      {caption && (
+        <figcaption className="mt-3 text-center font-mono text-[11px] uppercase tracking-[0.12em] text-text-muted">
+          {caption}
+        </figcaption>
+      )}
+    </figure>
+  );
+}

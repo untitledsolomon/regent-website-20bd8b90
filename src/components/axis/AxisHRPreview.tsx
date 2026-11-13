@@ -1,0 +1,73 @@
+import { AxRoot, AxStatusPill, AxAvatar, AxSummary } from "./primitives";
+import { employees, employeeSummary } from "./data";
+
+/**
+ * Employees (HR) screen: headcount summary and the staff directory table with
+ * statuses — alongside the money, all in one system.
+ */
+export function AxisHRPreview() {
+  return (
+    <AxRoot>
+      <div style={{ padding: 20 }}>
+        <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 12, marginBottom: 16 }}>
+          <div>
+            <h1 className="ax-serif" style={{ fontSize: 24, fontWeight: 600, letterSpacing: "-0.01em" }}>Employees</h1>
+            <p style={{ fontSize: 13, color: "var(--ax-muted)", marginTop: 4 }}>
+              Profiles, roles, shifts and attendance — linked to the same org as the money.
+            </p>
+          </div>
+          <span className="ax-btn" style={{ color: "var(--ax-primary)", background: "#fff", border: "1px solid var(--ax-border-strong)" }}>+ Add employee</span>
+        </div>
+
+        <AxSummary items={employeeSummary} />
+
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: 12, marginTop: 12 }}>
+          {[
+            { label: "Scheduled today", value: "12", note: "across 4 shifts" },
+            { label: "On leave", value: "2", note: "1 approved, 1 pending" },
+            { label: "Quick link", value: "Shifts", note: "attendance board" },
+          ].map((c) => (
+            <div className="ax-panel" key={c.label} style={{ padding: "14px 16px" }}>
+              <div className="ax-caption" style={{ marginBottom: 8 }}>{c.label}</div>
+              <div className="ax-mono" style={{ fontSize: 20, fontWeight: 600 }}>{c.value}</div>
+              <div style={{ fontSize: 11, color: "var(--ax-muted)", marginTop: 4 }}>{c.note}</div>
+            </div>
+          ))}
+        </div>
+
+        <div className="ax-panel" style={{ marginTop: 12, overflow: "hidden" }}>
+          <div style={{ overflowX: "auto" }}>
+            <table className="ax-table" style={{ minWidth: 560 }}>
+              <thead>
+                <tr>
+                  <th className="ax-th">Employee</th>
+                  <th className="ax-th">Role & department</th>
+                  <th className="ax-th">Hire date</th>
+                  <th className="ax-th">Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {employees.map((e) => (
+                  <tr key={e.name} className="ax-row">
+                    <td className="ax-td">
+                      <span style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                        <AxAvatar initials={e.initials} />
+                        <span style={{ fontWeight: 500 }}>{e.name}</span>
+                      </span>
+                    </td>
+                    <td className="ax-td">
+                      <span style={{ display: "block", fontWeight: 500 }}>{e.role}</span>
+                      <span style={{ fontSize: 11, color: "var(--ax-muted)" }}>{e.department}</span>
+                    </td>
+                    <td className="ax-td" style={{ color: "var(--ax-muted)" }}>{e.hired}</td>
+                    <td className="ax-td"><AxStatusPill status={e.status} /></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </AxRoot>
+  );
+}
