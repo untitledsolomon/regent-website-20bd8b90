@@ -6,6 +6,7 @@ import { AxisAccountsPreview } from "@/components/axis/AxisAccountsPreview";
 import { AxisInventoryPreview } from "@/components/axis/AxisInventoryPreview";
 import { AxisCustodyPreview } from "@/components/axis/AxisCustodyPreview";
 import { AxisHRPreview } from "@/components/axis/AxisHRPreview";
+import { AxisShiftsPreview } from "@/components/axis/AxisShiftsPreview";
 import { AxisAttendancePreview } from "@/components/axis/AxisAttendancePreview";
 
 /**
@@ -31,6 +32,10 @@ export const MODULE_PREVIEWS: Record<string, AxisPreviewSet> = {
   },
   hr: {
     hero: <AxisHRPreview />,
-    features: [<AxisAttendancePreview key="attendance" />, <AxisHRPreview key="employees" />],
+    features: [
+      <AxisHRPreview key="employees" />,
+      <AxisShiftsPreview key="shifts" />,
+      <AxisAttendancePreview key="attendance" />,
+    ],
   },
 };

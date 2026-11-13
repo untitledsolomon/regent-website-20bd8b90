@@ -78,7 +78,7 @@ export default function AxisPage() {
           </div>
         </div>
 
-        <div className="section-container relative pb-24 pt-28">
+        <div className="section-container relative pb-14 pt-28">
           <RevealOnScroll>
             <div className="mx-auto max-w-3xl text-center">
               <div className="mb-5 flex items-center justify-center gap-3 font-mono text-[11px] uppercase tracking-[0.12em] text-primary">
@@ -103,29 +103,30 @@ export default function AxisPage() {
             </div>
           </RevealOnScroll>
         </div>
-      </section>
 
-      {/* Hero visual — the real Axis dashboard */}
-      <div className="section-container -mt-14 pb-24">
+        {/* Hero visual: the real Axis dashboard, part of the hero and fading into the page */}
         <RevealOnScroll delay={0.08}>
-          <figure className="relative mx-auto max-w-6xl">
-            <div className="absolute -inset-x-6 -top-6 bottom-0 -z-10 rounded-[2rem] bg-gradient-to-b from-primary/10 to-transparent blur-2xl" aria-hidden="true" />
-            <div className="overflow-hidden rounded-2xl border border-border bg-background p-2 shadow-[0_40px_120px_rgba(35,31,94,0.18)]">
-              <div className="overflow-hidden rounded-xl border border-border">
+          <div className="relative mx-auto w-full max-w-[1400px] px-4 sm:px-8">
+            <div className="absolute inset-x-10 top-6 -z-0 h-2/3 rounded-full bg-primary/15 blur-3xl" aria-hidden="true" />
+            <div
+              className="relative max-h-[420px] overflow-hidden rounded-t-2xl border border-b-0 border-border bg-background p-2 pb-0 shadow-[0_-10px_80px_rgba(79,70,229,0.18)] sm:max-h-[640px] lg:max-h-[760px]"
+              style={{ WebkitMaskImage: "linear-gradient(to bottom, #000 72%, transparent 100%)", maskImage: "linear-gradient(to bottom, #000 72%, transparent 100%)" }}
+            >
+              <div className="overflow-hidden rounded-t-xl border border-b-0 border-border">
                 <Image
                   src="/axis/axis-dashboard.webp"
                   alt="The Axis dashboard: revenue, active clients, outstanding invoices, net profit, a revenue chart, recent activity and inventory status"
                   width={1866}
                   height={928}
                   priority
-                  sizes="(min-width: 1152px) 1120px, 100vw"
+                  sizes="(min-width: 1400px) 1336px, 100vw"
                   className="h-auto w-full"
                 />
               </div>
             </div>
-          </figure>
+          </div>
         </RevealOnScroll>
-      </div>
+      </section>
 
       <div id="modules" className="section-container py-24">
         <SectionHeader

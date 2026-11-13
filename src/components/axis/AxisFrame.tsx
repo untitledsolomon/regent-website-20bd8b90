@@ -14,14 +14,17 @@ export function AxisFrame({
   caption,
   className = "",
   height = "",
+  compact = true,
 }: {
   children: ReactNode;
   caption?: string;
   className?: string;
   height?: string;
+  /** Slimmer type, padding and rows, and a capped width, so previews stay sleek. */
+  compact?: boolean;
 }) {
   return (
-    <figure className={`${height} ${className}`}>
+    <figure className={`${height} ${compact ? "ax-compact mx-auto w-full max-w-[540px]" : ""} ${className}`}>
       <div className="flex flex-col overflow-hidden rounded-xl border border-border bg-background shadow-[0_24px_70px_rgba(35,31,94,0.1)]">
         {/* Browser-style top bar */}
         <div className="flex shrink-0 items-center gap-2 border-b border-border bg-surface px-4 py-2.5">

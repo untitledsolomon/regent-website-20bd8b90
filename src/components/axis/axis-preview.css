@@ -384,3 +384,15 @@
   }
 }
 
+
+/* ---- Compact previews (module pages): smaller, sleeker widgets ---- */
+.ax-compact .ax-root > div { padding: 14px !important; }
+.ax-compact h1.ax-serif { font-size: 17px !important; }
+.ax-compact .ax-th { padding: 6px 10px; font-size: 10px; }
+.ax-compact .ax-td { padding: 6px 10px; font-size: 11.5px; }
+.ax-compact .ax-btn { height: 26px; padding: 0 10px; font-size: 11px; }
+.ax-compact .ax-pill { font-size: 10.5px; padding: 1px 8px; }
+.ax-compact .ax-summarybar { padding: 8px 12px; }
+.ax-compact .ax-summary-item { font-size: 10px; }
+.ax-compact .ax-summary-item b { font-size: 12px; }
+.ax-compact .ax-search { height: 26px; }
