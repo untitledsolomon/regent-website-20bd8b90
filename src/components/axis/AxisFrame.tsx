@@ -7,17 +7,16 @@ import type { ReactNode } from "react";
  * of a next/image screenshot.
  *
  * The frame pins a fixed height (a Tailwind class via `height`) so every
- * preview keeps screenshot-style proportions instead of growing to the
- * screen's natural height. Content wider than the frame scrolls horizontally;
- * content taller than the frame is clipped at the bottom, like a real app
- * window. `className` positions the frame in the layout without changing its
- * height.
+ * preview keeps a short, screenshot-style height instead of growing to the
+ * screen's natural height. Previews are trimmed to fit entirely inside the
+ * frame, so nothing is clipped or needs scrolling. `className` positions the
+ * frame in the layout without changing its height.
  */
 export function AxisFrame({
   children,
   caption,
   className = "",
-  height = "h-[380px] sm:h-[440px]",
+  height = "h-[360px] sm:h-[420px]",
 }: {
   children: ReactNode;
   caption?: string;

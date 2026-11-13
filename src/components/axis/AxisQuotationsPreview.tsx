@@ -9,14 +9,9 @@ import { quotations } from "./data";
 export function AxisQuotationsPreview() {
   return (
     <AxRoot>
-      <div style={{ padding: 20 }}>
-        <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 12, marginBottom: 16 }}>
-          <div>
-            <h1 className="ax-serif" style={{ fontSize: 24, fontWeight: 600, letterSpacing: "-0.01em" }}>Quotations</h1>
-            <p style={{ fontSize: 13, color: "var(--ax-muted)", marginTop: 4 }}>
-              Send quotes, track acceptances and convert them into invoices.
-            </p>
-          </div>
+      <div style={{ padding: 18 }}>
+        <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 12, marginBottom: 12 }}>
+          <h1 className="ax-serif" style={{ fontSize: 22, fontWeight: 600, letterSpacing: "-0.01em" }}>Quotations</h1>
           <span className="ax-btn ax-btn--primary"><AxIcon.plus size={14} /> New quotation</span>
         </div>
 
@@ -44,7 +39,7 @@ export function AxisQuotationsPreview() {
                 </tr>
               </thead>
               <tbody>
-                {quotations.map((q) => (
+                {quotations.slice(0, 3).map((q) => (
                   <tr key={q.ref} className="ax-row">
                     <td className="ax-td" style={{ fontWeight: 500 }}>{q.ref}</td>
                     <td className="ax-td ax-trunc">{q.client}</td>
@@ -56,9 +51,6 @@ export function AxisQuotationsPreview() {
                 ))}
               </tbody>
             </table>
-          </div>
-          <div style={{ padding: "10px 16px", fontSize: 12, color: "var(--ax-muted)", borderTop: "1px solid var(--ax-border)" }}>
-            Accept a quotation, and it becomes an invoice — no rekeying.
           </div>
         </div>
       </div>

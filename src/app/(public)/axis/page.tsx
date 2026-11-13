@@ -8,7 +8,6 @@ import { AXIS_SIGNUP_URL } from "@/lib/axis";
 import { AxisFrame } from "@/components/axis/AxisFrame";
 import { AxisAppShell } from "@/components/axis/AxisAppShell";
 import { AxisDashboardPreview } from "@/components/axis/AxisDashboardPreview";
-import { AxisInvoiceDetailPreview } from "@/components/axis/AxisInvoiceDetailPreview";
 import { AxisInvoicingPreview } from "@/components/axis/AxisInvoicingPreview";
 import { AxisQuotationsPreview } from "@/components/axis/AxisQuotationsPreview";
 import { AxisLedgerPreview } from "@/components/axis/AxisLedgerPreview";
@@ -106,22 +105,15 @@ export default function AxisPage() {
         </div>
       </section>
 
-      {/* Screenshot showcase — the live Axis app: dashboard + invoice detail */}
+      {/* Screenshot showcase — one full app window: the Axis dashboard */}
       <div className="section-container -mt-14 pb-24">
         <RevealOnScroll delay={0.08}>
-          <div className="relative mx-auto grid max-w-5xl grid-cols-1 gap-6 sm:grid-cols-[1.3fr_0.7fr]">
-            <AxisFrame height="h-[480px] sm:h-[560px]" className="self-start">
+          <div className="relative mx-auto max-w-6xl">
+            <AxisFrame height="h-[560px] sm:h-[620px]">
               <AxisAppShell active="Dashboard">
                 <AxisDashboardPreview />
               </AxisAppShell>
             </AxisFrame>
-
-            {/* Secondary floating panel — a real invoice screen */}
-            <div className="sm:mt-10">
-              <AxisFrame height="h-[420px] sm:h-[500px]">
-                <AxisInvoiceDetailPreview />
-              </AxisFrame>
-            </div>
           </div>
         </RevealOnScroll>
       </div>
@@ -155,7 +147,7 @@ export default function AxisPage() {
 
           {/* Rendered Axis app — invoices list screen */}
           <RevealOnScroll direction="right" delay={0.1}>
-            <AxisFrame height="h-[420px] sm:h-[460px]">
+            <AxisFrame>
               <AxisInvoicingPreview />
             </AxisFrame>
           </RevealOnScroll>
@@ -184,7 +176,7 @@ export default function AxisPage() {
 
           {/* Rendered Axis app — quotations / orders screen */}
           <RevealOnScroll direction="right" delay={0.1}>
-            <AxisFrame height="h-[420px] sm:h-[460px]">
+            <AxisFrame>
               <AxisQuotationsPreview />
             </AxisFrame>
           </RevealOnScroll>
@@ -194,7 +186,7 @@ export default function AxisPage() {
         <div className="grid gap-12 border-b border-border py-16 lg:grid-cols-2 lg:items-center">
           {/* Rendered Axis app — general ledger / journal entries screen */}
           <RevealOnScroll direction="left" delay={0.1} className="order-2 lg:order-1">
-            <AxisFrame height="h-[420px] sm:h-[460px]">
+            <AxisFrame>
               <AxisLedgerPreview />
             </AxisFrame>
           </RevealOnScroll>
@@ -240,7 +232,7 @@ export default function AxisPage() {
 
           {/* Rendered Axis app — inventory / stock list screen */}
           <RevealOnScroll direction="right" delay={0.1}>
-            <AxisFrame height="h-[420px] sm:h-[460px]">
+            <AxisFrame>
               <AxisInventoryPreview />
             </AxisFrame>
           </RevealOnScroll>

@@ -82,8 +82,8 @@
   background: var(--ax-card);
   border: 1px solid var(--ax-border);
   border-radius: 0.75rem;
-  padding: 14px 16px;
-  min-height: 104px;
+  padding: 13px 16px;
+  min-height: 96px;
   display: flex;
   flex-direction: column;
 }

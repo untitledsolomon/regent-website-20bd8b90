@@ -8,14 +8,9 @@ import { ledgerEntries, formatMoney } from "./data";
 export function AxisLedgerPreview() {
   return (
     <AxRoot>
-      <div style={{ padding: 20 }}>
-        <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 12, marginBottom: 16 }}>
-          <div>
-            <h1 className="ax-serif" style={{ fontSize: 24, fontWeight: 600, letterSpacing: "-0.01em" }}>General Ledger</h1>
-            <p style={{ fontSize: 13, color: "var(--ax-muted)", marginTop: 4 }}>
-              Every invoice, payment and expense posts a journal entry automatically.
-            </p>
-          </div>
+      <div style={{ padding: 18 }}>
+        <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 12, marginBottom: 12 }}>
+          <h1 className="ax-serif" style={{ fontSize: 22, fontWeight: 600, letterSpacing: "-0.01em" }}>General Ledger</h1>
           <span style={{ display: "flex", gap: 4, fontSize: 12, fontWeight: 500 }}>
             <span style={{ padding: "6px 12px", borderRadius: "0.5rem 0 0 0.5rem", background: "var(--ax-primary)", color: "#fff" }}>Journal Entries</span>
             <span style={{ padding: "6px 12px", borderRadius: "0 0.5rem 0.5rem 0", border: "1px solid var(--ax-border)", color: "var(--ax-muted)", background: "#fff" }}>Account Ledger</span>
@@ -43,7 +38,7 @@ export function AxisLedgerPreview() {
                 </tr>
               </thead>
               <tbody>
-                {ledgerEntries.map((e) => (
+                {ledgerEntries.slice(1, 5).map((e) => (
                   <tr key={`${e.ref}-${e.date}`} className="ax-row">
                     <td className="ax-td" style={{ color: "var(--ax-muted)", whiteSpace: "nowrap" }}>{e.date}</td>
                     <td className="ax-td" style={{ fontWeight: 500, whiteSpace: "nowrap" }}>{e.ref}</td>
@@ -56,9 +51,6 @@ export function AxisLedgerPreview() {
                 ))}
               </tbody>
             </table>
-          </div>
-          <div style={{ padding: "10px 16px", fontSize: 12, color: "var(--ax-muted)", borderTop: "1px solid var(--ax-border)" }}>
-            Void a document and the other side of the entry cleans up automatically.
           </div>
         </div>
       </div>

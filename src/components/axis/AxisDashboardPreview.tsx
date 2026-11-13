@@ -17,12 +17,12 @@ export function AxisDashboardPreview() {
 
   return (
     <div>
-      <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 12, marginBottom: 16 }}>
+      <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 12, marginBottom: 12 }}>
         <div>
-          <h1 className="ax-serif" style={{ fontSize: 26, fontWeight: 600, letterSpacing: "-0.01em" }}>
+          <h1 className="ax-serif" style={{ fontSize: 22, fontWeight: 600, letterSpacing: "-0.01em" }}>
             Hello, Solomon!
           </h1>
-          <p style={{ fontSize: 13, color: "var(--ax-muted)", marginTop: 4 }}>
+          <p style={{ fontSize: 12.5, color: "var(--ax-muted)", marginTop: 2 }}>
             Here is what is happening across your business today.
           </p>
         </div>
@@ -72,7 +72,7 @@ export function AxisDashboardPreview() {
           </div>
           <div style={{ padding: "6px 16px 12px" }}>
             {recentActivity.map((a) => (
-              <div key={a.when} style={{ display: "flex", alignItems: "flex-start", gap: 10, padding: "8px 0" }}>
+              <div key={a.when} style={{ display: "flex", alignItems: "flex-start", gap: 10, padding: "7px 0" }}>
                 <span
                   style={{
                     width: 7, height: 7, borderRadius: 99, marginTop: 5, flexShrink: 0,

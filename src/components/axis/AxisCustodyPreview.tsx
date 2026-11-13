@@ -8,14 +8,9 @@ import { custody } from "./data";
 export function AxisCustodyPreview() {
   return (
     <AxRoot>
-      <div style={{ padding: 20 }}>
-        <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 12, marginBottom: 16 }}>
-          <div>
-            <h1 className="ax-serif" style={{ fontSize: 24, fontWeight: 600, letterSpacing: "-0.01em" }}>Asset Custody</h1>
-            <p style={{ fontSize: 13, color: "var(--ax-muted)", marginTop: 4 }}>
-              Know which items are on loan, and to whom, directly from the stock records.
-            </p>
-          </div>
+      <div style={{ padding: 18 }}>
+        <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 12, marginBottom: 12 }}>
+          <h1 className="ax-serif" style={{ fontSize: 22, fontWeight: 600, letterSpacing: "-0.01em" }}>Asset Custody</h1>
           <span className="ax-btn ax-btn--outline"><AxIcon.plus size={14} /> Issue item</span>
         </div>
 

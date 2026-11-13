@@ -8,12 +8,9 @@ import { shifts } from "./data";
 export function AxisAttendancePreview() {
   return (
     <AxRoot>
-      <div style={{ padding: 20 }}>
-        <div style={{ marginBottom: 16 }}>
-          <h1 className="ax-serif" style={{ fontSize: 24, fontWeight: 600, letterSpacing: "-0.01em" }}>Today's shifts</h1>
-          <p style={{ fontSize: 13, color: "var(--ax-muted)", marginTop: 4 }}>
-            Friday, 13 November 2026 · attendance across 4 shifts
-          </p>
+      <div style={{ padding: 18 }}>
+        <div style={{ marginBottom: 12 }}>
+          <h1 className="ax-serif" style={{ fontSize: 22, fontWeight: 600, letterSpacing: "-0.01em" }}>Today's shifts</h1>
         </div>
 
         <div className="ax-summarybar">
@@ -41,10 +38,6 @@ export function AxisAttendancePreview() {
               <AxStatusPill status={s.status} />
             </div>
           ))}
-        </div>
-
-        <div style={{ marginTop: 12, fontSize: 12, color: "var(--ax-muted)" }}>
-          Attendance marks post straight to the payroll-ready timesheet each week.
         </div>
       </div>
     </AxRoot>

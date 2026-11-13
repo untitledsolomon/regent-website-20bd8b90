@@ -9,17 +9,13 @@ import { invoices } from "./data";
 const FILTERS = ["All", "Paid", "Sent", "Partial", "Overdue", "Draft"];
 
 export function AxisInvoicingPreview() {
-  const total = invoices.reduce((sum, inv) => sum + parseAmount(inv.amount), 0);
-  const paid = invoices.filter((i) => i.status === "paid").reduce((s, i) => s + parseAmount(i.amount), 0);
+  const rows = invoices.slice(0, 4);
 
   return (
     <AxRoot>
-      <div style={{ padding: 20 }}>
-        <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 12, marginBottom: 16 }}>
-          <div>
-            <h1 className="ax-serif" style={{ fontSize: 24, fontWeight: 600, letterSpacing: "-0.01em" }}>Invoices</h1>
-            <p style={{ fontSize: 13, color: "var(--ax-muted)", marginTop: 4 }}>Create, send and track invoices against your clients.</p>
-          </div>
+      <div style={{ padding: 18 }}>
+        <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 12, marginBottom: 12 }}>
+          <h1 className="ax-serif" style={{ fontSize: 22, fontWeight: 600, letterSpacing: "-0.01em" }}>Invoices</h1>
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
             <span className="ax-btn ax-btn--outline"><AxIcon.download size={14} /> Export CSV</span>
             <span className="ax-btn ax-btn--primary"><AxIcon.plus size={14} /> New invoice</span>
@@ -67,7 +63,7 @@ export function AxisInvoicingPreview() {
                 </tr>
               </thead>
               <tbody>
-                {invoices.map((inv) => (
+                {rows.map((inv) => (
                   <tr key={inv.ref} className="ax-row">
                     <td className="ax-td" style={{ fontWeight: 500 }}>{inv.ref}</td>
                     <td className="ax-td ax-trunc">{inv.client}</td>
@@ -79,11 +75,6 @@ export function AxisInvoicingPreview() {
                 ))}
               </tbody>
             </table>
-          </div>
-
-          <div style={{ display: "flex", justifyContent: "space-between", padding: "10px 16px", fontSize: 12, color: "var(--ax-muted)" }}>
-            <span>Showing {invoices.length} of 24 invoices</span>
-            <span className="ax-mono">Total invoiced {fmt(total)} · Paid {fmt(paid)}</span>
           </div>
         </div>
       </div>
@@ -103,10 +94,6 @@ function AxSummaryBar() {
       <span className="ax-summary-item"><span>Overdue</span><b style={{ color: "var(--ax-danger)" }}>{fmt(1_640_000)}</b></span>
     </div>
   );
-}
-
-function parseAmount(text: string): number {
-  return Number(text.replace(/[^0-9.-]/g, ""));
 }
 
 function fmt(v: number): string {
