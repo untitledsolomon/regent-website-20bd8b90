@@ -6,6 +6,7 @@ import { SectionHeader } from "@/components/SectionHeader";
 import { RevealOnScroll } from "@/components/RevealOnScroll";
 import { AXIS_SIGNUP_URL } from "@/lib/axis";
 import { getAxisPricing, type AxisPlanPricing } from "@/lib/paddle-pricing";
+import { AxisPricingTable } from "@/components/AxisPricingTable";
 
 export const metadata: Metadata = {
   title: "Axis Pricing",
@@ -188,6 +189,8 @@ export default async function PricingPage() {
             ))}
           </div>
         </RevealOnScroll>
+
+        <AxisPricingTable plans={plans} />
 
         {pricingUnavailable && (
           <p className="text-center text-sm text-text-muted mt-8">
