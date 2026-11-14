@@ -81,8 +81,8 @@ export function Footer() {
       <BackToTop />
       <footer className="bg-text-primary text-background pt-[72px] pb-10">
         <div className="section-container">
-          <div className="grid grid-cols-2 md:grid-cols-[240px_1fr_1fr_1fr_1fr_1fr] gap-8">
-            <div className="col-span-2 md:col-span-1">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-[240px_1fr_1fr_1fr_1fr_1fr] gap-8">
+            <div className="col-span-2 md:col-span-3 lg:col-span-1">
               <div className="font-heading text-xl font-semibold tracking-[-0.03em] mb-3">
                 Regent<span className="text-accent-mid">.</span>
               </div>

@@ -23,8 +23,8 @@ export function RevealOnScroll({ children, delay = 0, className = "", direction 
   const initial = direction === "up" 
     ? { opacity: 0, y: 32, scale: 0.97 } 
     : direction === "left" 
-    ? { opacity: 0, x: -32, scale: 0.97 } 
-    : { opacity: 0, x: 32, scale: 0.97 };
+    ? { opacity: 0, x: -16, scale: 0.97 } 
+    : { opacity: 0, x: 16, scale: 0.97 };
 
   const animate = { opacity: 1, y: 0, x: 0, scale: 1 };
 

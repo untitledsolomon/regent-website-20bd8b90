@@ -73,7 +73,7 @@ instead of just this map of links, see /llms-full.txt.
 
 ## Product
 
-- [Axis](${SITE_URL}/axis): ERP, accounting, inventory, and invoicing platform for growing businesses.
+- [Axis](${SITE_URL}/axis): ERP, accounting, inventory, and invoicing platform for businesses.
 - [Platform](${SITE_URL}/platform): Overview of Regent's technical platform and architecture.
 - [Pricing](${SITE_URL}/pricing): Pricing for Regent's products and services.
 - [Products](${SITE_URL}/products): Full list of Regent's in-house products.

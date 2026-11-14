@@ -15,18 +15,18 @@ import { AxisInventoryPreview } from "@/components/axis/AxisInventoryPreview";
 export const metadata: Metadata = {
   title: { absolute: "Axis by Regent: Business Management Software" },
   description:
-    "Axis by Regent is cloud-based ERP and accounting software: quotations, invoices, job orders, delivery notes, ledger accounting and inventory in one system for growing businesses. Try it free for 7 days.",
+    "Axis by Regent is cloud-based ERP and accounting software: quotations, invoices, job orders, delivery notes, ledger accounting and inventory in one system for businesses. Try it free for 7 days.",
   openGraph: {
     title: "Axis by Regent: Business Management Software",
     description:
-      "Axis by Regent is cloud-based ERP and accounting software: quotations, invoices, job orders, delivery notes, ledger accounting and inventory in one system for growing businesses. Try it free for 7 days.",
+      "Axis by Regent is cloud-based ERP and accounting software: quotations, invoices, job orders, delivery notes, ledger accounting and inventory in one system for businesses. Try it free for 7 days.",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
     title: "Axis by Regent: Business Management Software",
     description:
-      "Axis by Regent is cloud-based ERP and accounting software: quotations, invoices, job orders, delivery notes, ledger accounting and inventory in one system for growing businesses. Try it free for 7 days.",
+      "Axis by Regent is cloud-based ERP and accounting software: quotations, invoices, job orders, delivery notes, ledger accounting and inventory in one system for businesses. Try it free for 7 days.",
   },
   alternates: {
     canonical: "/axis",
@@ -43,7 +43,7 @@ export default function AxisPage() {
     applicationCategory: "BusinessApplication",
     operatingSystem: "Web",
     description:
-      "Axis by Regent is cloud-based ERP and accounting software: quotations, invoices, job orders, delivery notes, ledger accounting and inventory in one system for growing businesses. Try it free for 7 days.",
+      "Axis by Regent is cloud-based ERP and accounting software: quotations, invoices, job orders, delivery notes, ledger accounting and inventory in one system for businesses. Try it free for 7 days.",
     offers: {
       "@type": "Offer",
       url:
@@ -89,7 +89,7 @@ export default function AxisPage() {
                 <span className="font-['Instrument_Serif'] text-[1.12em] font-normal italic text-primary">entire business.</span>
               </h1>
               <p className="mx-auto mb-8 max-w-[560px] text-lg font-light leading-relaxed text-text-secondary">
-                Axis is the business operating system from Regent for growing businesses that have outgrown spreadsheets. Invoicing, accounting, inventory, and HR share the same data, so your work stays in sync.
+                Axis is the business operating system from Regent for businesses of any size. Invoicing, accounting, inventory, and HR share the same data, so your work stays in sync.
               </p>
               <div className="flex flex-col items-center justify-center gap-3 sm:flex-row">
                 <a href={AXIS_SIGNUP_URL} target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-[18px] py-3 font-heading text-[13px] font-medium text-primary-foreground transition-all hover:-translate-y-px hover:shadow-lg">
@@ -276,7 +276,7 @@ export default function AxisPage() {
               ['01', 'Shared client records', 'Invoices and accounts start from the same source of truth.'],
               ['02', 'Automatic journal entries', 'Daily sales and expenses post to the ledger as work happens.'],
               ['03', 'Role-based access', 'Every team member sees the modules relevant to their job.'],
-              ['04', 'Growing organizations', 'Run more than one business from a single account on Advanced.'],
+              ['04', 'Plans that scale', 'Start small and move up as your team, books and stock get bigger.'],
             ].map(([number, title, description], i) => (
               <RevealOnScroll key={number} delay={i * 0.06}>
                 <div className="flex h-full flex-col rounded-xl border border-border bg-background p-5">
@@ -354,9 +354,9 @@ export default function AxisPage() {
         />
         <div className="mx-auto grid max-w-5xl grid-cols-1 gap-6 md:grid-cols-3">
           {[
-            { name: "Starter", blurb: "For teams getting off spreadsheets.", features: ["Quotations, invoices & client management", "Job orders & delivery forms", "Core financial tracking & ledger", "Basic reports", "1 user"] },
-            { name: "Pro", blurb: "For growing teams that need more.", features: ["Everything in Starter", "Advanced reports & analytics", "Inventory tracking", "Job cost & margin tracking", "Up to 5 users"], featured: true },
-            { name: "Advanced", blurb: "For teams running complex operations.", features: ["Everything in Pro", "Employee management", "Custom email domain", "Third-party connections", "Up to 20 users"] },
+            { name: "Starter", blurb: "For teams getting off spreadsheets.", features: ["Quotations, invoices & client management", "Job orders & delivery forms", "Core financial tracking & ledger", "Basic reports", "1 user · 1 bank account"] },
+            { name: "Pro", blurb: "For teams that need more.", features: ["Everything in Starter", "Advanced finance reports", "Inventory & asset custody", "Job costing & margin tracking", "Up to 5 users · 5 bank accounts"], featured: true },
+            { name: "Advanced", blurb: "For teams running complex operations.", features: ["Everything in Pro", "Employees, shifts & attendance", "Custom email domain", "Third-party connections", "Up to 20 users · 20 bank accounts"] },
           ].map((plan) => (
             <RevealOnScroll key={plan.name}>
               <div className={`relative flex h-full flex-col rounded-xl border p-7 ${plan.featured ? "border-primary bg-surface shadow-[0_16px_40px_rgba(35,31,94,0.1)]" : "border-border bg-background"}`}>

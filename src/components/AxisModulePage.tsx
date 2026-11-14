@@ -220,7 +220,7 @@ export function AxisModulePage({ module }: { module: AxisModule }) {
           <div className="rounded-2xl border border-border bg-surface p-8 md:p-12">
             <div className="mb-4 font-mono text-[11px] uppercase tracking-[0.12em] text-primary">Who it is for</div>
             <h2 className="mb-4 font-heading text-2xl font-semibold tracking-[-0.03em] text-text-primary md:text-3xl">
-              Built for growing small businesses off spreadsheets.
+              Built for businesses.
             </h2>
             <p className="max-w-2xl text-base leading-relaxed text-text-secondary">{module.whoFor}</p>
           </div>
