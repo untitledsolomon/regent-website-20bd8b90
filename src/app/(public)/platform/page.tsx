@@ -5,11 +5,11 @@ import { Breadcrumbs } from '@/components/Breadcrumbs'
 export const metadata: Metadata = {
   title: 'Platform Overview',
   description:
-    "See how Regent's platform connects data, workflows, and operations into one system for growing businesses.",
+    "See how Regent's platform connects data, workflows, and operations into one system for businesses.",
   openGraph: {
     title: 'Platform Overview | Regent',
     description:
-      "See how Regent's platform connects data, workflows, and operations into one system for growing businesses.",
+      "See how Regent's platform connects data, workflows, and operations into one system for businesses.",
     type: 'website',
     images: [{ url: '/og-image.png' }]
   },
@@ -17,7 +17,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'Platform Overview | Regent',
     description:
-      "See how Regent's platform connects data, workflows, and operations into one system for growing businesses.",
+      "See how Regent's platform connects data, workflows, and operations into one system for businesses.",
     images: ['/og-image.png']
   },
   alternates: {
