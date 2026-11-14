@@ -228,7 +228,7 @@ export function AxisModulePage({ module }: { module: AxisModule }) {
       </section>
 
       {/* FAQ */}
-      <section className="border-t border-border bg-surface py-20">
+      <section className="border-t border-border bg-background py-20">
         <div className="section-container max-w-3xl">
           <SectionHeader
             label="FAQ"
