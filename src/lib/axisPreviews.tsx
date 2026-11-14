@@ -33,7 +33,7 @@ export const MODULE_PREVIEWS: Record<string, AxisPreviewSet> = {
   invoicing: {
     hero: <AxisInvoicingPreview rows={6} />,
     active: "Invoices",
-    float: { title: "INV-0043 paid", detail: "UGX 4,200,000 · Tekowa Engineering", tone: "success" },
+    float: { title: "INV-0043 paid", detail: "UGX 4,200,000 · Kibo Engineering", tone: "success" },
     features: [
       <AxisInvoiceDetailPreview key="invoice-detail" />,
       <AxisFlowPreview key="quote-flow" title="Quotation to invoice" steps={[
@@ -42,8 +42,8 @@ export const MODULE_PREVIEWS: Record<string, AxisPreviewSet> = {
         { label: "INV-0044 sent", detail: "Branded PDF goes to the client" },
       ]} />,
       <AxisFlowPreview key="links" title="Linked on send" steps={[
-        { label: "INV-0043 sent", detail: "Tekowa Engineering", meta: "UGX 4,200,000" },
-        { label: "Client balance", detail: "Tekowa Engineering owes UGX 4,200,000" },
+        { label: "INV-0043 sent", detail: "Kibo Engineering", meta: "UGX 4,200,000" },
+        { label: "Client balance", detail: "Kibo Engineering owes UGX 4,200,000" },
         { label: "Ledger entry", detail: "Receivables up, sales revenue up" },
       ]} />,
       <AxisPaymentsPreview key="payments" />,
@@ -59,7 +59,7 @@ export const MODULE_PREVIEWS: Record<string, AxisPreviewSet> = {
       <AxisLedgerPreview key="ledger" />,
       <AxisAccountsPreview key="chart-of-accounts" />,
       <AxisFlowPreview key="invoice-posts" title="Invoice to ledger" steps={[
-        { label: "INV-0043 sent", detail: "Tekowa Engineering", meta: "UGX 4,200,000" },
+        { label: "INV-0043 sent", detail: "Kibo Engineering", meta: "UGX 4,200,000" },
         { label: "Journal entry posted", detail: "Debit receivables, credit sales revenue" },
         { label: "Reports updated", detail: "Profit and balances move straight away" },
       ]} />,

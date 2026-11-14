@@ -31,29 +31,30 @@ export const metadata: Metadata = {
 
 const PLAN_FEATURES: Record<AxisPlanPricing["planId"], string[]> = {
   starter: [
-    "Quotations, invoices & client management",
+    "Clients, quotations & invoicing",
     "Job orders & delivery forms",
-    "1 user",
-    "Core financial tracking & ledger",
+    "Core finance: ledger & chart of accounts",
     "Basic reports",
-    "1 organization",
-    "Email support",
+    "1 user · 1 bank account",
+    "Up to 100 ledger accounts",
   ],
   pro: [
     "Everything in Starter",
-    "Advanced reports & analytics",
-    "Inventory tracking",
-    "Job cost & margin tracking",
-    "Up to 5 users",
-    "Priority support",
+    "Advanced finance reports",
+    "Inventory & asset custody",
+    "Job costing & margin tracking",
+    "Team permissions",
+    "Up to 5 users · 5 bank accounts",
+    "Up to 250 ledger accounts",
   ],
   advanced: [
     "Everything in Pro",
-    "Employee management",
+    "Employees, shifts & attendance",
     "Custom email domain",
     "Third-party connections",
-    "Up to 20 users",
-    "Priority support with SLA",
+    "Priority support",
+    "Up to 20 users · 20 bank accounts",
+    "Up to 1,000 ledger accounts",
   ],
 };
 

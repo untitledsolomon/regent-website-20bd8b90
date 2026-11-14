@@ -315,7 +315,7 @@ export default function AxisPage() {
               ) },
               { n: "02", title: "Add clients and items", body: "Import or add the clients you bill and the items you sell. Invoices and stock share the same records.", visual: (
                 <div className="space-y-2">
-                  {[["Tekowa Engineering", "Client"], ["Juba Logistics", "Client"], ["Fuel (petrol)", "Item"]].map(([name, kind]) => (
+                  {[["Kibo Engineering", "Client"], ["Juba Logistics", "Client"], ["Fuel (petrol)", "Item"]].map(([name, kind]) => (
                     <div key={name} className="flex items-center justify-between rounded-md border border-border bg-background px-3 py-2 text-[11px]">
                       <span className="font-medium text-text-primary">{name}</span>
                       <span className="rounded-full bg-accent-light px-2 py-0.5 font-mono text-[9px] text-primary">{kind}</span>
@@ -326,7 +326,7 @@ export default function AxisPage() {
               { n: "03", title: "Send your first invoice", body: "Create it, send a branded PDF and watch it post to your ledger and your client's balance.", visual: (
                 <div className="rounded-md border border-border bg-background p-3 text-[11px]">
                   <div className="mb-2 flex items-center justify-between"><span className="font-medium text-text-primary">INV-0001</span><span className="rounded-full bg-emerald-500/10 px-2 py-0.5 font-mono text-[9px] text-emerald-600">sent</span></div>
-                  <div className="flex justify-between text-text-muted"><span>Tekowa Engineering</span><span className="font-mono text-text-primary">UGX 4,200,000</span></div>
+                  <div className="flex justify-between text-text-muted"><span>Kibo Engineering</span><span className="font-mono text-text-primary">UGX 4,200,000</span></div>
                   <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-border"><div className="h-full w-2/3 rounded-full bg-primary" /></div>
                 </div>
               ) },

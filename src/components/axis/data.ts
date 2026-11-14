@@ -85,7 +85,7 @@ export const dashboardSummary = [
 export const revenueSeries = [42, 58, 49, 71, 63, 82, 78, 96, 88, 104, 112, 126];
 
 export const recentActivity = [
-  { when: "09:41", text: "Invoice INV-0043 paid — Tekowa Engineering", tone: "success" },
+  { when: "09:41", text: "Invoice INV-0043 paid — Kibo Engineering", tone: "success" },
   { when: "09:12", text: "Quotation QUO-0121 accepted by Juba Logistics", tone: "teal" },
   { when: "08:47", text: "Stock — 40 units of Fuel (petrol) received", tone: "navy" },
   { when: "08:15", text: "Job order JO-0088 completed", tone: "navy" },
@@ -102,7 +102,7 @@ export type InvoiceRow = {
 };
 
 export const invoices: InvoiceRow[] = [
-  { ref: "INV-0043", client: "Tekowa Engineering", issue: "11 Nov 2026", due: "11 Dec 2026", status: "paid", amount: formatMoneyFull(4_200_000) },
+  { ref: "INV-0043", client: "Kibo Engineering", issue: "11 Nov 2026", due: "11 Dec 2026", status: "paid", amount: formatMoneyFull(4_200_000) },
   { ref: "INV-0042", client: "Juba Logistics", issue: "08 Nov 2026", due: "08 Dec 2026", status: "sent", amount: formatMoneyFull(2_750_000) },
   { ref: "INV-0041", client: "Kampala Hardware", issue: "03 Nov 2026", due: "03 Dec 2026", status: "partial", amount: formatMoneyFull(1_240_000) },
   { ref: "INV-0039", client: "Soroti Fresh Foods", issue: "27 Oct 2026", due: "26 Nov 2026", status: "overdue", amount: formatMoneyFull(1_640_000) },
@@ -137,8 +137,8 @@ export const quotations = [
 
 /* ---- Ledger / accounts ---- */
 export const ledgerEntries = [
-  { date: "11 Nov 2026", ref: "INV-0043", description: "Invoice — Tekowa Engineering", status: "posted", amount: formatMoneyFull(4_200_000) },
-  { date: "11 Nov 2026", ref: "PMT-0088", description: "Payment received — Tekowa Engineering", status: "posted", amount: formatMoneyFull(-4_200_000) },
+  { date: "11 Nov 2026", ref: "INV-0043", description: "Invoice — Kibo Engineering", status: "posted", amount: formatMoneyFull(4_200_000) },
+  { date: "11 Nov 2026", ref: "PMT-0088", description: "Payment received — Kibo Engineering", status: "posted", amount: formatMoneyFull(-4_200_000) },
   { date: "08 Nov 2026", ref: "INV-0042", description: "Invoice — Juba Logistics", status: "posted", amount: formatMoneyFull(2_750_000) },
   { date: "07 Nov 2026", ref: "EXP-0132", description: "Office rent — November", status: "posted", amount: formatMoneyFull(-1_000_000) },
   { date: "05 Nov 2026", ref: "JRNL-0004", description: "Opening balances — reclassification", status: "voided", amount: formatMoneyFull(0) },

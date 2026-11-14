@@ -7,7 +7,7 @@ import { MiniChain, MiniFields, MiniList, MiniProgress } from "@/components/axis
  */
 export const STEP_VISUALS: Record<string, ReactNode[]> = {
   invoicing: [
-    <MiniFields key="1" rows={[["Client", "Tekowa Engineering"], ["Items", "Vehicle servicing"], ["Terms", "30 days"]]} />,
+    <MiniFields key="1" rows={[["Client", "Kibo Engineering"], ["Items", "Vehicle servicing"], ["Terms", "30 days"]]} />,
     <MiniList key="2" rows={[["INV-0043.pdf", "branded"], ["Emailed to client", "sent"]]} />,
     <MiniChain key="3" items={["Invoice sent", "Ledger updated", "Client balance updated"]} />,
     <MiniProgress key="4" label="Outstanding" value="UGX 21.7M" pct={62} note="7 invoices still open" />,

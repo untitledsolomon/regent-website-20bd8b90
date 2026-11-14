@@ -2,7 +2,7 @@ import { AxRoot } from "./primitives";
 
 /** Payment progress per invoice: a quiet bar of paid vs total. */
 const ROWS = [
-  { ref: "INV-0043", client: "Tekowa Engineering", paid: 4_200_000, total: 4_200_000, note: "Paid in full" },
+  { ref: "INV-0043", client: "Kibo Engineering", paid: 4_200_000, total: 4_200_000, note: "Paid in full" },
   { ref: "INV-0041", client: "Kampala Hardware", paid: 700_000, total: 1_240_000, note: "Partly paid" },
   { ref: "INV-0038", client: "Nile Traders", paid: 0, total: 2_130_000, note: "Overdue 6 days" },
 ];
