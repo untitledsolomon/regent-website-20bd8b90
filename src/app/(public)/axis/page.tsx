@@ -6,7 +6,7 @@ import { RevealOnScroll } from "@/components/RevealOnScroll";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { AXIS_SIGNUP_URL } from "@/lib/axis";
 import { AxisFrame } from "@/components/axis/AxisFrame";
-import { HeroDashboard } from "@/components/axis/HeroDashboard";
+import { HeroCaption, HeroDashboard } from "@/components/axis/HeroDashboard";
 import { AxisInvoicingPreview } from "@/components/axis/AxisInvoicingPreview";
 import { AxisQuotationsPreview } from "@/components/axis/AxisQuotationsPreview";
 import { AxisLedgerPreview } from "@/components/axis/AxisLedgerPreview";
@@ -65,7 +65,7 @@ export default function AxisPage() {
       
 
       {/* Hero — light split layout matching the rest of the site */}
-      <section className="grid-bg relative overflow-hidden border-b border-border">
+      <section className="grid-bg relative overflow-clip border-b border-border pb-14">
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_70%_55%_at_50%_0%,rgba(79,70,229,0.10),transparent_70%)]" aria-hidden="true" />
         <div className="hidden border-b border-border bg-background/90 backdrop-blur md:block">
           <div className="section-container flex h-12 items-center justify-between">
@@ -78,7 +78,7 @@ export default function AxisPage() {
           </div>
         </div>
 
-        <div className="section-container relative pb-14 pt-28">
+        <HeroCaption>
           <RevealOnScroll>
             <div className="mx-auto max-w-3xl text-center">
               <div className="mb-5 flex items-center justify-center gap-3 font-mono text-[11px] uppercase tracking-[0.12em] text-primary">
@@ -102,12 +102,10 @@ export default function AxisPage() {
               <p className="mt-6 font-mono text-[10px] uppercase tracking-[0.12em] text-text-muted">7-day free trial · No credit card required</p>
             </div>
           </RevealOnScroll>
-        </div>
+        </HeroCaption>
 
         {/* Hero visual: the real Axis dashboard, part of the hero and fading into the page */}
-        <RevealOnScroll delay={0.08}>
-          <HeroDashboard />
-        </RevealOnScroll>
+        <HeroDashboard />
       </section>
 
       <div id="modules" className="section-container py-24">
