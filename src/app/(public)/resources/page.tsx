@@ -7,17 +7,17 @@ export const revalidate = 60
 
 export const metadata: Metadata = {
   title: 'Resources',
-  description: 'Guides and reports for growing businesses on inventory, finance, and operations, from the team behind Axis by Regent.',
+  description: 'Guides and reports for businesses on inventory, finance, and operations, from the team behind Axis by Regent.',
   openGraph: {
     title: 'Resources | Regent',
-    description: 'Guides and reports for growing businesses on inventory, finance, and operations, from the team behind Axis by Regent.',
+    description: 'Guides and reports for businesses on inventory, finance, and operations, from the team behind Axis by Regent.',
     type: 'website',
     images: [{ url: '/og-image.png' }]
   },
   twitter: {
     card: 'summary_large_image',
     title: 'Resources | Regent',
-    description: 'Guides and reports for growing businesses on inventory, finance, and operations, from the team behind Axis by Regent.',
+    description: 'Guides and reports for businesses on inventory, finance, and operations, from the team behind Axis by Regent.',
     images: ['/og-image.png']
   },
   alternates: { canonical: '/resources' },
@@ -35,7 +35,7 @@ export default async function ResourcesPage() {
     '@context': 'https://schema.org',
     '@type': 'CollectionPage',
     name: 'Resources',
-    description: 'Guides and reports for growing businesses on inventory, finance, and operations, from the team behind Axis by Regent.',
+    description: 'Guides and reports for businesses on inventory, finance, and operations, from the team behind Axis by Regent.',
     publisher: {
       '@type': 'Organization',
       name: 'Regent',

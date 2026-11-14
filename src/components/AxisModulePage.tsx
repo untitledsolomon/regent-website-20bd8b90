@@ -5,6 +5,8 @@ import { MODULE_SCREENS } from '@/lib/screens'
 import { MODULE_PREVIEWS } from '@/lib/axisPreviews'
 import { ScreenshotFrame } from '@/components/ScreenshotFrame'
 import { AxisFrame } from '@/components/axis/AxisFrame'
+import { AxisAppShell } from '@/components/axis/AxisAppShell'
+import { STEP_VISUALS } from '@/lib/axisSteps'
 import { Icons } from '@/components/Icons'
 import { SectionHeader } from '@/components/SectionHeader'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion'
@@ -72,13 +74,27 @@ export function AxisModulePage({ module }: { module: AxisModule }) {
       <section className="grid-bg border-b border-border">
         <div className="section-container pb-20 pt-[120px]">
           {heroShot || heroElement ? (
-            <div className="grid items-center gap-12 lg:grid-cols-[0.95fr_1.05fr]">
+            <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-[0.8fr_1.2fr]">
               <div>
                 <HeroText module={module} />
               </div>
               <div className="lg:pl-6">
-                {heroElement ? (
-                  <AxisFrame>{heroElement}</AxisFrame>
+                {heroElement && previews ? (
+                  <div className="relative">
+                    <div className="absolute -inset-x-4 -inset-y-6 -z-10 rounded-[2rem] bg-primary/10 blur-3xl" aria-hidden="true" />
+                    <AxisFrame compact={false}>
+                      <AxisAppShell active={previews.active} sidebarOffset={previews.sidebarOffset}>
+                        {heroElement}
+                      </AxisAppShell>
+                    </AxisFrame>
+                    <div className="absolute -bottom-8 -left-9 hidden items-center gap-3 rounded-xl border border-border bg-background px-4 py-3 shadow-[0_12px_40px_rgba(35,31,94,0.12)] sm:flex">
+                      <span className={`h-2 w-2 rounded-full ${previews.float.tone === 'success' ? 'bg-emerald-500' : previews.float.tone === 'warning' ? 'bg-amber-500' : 'bg-primary'}`} />
+                      <span>
+                        <span className="block font-heading text-[12px] font-semibold text-text-primary">{previews.float.title}</span>
+                        <span className="block text-[11px] text-text-muted">{previews.float.detail}</span>
+                      </span>
+                    </div>
+                  </div>
                 ) : (
                   <ScreenshotFrame shot={heroShot} priority />
                 )}
@@ -105,10 +121,13 @@ export function AxisModulePage({ module }: { module: AxisModule }) {
           </div>
           <ol className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
             {module.howItWorks.map((step, index) => (
-              <li key={step.title} className="flex h-full flex-col rounded-xl border border-border bg-background p-6">
-                <span className="mb-6 flex h-9 w-9 items-center justify-center rounded-full border border-border bg-surface font-mono text-xs font-medium text-primary">
-                  {String(index + 1).padStart(2, '0')}
-                </span>
+              <li key={step.title} className="flex h-full flex-col rounded-2xl border border-border bg-background p-5">
+                {STEP_VISUALS[module.slug]?.[index] && (
+                  <div className="mb-5 rounded-xl border border-border bg-surface p-3">{STEP_VISUALS[module.slug][index]}</div>
+                )}
+                <div className="mb-2 font-mono text-[10px] uppercase tracking-[0.14em] text-primary">
+                  Step {String(index + 1).padStart(2, '0')}
+                </div>
                 <h3 className="mb-2 font-heading text-base font-semibold text-text-primary">{step.title}</h3>
                 <p className="text-sm leading-relaxed text-text-secondary">{step.body}</p>
               </li>
@@ -164,7 +183,7 @@ export function AxisModulePage({ module }: { module: AxisModule }) {
               )
 
               return hasVisual ? (
-                <div key={feature.title} className="grid gap-10 border-t border-border py-14 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
+                <div key={feature.title} className="grid grid-cols-1 gap-10 border-t border-border py-14 lg:grid-cols-[0.8fr_1.2fr] lg:items-center">
                   <div className={flip ? 'lg:order-2' : ''}>{text}</div>
                   <div className={flip ? 'lg:order-1' : ''}>
                     {element ? (
@@ -201,7 +220,7 @@ export function AxisModulePage({ module }: { module: AxisModule }) {
           <div className="rounded-2xl border border-border bg-surface p-8 md:p-12">
             <div className="mb-4 font-mono text-[11px] uppercase tracking-[0.12em] text-primary">Who it is for</div>
             <h2 className="mb-4 font-heading text-2xl font-semibold tracking-[-0.03em] text-text-primary md:text-3xl">
-              Built for growing small businesses off spreadsheets.
+              Built for businesses.
             </h2>
             <p className="max-w-2xl text-base leading-relaxed text-text-secondary">{module.whoFor}</p>
           </div>
@@ -209,7 +228,7 @@ export function AxisModulePage({ module }: { module: AxisModule }) {
       </section>
 
       {/* FAQ */}
-      <section className="border-t border-border bg-surface py-20">
+      <section className="border-t border-border bg-background py-20">
         <div className="section-container max-w-3xl">
           <SectionHeader
             label="FAQ"

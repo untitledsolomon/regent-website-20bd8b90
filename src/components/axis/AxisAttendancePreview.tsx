@@ -1,43 +1,52 @@
 import { AxRoot, AxStatusPill, AxAvatar } from "./primitives";
-import { shifts } from "./data";
 
 /**
- * Shift & attendance panel: today's roster at a glance, straight from the
- * employee records.
+ * Attendance log: who checked in and out today, with hours worked.
  */
+const LOG = [
+  { name: "David Okello", initials: "DO", in: "07:56", out: "17:04", hours: "9h 08m", status: "here" },
+  { name: "Peter Mwangi", initials: "PM", in: "06:48", out: "—", hours: "5h 12m", status: "here" },
+  { name: "Naomi Alimo", initials: "NA", in: "08:12", out: "—", hours: "3h 48m", status: "here" },
+  { name: "Grace Nabirye", initials: "GN", in: "—", out: "—", hours: "—", status: "on-leave" },
+] as const;
+
 export function AxisAttendancePreview() {
   return (
     <AxRoot>
       <div style={{ padding: 18 }}>
         <div style={{ marginBottom: 12 }}>
-          <h1 className="ax-serif" style={{ fontSize: 22, fontWeight: 600, letterSpacing: "-0.01em" }}>Today's shifts</h1>
+          <h1 className="ax-serif" style={{ fontSize: 22, fontWeight: 600, letterSpacing: "-0.01em" }}>Attendance</h1>
         </div>
-
-        <div className="ax-summarybar">
-          <span className="ax-summary-item"><span>Scheduled</span><b>12 staff</b></span>
-          <span className="ax-divider" />
-          <span className="ax-summary-item"><span>Checked in</span><b style={{ color: "var(--ax-success)" }}>9 staff</b></span>
-          <span className="ax-divider" />
-          <span className="ax-summary-item"><span>On leave</span><b style={{ color: "var(--ax-warning)" }}>2 staff</b></span>
-        </div>
-
-        <div className="ax-panel" style={{ marginTop: 12, overflow: "hidden" }}>
-          {shifts.map((s, i) => (
-            <div
-              key={s.name}
-              style={{
-                display: "flex", alignItems: "center", gap: 12, padding: "12px 16px",
-                borderBottom: i < shifts.length - 1 ? "1px solid var(--ax-border)" : "none",
-              }}
-            >
-              <AxAvatar initials={s.initials} size={30} />
-              <div style={{ minWidth: 0, flex: 1 }}>
-                <div style={{ fontSize: 13, fontWeight: 600 }}>{s.name}</div>
-                <div style={{ fontSize: 11, color: "var(--ax-muted)" }}>{s.role} · {s.time}</div>
-              </div>
-              <AxStatusPill status={s.status} />
-            </div>
-          ))}
+        <div className="ax-panel" style={{ overflow: "hidden" }}>
+          <div style={{ overflow: "hidden" }}>
+            <table className="ax-table" >
+              <thead>
+                <tr>
+                  <th className="ax-th">Employee</th>
+                  <th className="ax-th">In</th>
+                  <th className="ax-th">Out</th>
+                  <th className="ax-th" style={{ textAlign: "right" }}>Hours</th>
+                  <th className="ax-th ax-opt">Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {LOG.map((r) => (
+                  <tr key={r.name} className="ax-row">
+                    <td className="ax-td">
+                      <span style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                        <AxAvatar initials={r.initials} />
+                        <span className="ax-trunc" style={{ fontWeight: 500 }}>{r.name}</span>
+                      </span>
+                    </td>
+                    <td className="ax-td ax-td-num" style={{ color: "var(--ax-muted)" }}>{r.in}</td>
+                    <td className="ax-td ax-td-num" style={{ color: "var(--ax-muted)" }}>{r.out}</td>
+                    <td className="ax-td ax-td-num" style={{ fontWeight: 500 }}>{r.hours}</td>
+                    <td className="ax-td ax-opt"><AxStatusPill status={r.status} /></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
     </AxRoot>

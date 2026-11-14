@@ -9,9 +9,12 @@ import { AxRoot, AxSidebar, AxTopbar } from "./primitives";
 export function AxisAppShell({
   active,
   org = "Regent Workspace",
+  sidebarOffset = 0,
   children,
 }: {
   active?: string;
+  /** Pixels to scroll the sidebar up, so a low nav item (e.g. Employees) stays in view. */
+  sidebarOffset?: number;
   org?: string;
   children: ReactNode;
 }) {
@@ -19,7 +22,9 @@ export function AxisAppShell({
     <AxRoot>
       <div className="ax-shell">
         <div className="ax-shell-sidebar">
-          <AxSidebar active={active} />
+          <div style={{ position: "absolute", inset: 0, marginTop: -sidebarOffset }}>
+            <AxSidebar active={active} />
+          </div>
         </div>
         <div className="ax-shell-main">
           <AxTopbar org={org} />

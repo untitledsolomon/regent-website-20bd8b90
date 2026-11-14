@@ -110,10 +110,10 @@
 
 /* ---- Summary bar ---- */
 .ax-summarybar {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(96px, 1fr));
   align-items: center;
-  gap: 8px 20px;
+  gap: 8px 16px;
   padding: 12px 16px;
   background: var(--ax-card);
   border: 1px solid var(--ax-border);
@@ -122,17 +122,17 @@
 }
 
 .ax-summarybar .ax-divider {
-  width: 1px;
-  height: 16px;
-  background: var(--ax-border);
+  display: none;
 }
 
 .ax-summary-item {
-  font-size: 12px;
+  font-size: 11px;
   color: var(--ax-muted);
   display: flex;
-  align-items: center;
-  gap: 6px;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  white-space: nowrap;
 }
 
 .ax-summary-item b {
@@ -355,14 +355,16 @@
    same way the app's drawer hides inside narrow preview columns. */
 .ax-shell {
   display: flex;
-  height: 100%;
+  min-height: 360px;
   container-type: inline-size;
   container-name: ax-shell;
 }
 
 .ax-shell-sidebar {
-  width: 200px;
+  position: relative;
+  width: 184px;
   flex-shrink: 0;
+  overflow: hidden;
 }
 
 .ax-shell-main {
@@ -374,13 +376,59 @@
 
 .ax-shell-content {
   flex: 1;
-  padding: 16px;
-  overflow: auto;
+  padding: 0;
+  overflow: hidden;
 }
 
-@container ax-shell (max-width: 760px) {
+@container ax-shell (max-width: 640px) {
   .ax-shell-sidebar {
     display: none;
   }
 }
 
+
+/* ---- Compact previews (feature rows): calm, flat, no side-scrolling ----
+   Strips the app's secondary chrome (summary bars, toolbars, buttons, banners),
+   hides optional table columns (.ax-opt always, .ax-opt2 when the widget is
+   narrow) and flattens colour so the widget reads as one quiet table. */
+.ax-compact { container-type: inline-size; }
+.ax-compact .ax-root { background: #fff; }
+.ax-compact .ax-root::after { display: none; }
+.ax-compact .ax-root > div { padding: 14px !important; }
+.ax-compact h1.ax-serif { font-size: 16px !important; }
+.ax-compact .ax-panel { box-shadow: none; border-radius: 10px; }
+.ax-compact .ax-summarybar,
+.ax-compact .ax-btn,
+.ax-compact .ax-noise,
+.ax-compact .ax-opt { display: none !important; }
+.ax-compact .ax-th { padding: 7px 10px; font-size: 10px; font-weight: 500; }
+.ax-compact .ax-td { padding: 8px 10px; font-size: 12px; }
+.ax-compact .ax-td-num { font-family: inherit; }
+.ax-compact .ax-pill { background: transparent !important; padding: 0; font-size: 11px; }
+.ax-compact .ax-row:hover .ax-td,
+.ax-compact .ax-row--low .ax-td { background: transparent; }
+.ax-compact tbody tr:last-child .ax-td { border-bottom: 0; }
+/* Narrow containers (phones, tight columns): drop optional columns so tables
+   always fit without sideways scrolling. Applies to the hero window as well. */
+@container (max-width: 560px) {
+  .ax-opt { display: none; }
+}
+@container (max-width: 460px) {
+  .ax-opt2 { display: none; }
+  .ax-th, .ax-td { padding-left: 8px; padding-right: 8px; }
+  .ax-trunc { max-width: 110px; }
+}
+
+/* Hero app window: the content area sits beside the sidebar, so keep tables to
+   their essential columns and drop filter toolbars. Everything else stays. */
+.ax-shell-content .ax-opt,
+.ax-shell-content .ax-opt2,
+.ax-shell-content .ax-noise { display: none !important; }
+
+/* Phones: the hero window is only ~330px wide, so scale its content down a
+   touch and drop secondary buttons rather than letting anything clip. */
+@container ax-shell (max-width: 460px) {
+  .ax-shell-content { zoom: 0.8; }
+  .ax-shell-content .ax-btn--outline { display: none; }
+  .ax-shell-content .ax-trunc { max-width: 90px; }
+}

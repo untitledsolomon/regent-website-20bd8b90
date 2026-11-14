@@ -4,17 +4,17 @@ import { Breadcrumbs } from '@/components/Breadcrumbs'
 
 export const metadata: Metadata = {
   title: 'Careers',
-  description: 'Join Regent and help build Axis and other systems for growing businesses.',
+  description: 'Join Regent and help build Axis and other systems for businesses.',
   openGraph: {
     title: 'Careers | Regent',
-    description: 'Join Regent and help build Axis and other systems for growing businesses.',
+    description: 'Join Regent and help build Axis and other systems for businesses.',
     type: 'website',
     images: [{ url: '/og-image.png' }]
   },
   twitter: {
     card: 'summary_large_image',
     title: 'Careers | Regent',
-    description: 'Join Regent and help build Axis and other systems for growing businesses.',
+    description: 'Join Regent and help build Axis and other systems for businesses.',
     images: ['/og-image.png']
   },
   alternates: {

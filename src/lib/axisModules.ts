@@ -5,7 +5,7 @@
 // EFRIS, WhatsApp, Flutterwave, API keys/webhooks, roadmaps, and plan limits
 // beyond what /axis/pricing states.
 //
-// Audience is phrased as "growing small businesses" — deliberately no country,
+// Audience is phrased as "businesses" — deliberately no country,
 // so the pages read for any market Regent serves.
 import { Icons } from '@/components/Icons'
 
@@ -90,7 +90,7 @@ export const AXIS_MODULES: AxisModule[] = [
     connects:
       'Because Axis modules share the same clients, items and ledger, the invoices you send post straight to your accounts and the items on them are the same records inventory counts — nothing falls out of sync.',
     whoFor:
-      'For growing small businesses that have outgrown spreadsheets — retail, services and operations that need invoicing connected to the rest of the business, not another separate tool.',
+      'For businesses — retail, services and operations that need invoicing connected to the rest of the business, not another separate tool.',
     faq: [
       {
         q: 'Can I try Axis invoicing for free?',
@@ -114,7 +114,7 @@ export const AXIS_MODULES: AxisModule[] = [
       },
       {
         q: 'Is Axis invoicing only for small businesses?',
-        a: 'Axis is built for growing small businesses that have outgrown spreadsheets. It runs on the same shared clients, items and ledger across every module.',
+        a: 'Axis is built for businesses of any size. It runs on the same shared clients, items and ledger across every module.',
       },
     ],
   },
@@ -178,7 +178,7 @@ export const AXIS_MODULES: AxisModule[] = [
     connects:
       'Axis modules share the same clients, items and ledger, so an invoice sent in invoicing posts to the ledger the moment it is created, and inventory and HR sit on the same books — nothing falls out of sync.',
     whoFor:
-      'For growing small businesses that need proper books without building them by hand — owners who want the ledger connected to invoicing, inventory and people in one system.',
+      'For businesses that need proper books without building them by hand — owners who want the ledger connected to invoicing, inventory and people in one system.',
     faq: [
       {
         q: 'Can I try Axis accounting for free?',
@@ -266,7 +266,7 @@ export const AXIS_MODULES: AxisModule[] = [
     connects:
       'Axis modules share the same clients, items and ledger, so stock levels move as invoices are sent and item records stay the same across invoicing, inventory and the ledger — nothing falls out of sync.',
     whoFor:
-      'For growing small businesses that hold stock or equipment — retailers, traders and service businesses that need to know what is on hand and where it is without a separate spreadsheets stack.',
+      'For businesses that hold stock or equipment — retailers, traders and service businesses that need to know what is on hand and where it is without a separate spreadsheets stack.',
     faq: [
       {
         q: 'Can I try Axis inventory for free?',
@@ -303,7 +303,7 @@ export const AXIS_MODULES: AxisModule[] = [
     description:
       'Axis HR for business: employee profiles, shifts and attendance records connected to invoicing, accounting and inventory in one system.',
     intro:
-      'Axis HR keeps employee profiles, shifts and attendance alongside the money — no separate HR tool, no re-keying people data into payroll or reporting later. For a growing team, the people running the business are part of the record; Axis HR keeps them in it.',
+      'Axis HR keeps employee profiles, shifts and attendance alongside the money — no separate HR tool, no re-keying people data into payroll or reporting later. For any team, the people running the business are part of the record; Axis HR keeps them in it.',
     features: [
       {
         icon: 'Building',
@@ -324,11 +324,6 @@ export const AXIS_MODULES: AxisModule[] = [
         icon: 'Integration',
         title: 'Connected to the money',
         body: 'People records sit on the same ledger and organization records as invoicing, accounting and inventory.',
-      },
-      {
-        icon: 'FileText',
-        title: 'No re-keying',
-        body: 'Employee and shift data lives in Axis once — it is not typed into a payroll or reporting tool later.',
       },
     ],
     howItWorks: [
@@ -354,7 +349,7 @@ export const AXIS_MODULES: AxisModule[] = [
     connects:
       'Axis modules share the same clients, items and ledger, so employee profiles and attendance sit on the same organization records as invoicing, accounting and inventory — nothing falls out of sync.',
     whoFor:
-      'For growing small businesses with a team — owners who need people, shifts and attendance tracked alongside the money, without buying payroll features they do not need or a standalone HR app. Axis keeps people data in the same place as the money, so the two stay connected and one can always be reconciled against the other.',
+      'For businesses with a team — owners who need people, shifts and attendance tracked alongside the money, without buying payroll features they do not need or a standalone HR app. Axis keeps people data in the same place as the money, so the two stay connected and one can always be reconciled against the other.',
     faq: [
       {
         q: 'Can I try Axis HR for free?',
@@ -378,7 +373,7 @@ export const AXIS_MODULES: AxisModule[] = [
       },
       {
         q: 'Who is Axis HR for?',
-        a: 'Growing small businesses with a team that need employee profiles, shifts and attendance tracked in one place — without a standalone HR app or payroll features they do not need.',
+        a: 'Businesses with a team that need employee profiles, shifts and attendance tracked in one place — without a standalone HR app or payroll features they do not need.',
       },
     ],
   },

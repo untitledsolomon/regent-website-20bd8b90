@@ -5,7 +5,7 @@ import { employees, employeeSummary } from "./data";
  * Employees (HR) screen: headcount summary and the staff directory table with
  * statuses — alongside the money, all in one system.
  */
-export function AxisHRPreview() {
+export function AxisHRPreview({ rows: limit = 4 }: { rows?: number } = {}) {
   return (
     <AxRoot>
       <div style={{ padding: 18 }}>
@@ -17,18 +17,18 @@ export function AxisHRPreview() {
         <AxSummary items={employeeSummary} />
 
         <div className="ax-panel" style={{ marginTop: 12, overflow: "hidden" }}>
-          <div style={{ overflowX: "auto" }}>
-            <table className="ax-table" style={{ minWidth: 360 }}>
+          <div style={{ overflow: "hidden" }}>
+            <table className="ax-table" >
               <thead>
                 <tr>
                   <th className="ax-th">Employee</th>
                   <th className="ax-th">Role & department</th>
-                  <th className="ax-th">Hire date</th>
+                  <th className="ax-th ax-opt">Hire date</th>
                   <th className="ax-th">Status</th>
                 </tr>
               </thead>
               <tbody>
-                {employees.slice(0, 4).map((e) => (
+                {employees.slice(0, limit).map((e) => (
                   <tr key={e.name} className="ax-row">
                     <td className="ax-td">
                       <span style={{ display: "flex", alignItems: "center", gap: 10 }}>
@@ -40,7 +40,7 @@ export function AxisHRPreview() {
                       <span style={{ display: "block", fontWeight: 500 }}>{e.role}</span>
                       <span style={{ fontSize: 11, color: "var(--ax-muted)" }}>{e.department}</span>
                     </td>
-                    <td className="ax-td" style={{ color: "var(--ax-muted)" }}>{e.hired}</td>
+                    <td className="ax-td ax-opt" style={{ color: "var(--ax-muted)" }}>{e.hired}</td>
                     <td className="ax-td"><AxStatusPill status={e.status} /></td>
                   </tr>
                 ))}

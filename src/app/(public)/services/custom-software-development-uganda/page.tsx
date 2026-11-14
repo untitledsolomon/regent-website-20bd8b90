@@ -232,7 +232,7 @@ export default function CustomSoftwareDevelopmentPage() {
             </h2>
             <p className="max-w-2xl text-base leading-relaxed text-text-secondary">
               Axis is a business operating system Regent has built and currently operates — one record of clients,
-              items and ledger shared across invoicing, accounting, inventory and HR for growing small businesses. It
+              items and ledger shared across invoicing, accounting, inventory and HR for businesses. It
               is a working example of how Regent builds systems: single source of truth, shared records, nothing out of
               sync. A system is not finished when it ships; it is finished when the organization runs on it. Axis is
               that — running in production, in daily use, and evolving as the businesses using it grow.
