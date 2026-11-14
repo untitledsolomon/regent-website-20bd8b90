@@ -6,7 +6,7 @@ import { RevealOnScroll } from "@/components/RevealOnScroll";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { AXIS_SIGNUP_URL } from "@/lib/axis";
 import { AxisFrame } from "@/components/axis/AxisFrame";
-import Image from "next/image";
+import { HeroDashboard } from "@/components/axis/HeroDashboard";
 import { AxisInvoicingPreview } from "@/components/axis/AxisInvoicingPreview";
 import { AxisQuotationsPreview } from "@/components/axis/AxisQuotationsPreview";
 import { AxisLedgerPreview } from "@/components/axis/AxisLedgerPreview";
@@ -106,25 +106,7 @@ export default function AxisPage() {
 
         {/* Hero visual: the real Axis dashboard, part of the hero and fading into the page */}
         <RevealOnScroll delay={0.08}>
-          <div className="relative mx-auto w-full max-w-[1400px] px-4 sm:px-8">
-            <div className="absolute inset-x-10 top-6 -z-0 h-2/3 rounded-full bg-primary/15 blur-3xl" aria-hidden="true" />
-            <div
-              className="relative max-h-[420px] overflow-hidden rounded-t-2xl border border-b-0 border-border bg-background p-2 pb-0 shadow-[0_-10px_80px_rgba(79,70,229,0.18)] sm:max-h-[640px] lg:max-h-[760px]"
-              style={{ WebkitMaskImage: "linear-gradient(to bottom, #000 72%, transparent 100%)", maskImage: "linear-gradient(to bottom, #000 72%, transparent 100%)" }}
-            >
-              <div className="overflow-hidden rounded-t-xl border border-b-0 border-border">
-                <Image
-                  src="/axis/axis-dashboard.webp"
-                  alt="The Axis dashboard: revenue, active clients, outstanding invoices, net profit, a revenue chart, recent activity and inventory status"
-                  width={1866}
-                  height={928}
-                  priority
-                  sizes="(min-width: 1400px) 1336px, 100vw"
-                  className="h-auto w-full"
-                />
-              </div>
-            </div>
-          </div>
+          <HeroDashboard />
         </RevealOnScroll>
       </section>
 
@@ -136,7 +118,7 @@ export default function AxisPage() {
         />
 
         {/* Row 1 — Invoicing: text left, screenshot right */}
-        <div className="grid gap-12 border-b border-border py-16 lg:grid-cols-[0.9fr_1.15fr] lg:items-center">
+        <div className="grid grid-cols-1 gap-12 border-b border-border py-16 lg:grid-cols-[0.8fr_1.2fr] lg:items-center">
           <RevealOnScroll direction="left">
             <div>
               <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-accent-light text-primary">
@@ -164,7 +146,7 @@ export default function AxisPage() {
         </div>
 
         {/* Row — Orders workflow: quotation -> invoice -> job order -> delivery */}
-        <div className="grid gap-12 border-b border-border py-16 lg:grid-cols-[0.9fr_1.15fr] lg:items-center">
+        <div className="grid grid-cols-1 gap-12 border-b border-border py-16 lg:grid-cols-[0.8fr_1.2fr] lg:items-center">
           <RevealOnScroll direction="left">
             <div>
               <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-accent-light text-primary">
@@ -193,7 +175,7 @@ export default function AxisPage() {
         </div>
 
         {/* Row 2 — Ledger: screenshot left, text right */}
-        <div className="grid gap-12 border-b border-border py-16 lg:grid-cols-[1.15fr_0.9fr] lg:items-center">
+        <div className="grid grid-cols-1 gap-12 border-b border-border py-16 lg:grid-cols-[1.2fr_0.8fr] lg:items-center">
           {/* Rendered Axis app — general ledger / journal entries screen */}
           <RevealOnScroll direction="left" delay={0.1} className="order-2 lg:order-1">
             <AxisFrame>
@@ -221,7 +203,7 @@ export default function AxisPage() {
         </div>
 
         {/* Row 3 — Inventory: text left, screenshot right */}
-        <div className="grid gap-12 border-b border-border py-16 lg:grid-cols-[0.9fr_1.15fr] lg:items-center">
+        <div className="grid grid-cols-1 gap-12 border-b border-border py-16 lg:grid-cols-[0.8fr_1.2fr] lg:items-center">
           <RevealOnScroll direction="left">
             <div>
               <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-accent-light text-primary">

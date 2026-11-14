@@ -18,15 +18,15 @@ export function AxisAttendancePreview() {
           <h1 className="ax-serif" style={{ fontSize: 22, fontWeight: 600, letterSpacing: "-0.01em" }}>Attendance</h1>
         </div>
         <div className="ax-panel" style={{ overflow: "hidden" }}>
-          <div style={{ overflowX: "auto" }}>
-            <table className="ax-table" style={{ minWidth: 320 }}>
+          <div style={{ overflow: "hidden" }}>
+            <table className="ax-table" >
               <thead>
                 <tr>
                   <th className="ax-th">Employee</th>
                   <th className="ax-th">In</th>
                   <th className="ax-th">Out</th>
                   <th className="ax-th" style={{ textAlign: "right" }}>Hours</th>
-                  <th className="ax-th">Status</th>
+                  <th className="ax-th ax-opt">Status</th>
                 </tr>
               </thead>
               <tbody>
@@ -41,7 +41,7 @@ export function AxisAttendancePreview() {
                     <td className="ax-td ax-td-num" style={{ color: "var(--ax-muted)" }}>{r.in}</td>
                     <td className="ax-td ax-td-num" style={{ color: "var(--ax-muted)" }}>{r.out}</td>
                     <td className="ax-td ax-td-num" style={{ fontWeight: 500 }}>{r.hours}</td>
-                    <td className="ax-td"><AxStatusPill status={r.status} /></td>
+                    <td className="ax-td ax-opt"><AxStatusPill status={r.status} /></td>
                   </tr>
                 ))}
               </tbody>

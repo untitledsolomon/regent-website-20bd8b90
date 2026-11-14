@@ -5,6 +5,7 @@ import { MODULE_SCREENS } from '@/lib/screens'
 import { MODULE_PREVIEWS } from '@/lib/axisPreviews'
 import { ScreenshotFrame } from '@/components/ScreenshotFrame'
 import { AxisFrame } from '@/components/axis/AxisFrame'
+import { AxisAppShell } from '@/components/axis/AxisAppShell'
 import { Icons } from '@/components/Icons'
 import { SectionHeader } from '@/components/SectionHeader'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion'
@@ -72,13 +73,27 @@ export function AxisModulePage({ module }: { module: AxisModule }) {
       <section className="grid-bg border-b border-border">
         <div className="section-container pb-20 pt-[120px]">
           {heroShot || heroElement ? (
-            <div className="grid items-center gap-12 lg:grid-cols-[0.95fr_1.05fr]">
+            <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-[0.8fr_1.2fr]">
               <div>
                 <HeroText module={module} />
               </div>
               <div className="lg:pl-6">
-                {heroElement ? (
-                  <AxisFrame>{heroElement}</AxisFrame>
+                {heroElement && previews ? (
+                  <div className="relative">
+                    <div className="absolute -inset-x-4 -inset-y-6 -z-10 rounded-[2rem] bg-primary/10 blur-3xl" aria-hidden="true" />
+                    <AxisFrame compact={false} height="h-[400px] sm:h-[460px]" fade>
+                      <AxisAppShell active={previews.active} sidebarOffset={previews.sidebarOffset}>
+                        {heroElement}
+                      </AxisAppShell>
+                    </AxisFrame>
+                    <div className="absolute -bottom-5 left-4 hidden items-center gap-3 rounded-xl border border-border bg-background px-4 py-3 shadow-[0_12px_40px_rgba(35,31,94,0.12)] sm:flex">
+                      <span className={`h-2 w-2 rounded-full ${previews.float.tone === 'success' ? 'bg-emerald-500' : previews.float.tone === 'warning' ? 'bg-amber-500' : 'bg-primary'}`} />
+                      <span>
+                        <span className="block font-heading text-[12px] font-semibold text-text-primary">{previews.float.title}</span>
+                        <span className="block text-[11px] text-text-muted">{previews.float.detail}</span>
+                      </span>
+                    </div>
+                  </div>
                 ) : (
                   <ScreenshotFrame shot={heroShot} priority />
                 )}
@@ -164,7 +179,7 @@ export function AxisModulePage({ module }: { module: AxisModule }) {
               )
 
               return hasVisual ? (
-                <div key={feature.title} className="grid gap-10 border-t border-border py-14 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
+                <div key={feature.title} className="grid grid-cols-1 gap-10 border-t border-border py-14 lg:grid-cols-[0.8fr_1.2fr] lg:items-center">
                   <div className={flip ? 'lg:order-2' : ''}>{text}</div>
                   <div className={flip ? 'lg:order-1' : ''}>
                     {element ? (

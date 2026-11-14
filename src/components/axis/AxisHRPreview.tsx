@@ -17,13 +17,13 @@ export function AxisHRPreview() {
         <AxSummary items={employeeSummary} />
 
         <div className="ax-panel" style={{ marginTop: 12, overflow: "hidden" }}>
-          <div style={{ overflowX: "auto" }}>
-            <table className="ax-table" style={{ minWidth: 360 }}>
+          <div style={{ overflow: "hidden" }}>
+            <table className="ax-table" >
               <thead>
                 <tr>
                   <th className="ax-th">Employee</th>
                   <th className="ax-th">Role & department</th>
-                  <th className="ax-th">Hire date</th>
+                  <th className="ax-th ax-opt">Hire date</th>
                   <th className="ax-th">Status</th>
                 </tr>
               </thead>
@@ -40,7 +40,7 @@ export function AxisHRPreview() {
                       <span style={{ display: "block", fontWeight: 500 }}>{e.role}</span>
                       <span style={{ fontSize: 11, color: "var(--ax-muted)" }}>{e.department}</span>
                     </td>
-                    <td className="ax-td" style={{ color: "var(--ax-muted)" }}>{e.hired}</td>
+                    <td className="ax-td ax-opt" style={{ color: "var(--ax-muted)" }}>{e.hired}</td>
                     <td className="ax-td"><AxStatusPill status={e.status} /></td>
                   </tr>
                 ))}

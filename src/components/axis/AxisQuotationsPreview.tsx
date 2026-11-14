@@ -26,14 +26,14 @@ export function AxisQuotationsPreview() {
         </div>
 
         <div className="ax-panel" style={{ marginTop: 12, overflow: "hidden" }}>
-          <div style={{ overflowX: "auto" }}>
-            <table className="ax-table" style={{ minWidth: 320 }}>
+          <div style={{ overflow: "hidden" }}>
+            <table className="ax-table" >
               <thead>
                 <tr>
                   <th className="ax-th">Quotation #</th>
                   <th className="ax-th">Client</th>
-                  <th className="ax-th">Issue date</th>
-                  <th className="ax-th">Valid until</th>
+                  <th className="ax-th ax-opt">Issue date</th>
+                  <th className="ax-th ax-opt2">Valid until</th>
                   <th className="ax-th">Status</th>
                   <th className="ax-th" style={{ textAlign: "right" }}>Amount</th>
                 </tr>
@@ -43,8 +43,8 @@ export function AxisQuotationsPreview() {
                   <tr key={q.ref} className="ax-row">
                     <td className="ax-td" style={{ fontWeight: 500 }}>{q.ref}</td>
                     <td className="ax-td ax-trunc">{q.client}</td>
-                    <td className="ax-td" style={{ color: "var(--ax-muted)", whiteSpace: "nowrap" }}>{q.issue}</td>
-                    <td className="ax-td" style={{ color: "var(--ax-muted)", whiteSpace: "nowrap" }}>{q.valid}</td>
+                    <td className="ax-td ax-opt" style={{ color: "var(--ax-muted)", whiteSpace: "nowrap" }}>{q.issue}</td>
+                    <td className="ax-td ax-opt2" style={{ color: "var(--ax-muted)", whiteSpace: "nowrap" }}>{q.valid}</td>
                     <td className="ax-td"><AxStatusPill status={q.status} /></td>
                     <td className="ax-td ax-td-num" style={{ fontWeight: 500 }}>{q.amount}</td>
                   </tr>

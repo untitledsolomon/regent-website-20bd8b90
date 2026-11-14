@@ -22,13 +22,13 @@ export function AxisAccountsPreview() {
         </div>
 
         <div className="ax-panel" style={{ marginTop: 12, overflow: "hidden" }}>
-          <div style={{ overflowX: "auto" }}>
-            <table className="ax-table" style={{ minWidth: 320 }}>
+          <div style={{ overflow: "hidden" }}>
+            <table className="ax-table" >
               <thead>
                 <tr>
                   <th className="ax-th">Code</th>
                   <th className="ax-th">Account</th>
-                  <th className="ax-th">Type</th>
+                  <th className="ax-th ax-opt">Type</th>
                   <th className="ax-th" style={{ textAlign: "right" }}>Balance</th>
                 </tr>
               </thead>
@@ -39,7 +39,7 @@ export function AxisAccountsPreview() {
                     <td className="ax-td ax-trunc" style={{ fontWeight: 500, maxWidth: 190, paddingLeft: a.indent ? 40 : 12, paddingRight: 12 }}>
                       {a.indent ? "↳ " : ""}{a.name}
                     </td>
-                    <td className="ax-td">
+                    <td className="ax-td ax-opt">
                       <span style={{ padding: "2px 10px", borderRadius: 999, border: "1px solid var(--ax-border)", fontSize: 11 }}>{a.category}</span>
                     </td>
                     <td className="ax-td ax-td-num" style={{ fontWeight: 500 }}>{a.balance}</td>

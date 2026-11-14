@@ -26,20 +26,20 @@ export function AxisInventoryPreview() {
           ))}
         </div>
 
-        <div style={{ marginTop: 12, display: "flex", alignItems: "center", gap: 10, background: "var(--ax-warning-soft)", border: "1px solid rgba(156,116,31,0.35)", color: "var(--ax-warning)", fontSize: 12, padding: "8px 14px", borderRadius: "0.6rem" }}>
+        <div className="ax-noise" style={{ marginTop: 12, display: "flex", alignItems: "center", gap: 10, background: "var(--ax-warning-soft)", border: "1px solid rgba(156,116,31,0.35)", color: "var(--ax-warning)", fontSize: 12, padding: "8px 14px", borderRadius: "0.6rem" }}>
           <span style={{ width: 8, height: 8, borderRadius: 99, background: "var(--ax-warning)", flexShrink: 0 }} />
           3 items are running low — restock before they affect deliveries.
         </div>
 
         <div className="ax-panel" style={{ marginTop: 12, overflow: "hidden" }}>
-          <div style={{ overflowX: "auto" }}>
-            <table className="ax-table" style={{ minWidth: 320 }}>
+          <div style={{ overflow: "hidden" }}>
+            <table className="ax-table" >
               <thead>
                 <tr>
                   <th className="ax-th">Item</th>
-                  <th className="ax-th">Category</th>
+                  <th className="ax-th ax-opt">Category</th>
                   <th className="ax-th" style={{ textAlign: "right" }}>On hand</th>
-                  <th className="ax-th" style={{ textAlign: "right" }}>Cost</th>
+                  <th className="ax-th ax-opt" style={{ textAlign: "right" }}>Cost</th>
                   <th className="ax-th" style={{ textAlign: "right" }}>Selling</th>
                 </tr>
               </thead>
@@ -47,14 +47,14 @@ export function AxisInventoryPreview() {
                 {inventoryItems.slice(0, 4).map((item) => (
                   <tr key={item.sku} className={`ax-row${item.low ? " ax-row--low" : ""}`}>
                     <td className="ax-td ax-trunc" style={{ fontWeight: 500 }}>{item.name}</td>
-                    <td className="ax-td"><AxPill tone="muted">{item.category}</AxPill></td>
+                    <td className="ax-td ax-opt"><AxPill tone="muted">{item.category}</AxPill></td>
                     <td className="ax-td ax-td-num">
                       <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
                         {item.qty}
                         {item.low && <AxPill tone="warning">low</AxPill>}
                       </span>
                     </td>
-                    <td className="ax-td ax-td-num" style={{ color: "var(--ax-muted)" }}>{item.cost}</td>
+                    <td className="ax-td ax-td-num ax-opt" style={{ color: "var(--ax-muted)" }}>{item.cost}</td>
                     <td className="ax-td ax-td-num" style={{ fontWeight: 500 }}>{item.selling}</td>
                   </tr>
                 ))}

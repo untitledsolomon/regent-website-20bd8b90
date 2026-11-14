@@ -23,7 +23,7 @@ export function AxisInvoicingPreview() {
         </div>
 
         <div className="ax-panel">
-          <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap", padding: "12px 16px", borderBottom: "1px solid var(--ax-border)" }}>
+          <div className="ax-noise" style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap", padding: "12px 16px", borderBottom: "1px solid var(--ax-border)" }}>
             {FILTERS.map((f) => (
               <span
                 key={f}
@@ -43,14 +43,14 @@ export function AxisInvoicingPreview() {
             </span>
           </div>
 
-          <div style={{ overflowX: "auto" }}>
-            <table className="ax-table" style={{ minWidth: 320 }}>
+          <div style={{ overflow: "hidden" }}>
+            <table className="ax-table" >
               <thead>
                 <tr>
                   <th className="ax-th">Invoice #</th>
                   <th className="ax-th">Client</th>
-                  <th className="ax-th">Issue date</th>
-                  <th className="ax-th">Due date</th>
+                  <th className="ax-th ax-opt">Issue date</th>
+                  <th className="ax-th ax-opt2">Due date</th>
                   <th className="ax-th">Status</th>
                   <th className="ax-th" style={{ textAlign: "right" }}>Amount</th>
                 </tr>
@@ -60,8 +60,8 @@ export function AxisInvoicingPreview() {
                   <tr key={inv.ref} className="ax-row">
                     <td className="ax-td" style={{ fontWeight: 500 }}>{inv.ref}</td>
                     <td className="ax-td ax-trunc">{inv.client}</td>
-                    <td className="ax-td" style={{ color: "var(--ax-muted)", whiteSpace: "nowrap" }}>{inv.issue}</td>
-                    <td className="ax-td" style={{ color: "var(--ax-muted)", whiteSpace: "nowrap" }}>{inv.due}</td>
+                    <td className="ax-td ax-opt" style={{ color: "var(--ax-muted)", whiteSpace: "nowrap" }}>{inv.issue}</td>
+                    <td className="ax-td ax-opt2" style={{ color: "var(--ax-muted)", whiteSpace: "nowrap" }}>{inv.due}</td>
                     <td className="ax-td"><AxStatusPill status={inv.status} /></td>
                     <td className="ax-td ax-td-num" style={{ fontWeight: 500 }}>{inv.amount}</td>
                   </tr>
