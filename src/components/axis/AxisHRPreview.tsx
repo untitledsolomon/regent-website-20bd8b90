@@ -5,7 +5,7 @@ import { employees, employeeSummary } from "./data";
  * Employees (HR) screen: headcount summary and the staff directory table with
  * statuses — alongside the money, all in one system.
  */
-export function AxisHRPreview() {
+export function AxisHRPreview({ rows: limit = 4 }: { rows?: number } = {}) {
   return (
     <AxRoot>
       <div style={{ padding: 18 }}>
@@ -28,7 +28,7 @@ export function AxisHRPreview() {
                 </tr>
               </thead>
               <tbody>
-                {employees.slice(0, 4).map((e) => (
+                {employees.slice(0, limit).map((e) => (
                   <tr key={e.name} className="ax-row">
                     <td className="ax-td">
                       <span style={{ display: "flex", alignItems: "center", gap: 10 }}>

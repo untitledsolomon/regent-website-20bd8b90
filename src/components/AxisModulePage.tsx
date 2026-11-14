@@ -6,6 +6,7 @@ import { MODULE_PREVIEWS } from '@/lib/axisPreviews'
 import { ScreenshotFrame } from '@/components/ScreenshotFrame'
 import { AxisFrame } from '@/components/axis/AxisFrame'
 import { AxisAppShell } from '@/components/axis/AxisAppShell'
+import { STEP_VISUALS } from '@/lib/axisSteps'
 import { Icons } from '@/components/Icons'
 import { SectionHeader } from '@/components/SectionHeader'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion'
@@ -81,12 +82,12 @@ export function AxisModulePage({ module }: { module: AxisModule }) {
                 {heroElement && previews ? (
                   <div className="relative">
                     <div className="absolute -inset-x-4 -inset-y-6 -z-10 rounded-[2rem] bg-primary/10 blur-3xl" aria-hidden="true" />
-                    <AxisFrame compact={false} height="h-[400px] sm:h-[460px]" fade>
+                    <AxisFrame compact={false}>
                       <AxisAppShell active={previews.active} sidebarOffset={previews.sidebarOffset}>
                         {heroElement}
                       </AxisAppShell>
                     </AxisFrame>
-                    <div className="absolute -bottom-5 left-4 hidden items-center gap-3 rounded-xl border border-border bg-background px-4 py-3 shadow-[0_12px_40px_rgba(35,31,94,0.12)] sm:flex">
+                    <div className="absolute -bottom-8 -left-9 hidden items-center gap-3 rounded-xl border border-border bg-background px-4 py-3 shadow-[0_12px_40px_rgba(35,31,94,0.12)] sm:flex">
                       <span className={`h-2 w-2 rounded-full ${previews.float.tone === 'success' ? 'bg-emerald-500' : previews.float.tone === 'warning' ? 'bg-amber-500' : 'bg-primary'}`} />
                       <span>
                         <span className="block font-heading text-[12px] font-semibold text-text-primary">{previews.float.title}</span>
@@ -120,10 +121,13 @@ export function AxisModulePage({ module }: { module: AxisModule }) {
           </div>
           <ol className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
             {module.howItWorks.map((step, index) => (
-              <li key={step.title} className="flex h-full flex-col rounded-xl border border-border bg-background p-6">
-                <span className="mb-6 flex h-9 w-9 items-center justify-center rounded-full border border-border bg-surface font-mono text-xs font-medium text-primary">
-                  {String(index + 1).padStart(2, '0')}
-                </span>
+              <li key={step.title} className="flex h-full flex-col rounded-2xl border border-border bg-background p-5">
+                {STEP_VISUALS[module.slug]?.[index] && (
+                  <div className="mb-5 rounded-xl border border-border bg-surface p-3">{STEP_VISUALS[module.slug][index]}</div>
+                )}
+                <div className="mb-2 font-mono text-[10px] uppercase tracking-[0.14em] text-primary">
+                  Step {String(index + 1).padStart(2, '0')}
+                </div>
                 <h3 className="mb-2 font-heading text-base font-semibold text-text-primary">{step.title}</h3>
                 <p className="text-sm leading-relaxed text-text-secondary">{step.body}</p>
               </li>

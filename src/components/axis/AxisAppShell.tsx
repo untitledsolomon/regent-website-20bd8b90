@@ -22,7 +22,7 @@ export function AxisAppShell({
     <AxRoot>
       <div className="ax-shell">
         <div className="ax-shell-sidebar">
-          <div style={{ marginTop: -sidebarOffset }}>
+          <div style={{ position: "absolute", inset: 0, marginTop: -sidebarOffset }}>
             <AxSidebar active={active} />
           </div>
         </div>

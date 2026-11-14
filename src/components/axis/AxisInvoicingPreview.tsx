@@ -8,8 +8,8 @@ import { invoices } from "./data";
  */
 const FILTERS = ["All", "Paid", "Sent", "Partial", "Overdue", "Draft"];
 
-export function AxisInvoicingPreview() {
-  const rows = invoices.slice(0, 3);
+export function AxisInvoicingPreview({ rows: limit = 3 }: { rows?: number } = {}) {
+  const rows = invoices.slice(0, limit);
 
   return (
     <AxRoot>

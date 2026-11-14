@@ -5,7 +5,7 @@ import { ledgerEntries, formatMoney } from "./data";
  * Ledger screen, "Journal Entries" tab: auto-posted entries from invoices,
  * payments and expenses, with a balanced debits/credits summary bar.
  */
-export function AxisLedgerPreview() {
+export function AxisLedgerPreview({ rows: limit = 4 }: { rows?: number } = {}) {
   return (
     <AxRoot>
       <div style={{ padding: 18 }}>
@@ -38,7 +38,7 @@ export function AxisLedgerPreview() {
                 </tr>
               </thead>
               <tbody>
-                {ledgerEntries.slice(1, 5).map((e) => (
+                {ledgerEntries.slice(1, 1 + limit).map((e) => (
                   <tr key={`${e.ref}-${e.date}`} className="ax-row">
                     <td className="ax-td ax-opt" style={{ color: "var(--ax-muted)", whiteSpace: "nowrap" }}>{e.date}</td>
                     <td className="ax-td" style={{ fontWeight: 500, whiteSpace: "nowrap" }}>{e.ref}</td>

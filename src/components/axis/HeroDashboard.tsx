@@ -1,16 +1,15 @@
 'use client';
 
 import Image from 'next/image';
-import { motion, useReducedMotion, useScroll, useTransform } from 'framer-motion';
+import { motion, useScroll, useTransform } from 'framer-motion';
 
 /**
  * The /axis hero visual. The frame is a fixed, cropped window onto the real
  * Axis dashboard; as the page scrolls, the screenshot pans upward inside it so
- * the app appears to scroll for the visitor. Respects reduced-motion (the
- * image then simply stays at the top).
+ * the app appears to scroll for the visitor. The pan is bounded inside the
+ * frame, so it runs even when the OS asks for reduced motion.
  */
 export function HeroDashboard() {
-  const reduce = useReducedMotion();
   const { scrollY } = useScroll();
   // The frame shows ~64% of the image height; -36% reveals the remainder.
   const y = useTransform(scrollY, [0, 560], ['0%', '-36%']);
@@ -26,7 +25,7 @@ export function HeroDashboard() {
         }}
       >
         <div className="h-full overflow-hidden rounded-t-xl border border-b-0 border-border">
-          <motion.div style={reduce ? undefined : { y, willChange: 'transform' }}>
+          <motion.div style={{ y, willChange: 'transform' }}>
             <Image
               src="/axis/axis-dashboard.webp"
               alt="The Axis dashboard: revenue, active clients, outstanding invoices, net profit, a revenue chart, recent activity and inventory status"

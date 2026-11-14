@@ -55,7 +55,7 @@ export function AxisInvoiceDetailPreview() {
                   <span>{val}</span>
                 </div>
               ))}
-              <div style={{ display: "flex", justifyContent: "space-between", paddingTop: 6, marginTop: 4, borderTop: "1px solid var(--ax-border)", fontWeight: 600, color: "var(--ax-primary)" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", gap: 14, paddingTop: 6, marginTop: 4, borderTop: "1px solid var(--ax-border)", fontWeight: 600, color: "var(--ax-primary)" }}>
                 <span>Grand total</span>
                 <span className="ax-mono">{inv.total}</span>
               </div>

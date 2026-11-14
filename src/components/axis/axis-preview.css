@@ -355,12 +355,13 @@
    same way the app's drawer hides inside narrow preview columns. */
 .ax-shell {
   display: flex;
-  height: 100%;
+  min-height: 360px;
   container-type: inline-size;
   container-name: ax-shell;
 }
 
 .ax-shell-sidebar {
+  position: relative;
   width: 184px;
   flex-shrink: 0;
   overflow: hidden;

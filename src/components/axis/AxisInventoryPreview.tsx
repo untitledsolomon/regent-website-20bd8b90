@@ -5,7 +5,7 @@ import { inventoryItems, inventorySummary } from "./data";
  * Inventory screen: amber low-stock banner, summary bar and the stock list
  * with low-stock rows highlighted.
  */
-export function AxisInventoryPreview() {
+export function AxisInventoryPreview({ rows: limit = 4 }: { rows?: number } = {}) {
   return (
     <AxRoot>
       <div style={{ padding: 18 }}>
@@ -44,7 +44,7 @@ export function AxisInventoryPreview() {
                 </tr>
               </thead>
               <tbody>
-                {inventoryItems.slice(0, 4).map((item) => (
+                {inventoryItems.slice(0, limit).map((item) => (
                   <tr key={item.sku} className={`ax-row${item.low ? " ax-row--low" : ""}`}>
                     <td className="ax-td ax-trunc" style={{ fontWeight: 500 }}>{item.name}</td>
                     <td className="ax-td ax-opt"><AxPill tone="muted">{item.category}</AxPill></td>

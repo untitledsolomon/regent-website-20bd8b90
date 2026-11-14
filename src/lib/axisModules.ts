@@ -325,11 +325,6 @@ export const AXIS_MODULES: AxisModule[] = [
         title: 'Connected to the money',
         body: 'People records sit on the same ledger and organization records as invoicing, accounting and inventory.',
       },
-      {
-        icon: 'FileText',
-        title: 'No re-keying',
-        body: 'Employee and shift data lives in Axis once — it is not typed into a payroll or reporting tool later.',
-      },
     ],
     howItWorks: [
       {
